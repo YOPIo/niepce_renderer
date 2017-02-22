@@ -1,1 +1,0 @@
-# niepce_renderer
