@@ -48,7 +48,56 @@ class Point2
     return y;
   }
 
-  auto operator - (const Point2<T>& p) -> Vector2<T>
+  operator Vector2<T>() const
+  {
+    return Vector2<T>(x, y);
+  }
+
+  // Offset move
+  auto operator + (const Vector2<T>& v) const -> Point2<T>
+  {
+    Warningf(v.HasNaN(), "Detected");
+    return Point2<T>(x + v.x, y + v.y);
+  }
+  auto operator += (const Vector2<T>& v) -> Point2<T>&
+  {
+    Warningf(v.HasNaN(), "Detected");
+    x += v.x;
+    y += v.y;
+    return *this;
+  }
+
+  auto operator * (T f) const -> Point2<T>
+  {
+    Warningf(IsNaN(f), "Detected NaN.");
+    return Point2<T>(x * f, y * f);
+  }
+  auto operator *= (T f) -> Point2<T>&
+  {
+    Warningf(IsNaN(f), "Detected NaN.");
+    x *= f;
+    y *= f;
+    return *this;
+  }
+
+  auto operator / (T f) const -> Point2<T>
+  {
+    Warningf(f == 0, "Zero division.");
+    Float inv = 1.f / f;
+    return Point2<T>(x * inv, y * inv);
+  }
+  auto operator /= (T f) -> Point2<T>&
+  {
+    Warningf(f == 0, "Zero division..");
+    Float inv = 1.f / f;
+    x /= inv;
+    y /= inv;
+    z /= inv;
+    return *this;
+  }
+
+  // Generate vector
+  auto operator - (const Point2<T>& p) const -> Vector2<T>
   {
     Warningf(p.HasNaN(), "Detected");
     return Vector2<T>(x - p.x, y - p.y);
@@ -112,8 +161,6 @@ inline auto Lerp(Float t, const Point2<T>& v1, const Point2<T>& v2)
 {
   return t * v1 + (1.f - t) * v2;
 }
-
-
 
 }  // namespace niepce
 

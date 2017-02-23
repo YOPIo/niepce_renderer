@@ -2,7 +2,6 @@
 #define _VECTOR3_H__
 
 #include "niepce.h"
-#include "point2.h"
 #include "point3.h"
 
 namespace niepce
@@ -53,17 +52,16 @@ class Vector3
     return z;
   }
 
+  operator Point3<T>() const
+  {
+    return Point3<T>(x, y, z);
+  }
+
   auto operator + (const Vector3& v) const -> Vector3<T>
   {
     Warningf(v.HasNan(), "Detected NaN.");
     return Vector3<T>(x + v.x, y + v.y, z + v.z);
   }
-  auto operator - (const Vector3& v) const -> Vector3<T>
-  {
-    Warningf(v.HasNan(), "Detected NaN.");
-    return Vector3<T>(x - v.x, y - v.y, z - v.z);
-  }
-
   auto operator += (const Vector3& v) -> Vector3<T>&
   {
     Warningf(v.HasNan(), "Detected NaN.");
@@ -71,6 +69,12 @@ class Vector3
     y += v.y;
     z += v.z;
     return *this;
+  }
+
+  auto operator - (const Vector3& v) const -> Vector3<T>
+  {
+    Warningf(v.HasNan(), "Detected NaN.");
+    return Vector3<T>(x - v.x, y - v.y, z - v.z);
   }
   auto operator -= (const Vector3& v) -> Vector3<T>&
   {
@@ -81,25 +85,12 @@ class Vector3
     return *this;
   }
 
-  auto operator - () const noexcept -> Vector3<T>
-  {
-    return Vector3<T>(-x, -y, -z);
-  }
-
   template<typename U>
-  auto operator * (U f) const noexcept -> Vector3<t>
+  auto operator * (U f) const -> Vector3<t>
   {
     Warningf(IsNaN(f), "Detected Nan.");
     return Vector3<T>(f * x, f * y, f * z);
   }
-  template<typename U>
-  auto operator / (U f) const -> Vector3<T>
-  {
-    Warningf(f == 0, "Zero division.");
-    Float inv = 1.0 / f;
-    return Vector3<T>(x * inv, f * inv, f * inv);
-  }
-
   template<typename U>
   auto operator *= (U f) -> Vector3<T>&
   {
@@ -108,6 +99,14 @@ class Vector3
     y *= f;
     z *= f;
     return *this;
+  }
+
+  template<typename U>
+  auto operator / (U f) const -> Vector3<T>
+  {
+    Warningf(f == 0, "Zero division.");
+    Float inv = 1.0 / f;
+    return Vector3<T>(x * inv, f * inv, f * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Vector3<T>&
@@ -118,6 +117,11 @@ class Vector3
     y *= inv;
     z *= inv;
     return *this;
+  }
+
+  auto operator - () const -> Vector3<T>
+  {
+    return Vector3<T>(-x, -y, -z);
   }
 
   auto LengthSquared() const -> Float
@@ -131,14 +135,6 @@ class Vector3
   auto HasNaN() const -> bool
   {
     return IsNaN(x) || IsNaN(y) || IsNaN(z);
-  }
-  auto Max() const -> T
-  {
-    return std::fmax(x, std::fmax(y, z));
-  }
-  auto Min() const -> T
-  {
-    return std::fmin(x, std::fmin(y, z));
   }
 
  public:

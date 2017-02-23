@@ -49,7 +49,55 @@ class Point3
     return z;
   }
 
-  auto operator - (const Point3<T>& p) -> Vector3<T>
+  operator Vector3<T>() const
+  {
+    return Vector3<T>(x, y, z);
+  }
+
+  // Offset move
+  auto operator + (const Vector3<T>& p) const -> Point3<T>
+  {
+    Warningf(v.HasNan(), "Detected NaN.");
+    return Point3<T>(x + p.x, y + p.y, z + p.z);
+  }
+  auto operator += (const Vector3<T>& p) const -> Point3<T>
+  {
+    Warningf(v.HasNan(), "Detected NaN.");
+    return Point3<T>(x + p.x, y + p.y, z + p.z);
+  }
+
+  auto operator * (T f) -> Point3<T>
+  {
+    Warningf(IsNaN(f), "Detected NaN.");
+    return Point3<T>(x * f, y * f, z * f);
+  }
+  auto operator *= (T f) -> Point3<T>&
+  {
+    Warningf(IsNaN(f), "Detected NaN.");
+    x *= f;
+    y *= f;
+    z *= f;
+    return *this;
+  }
+
+  auto operator / (T f) -> Point3<T>
+  {
+    Warningf(f == 0, "Detected NaN.");
+    Float inv = 1.f / f;
+    return Point3<T>(x * inv, y * inv, z * inv);
+  }
+  auto operator /= (T f) -> Point3<T>&
+  {
+    Warningf(f == 0, "Detected NaN.");
+    Float inv = 1.f / f;
+    x /= inv;
+    y /= inv;
+    z /= inv;
+    return *this;
+  }
+
+  // Generate vector
+  auto operator - (const Point3<T>& p) const -> Vector3<T>
   {
     Warningf(v.HasNan(), "Detected NaN.");
     return Vector3<T>(x - p.x, y - p.y, z - p.z);
@@ -115,6 +163,6 @@ inline auto Lerp(Float t, const Vector3<T>& v1, const Vector3<T>& v2)
   return t * v1 + (1.f - t) * v2;
 }
 
-}  // niepce
+}  // namespace niepce
 
 #endif // _POINT_3_

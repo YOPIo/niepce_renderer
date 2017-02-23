@@ -2,7 +2,6 @@
 #define _VECTOR2_H__
 
 #include "niepce.h"
-#include "point2.h"
 #include "point3.h"
 
 namespace niepce
@@ -50,23 +49,28 @@ class Vector2
     return y;
   }
 
+  operator Point2<T>() const
+  {
+    return Point2<T>(x, y);
+  }
+
   auto operator +  (const Vector2& v) const -> Vector2<T>
   {
     Warningf(v.HasNan(), "Detected NaN");
     return Vector2<T>(x + v.x, y + v.y);
   }
-  auto operator -  (const Vector2& v) const -> Vector2<T>
-  {
-    Warningf(v.HasNan(), "Detected NaN");
-    return Vector2<T>(x - v.x, y - v.y);
-  }
-
   auto operator += (const Vector2& v) -> Vector2<T>&
   {
     Warningf(v.HasNan(), "Detected NaN");
     x += v.x;
     y += v.y;
     return *this;
+  }
+
+  auto operator -  (const Vector2& v) const -> Vector2<T>
+  {
+    Warningf(v.HasNan(), "Detected NaN");
+    return Vector2<T>(x - v.x, y - v.y);
   }
   auto operator -= (const Vector2& v) -> Vector2<T>&
   {
@@ -76,23 +80,11 @@ class Vector2
     return *this;
   }
 
-  auto operator - () const noexcept -> Vector2<T>
-  {
-    return Vector2<T>(-x, -y);
-  }
-
   template<typename U>
-  auto operator * (U f) const noexcept -> Vector2<t>
+  auto operator * (U f) const -> Vector2<t>
   {
     Warningf(IsNaN(f), "Detected Nan.");
     return Vector2<T>(f * x, f * y);
-  }
-  template<typename U>
-  auto operator / (U f) const -> Vector2<T>
-  {
-    Warningf(f == 0, "Zero division.");
-    Float inv = 1.0 / f;
-    return Vector2<T>(x * inv, f * inv);
   }
 
   template<typename U>
@@ -103,6 +95,14 @@ class Vector2
     y *= f;
     return *this;
   }
+
+  template<typename U>
+  auto operator / (U f) const -> Vector2<T>
+  {
+    Warningf(f == 0, "Zero division.");
+    Float inv = 1.0 / f;
+    return Vector2<T>(x * inv, f * inv);
+  }
   template<typename U>
   auto operator /= (U f) -> Vector2<T>&
   {
@@ -111,6 +111,11 @@ class Vector2
     x *= inv;
     y *= inv;
     return *this;
+  }
+
+  auto operator - () const noexcept -> Vector2<T>
+  {
+    return Vector2<T>(-x, -y);
   }
 
   auto LengthSquared() const -> Float
@@ -124,14 +129,6 @@ class Vector2
   auto HasNaN() const -> bool
   {
     return IsNaN(x) || IsNaN(y);
-  }
-  auto Max() const -> T
-  {
-    return std::fmax(x, y);
-  }
-  auto Min() const -> T
-  {
-    return std::fmin(x, y);
   }
 
  public:
@@ -166,6 +163,13 @@ inline auto Dot(const Vector2<T>& v1, const Vector2<T>& v2) -> T
 {
   Warningf(v1.HasNan() || v2.HasNan(), "Detected NaN");
   return v1.x * v2.x + v1.y * v2.y;
+}
+
+template <typename T>
+inline auto Cross(const Vector2<T>& v1, const Vector2<T>& v2) -> T
+{
+  Warningf(v1.HasNan() || v2.HasNan(), "Detected NaN");
+  return v1.x * v2.y - v1.y * v2.x;
 }
 
 template <typename T>
