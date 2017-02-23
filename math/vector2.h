@@ -185,18 +185,6 @@ inline auto Abs(const Vector2<T>& v) -> Vector2<T>
 }
 
 template <typename T>
-inline auto Distance(const Vector2<T>& v1, const Vector2<T>& v2) -> T
-{
-  return (v2 - v1).Length();
-}
-
-template <typename T>
-inline auto DistanceSquared(const Vector2<T>& v1, const Vector2<T>& v2) -> T
-{
-  return (v2 - v1).LengthSquared();
-}
-
-template <typename T>
 inline auto Lerp(Float t, const Vector2<T>& v1, const Vector2<T>& v2)
 {
   return t * v1 + (1.f - t) * v2;

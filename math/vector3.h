@@ -19,10 +19,8 @@ class Vector3
   {
     Warningf(HasNaN(), "Detected NaN");
   }
-
   virtual ~Vector3()
   {}
-
   Vector3(const Vector3& vec2) = default;
   Vector3(Vector3&& vec2)      = default;
   Vector3& operator = (const Vector3& vec2) = default;
@@ -190,18 +188,6 @@ template <typename T>
 inline auto Abs(const Vector3<T>& v) -> Vector3<T>
 {
   return Vector3<T>(std::abs(v.x), std::abs(v.y), std::abs(v.z));
-}
-
-template <typename T>
-inline auto Distance(const Vector3<T>& v1, const Vector3<T>& v2) -> T
-{
-  return (v2 - v1).Length();
-}
-
-template <typename T>
-inline auto DistanceSquared(const Vector3<T>& v1, const Vector3<T>& v2) -> T
-{
-  return (v2 - v1).LengthSquared();
 }
 
 template <typename T>
