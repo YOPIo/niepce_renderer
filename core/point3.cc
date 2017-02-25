@@ -3,6 +3,13 @@
 namespace niepce
 {
 
+class Name
+{
+ public:
+  Name();
+  virtual ~Name();
+};
+
 template class Point3<int>;
 template class Point3<Float>;
 

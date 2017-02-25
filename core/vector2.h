@@ -38,13 +38,13 @@ class Vector2
 
   auto operator [] (unsigned int idx) const -> T
   {
-    Assertf(0 <= idx && 2 > idx, "Out of bounds.");
+    Assertf(idx >= 2, "Out of bounds.");
     if (idx == 0) { return x; }
     return y;
   }
   auto operator [] (unsigned int idx) -> T&
   {
-    Assertf(0 <= idx && 2 > idx, "Out of bounds.");
+    Assertf(idx >= 2, "Out of bounds.");
     if (idx == 0) { return x; }
     return y;
   }
@@ -128,7 +128,7 @@ class Vector2
   }
   auto HasNaNs() const -> bool
   {
-    return IsNaNs(x) || IsNaNs(y);
+    return IsNaN(x) || IsNaN(y);
   }
 
   static constexpr auto One() noexcept -> Vector2<T>

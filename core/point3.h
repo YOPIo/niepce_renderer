@@ -37,14 +37,14 @@ class Point3
 
   auto operator [] (unsigned int idx) const -> T
   {
-    Assertf(0 <= idx && 2 > idx, "Out of bounds.");
+    Assertf(idx >= 2, "Out of bounds.");
     if (idx == 0) { return x; }
     if (idx == 1) { return y; }
     return z;
   }
   auto operator [] (unsigned int idx) -> T&
   {
-    Assertf(0 <= idx && 2 > idx, "Out of bounds.");
+    Assertf(idx >= 2, "Out of bounds.");
     if (idx == 0) { return x; }
     if (idx == 1) { return y; }
     return z;
@@ -122,7 +122,7 @@ class Point3
   }
   auto HasNaNs() const -> bool
   {
-    return IsNaNs(x) || IsNaNs(y) || IsNaNs(z);
+    return IsNaN(x) || IsNaN(y) || IsNaN(z);
   }
 
   static constexpr auto One() noexcept -> Point3<T>
@@ -161,7 +161,7 @@ class Point3
 template <typename T>
 inline auto operator << (std::ostream& os, const Point3<T>& v) -> std::ostream&
 {
-  os << "[" << v.x << ", " << v.y << "]";
+  os << "[" << v.x << ", " << v.y << ", " v.z << "]";
   return os;
 }
 

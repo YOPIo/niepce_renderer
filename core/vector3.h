@@ -21,10 +21,10 @@ class Vector3
   }
   virtual ~Vector3()
   {}
-  Vector3(const Vector3& vec2) = default;
-  Vector3(Vector3&& vec2)      = default;
-  Vector3& operator = (const Vector3& vec2) = default;
-  Vector3& operator = (Vector3&& vec2)      = default;
+  Vector3(const Vector3& vec3) = default;
+  Vector3(Vector3&& vec3)      = default;
+  Vector3& operator = (const Vector3& vec3) = default;
+  Vector3& operator = (Vector3&& vec3)      = default;
 
   auto operator == (const Vector3& v) const noexcept -> bool
   {
@@ -37,14 +37,14 @@ class Vector3
 
   auto operator [] (unsigned int idx) const -> T
   {
-    Assertf(0 <= idx && 3 > idx, "Out of bounds.");
+    Assertf(idx >= 3, "Out of bounds.");
     if (idx == 0) { return x; }
     if (idx == 1) { return y; }
     return z;
   }
   auto operator [] (unsigned int idx) -> T&
   {
-    Assertf(0 <= idx && 3 > idx, "Out of bounds.");
+    Assertf(idx >= 3, "Out of bounds.");
     if (idx == 0) { return x; }
     if (idx == 1) { return y; }
     return z;
@@ -104,7 +104,7 @@ class Vector3
   {
     Warningf(f == 0, "Zero division.");
     Float inv = 1.0 / f;
-    return Vector3<T>(x * inv, f * inv, f * inv);
+    return Vector3<T>(x * inv, y * inv, z * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Vector3<T>&
@@ -132,7 +132,7 @@ class Vector3
   }
   auto HasNaNs() const -> bool
   {
-    return IsNaNs(x) || IsNaNs(y) || IsNaNs(z);
+    return IsNaN(x) || IsNaN(y) || IsNaN(z);
   }
 
   static constexpr auto One() noexcept -> Vector3<T>
@@ -171,14 +171,7 @@ class Vector3
 template <typename T>
 inline auto operator << (std::ostream& os, const Vector3<T>& v) -> std::ostream&
 {
-  os << "[" << v.x << ", " << v.y << "]";
-  return os;
-}
-
-template <>
-inline auto operator << (std::ostream& os, const Vector3<Float>& v) -> std::ostream&
-{
-  os << "[" << v.x << ", " << v.y << "]";
+  os << "[" << v.x << ", " << v.y << ", " << v.z < "]";
   return os;
 }
 
@@ -224,4 +217,4 @@ inline auto Lerp(Float t, const Vector3<T>& v1, const Vector3<T>& v2) -> Vector3
 
 } // namespace niepce
 
-#endif // _VECTOR2_H__
+#endif // _VECTOR4_H__
