@@ -85,6 +85,16 @@ inline auto IsNaN(const int val) -> bool
   return false;
 }
 
+inline auto Radians(Float degree) -> Float
+{
+  return (kPi / 180.f) * degree;
+}
+
+inline auto Degrees(Float radian) -> Float
+{
+  return (180.f / kPi) * radian;
+}
+
 }; // namespace niepce
 
 #endif // _NIEPCE_H_

@@ -11,7 +11,7 @@ template<typename T>
 class Point4
 {
  public:
-  Point4(T v = 0.f) : x(v), y(v), z(v), w(v)
+  Point4(T v = 0.f) : x(v), y(v), z(v), w(1)
   {}
   Point4(T xx, T yy, T zz, T ww) : x(xx), y(yy), z(zz), w(ww)
   {}

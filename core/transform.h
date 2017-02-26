@@ -41,6 +41,13 @@ class Transform
     m_[2][0] = m[2][0], m_[2][1] = m[2][1], m_[2][2] = m[2][2], m_[2][3] = m[2][3];
     m_[3][0] = m[3][0], m_[3][1] = m[3][1], m_[3][2] = m[3][2], m_[3][3] = m[3][3];
   }
+  Transform(const Matrix4x4f& m)
+  {
+    m_[0][0] = m[0][0], m_[0][1] = m[0][1], m_[0][2] = m[0][2], m_[0][3] = m[0][3];
+    m_[1][0] = m[1][0], m_[1][1] = m[1][1], m_[1][2] = m[1][2], m_[1][3] = m[1][3];
+    m_[2][0] = m[2][0], m_[2][1] = m[2][1], m_[2][2] = m[2][2], m_[2][3] = m[2][3];
+    m_[3][0] = m[3][0], m_[3][1] = m[3][1], m_[3][2] = m[3][2], m_[3][3] = m[3][3];
+  }
   virtual ~Transform()
   {}
   Transform(const Transform& t) = default;
@@ -89,8 +96,21 @@ class Transform
 
  private:
   Matrix4x4f m_;
+  Matrix4x4f inv_m_;
 };
 
+/*
+  Global functions for Transform class
+*/
+auto Translate(const Vector3f& delta) -> Transform;
+auto Scale(Float x, Float y, Float z) -> Transform;
+auto RotateX(Float theta)             -> Transform;
+auto RotateY(Float theta)             -> Transform;
+auto RotateZ(Float theta)             -> Transform;
+auto Rotate(Float theta, const Vector3f& axis) -> Transform;
+auto LookAt(const Point3f&  position,
+            const Point3f&  look,
+            const Vector3f& up) -> Transform;
 
 } // namespace niepce
 

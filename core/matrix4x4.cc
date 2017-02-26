@@ -3,7 +3,6 @@
 namespace niepce
 {
 
-// todo: implementation
 template <typename T>
 auto Inverse(const Matrix4x4<T>& m) -> Matrix4x4<T>;
 
