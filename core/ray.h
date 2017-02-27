@@ -51,7 +51,6 @@ class RayDifferential : public Ray
 
 auto operator << (std::ostream& os, const Ray& ray) -> std::ostream&;
 auto operator << (std::ostream& os, const RayDifferential& ray) -> std::ostream&;
-
 } // namespace niepce
 
 #endif // _RAY_H_
