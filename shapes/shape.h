@@ -1,15 +1,17 @@
 #ifndef _SHAPE_H_
 #define _SHAPE_H_
 
-#include "../core/normal3.h"
 #include "../core/niepce.h"
-#include "../core/point2.h"
-#include "../core/point3.h"
-#include "../core/point4.h"
+#include "../core/interaction.h"
 #include "../core/ray.h"
-#include "../core/vector2.h"
-#include "../core/vector3.h"
-#include "../core/vector4.h"
+#include "../core/transform.h"
+#include "../geometries/normal3.h"
+#include "../geometries/point2.h"
+#include "../geometries/point3.h"
+#include "../geometries/point4.h"
+#include "../geometries/vector2.h"
+#include "../geometries/vector3.h"
+#include "../geometries/vector4.h"
 
 namespace niepce
 {
@@ -31,14 +33,17 @@ class Shape
   virtual auto SurfaceArea() -> Float = 0;
 
   // Check intersection with shape
-  virtual auto IsIntersect(const Ray& ray) -> bool = 0;
-  virtual auto IsIntersectWithAlpah(const Ray& ray) -> bool = 0;
+  virtual auto IsIntersect(const Ray& ray, Float* t,
+                           SurfaceInteraction* surface, bool use_alpah) -> bool = 0;
+  virtual auto IsIntersectWithAlpah(const Ray& ray, bool use_alpha = true) -> bool;
 
  public:
   std::shared_ptr<Transform> world;
   std::shared_ptr<Transform> local;
-};
 
+  // Normal vector is defined or not?
+  // bool reverse_orient;
+};
 
 } // namespace niepce
 

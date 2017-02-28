@@ -3,10 +3,15 @@
 namespace niepce
 {
 
-Shape::Shape()
+Shape::Shape() : world(), local()
 {}
 
 Shape::~Shape()
 {}
+
+auto Shape::IsIntersectWithAlpah(const niepce::Ray &ray, bool use_alpha) -> bool
+{
+
+}
 
 } // namespace niepce

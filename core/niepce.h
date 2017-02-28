@@ -48,6 +48,8 @@ typedef Point3<int>      Point3i;
 typedef Point3<Float>    Point3f;
 typedef Point4<int>      Point4i;
 typedef Point4<Float>    Point4f;
+typedef Normal3<int>     Normal3i;
+typedef Normal3<Float>   Normal3f;
 typedef Matrix4x4<int>   Matrix4x4i;
 typedef Matrix4x4<Float> Matrix4x4f;
 /*

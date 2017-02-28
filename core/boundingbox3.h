@@ -2,8 +2,8 @@
 #define _BOUNDING_BOX3_H_
 
 #include "niepce.h"
-#include "point3.h"
-#include "vector3.h"
+#include "../geometries/point3.h"
+#include "../geometries/vector3.h"
 #include "ray.h"
 
 // TODO: divide .h and .cc

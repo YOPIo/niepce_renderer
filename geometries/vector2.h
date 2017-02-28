@@ -1,7 +1,7 @@
 #ifndef _VECTOR2_H__
 #define _VECTOR2_H__
 
-#include "niepce.h"
+#include "../core/niepce.h"
 #include "point2.h"
 
 namespace niepce

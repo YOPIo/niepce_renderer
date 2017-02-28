@@ -1,8 +1,8 @@
 #ifndef _TRANSFORM_H_
 #define _TRANSFORM_H_
 
-#include "niepce.h"
-#include "matrix4x4.h"
+#include "../core/niepce.h"
+#include "../geometries/matrix4x4.h"
 
 namespace niepce
 {

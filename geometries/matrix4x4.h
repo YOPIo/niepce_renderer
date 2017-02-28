@@ -1,7 +1,7 @@
 #ifndef _MATRIX4X4_H_
 #define _MATRIX4X4_H_
 
-#include "niepce.h"
+#include "../core/niepce.h"
 #include "vector2.h"
 #include "vector3.h"
 #include "point2.h"

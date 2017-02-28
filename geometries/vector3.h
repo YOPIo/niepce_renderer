@@ -1,7 +1,7 @@
 #ifndef _VECTOR3_H__
 #define _VECTOR3_H__
 
-#include "niepce.h"
+#include "../core/niepce.h"
 #include "point3.h"
 
 namespace niepce

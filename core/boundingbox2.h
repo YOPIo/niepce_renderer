@@ -2,7 +2,7 @@
 #define _BOUNDING_BOX2_H_
 
 #include "niepce.h"
-#include "point2.h"
+#include "../geometries/point2.h"
 
 namespace niepce
 {

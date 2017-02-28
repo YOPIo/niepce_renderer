@@ -1,7 +1,9 @@
 #ifndef _NORMAL3_H_
 #define _NORMAL3_H_
 
-#include "niepce.h"
+#include "../core/niepce.h"
+#include "vector3.h"
+#include "point3.h"
 
 namespace niepce
 {
@@ -49,7 +51,7 @@ class Normal3
     return z;
   }
 
-  operator Vector3<T> const
+  operator Vector3<T>() const
   {
     return Vector3<T>(x, y, z);
   }
