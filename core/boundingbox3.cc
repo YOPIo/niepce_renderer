@@ -28,6 +28,20 @@ auto BoundingBox3<T>::operator != (const BoundingBox3<T>& bbox) -> bool
   return min != bbox.min || max != bbox.max;
 }
 
+template <typename T>
+auto BoundingBox3<T>::operator[](unsigned int idx) const -> Point3<T>
+{
+  Assertf(idx != 0 || idx != 1, "Out of bounds.");
+  return idx == 0 ? min : max;
+}
+
+template <typename T>
+auto BoundingBox3<T>::operator[](unsigned int idx) -> Point3<T>&
+{
+  Assertf(idx != 0 || idx != 1, "Out of bounds.");
+  return idx == 0 ? min : max;
+}
+
 // Each corner is arranged in the order of Morton order.
 template <typename T>
 auto BoundingBox3<T>::Corner(unsigned int idx) const -> Point3<T>
@@ -80,7 +94,6 @@ auto BoundingBox3<T>::IsIntersect(const Ray& ray, Float* t_near, Float* t_far) c
   if (t_far  == nullptr) { *t_far  = t0; }
   return true;
 }
-
 
 template class BoundingBox3<int>;
 template class BoundingBox3<Float>;

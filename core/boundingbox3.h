@@ -6,8 +6,6 @@
 #include "../geometries/vector3.h"
 #include "ray.h"
 
-// TODO: divide .h and .cc
-
 namespace niepce
 {
 
@@ -25,6 +23,9 @@ class BoundingBox3
 
   auto operator == (const BoundingBox3<T>& bbox) -> bool;
   auto operator != (const BoundingBox3<T>& bbox) -> bool;
+
+  auto operator [] (unsigned int idx) const -> Point3<T>;
+  auto operator [] (unsigned int idx)       -> Point3<T>&;
 
   // Each corner is arranged in the order of Morton order.
   auto Corner(unsigned int idx) const -> Point3<T>;

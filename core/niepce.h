@@ -36,22 +36,26 @@ template <typename T> class BoundingBox3;
 /*
   Global typedef
 */
-typedef Vector2<int>     Vector2i;
-typedef Vector2<Float>   Vector2f;
-typedef Vector3<int>     Vector3i;
-typedef Vector3<Float>   Vector3f;
-typedef Vector4<int>     Vector4i;
-typedef Vector4<Float>   Vector4f;
-typedef Point2<int>      Point2i;
-typedef Point2<Float>    Point2f;
-typedef Point3<int>      Point3i;
-typedef Point3<Float>    Point3f;
-typedef Point4<int>      Point4i;
-typedef Point4<Float>    Point4f;
-typedef Normal3<int>     Normal3i;
-typedef Normal3<Float>   Normal3f;
-typedef Matrix4x4<int>   Matrix4x4i;
-typedef Matrix4x4<Float> Matrix4x4f;
+typedef Vector2<int>        Vector2i;
+typedef Vector2<Float>      Vector2f;
+typedef Vector3<int>        Vector3i;
+typedef Vector3<Float>      Vector3f;
+typedef Vector4<int>        Vector4i;
+typedef Vector4<Float>      Vector4f;
+typedef Point2<int>         Point2i;
+typedef Point2<Float>       Point2f;
+typedef Point3<int>         Point3i;
+typedef Point3<Float>       Point3f;
+typedef Point4<int>         Point4i;
+typedef Point4<Float>       Point4f;
+typedef Normal3<int>        Normal3i;
+typedef Normal3<Float>      Normal3f;
+typedef Matrix4x4<int>      Matrix4x4i;
+typedef Matrix4x4<Float>    Matrix4x4f;
+typedef BoundingBox2<int>   Bound2i;
+typedef BoundingBox2<Float> Bound2f;
+typedef BoundingBox3<int>   Bound3i;
+typedef BoundingBox3<Float> Bound3f;
 /*
   Global constant expression
 */

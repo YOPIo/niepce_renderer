@@ -3,6 +3,8 @@
 
 #include "../core/niepce.h"
 #include "../core/ray.h"
+#include "../core/boundingbox2.h"
+#include "../core/boundingbox3.h"
 #include "../geometries/normal3.h"
 #include "../geometries/point2.h"
 #include "../geometries/point3.h"
@@ -18,7 +20,9 @@ namespace niepce
 class Sphere : public Shape
 {
  public:
-  Sphere();
+  Sphere(const std::shared_ptr<Transform>& object_to_world,
+         const std::shared_ptr<Transform>& world_to_object,
+         const Float radius);
   virtual ~Sphere();
 
   Sphere(const Sphere& sphere) = default;
@@ -27,14 +31,13 @@ class Sphere : public Shape
   auto operator = (const Sphere& sphere) -> Sphere& = default;
   auto operator = (Sphere&& sphere)      -> Sphere& = default;
 
-  auto SurfaceArea() -> Float;
-
-  // Implemented
-  auto IsIntersect(const Ray& ray) -> bool;
-  auto ISIntersectWithAlpha(const Ray& ray) -> bool;
+  auto SurfaceArea() const -> Float;
+  auto ObjectBound() const -> Bound3f;
+  auto IsIntersect(const Ray& ray, Float* t, SurfaceInteraction* surface) -> bool;
 
  private:
   const Float radius_;
+
   /*
   const Float z_min_, z_max_;
 

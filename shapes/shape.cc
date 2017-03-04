@@ -3,15 +3,13 @@
 namespace niepce
 {
 
-Shape::Shape() : world(), local()
+Shape::Shape(const std::shared_ptr<Transform>& object_to_world,
+             const std::shared_ptr<Transform>& world_to_object) :
+    object_to_world_(object_to_world),
+    world_to_object_(world_to_object)
 {}
 
 Shape::~Shape()
 {}
-
-auto Shape::IsIntersectWithAlpah(const niepce::Ray &ray, bool use_alpha) -> bool
-{
-
-}
 
 } // namespace niepce
