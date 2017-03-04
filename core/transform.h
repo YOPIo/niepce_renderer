@@ -105,10 +105,8 @@ class Transform
   template <typename T>
   auto operator * (const Normal3<T>& n) -> Normal3<T>
   {
-
+    // need to inversed matrix
   }
-
-
 
   auto GetMatrix() const -> Matrix4x4f
   {
@@ -125,9 +123,7 @@ class Transform
 
  private:
   Matrix4x4f m_;
-  /*
-    Matrix4x4f inv_m_;
-  */
+  Matrix4x4f inv_m_;
 };
 
 /*

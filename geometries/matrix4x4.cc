@@ -3,8 +3,37 @@
 namespace niepce
 {
 
+// Calculate inverse matrix M^-1 by LU factorization. (Doolittle)
 template <typename T>
-auto Inverse(const Matrix4x4<T>& m) -> Matrix4x4<T>;
+auto Inverse(const Matrix4x4<T>& m) -> Matrix4x4<T>
+{
+  Matrix4x4<T> ret(m);
+  Vector4<T>   v(0, 1, 2, 3);
+  int toggle = 1;
+
+  int row, column;
+  for (int k = 0; k < 4; ++k)
+  {
+    // Swapping the column that absolute value of the diagonal component becomes the maximum.
+    T colmax = std::fabs(ret[k][k]);
+    row = k;
+    for (int i = k + 1; i < 4; ++i)
+    {
+      if (std::fabs(ret[k][i]) > colmax)
+      {
+        colmax = std::fabs(ret[k][i]);
+        row = i;
+      }
+    }
+    // Swap
+    if (row != k)
+    {
+      
+    }
+
+
+  }
+}
 
 template <typename T>
 auto Transpose(const Matrix4x4<T>& m) -> Matrix4x4<T>
