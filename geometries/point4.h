@@ -21,6 +21,7 @@ class Point4
   }
   virtual ~Point4()
   {}
+
   Point4(const Point4& p4) = default;
   Point4(Point4&& p4)      = default;
   Point4& operator = (const Point4& p4) = default;
@@ -38,18 +39,12 @@ class Point4
   auto operator [] (unsigned int idx) const -> T
   {
     Assertf(idx >= 4, "Out of bounds.");
-    if (idx == 0) { return x; }
-    if (idx == 1) { return y; }
-    if (idx == 2) { return z; }
-    return w;
+    return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
     Assertf(idx >= 4, "Out of bounds.");
-    if (idx == 0) { return x; }
-    if (idx == 1) { return y; }
-    if (idx == 2) { return z; }
-    return w;
+    return *(&x + idx);
   }
 
   operator Vector4<T>() const
@@ -59,12 +54,12 @@ class Point4
 
   auto operator + (const Point4& p) const -> Point4<T>
   {
-    Warningf(p.HasNan(), "Detected NaNs.");
+    Warningf(p.HasNaNs(), "Detected NaNs.");
     return Point4<T>(x + p.x, y + p.y, z + p.z, w + p.w);
   }
   auto operator += (const Point4& p) -> Point4<T>&
   {
-    Warningf(p.HasNan(), "Detected NaNs.");
+    Warningf(p.HasNaNs(), "Detected NaNs.");
     x += p.x;
     y += p.y;
     z += p.z;
@@ -74,12 +69,12 @@ class Point4
 
   auto operator - (const Point4& p) const -> Point4<T>
   {
-    Warningf(p.HasNan(), "Detected NaNs.");
+    Warningf(p.HasNaNs(), "Detected NaNs.");
     return Point4<T>(x - p.x, y - p.y, z - p.z, w - p.w);
   }
   auto operator -= (const Point4& p) -> Point4<T>&
   {
-    Warningf(p.HasNan(), "Detected NaNs.");
+    Warningf(p.HasNaNs(), "Detected NaNs.");
     x -= p.x;
     y -= p.y;
     z -= p.z;

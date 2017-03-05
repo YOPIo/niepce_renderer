@@ -18,7 +18,7 @@ class Normal3
   {}
   explicit Normal3(const Vector3<T>& v) : x(v.x), y(v.y), z(v.z)
   {
-    Warningf(HasNaN(), "Detected NaN.");
+    Warningf(HasNaNs(), "Detected NaN.");
   }
   virtual ~Normal3()
   {}
@@ -39,16 +39,12 @@ class Normal3
   auto operator [] (unsigned int idx) const -> T
   {
     Assertf(0 <= idx && 3 > idx, "Out of bounds.");
-    if (idx == 0) { return x; }
-    if (idx == 1) { return y; }
-    return z;
+    return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
     Assertf(0 <= idx && 3 > idx, "Out of bounds.");
-    if (idx == 0) { return x; }
-    if (idx == 1) { return y; }
-    return z;
+    return *(&x + idx);
   }
 
   operator Vector3<T>() const
@@ -59,12 +55,12 @@ class Normal3
   // Basic operation
   auto operator + (const Normal3<T>& n) -> Normal3<T>
   {
-    Warningf(n.HasNan(), "Detected NaN.");
+    Warningf(n.HasNaNs(), "Detected NaN.");
     return Normal3<T>(x + n.x, y + n.y, z + n.z);
   }
   auto operator += (const Normal3<T>& n) -> Normal3<T>&
   {
-    Warningf(n.HasNan(), "Detected NaN.");
+    Warningf(n.HasNaNs(), "Detected NaN.");
     x += n.x;
     y += n.y;
     z += n.z;
@@ -73,12 +69,12 @@ class Normal3
 
   auto operator - (const Normal3<T>& n) -> Normal3<T>
   {
-    Warningf(n.HasNan(), "Detected NaN.");
+    Warningf(n.HasNaNs(), "Detected NaN.");
     return Normal3<T>(x - n.x, y - n.y, z - n.z);
   }
   auto operator -= (const Normal3<T>& n) -> Normal3<T>&
   {
-    Warningf(n.HasNan(), "Detected NaN.");
+    Warningf(n.HasNaNs(), "Detected NaN.");
     x -= n.x;
     y -= n.y;
     z -= n.z;
@@ -124,7 +120,7 @@ class Normal3
   {
     return std::sqrt( LengthSquared() );
   }
-  auto HasNaN() const -> bool
+  auto HasNaNs() const -> bool
   {
     return IsNaN(x) || IsNaN(y) || IsNaN(z);
   }
@@ -144,7 +140,7 @@ inline auto operator << (std::ostream& os, const Normal3<T>& v) -> std::ostream&
 }
 
 template <typename T>
-inline auto operator * (T f, const Normal3<T>& n) -> Normal<T>
+inline auto operator * (T f, const Normal3<T>& n) -> Normal3<T>
 {
   return n * f;
 }
@@ -201,7 +197,7 @@ inline auto Cross(const Normal3<T>& n, const Vector3<T>& v) -> Vector3<T>
   Warningf(n.HasNaN() || v.HasNaN(), "Detected NaN.");
   return Vector3<T>(n.y * v.z - n.z * v.y,
                     n.z * v.x - n.x * v.z,
-                    n.x 8 v.y - n.y * v.x);
+                    n.x * v.y - n.y * v.x);
 }
 
 template <typename T>
@@ -213,7 +209,7 @@ inline auto Normalize(const Normal3<T>& n) -> Normal3<T>
 template <typename T>
 inline auto Abs(const Normal3<T>& n) -> Normal3<T>
 {
-  return Normal3<T>(std::abs(n.x) std::abs(n.y), std::abs(n.z));
+  return Normal3<T>(std::abs(n.x), std::abs(n.y), std::abs(n.z));
 }
 
 }  // namespace niepce

@@ -19,7 +19,8 @@ class Point2
   {
     Warningf(HasNaNs(), "Detected NaNs");
   }
-  virtual ~Point2();
+  virtual ~Point2()
+  {};
 
   Point2(const Point2& p) = default;
   Point2(Point2&& p)      = default;
@@ -38,14 +39,12 @@ class Point2
   auto operator [] (unsigned int idx) const -> T
   {
     Assertf(idx >= 2, "Out of bounds.");
-    if (idx == 0) { return x; }
-    return y;
+    return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
     Assertf(idx >= 2, "Out of bounds.");
-    if (idx == 0) { return x; }
-    return y;
+    return *(&x + idx);
   }
 
   operator Vector2<T>() const
@@ -69,12 +68,12 @@ class Point2
 
   auto operator * (T f) const -> Point2<T>
   {
-    Warningf(IsNaNs(f), "Detected NaNs.");
+    Warningf(IsNaN(f), "Detected NaNs.");
     return Point2<T>(x * f, y * f);
   }
   auto operator *= (T f) -> Point2<T>&
   {
-    Warningf(IsNaNs(f), "Detected NaNs.");
+    Warningf(IsNaN(f), "Detected NaNs.");
     x *= f;
     y *= f;
     return *this;
@@ -100,13 +99,6 @@ class Point2
   {
     Warningf(p.HasNaNs(), "Detected");
     return Vector2<T>(x - p.x, y - p.y);
-  }
-  auto operator -= (const Point2<T>& p) -> Vector2<T>&
-  {
-    Warningf(p.HasNaNs(), "Detected");
-    x -= p.x;
-    y -= p.y;
-    return *this;
   }
 
   auto LengthSquared() const -> Float

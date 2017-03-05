@@ -19,8 +19,9 @@ class Vector4
   {
     Warningf(HasNaNs(), "Detected NaNs");
   }
-  virtual ~Vector4()
+  ~Vector4()
   {}
+
   Vector4(const Vector4& vec4) = default;
   Vector4(Vector4&& vec4)      = default;
   Vector4& operator = (const Vector4& vec4) = default;
@@ -38,18 +39,12 @@ class Vector4
   auto operator [] (unsigned int idx) const -> T
   {
     Assertf(idx >= 4, "Out of bounds.");
-    if (idx == 0) { return x; }
-    if (idx == 1) { return y; }
-    if (idx == 2) { return z; }
-    return w;
+    return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
     Assertf(idx >= 4, "Out of bounds.");
-    if (idx == 0) { return x; }
-    if (idx == 1) { return y; }
-    if (idx == 2) { return z; }
-    return w;
+    return *(&x + idx);
   }
 
   operator Point4<T>() const
@@ -59,12 +54,12 @@ class Vector4
 
   auto operator + (const Vector4& v) const -> Vector4<T>
   {
-    Warningf(v.HasNan(), "Detected NaNs.");
+    Warningf(v.HasNaNs(), "Detected NaNs.");
     return Vector4<T>(x + v.x, y + v.y, z + v.z, w + v.w);
   }
   auto operator += (const Vector4& v) -> Vector4<T>&
   {
-    Warningf(v.HasNan(), "Detected NaNs.");
+    Warningf(v.HasNaNs(), "Detected NaNs.");
     x += v.x;
     y += v.y;
     z += v.z;
@@ -74,12 +69,12 @@ class Vector4
 
   auto operator - (const Vector4& v) const -> Vector4<T>
   {
-    Warningf(v.HasNan(), "Detected NaNs.");
+    Warningf(v.HasNaNs(), "Detected NaNs.");
     return Vector4<T>(x - v.x, y - v.y, z - v.z, w - v.w);
   }
   auto operator -= (const Vector4& v) -> Vector4<T>&
   {
-    Warningf(v.HasNan(), "Detected NaNs.");
+    Warningf(v.HasNaNs(), "Detected NaNs.");
     x -= v.x;
     y -= v.y;
     z -= v.z;
@@ -90,7 +85,7 @@ class Vector4
   template<typename U>
   auto operator * (U f) const -> Vector4<T>
   {
-    Warningf(IsNaNs(f), "Detected Nan.");
+    Warningf(IsNaN(f), "Detected Nan.");
     return Vector4<T>(f * x, f * y, f * z, f * w);
   }
   template<typename U>
@@ -141,34 +136,8 @@ class Vector4
     return IsNaN(x) || IsNaN(y) || IsNaN(z) || IsNaN(w);
   }
 
-  static constexpr auto One() noexcept -> Vector4<T>
-  {
-    return Vector4<T>(1, 1, 1, 1);
-  }
-  static constexpr auto Zero() noexcept -> Vector4<T>
-  {
-    return Vector4<T>(0, 0, 0, 0);
-  }
-  static constexpr auto Max() noexcept -> Vector4<T>
-  {
-    return Vector4<T>(kMax, kMax, kMax, kMax);
-  }
-  static constexpr auto Min() noexcept -> Vector4<T>
-  {
-    return Vector4<T>(kMin, kMin, kMin, kMin);
-  }
-  static constexpr auto Infinity() noexcept -> Vector4<T>
-  {
-    return Vector4<T>(kInfinity, kInfinity, kInfinity, kInfinity);
-  }
-
  public:
   T x, y, z, w;
-
- private:
-  static constexpr T kInfinity = std::numeric_limits<T>::infinity();
-  static constexpr T kMax      = std::numeric_limits<T>::max();
-  static constexpr T kMin      = std::numeric_limits<T>::min();
 };
 
 /*
@@ -177,7 +146,7 @@ class Vector4
 template <typename T>
 inline auto operator << (std::ostream& os, const Vector4<T>& v) -> std::ostream&
 {
-  os << "[" << v.x << ", " << v.y << ", " << v.w << "]";
+  os << "[" << v.x << ", " << v.y << ", " << v.z << ", " << v.w << "]";
   return os;
 }
 

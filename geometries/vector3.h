@@ -19,7 +19,7 @@ class Vector3
   {
     Warningf(HasNaNs(), "Detected NaNs");
   }
-  virtual ~Vector3()
+  ~Vector3()
   {}
   Vector3(const Vector3& vec3) = default;
   Vector3(Vector3&& vec3)      = default;
@@ -38,16 +38,12 @@ class Vector3
   auto operator [] (unsigned int idx) const -> T
   {
     Assertf(idx >= 3, "Out of bounds.");
-    if (idx == 0) { return x; }
-    if (idx == 1) { return y; }
-    return z;
+    return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
     Assertf(idx >= 3, "Out of bounds.");
-    if (idx == 0) { return x; }
-    if (idx == 1) { return y; }
-    return z;
+    return *(&x + idx);
   }
 
   operator Point3<T>() const
@@ -57,12 +53,12 @@ class Vector3
 
   auto operator + (const Vector3& v) const -> Vector3<T>
   {
-    Warningf(v.HasNan(), "Detected NaNs.");
+    Warningf(v.HasNaNs(), "Detected NaNs.");
     return Vector3<T>(x + v.x, y + v.y, z + v.z);
   }
   auto operator += (const Vector3& v) -> Vector3<T>&
   {
-    Warningf(v.HasNan(), "Detected NaNs.");
+    Warningf(v.HasNaNs(), "Detected NaNs.");
     x += v.x;
     y += v.y;
     z += v.z;
@@ -71,12 +67,12 @@ class Vector3
 
   auto operator - (const Vector3& v) const -> Vector3<T>
   {
-    Warningf(v.HasNan(), "Detected NaNs.");
+    Warningf(v.HasNaNs(), "Detected NaNs.");
     return Vector3<T>(x - v.x, y - v.y, z - v.z);
   }
   auto operator -= (const Vector3& v) -> Vector3<T>&
   {
-    Warningf(v.HasNan(), "Detected NaNs.");
+    Warningf(v.HasNaNs(), "Detected NaNs.");
     x -= v.x;
     y -= v.y;
     z -= v.z;
@@ -135,34 +131,8 @@ class Vector3
     return IsNaN(x) || IsNaN(y) || IsNaN(z);
   }
 
-  static constexpr auto One() noexcept -> Vector3<T>
-  {
-    return Vector3<T>(1, 1, 1);
-  }
-  static constexpr auto Zero() noexcept -> Vector3<T>
-  {
-    return Vector3<T>(0, 0, 0);
-  }
-  static constexpr auto Max() noexcept -> Vector3<T>
-  {
-    return Vector3<T>(kMax, kMax, kMax);
-  }
-  static constexpr auto Min() noexcept -> Vector3<T>
-  {
-    return Vector3<T>(kMin, kMin, kMin);
-  }
-  static constexpr auto Infinity() noexcept -> Vector3<T>
-  {
-    return Vector3<T>(kInfinity, kInfinity, kInfinity);
-  }
-
  public:
   T x, y, z;
-
- private:
-  static constexpr T kInfinity = std::numeric_limits<T>::infinity();
-  static constexpr T kMax      = std::numeric_limits<T>::max();
-  static constexpr T kMin      = std::numeric_limits<T>::min();
 };
 
 /*
@@ -171,7 +141,7 @@ class Vector3
 template <typename T>
 inline auto operator << (std::ostream& os, const Vector3<T>& v) -> std::ostream&
 {
-  os << "[" << v.x << ", " << v.y << ", " << v.z < "]";
+  os << "[" << v.x << ", " << v.y << ", " << v.z << "]";
   return os;
 }
 

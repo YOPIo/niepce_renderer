@@ -19,7 +19,8 @@ class Point3
   {
     Warningf(HasNaNs(), "Detected NaNs");
   }
-  virtual ~Point3();
+  virtual ~Point3()
+  {};
 
   Point3(const Point3& p) = default;
   Point3(Point3&& p)      = default;
@@ -38,16 +39,12 @@ class Point3
   auto operator [] (unsigned int idx) const -> T
   {
     Assertf(idx >= 2, "Out of bounds.");
-    if (idx == 0) { return x; }
-    if (idx == 1) { return y; }
-    return z;
+    return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
     Assertf(idx >= 2, "Out of bounds.");
-    if (idx == 0) { return x; }
-    if (idx == 1) { return y; }
-    return z;
+    return *(&x + idx);
   }
 
   operator Vector3<T>() const
@@ -58,23 +55,23 @@ class Point3
   // Offset move
   auto operator + (const Vector3<T>& p) const -> Point3<T>
   {
-    Warningf(p.HasNan(), "Detected NaNs.");
+    Warningf(p.HasNaNs(), "Detected NaNs.");
     return Point3<T>(x + p.x, y + p.y, z + p.z);
   }
   auto operator += (const Vector3<T>& p) const -> Point3<T>
   {
-    Warningf(p.HasNan(), "Detected NaNs.");
+    Warningf(p.HasNaNs(), "Detected NaNs.");
     return Point3<T>(x + p.x, y + p.y, z + p.z);
   }
 
   auto operator * (T f) -> Point3<T>
   {
-    Warningf(IsNaNs(f), "Detected NaNs.");
+    Warningf(IsNaN(f), "Detected NaNs.");
     return Point3<T>(x * f, y * f, z * f);
   }
   auto operator *= (T f) -> Point3<T>&
   {
-    Warningf(IsNaNs(f), "Detected NaNs.");
+    Warningf(IsNaN(f), "Detected NaNs.");
     x *= f;
     y *= f;
     z *= f;
@@ -100,16 +97,8 @@ class Point3
   // Generate vector
   auto operator - (const Point3<T>& p) const -> Vector3<T>
   {
-    Warningf(p.HasNan(), "Detected NaNs.");
+    Warningf(p.HasNaNs(), "Detected NaNs.");
     return Vector3<T>(x - p.x, y - p.y, z - p.z);
-  }
-  auto operator -= (const Point3<T>& p) -> Vector3<T>&
-  {
-    Warningf(p.HasNan(), "Detected NaNs.");
-    x -= p.x;
-    y -= p.y;
-    z -= p.z;
-    return *this;
   }
 
   auto LengthSquared() const -> Float
@@ -161,7 +150,7 @@ class Point3
 template <typename T>
 inline auto operator << (std::ostream& os, const Point3<T>& v) -> std::ostream&
 {
-  os << "[" << v.x << ", " << v.y << ", " v.z << "]";
+  os << "[" << v.x << ", " << v.y << ", " << v.z << "]";
   return os;
 }
 

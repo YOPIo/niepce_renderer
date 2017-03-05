@@ -19,7 +19,7 @@ class Vector2
   {
     Warningf(HasNaNs(), "Detected NaNs");
   }
-  virtual ~Vector2()
+  ~Vector2()
   {}
 
   Vector2(const Vector2& vec2) = default;
@@ -39,14 +39,12 @@ class Vector2
   auto operator [] (unsigned int idx) const -> T
   {
     Assertf(idx >= 2, "Out of bounds.");
-    if (idx == 0) { return x; }
-    return y;
+    return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
     Assertf(idx >= 2, "Out of bounds.");
-    if (idx == 0) { return x; }
-    return y;
+    return *(&x + idx);
   }
 
   operator Point2<T>() const
@@ -56,25 +54,25 @@ class Vector2
 
   auto operator +  (const Vector2& v) const -> Vector2<T>
   {
-    Warningf(v.HasNan(), "Detected NaNs");
+    Warningf(v.HasNaNs(), "Detected NaNs");
     return Vector2<T>(x + v.x, y + v.y);
   }
   auto operator += (const Vector2& v) -> Vector2<T>&
   {
-    Warningf(v.HasNan(), "Detected NaNs");
+    Warningf(v.HasNaNs(), "Detected NaNs");
     x += v.x;
     y += v.y;
     return *this;
   }
 
-  auto operator -  (const Vector2& v) const -> Vector2<T>
+  auto operator - (const Vector2& v) const -> Vector2<T>
   {
-    Warningf(v.HasNan(), "Detected NaNs");
+    Warningf(v.HasNaNs(), "Detected NaNs");
     return Vector2<T>(x - v.x, y - v.y);
   }
   auto operator -= (const Vector2& v) -> Vector2<T>&
   {
-    Warningf(v.HasNan(), "Detected NaNs.");
+    Warningf(v.HasNaNs(), "Detected NaNs.");
     x -= v.x;
     y -= v.y;
     return *this;
@@ -131,34 +129,8 @@ class Vector2
     return IsNaN(x) || IsNaN(y);
   }
 
-  static constexpr auto One() noexcept -> Vector2<T>
-  {
-    return Vector2<T>(1, 1);
-  }
-  static constexpr auto Zero() noexcept -> Vector2<T>
-  {
-    return Vector2<T>(0, 0);
-  }
-  static constexpr auto Max() noexcept -> Vector2<T>
-  {
-    return Vector2<T>(kMax, kMax);
-  }
-  static constexpr auto Min() noexcept -> Vector2<T>
-  {
-    return Vector2<T>(kMin, kMin);
-  }
-  static constexpr auto Infinity() noexcept -> Vector2<T>
-  {
-    return Vector2<T>(kInfinity, kInfinity);
-  }
-
  public:
   T x, y;
-
- private:
-  static constexpr T kInfinity = std::numeric_limits<T>::infinity();
-  static constexpr T kMax      = std::numeric_limits<T>::max();
-  static constexpr T kMin      = std::numeric_limits<T>::min();
 };
 
 /*
@@ -180,14 +152,14 @@ inline auto operator * (U f, const Vector2<T>& v) -> Vector2<T>
 template <typename T>
 inline auto Dot(const Vector2<T>& v1, const Vector2<T>& v2) -> T
 {
-  Warningf(v1.HasNan() || v2.HasNan(), "Detected NaNs");
+  Warningf(v1.HasNaNs() || v2.HasNaNs(), "Detected NaNs");
   return v1.x * v2.x + v1.y * v2.y;
 }
 
 template <typename T>
 inline auto Cross(const Vector2<T>& v1, const Vector2<T>& v2) -> T
 {
-  Warningf(v1.HasNan() || v2.HasNan(), "Detected NaNs");
+  Warningf(v1.HasNaNs() || v2.HasNaNs(), "Detected NaNs");
   return v1.x * v2.y - v1.y * v2.x;
 }
 
