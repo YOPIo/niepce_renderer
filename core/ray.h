@@ -2,8 +2,8 @@
 #define _RAY_H_
 
 #include "niepce.h"
-#include "point3.h"
-#include "vector3.h"
+#include "../geometries/point3.h"
+#include "../geometries/vector3.h"
 
 namespace niepce
 {
@@ -12,6 +12,7 @@ class Ray
 {
  public:
   Ray();
+  Ray(const Point3f& o, const Vector3f& dir);
   virtual ~Ray();
 
   Ray(const Ray& ray) = default;
@@ -21,6 +22,7 @@ class Ray
   Ray& operator = (Ray&& ray)      = default;
 
   auto operator () (Float t) const -> Point3f;
+  auto EndPosition(Float t) const -> Point3f;
   auto HasNaNs() const -> bool;
 
  public:
@@ -32,6 +34,7 @@ class RayDifferential : public Ray
 {
  public:
   RayDifferential();
+  RayDifferential(const Point3f& o, const Vector3f& dir);
   virtual ~RayDifferential();
 
   RayDifferential(const RayDifferential& ray) = default;

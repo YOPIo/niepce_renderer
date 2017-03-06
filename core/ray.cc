@@ -6,6 +6,10 @@ namespace niepce
 Ray::Ray()
 {}
 
+Ray::Ray(const Point3f& o, const Vector3f& dir) :
+    origin(o), direction(dir)
+{}
+
 Ray::~Ray()
 {}
 
@@ -20,6 +24,10 @@ auto Ray::HasNaNs() const -> bool
 }
 
 RayDifferential::RayDifferential() : has_differential(false)
+{}
+
+RayDifferential::RayDifferential(const Point3f& o, const Vector3f& dir) :
+    Ray(o, dir)
 {}
 
 RayDifferential::~RayDifferential()

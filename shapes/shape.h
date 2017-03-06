@@ -34,7 +34,7 @@ class Shape
   virtual auto SurfaceArea() const -> Float = 0;
 
   // Get BoundingBox
-  virtual auto ObjectBound() const -> Bound3f = 0;
+  virtual auto ObjectBound() const -> BBox3f = 0;
 
   // Check intersection with shape
   virtual auto IsIntersect(const Ray& ray, Float* t, SurfaceInteraction* surface) -> bool = 0;

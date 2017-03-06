@@ -283,9 +283,8 @@ inline auto operator << (std::ostream& os, const Matrix4x4<T>& m) -> std::ostrea
 /*
   Global functions
 */
-// todo: implementaion
 template <typename T>
-auto Invert(const Matrix4x4<T>& m) -> Matrix4x4<T>;
+auto Inverse(const Matrix4x4<T>& m) -> Matrix4x4<T>;
 
 template <typename T>
 auto Transpose(const Matrix4x4<T>& m) -> Matrix4x4<T>;

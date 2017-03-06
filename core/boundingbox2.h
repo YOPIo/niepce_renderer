@@ -27,21 +27,37 @@ class BoundingBox2
   auto operator [] (unsigned int idx) const -> Point2<T>;
   auto operator [] (unsigned int idx)       -> Point2<T>;
 
+  auto Max() const -> Point2<T>;
+  auto Min() const -> Point2<T>;
+
+  auto SetMax(const Point2<T>& bbox) -> void;
+  auto SetMin(const Point2<T>& bbox) -> void;
+
   // Each corner is arranged in the order of Morton order.
   auto Corner(unsigned int idx) const -> Point2<T>;
   auto Diagonal() const -> Vector2<T>;
   auto Area() const -> T;
 
- public:
-  Point2<T> min, max;
+ private:
+  Point2<T> min_, max_;
 };
 
 template <typename T>
 auto operator << (std::ostream& os, const BoundingBox2<T>& bbox) -> std::ostream&
 {
-  os << "[" << bbox.min << " - " << bbox.max << "]";
+  os << "[" << bbox.min_ << " - " << bbox.max_ << "]";
   return os;
 }
+
+/*
+  Global functions
+*/
+
+template <typename T>
+auto Union(const BoundingBox2<T>& bbox, const Point2<T>& p) -> BoundingBox2<T>;
+
+template <typename T>
+auto Union(const BoundingBox2<T>& bbox0, const BoundingBox2<T>& bbox1) -> BoundingBox2<T>;
 
 }  // namespace niepce
 

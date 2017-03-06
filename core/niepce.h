@@ -52,10 +52,10 @@ typedef Normal3<int>        Normal3i;
 typedef Normal3<Float>      Normal3f;
 typedef Matrix4x4<int>      Matrix4x4i;
 typedef Matrix4x4<Float>    Matrix4x4f;
-typedef BoundingBox2<int>   Bound2i;
-typedef BoundingBox2<Float> Bound2f;
-typedef BoundingBox3<int>   Bound3i;
-typedef BoundingBox3<Float> Bound3f;
+typedef BoundingBox2<int>   BBox2i;
+typedef BoundingBox2<Float> BBox2f;
+typedef BoundingBox3<int>   BBox3i;
+typedef BoundingBox3<Float> BBox3f;
 /*
   Global constant expression
 */
@@ -91,14 +91,37 @@ inline auto IsNaN(const int val) -> bool
   return false;
 }
 
+// Convert to radians from degree
 inline auto Radians(Float degree) -> Float
 {
   return (kPi / 180.f) * degree;
 }
 
+// Convert to degrees from radian
 inline auto Degrees(Float radian) -> Float
 {
   return (180.f / kPi) * radian;
+}
+
+/*
+  Solve quadratic equation $at^2 + bt + c = 0$
+  Return boolean value whether solution were found or not.
+*/
+inline auto SolveQuadratic(Float a, Float b, Float c, Float* t0, Float* t1) -> bool
+{
+  const Float discrim = b * b - 4 * a * c;
+  if (discrim < 0.f) { return false;  }
+  const Float sqrt_discrim = std::sqrt(discrim);
+
+  Float q;
+  if (b < 0.f) { q = -0.5f * (b - sqrt_discrim); }
+  else         { q = -0.5f * (b + sqrt_discrim); }
+
+  *t0 = q / a;
+  *t1 = c / q;
+  if (*t0 > *t1) { std::swap(*t0, *t1); }
+
+  return true;
 }
 
 }; // namespace niepce

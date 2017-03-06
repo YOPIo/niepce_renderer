@@ -32,7 +32,7 @@ class Sphere : public Shape
   auto operator = (Sphere&& sphere)      -> Sphere& = default;
 
   auto SurfaceArea() const -> Float;
-  auto ObjectBound() const -> Bound3f;
+  auto ObjectBound() const -> BBox3f;
   auto IsIntersect(const Ray& ray, Float* t, SurfaceInteraction* surface) -> bool;
 
  private:

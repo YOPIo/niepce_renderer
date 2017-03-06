@@ -4,13 +4,13 @@ namespace niepce
 {
 
 template <typename T>
-BoundingBox3<T>::BoundingBox3() : min(Point3<T>::Max()), max(Point3<T>::Min())
+BoundingBox3<T>::BoundingBox3() : min_(Point3<T>::Max()), max_(Point3<T>::Min())
 {}
 
 template <typename T>
 BoundingBox3<T>::BoundingBox3(const Point3<T>& p1, const Point3<T>& p2) :
-    min(std::fmin(p1.x, p2.x), std::fmin(p1.y, p2.y), std::fmin(p1.z, p2.z)),
-    max(std::fmax(p1.x, p2.x), std::fmax(p1.y, p2.y), std::fmax(p1.z, p2.z))
+    min_(std::min(p1.x, p2.x), std::min(p1.y, p2.y), std::min(p1.z, p2.z)),
+    max_(std::max(p1.x, p2.x), std::max(p1.y, p2.y), std::max(p1.z, p2.z))
 {}
 
 template <typename T>
@@ -20,26 +20,50 @@ BoundingBox3<T>::~BoundingBox3()
 template <typename T>
 auto BoundingBox3<T>::operator == (const BoundingBox3<T>& bbox) -> bool
 {
-  return min == bbox.min && max == bbox.max;
+  return min_ == bbox.min_ && max_ == bbox.max_;
 }
 template <typename T>
 auto BoundingBox3<T>::operator != (const BoundingBox3<T>& bbox) -> bool
 {
-  return min != bbox.min || max != bbox.max;
+  return min_ != bbox.min_ || max_ != bbox.max_;
 }
 
 template <typename T>
 auto BoundingBox3<T>::operator[](unsigned int idx) const -> Point3<T>
 {
   Assertf(idx != 0 || idx != 1, "Out of bounds.");
-  return idx == 0 ? min : max;
+  return idx == 0 ? min_ : max_;
 }
 
 template <typename T>
 auto BoundingBox3<T>::operator[](unsigned int idx) -> Point3<T>&
 {
   Assertf(idx != 0 || idx != 1, "Out of bounds.");
-  return idx == 0 ? min : max;
+  return idx == 0 ? min_ : max_;
+}
+
+template <typename T>
+auto BoundingBox3<T>::Min() const -> Point3<T>
+{
+  return min_;
+}
+
+template <typename T>
+auto BoundingBox3<T>::Max() const -> Point3<T>
+{
+  return max_;
+}
+
+template<typename T>
+auto BoundingBox3<T>::SetMin(const Point3<T> &p) -> void
+{
+  min_ = p;
+}
+
+template <typename T>
+auto BoundingBox3<T>::SetMax(const Point3<T>& p) -> void
+{
+  max_ = p;
 }
 
 // Each corner is arranged in the order of Morton order.
@@ -55,7 +79,7 @@ auto BoundingBox3<T>::Corner(unsigned int idx) const -> Point3<T>
 template <typename T>
 auto BoundingBox3<T>::Diagonal() const -> Vector3<T>
 {
-  return max - min;
+  return max_ - min_;
 }
 
 template <typename T>
@@ -80,8 +104,8 @@ auto BoundingBox3<T>::IsIntersect(const Ray& ray, Float* t_near, Float* t_far) c
   {
     // Calculate _t_near_ and _t_far_ at _i_th bounding box slab
     const Float inv_ray_direction = 1.f / ray.direction[i];
-    Float near = (min[i] - ray.origin[i]) / inv_ray_direction;
-    Float far  = (max[i] - ray.origin[i]) / inv_ray_direction;
+    Float near = (min_[i] - ray.origin[i]) / inv_ray_direction;
+    Float far  = (max_[i] - ray.origin[i]) / inv_ray_direction;
 
     if (near > far) { std::swap(near, far); }
 
@@ -97,5 +121,19 @@ auto BoundingBox3<T>::IsIntersect(const Ray& ray, Float* t_near, Float* t_far) c
 
 template class BoundingBox3<int>;
 template class BoundingBox3<Float>;
+
+template <typename T>
+auto Union(const BoundingBox3<T>& bbox, const Point3<T>& p) -> BoundingBox3<T>
+{
+  return BoundingBox3<T>( Point3<T>( Min(bbox.Min(), p) ),
+                          Point3<T>( Max(bbox.Max(), p) ) );
+}
+
+template <typename T>
+auto Union(const BoundingBox3<T>& bbox0, const BoundingBox3<T>& bbox1) -> BoundingBox3<T>
+{
+  return BoundingBox3<T>( Point3<T>( Min(bbox0.Min(), bbox1.Min() ) ),
+                          Point3<T>( Max(bbox0.Max(), bbox1.Max() )) );
+}
 
 } // namespace niepce

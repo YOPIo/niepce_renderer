@@ -12,6 +12,10 @@
 namespace niepce
 {
 
+/*
+  Store a hit position, ray direction to hit position, normal at the position etc.
+*/
+
 struct Interaction
 {
   Point3f  position;  // Hit position
@@ -39,7 +43,6 @@ struct SurfaceInteraction : public Interaction
   };
   */
 };
-
 
 }  // namespace niepce
 

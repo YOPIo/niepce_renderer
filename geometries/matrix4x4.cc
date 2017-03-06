@@ -5,7 +5,7 @@ namespace niepce
 
 // Calculate inverse matrix M^-1 by LU factorization. (Doolittle)
 template <typename T>
-auto Invert(const Matrix4x4<T>& m) -> Matrix4x4<T>
+auto Inverse(const Matrix4x4<T>& m) -> Matrix4x4<T>
 {
   Matrix4x4<T> ret(m);
   Matrix4x4<T> permutation;
