@@ -26,7 +26,7 @@ auto BoundingBox2<T>::operator == (const BoundingBox2<T>& bbox) -> bool
 template <typename T>
 auto BoundingBox2<T>::operator != (const BoundingBox2<T>& bbox) -> bool
 {
-  return min_ != bbox.min || max_ != bbox.max;
+  return min_ != bbox.min_ || max_ != bbox.max_;
 }
 
 template <typename T>

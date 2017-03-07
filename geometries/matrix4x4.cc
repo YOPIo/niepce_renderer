@@ -61,8 +61,8 @@ auto Inverse(const Matrix4x4<T>& m) -> Matrix4x4<T>
 
   return ret;
 }
-template auto Invert(const Matrix4x4<Float>& m) -> Matrix4x4<Float>;
-template auto Invert(const Matrix4x4<int>& m) -> Matrix4x4<int>;
+template auto Inverse(const Matrix4x4<Float>& m) -> Matrix4x4<Float>;
+template auto Inverse(const Matrix4x4<int>& m)   -> Matrix4x4<int>;
 
 template <typename T>
 auto Transpose(const Matrix4x4<T>& m) -> Matrix4x4<T>
@@ -72,8 +72,7 @@ auto Transpose(const Matrix4x4<T>& m) -> Matrix4x4<T>
                       m[0][2], m[1][2], m[2][2], m[3][2],
                       m[0][3], m[1][3], m[2][3], m[3][3]);
 }
-
 template auto Transpose(const Matrix4x4<Float>& m) -> Matrix4x4<Float>;
-template auto Transpose(const Matrix4x4<int>& m) -> Matrix4x4<int>;
+template auto Transpose(const Matrix4x4<int>& m)   -> Matrix4x4<int>;
 
 } // namespace niecpe

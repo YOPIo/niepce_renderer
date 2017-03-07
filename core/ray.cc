@@ -62,6 +62,7 @@ auto operator << (std::ostream& os, const RayDifferential& ray) -> std::ostream&
     os << "[rx orgin: " << ray.rx_origin << ", ry origin: " << ray.ry_origin << "].";
     os << "[rx direction: ]" << ray.rx_direction << ", ry direction: " << ray.ry_direction << "].";
   }
+  return os;
 }
 
 } // namespace niepce

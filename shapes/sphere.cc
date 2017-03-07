@@ -15,12 +15,12 @@ Sphere::~Sphere()
 
 auto Sphere::SurfaceArea() const -> Float
 {
-
+  return 4 * kPi * radius_ * radius_;
 }
 
 auto Sphere::ObjectBound() const -> BBox3f
 {
-
+  return BBox3f();
 }
 
 auto Sphere::IsIntersect(const Ray &ray, Float *t, SurfaceInteraction *surface) -> bool

@@ -17,7 +17,7 @@ class Point2
   {}
   explicit Point2(const Vector2<T>& v) : x(v.x), y(v.y)
   {
-    Warningf(HasNaNs(), "Detected NaNs");
+    Warningf(!HasNaNs(), "Detected NaNs");
   }
   virtual ~Point2()
   {};
@@ -38,12 +38,12 @@ class Point2
 
   auto operator [] (unsigned int idx) const -> T
   {
-    Assertf(idx >= 2, "Out of bounds.");
+    Assertf(idx <= 1, "Out of range [0, 2].");
     return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
-    Assertf(idx >= 2, "Out of bounds.");
+    Assertf(idx <= 1, "Out of range [0, 2].");
     return *(&x + idx);
   }
 
@@ -55,12 +55,12 @@ class Point2
   // Offset move
   auto operator + (const Vector2<T>& v) const -> Point2<T>
   {
-    Warningf(v.HasNaNs(), "Detected");
+    Warningf(!v.HasNaNs(), "Detected");
     return Point2<T>(x + v.x, y + v.y);
   }
   auto operator += (const Vector2<T>& v) -> Point2<T>&
   {
-    Warningf(v.HasNaNs(), "Detected");
+    Warningf(!v.HasNaNs(), "Detected");
     x += v.x;
     y += v.y;
     return *this;
@@ -68,12 +68,12 @@ class Point2
 
   auto operator * (T f) const -> Point2<T>
   {
-    Warningf(IsNaN(f), "Detected NaNs.");
+    Warningf(!IsNaN(f), "Detected NaNs.");
     return Point2<T>(x * f, y * f);
   }
   auto operator *= (T f) -> Point2<T>&
   {
-    Warningf(IsNaN(f), "Detected NaNs.");
+    Warningf(!IsNaN(f), "Detected NaNs.");
     x *= f;
     y *= f;
     return *this;
@@ -81,13 +81,13 @@ class Point2
 
   auto operator / (T f) const -> Point2<T>
   {
-    Warningf(f == 0, "Zero division.");
+    Warningf(f != 0, "Zero division.");
     Float inv = 1.f / f;
     return Point2<T>(x * inv, y * inv);
   }
   auto operator /= (T f) -> Point2<T>&
   {
-    Warningf(f == 0, "Zero division..");
+    Warningf(f != 0, "Zero division..");
     Float inv = 1.f / f;
     x /= inv;
     y /= inv;
@@ -97,7 +97,7 @@ class Point2
   // Generate vector
   auto operator - (const Point2<T>& p) const -> Vector2<T>
   {
-    Warningf(p.HasNaNs(), "Detected");
+    Warningf(!p.HasNaNs(), "Detected");
     return Vector2<T>(x - p.x, y - p.y);
   }
 
@@ -109,39 +109,49 @@ class Point2
   {
     return std::sqrt( LengthSquared() );
   }
+
+  /*
+    Constexpr value
+   */
+  static constexpr auto One() -> Point2<T>
+  {
+    return Point2<T>(1, 1);
+  }
+  static constexpr auto Zero() -> Point2<T>
+  {
+    return Point2<T>(0, 0);
+  }
+  static constexpr auto Max() -> Point2<T>
+  {
+    return Point2<T>(std::numeric_limits<T>::max(), std::numeric_limits<T>::max());
+  }
+  static constexpr auto Min() -> Point2<T>
+  {
+    return Point2<T>(std::numeric_limits<T>::min(), std::numeric_limits<T>::min());
+  }
+  static constexpr auto Inf() -> Point2<T>
+  {
+    return Point2<T>(std::numeric_limits<T>::infinity(),
+                     std::numeric_limits<T>::infinity());
+  }
+  static constexpr auto NaN() -> Point2<T>
+  {
+    return Point2<T>(std::numeric_limits<T>::quiet_NaN(),
+                     std::numeric_limits<T>::quiet_NaN());
+  }
+  static constexpr auto Eps() -> Point2<T>
+  {
+    return Point2<T>(std::numeric_limits<T>::epsilon(),
+                     std::numeric_limits<T>::epsilon());
+  }
+
   auto HasNaNs() const -> bool
   {
     return IsNaN(x) || IsNaN(y);
   }
 
-  static constexpr auto One() noexcept -> Point2<T>
-  {
-    return Point2<T>(1, 1);
-  }
-  static constexpr auto Zero() noexcept -> Point2<T>
-  {
-    return Point2<T>(0, 0);
-  }
-  static constexpr auto Max() noexcept -> Point2<T>
-  {
-    return Point2<T>(kMax, kMax);
-  }
-  static constexpr auto Min() noexcept -> Point2<T>
-  {
-    return Point2<T>(kMin, kMin);
-  }
-  static constexpr auto Infinity() noexcept -> Point2<T>
-  {
-    return Point2<T>(kInfinity, kInfinity);
-  }
-
  public:
   T x, y;
-
- private:
-  static constexpr T kInfinity = std::numeric_limits<T>::infinity();
-  static constexpr T kMax      = std::numeric_limits<T>::max();
-  static constexpr T kMin      = std::numeric_limits<T>::min();
 };
 
 /*
@@ -170,6 +180,20 @@ template <typename T>
 inline auto Lerp(Float t, const Point2<T>& v1, const Point2<T>& v2) -> Point2<T>
 {
   return t * v1 + (1.f - t) * v2;
+}
+
+template <typename T>
+inline auto Min(const Point2<T>& p0, const Point2<T>& p1) -> Point2<T>
+{
+  return Point2<T>(std::min(p0.x, p1.x),
+                   std::min(p0.y, p1.y));
+}
+
+template <typename T>
+inline auto Max(const Point2<T>& p0, const Point2<T>& p1) -> Point2<T>
+{
+  return Point2<T>(std::max(p0.x, p1.x),
+                   std::max(p0.y, p1.y));
 }
 
 }  // namespace niepce

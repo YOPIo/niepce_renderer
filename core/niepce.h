@@ -2,18 +2,7 @@
 #define _NIEPCE_H_
 
 // Global include std libraries
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <iostream>
-#include <iomanip>
-#include <limits>
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "debug.h"
-#include "constants.h"
+#include "defines.h"
 
 // Data quality
 typedef float Float;
@@ -56,6 +45,7 @@ typedef BoundingBox2<int>   BBox2i;
 typedef BoundingBox2<Float> BBox2f;
 typedef BoundingBox3<int>   BBox3i;
 typedef BoundingBox3<Float> BBox3f;
+
 /*
   Global constant expression
 */

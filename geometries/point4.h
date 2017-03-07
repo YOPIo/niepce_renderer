@@ -38,12 +38,12 @@ class Point4
 
   auto operator [] (unsigned int idx) const -> T
   {
-    Assertf(idx >= 4, "Out of bounds.");
+    Assertf(idx <= 4, "Out of bounds.");
     return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
-    Assertf(idx >= 4, "Out of bounds.");
+    Assertf(idx <= 4, "Out of bounds.");
     return *(&x + idx);
   }
 
@@ -54,12 +54,12 @@ class Point4
 
   auto operator + (const Point4& p) const -> Point4<T>
   {
-    Warningf(p.HasNaNs(), "Detected NaNs.");
+    Warningf(!p.HasNaNs(), "Detected NaNs.");
     return Point4<T>(x + p.x, y + p.y, z + p.z, w + p.w);
   }
   auto operator += (const Point4& p) -> Point4<T>&
   {
-    Warningf(p.HasNaNs(), "Detected NaNs.");
+    Warningf(!p.HasNaNs(), "Detected NaNs.");
     x += p.x;
     y += p.y;
     z += p.z;
@@ -69,12 +69,12 @@ class Point4
 
   auto operator - (const Point4& p) const -> Point4<T>
   {
-    Warningf(p.HasNaNs(), "Detected NaNs.");
+    Warningf(!p.HasNaNs(), "Detected NaNs.");
     return Point4<T>(x - p.x, y - p.y, z - p.z, w - p.w);
   }
   auto operator -= (const Point4& p) -> Point4<T>&
   {
-    Warningf(p.HasNaNs(), "Detected NaNs.");
+    Warningf(!p.HasNaNs(), "Detected NaNs.");
     x -= p.x;
     y -= p.y;
     z -= p.z;
@@ -85,13 +85,13 @@ class Point4
   template<typename U>
   auto operator * (U f) const -> Point4<T>
   {
-    Warningf(IsNaNs(f), "Detected Nan.");
+    Warningf(!IsNaN(f), "Detected Nan.");
     return Point4<T>(f * x, f * y, f * z, f * w);
   }
   template<typename U>
   auto operator *= (U f) -> Point4<T>&
   {
-    Warningf(IsNan(f), "Detected NaNs.");
+    Warningf(!IsNaN(f), "Detected NaNs.");
     x *= f;
     y *= f;
     z *= f;
@@ -102,14 +102,14 @@ class Point4
   template<typename U>
   auto operator / (U f) const -> Point4<T>
   {
-    Warningf(f == 0, "Zero division.");
+    Warningf(f != 0, "Zero division.");
     Float inv = 1.0 / f;
     return Point4<T>(x * inv, y * inv, z * inv, w * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Point4<T>&
   {
-    Warningf(f == 0, "Zero division.");
+    Warningf(f != 0, "Zero division.");
     Float inv = 1.0 / f;
     x *= inv;
     y *= inv;
@@ -131,39 +131,60 @@ class Point4
   {
     return std::sqrt( LengthSquared() );
   }
+  /*
+    constexpr value
+   */
+  static constexpr auto One() -> Point4<T>
+  {
+    return Point4<T>(1, 1, 1, 1);
+  }
+  static constexpr auto Zero() -> Point4<T>
+  {
+    return Point4<T>(0, 0, 0, 0);
+  }
+  static constexpr auto Max() -> Point4<T>
+  {
+    return Point4<T>(std::numeric_limits<T>::max(),
+                     std::numeric_limits<T>::max(),
+                     std::numeric_limits<T>::max(),
+                     std::numeric_limits<T>::max());
+  }
+  static constexpr auto Min() -> Point4<T>
+  {
+    return Point4<T>(std::numeric_limits<T>::min(),
+                     std::numeric_limits<T>::min(),
+                     std::numeric_limits<T>::min(),
+                     std::numeric_limits<T>::min());
+  }
+  static constexpr auto Inf() -> Point4<T>
+  {
+    return Point4<T>(std::numeric_limits<T>::infinity(),
+                     std::numeric_limits<T>::infinity(),
+                     std::numeric_limits<T>::infinity(),
+                     std::numeric_limits<T>::infinity());
+  }
+  static constexpr auto NaN() -> Point4<T>
+  {
+    return Point4<T>(std::numeric_limits<T>::quiet_NaN(),
+                     std::numeric_limits<T>::quiet_NaN(),
+                     std::numeric_limits<T>::quiet_NaN(),
+                     std::numeric_limits<T>::quiet_NaN());
+  }
+  static constexpr auto Eps() -> Point4<T>
+  {
+    return Point4<T>(std::numeric_limits<T>::epsilon(),
+                     std::numeric_limits<T>::epsilon(),
+                     std::numeric_limits<T>::epsilon(),
+                     std::numeric_limits<T>::epsilon());
+  }
+
   auto HasNaNs() const -> bool
   {
     return IsNaN(x) || IsNaN(y) || IsNaN(z) || IsNaN(w);
   }
 
-  static constexpr auto One() noexcept -> Point4<T>
-  {
-    return Point4<T>(1, 1, 1, 1);
-  }
-  static constexpr auto Zero() noexcept -> Point4<T>
-  {
-    return Point4<T>(0, 0, 0, 0);
-  }
-  static constexpr auto Max() noexcept -> Point4<T>
-  {
-    return Point4<T>(kMax, kMax, kMax, kMax);
-  }
-  static constexpr auto Min() noexcept -> Point4<T>
-  {
-    return Point4<T>(kMin, kMin, kMin, kMin);
-  }
-  static constexpr auto Infinity() noexcept -> Point4<T>
-  {
-    return Point4<T>(kInfinity, kInfinity, kInfinity, kInfinity);
-  }
-
  public:
   T x, y, z, w;
-
- private:
-  static constexpr T kInfinity = std::numeric_limits<T>::infinity();
-  static constexpr T kMax      = std::numeric_limits<T>::max();
-  static constexpr T kMin      = std::numeric_limits<T>::min();
 };
 
 /*
@@ -210,6 +231,24 @@ template <typename T>
 inline auto Homogeneous(const Point4<T>& p) -> Point3<T>
 {
   return Point3<T>(p.x, p.y, p.z) / p.w;
+}
+
+template <typename T>
+inline auto Min(const Point4<T>& p0, const Point4<T>& p1) -> Point4<T>
+{
+  return Point4<T>( std::min(p0.x, p1.x),
+                    std::min(p0.y, p1.y),
+                    std::min(p0.z, p1.z),
+                    std::min(p0.w, p1.w));
+}
+
+template <typename T>
+inline auto Max(const Point4<T>& p0, const Point4<T>& p1) -> Point4<T>
+{
+  return Point4<T>( std::max(p0.x, p1.x),
+                    std::max(p0.y, p1.y),
+                    std::max(p0.z, p1.z),
+                    std::max(p0.w, p1.w));
 }
 
 } // namespace niepce

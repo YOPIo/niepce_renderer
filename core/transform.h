@@ -45,7 +45,7 @@ class Transform
   auto operator * (const Vector3f& v)   const -> Vector3f;
   auto operator * (const Normal3f& n)   const -> Normal3f;
   auto operator * (const Ray& ray)      const -> Ray;
-  auto operator * (const BBox3f& bbox) const -> BBox3f;
+  auto operator * (const BBox3f& bbox)  const -> BBox3f;
 
 
   auto GetMatrix()    const -> Matrix4x4f;

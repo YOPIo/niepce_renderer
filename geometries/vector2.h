@@ -38,12 +38,12 @@ class Vector2
 
   auto operator [] (unsigned int idx) const -> T
   {
-    Assertf(idx >= 2, "Out of bounds.");
+    Assertf(idx <= 2, "Out of bounds.");
     return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
-    Assertf(idx >= 2, "Out of bounds.");
+    Assertf(idx <= 2, "Out of bounds.");
     return *(&x + idx);
   }
 
@@ -54,12 +54,12 @@ class Vector2
 
   auto operator +  (const Vector2& v) const -> Vector2<T>
   {
-    Warningf(v.HasNaNs(), "Detected NaNs");
+    Warningf(!v.HasNaNs(), "Detected NaNs");
     return Vector2<T>(x + v.x, y + v.y);
   }
   auto operator += (const Vector2& v) -> Vector2<T>&
   {
-    Warningf(v.HasNaNs(), "Detected NaNs");
+    Warningf(!v.HasNaNs(), "Detected NaNs");
     x += v.x;
     y += v.y;
     return *this;
@@ -67,12 +67,12 @@ class Vector2
 
   auto operator - (const Vector2& v) const -> Vector2<T>
   {
-    Warningf(v.HasNaNs(), "Detected NaNs");
+    Warningf(!v.HasNaNs(), "Detected NaNs");
     return Vector2<T>(x - v.x, y - v.y);
   }
   auto operator -= (const Vector2& v) -> Vector2<T>&
   {
-    Warningf(v.HasNaNs(), "Detected NaNs.");
+    Warningf(!v.HasNaNs(), "Detected NaNs.");
     x -= v.x;
     y -= v.y;
     return *this;
@@ -81,14 +81,14 @@ class Vector2
   template<typename U>
   auto operator * (U f) const -> Vector2<T>
   {
-    Warningf(IsNaNs(f), "Detected Nan.");
+    Warningf(IsNaN(f), "Detected Nan.");
     return Vector2<T>(f * x, f * y);
   }
 
   template<typename U>
   auto operator *= (U f) -> Vector2<T>&
   {
-    Warningf(IsNan(f), "Detected NaNs.");
+    Warningf(IsNaN(f), "Detected NaNs.");
     x *= f;
     y *= f;
     return *this;
@@ -97,14 +97,14 @@ class Vector2
   template<typename U>
   auto operator / (U f) const -> Vector2<T>
   {
-    Warningf(f == 0, "Zero division.");
+    Warningf(f != 0, "Zero division.");
     Float inv = 1.0 / f;
     return Vector2<T>(x * inv, f * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Vector2<T>&
   {
-    Warningf(f == 0, "Zero division.");
+    Warningf(f != 0, "Zero division.");
     Float inv = 1.0 / f;
     x *= inv;
     y *= inv;
@@ -124,6 +124,41 @@ class Vector2
   {
     return std::sqrt( LengthSquared() );
   }
+  /*
+    constexpr value
+   */
+  static constexpr auto One() -> Vector2<T>
+  {
+    return Vector2<T>(1, 1);
+  }
+  static constexpr auto Zero() -> Vector2<T>
+  {
+    return Vector2<T>(0, 0);
+  }
+  static constexpr auto Max() -> Vector2<T>
+  {
+    return Vector2<T>(std::numeric_limits<T>::max(), std::numeric_limits<T>::max());
+  }
+  static constexpr auto Min() -> Vector2<T>
+  {
+    return Vector2<T>(std::numeric_limits<T>::min(), std::numeric_limits<T>::min());
+  }
+  static constexpr auto Inf() -> Vector2<T>
+  {
+    return Vector2<T>(std::numeric_limits<T>::infinity(),
+                      std::numeric_limits<T>::infinity());
+  }
+  static constexpr auto NaN() -> Vector2<T>
+  {
+    return Vector2<T>(std::numeric_limits<T>::quiet_NaN(),
+                      std::numeric_limits<T>::quiet_NaN());
+  }
+  static constexpr auto Eps() -> Vector2<T>
+  {
+    return Vector2<T>(std::numeric_limits<T>::epsilon(),
+                      std::numeric_limits<T>::epsilon());
+  }
+
   auto HasNaNs() const -> bool
   {
     return IsNaN(x) || IsNaN(y);

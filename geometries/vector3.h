@@ -37,12 +37,12 @@ class Vector3
 
   auto operator [] (unsigned int idx) const -> T
   {
-    Assertf(idx >= 3, "Out of bounds.");
+    Assertf(idx <= 3, "Out of bounds.");
     return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
-    Assertf(idx >= 3, "Out of bounds.");
+    Assertf(idx <= 3, "Out of bounds.");
     return *(&x + idx);
   }
 
@@ -53,12 +53,12 @@ class Vector3
 
   auto operator + (const Vector3& v) const -> Vector3<T>
   {
-    Warningf(v.HasNaNs(), "Detected NaNs.");
+    Warningf(!v.HasNaNs(), "Detected NaNs.");
     return Vector3<T>(x + v.x, y + v.y, z + v.z);
   }
   auto operator += (const Vector3& v) -> Vector3<T>&
   {
-    Warningf(v.HasNaNs(), "Detected NaNs.");
+    Warningf(!v.HasNaNs(), "Detected NaNs.");
     x += v.x;
     y += v.y;
     z += v.z;
@@ -67,12 +67,12 @@ class Vector3
 
   auto operator - (const Vector3& v) const -> Vector3<T>
   {
-    Warningf(v.HasNaNs(), "Detected NaNs.");
+    Warningf(!v.HasNaNs(), "Detected NaNs.");
     return Vector3<T>(x - v.x, y - v.y, z - v.z);
   }
   auto operator -= (const Vector3& v) -> Vector3<T>&
   {
-    Warningf(v.HasNaNs(), "Detected NaNs.");
+    Warningf(!v.HasNaNs(), "Detected NaNs.");
     x -= v.x;
     y -= v.y;
     z -= v.z;
@@ -82,13 +82,13 @@ class Vector3
   template<typename U>
   auto operator * (U f) const -> Vector3<T>
   {
-    Warningf(IsNaNs(f), "Detected Nan.");
+    Warningf(!IsNaN(f), "Detected Nan.");
     return Vector3<T>(f * x, f * y, f * z);
   }
   template<typename U>
   auto operator *= (U f) -> Vector3<T>&
   {
-    Warningf(IsNan(f), "Detected NaNs.");
+    Warningf(!IsNaN(f), "Detected NaNs.");
     x *= f;
     y *= f;
     z *= f;
@@ -98,14 +98,14 @@ class Vector3
   template<typename U>
   auto operator / (U f) const -> Vector3<T>
   {
-    Warningf(f == 0, "Zero division.");
+    Warningf(f != 0, "Zero division.");
     Float inv = 1.0 / f;
     return Vector3<T>(x * inv, y * inv, z * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Vector3<T>&
   {
-    Warningf(f == 0, "Zero division.");
+    Warningf(f != 0, "Zero division.");
     Float inv = 1.0 / f;
     x *= inv;
     y *= inv;
@@ -126,6 +126,48 @@ class Vector3
   {
     return std::sqrt( LengthSquared() );
   }
+  /*
+    Constexpr value
+   */
+  static constexpr auto One() -> Vector3<T>
+  {
+    return Vector3<T>(1, 1, 1);
+  }
+  static constexpr auto Zero() -> Vector3<T>
+  {
+    return Vector3<T>(0, 0, 0);
+  }
+  static constexpr auto Max() -> Vector3<T>
+  {
+    return Vector3<T>(std::numeric_limits<T>::max(),
+                      std::numeric_limits<T>::max(),
+                      std::numeric_limits<T>::max());
+  }
+  static constexpr auto Min() -> Vector3<T>
+  {
+    return Vector3<T>(std::numeric_limits<T>::min(),
+                      std::numeric_limits<T>::min(),
+                      std::numeric_limits<T>::min());
+  }
+  static constexpr auto Inf() -> Vector3<T>
+  {
+    return Vector3<T>(std::numeric_limits<T>::infinity(),
+                      std::numeric_limits<T>::infinity(),
+                      std::numeric_limits<T>::infinity());
+  }
+  static constexpr auto NaN() -> Vector3<T>
+  {
+    return Vector3<T>(std::numeric_limits<T>::quiet_NaN(),
+                      std::numeric_limits<T>::quiet_NaN(),
+                      std::numeric_limits<T>::quiet_NaN());
+  }
+  static constexpr auto Eps() -> Vector3<T>
+  {
+    return Vector3<T>(std::numeric_limits<T>::epsilon(),
+                      std::numeric_limits<T>::epsilon(),
+                      std::numeric_limits<T>::epsilon());
+  }
+
   auto HasNaNs() const -> bool
   {
     return IsNaN(x) || IsNaN(y) || IsNaN(z);

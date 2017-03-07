@@ -2,7 +2,6 @@
 #define _INTERACTION_H_
 
 #include "niepce.h"
-#include "../shapes/shape.h"
 #include "../geometries/point2.h"
 #include "../geometries/point3.h"
 #include "../geometries/vector2.h"
@@ -11,6 +10,8 @@
 
 namespace niepce
 {
+
+class Shape;
 
 /*
   Store a hit position, ray direction to hit position, normal at the position etc.
@@ -31,7 +32,7 @@ struct SurfaceInteraction : public Interaction
   Point2f  uv;         // For texture
   Vector2f dpdu, dpdv; // Partial derivative of point 'p'
   Normal3f dndu, dndv; // Partial derivative of normal 'n'
-  const std::shared_ptr<Shape> shape = nullptr;
+  std::shared_ptr<Shape> shape = nullptr;
 
   /*
     For bump mapping

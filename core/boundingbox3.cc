@@ -128,6 +128,8 @@ auto Union(const BoundingBox3<T>& bbox, const Point3<T>& p) -> BoundingBox3<T>
   return BoundingBox3<T>( Point3<T>( Min(bbox.Min(), p) ),
                           Point3<T>( Max(bbox.Max(), p) ) );
 }
+template auto Union(const BBox3f& bbox, const Point3f& p) -> BBox3f;
+template auto Union(const BBox3i& bbox, const Point3i& p) -> BBox3i;
 
 template <typename T>
 auto Union(const BoundingBox3<T>& bbox0, const BoundingBox3<T>& bbox1) -> BoundingBox3<T>

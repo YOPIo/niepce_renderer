@@ -22,7 +22,6 @@ class Ray
   Ray& operator = (Ray&& ray)      = default;
 
   auto operator () (Float t) const -> Point3f;
-  auto EndPosition(Float t) const -> Point3f;
   auto HasNaNs() const -> bool;
 
  public:

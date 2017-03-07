@@ -72,12 +72,12 @@ class Matrix4x4
 
   auto operator [] (const unsigned int idx) const -> Vector4<T>
   {
-    Assertf(idx >= 4, "Out of range [0, 3].");
+    Assertf(idx <= 3, "Out of range [0, 3].");
     return *(&row0 + idx);
   }
   auto operator [] (const unsigned int idx) -> Vector4<T>&
   {
-    Assertf(idx >= 4, "Out of range [0, 3].");
+    Assertf(idx <= 3, "Out of range [0, 3].");
     if (idx == 0) { return row0; }
     if (idx == 1) { return row1; }
     if (idx == 2) { return row2; }
@@ -86,7 +86,7 @@ class Matrix4x4
 
   auto operator + (const Matrix4x4<T>& m) const -> Matrix4x4<T>
   {
-    Warningf(m.HasNaNs(), "Detected NaN.");
+    Warningf(!m.HasNaNs(), "Detected NaN.");
     return Matrix4x4<T>((*this)[0][0] + m[0][0], (*this)[0][1] + m[0][1], (*this)[0][2] + m[0][2], (*this)[0][3] + m[0][3],
                         (*this)[1][0] + m[1][0], (*this)[1][1] + m[1][1], (*this)[1][2] + m[1][2], (*this)[1][3] + m[1][3],
                         (*this)[2][0] + m[2][0], (*this)[2][1] + m[2][1], (*this)[2][2] + m[2][2], (*this)[2][3] + m[2][3],
@@ -94,7 +94,7 @@ class Matrix4x4
   }
   auto operator += (const Matrix4x4<T>& m) -> Matrix4x4<T>&
   {
-    Warningf(m.HasNaNs(), "Detected NaN.");
+    Warningf(!m.HasNaNs(), "Detected NaN.");
     for (int i = 0; i < 4; ++i)
     {
       for (int j = 0; j < 4; ++j)
@@ -107,7 +107,7 @@ class Matrix4x4
 
   auto operator - (const Matrix4x4<T>& m) const -> Matrix4x4<T>
   {
-    Warningf(m.HasNaNs(), "Detected NaN.");
+    Warningf(!m.HasNaNs(), "Detected NaN.");
     return Matrix4x4<T>((*this)[0][0] - m[0][0], (*this)[0][1] - m[0][1], (*this)[0][2] - m[0][2], (*this)[0][3] - m[0][3],
                         (*this)[1][0] - m[1][0], (*this)[1][1] - m[1][1], (*this)[1][2] - m[1][2], (*this)[1][3] - m[1][3],
                         (*this)[2][0] - m[2][0], (*this)[2][1] - m[2][1], (*this)[2][2] - m[2][2], (*this)[2][3] - m[2][3],
@@ -115,7 +115,7 @@ class Matrix4x4
   }
   auto operator -= (const Matrix4x4<T>& m) -> Matrix4x4<T>&
   {
-    Warningf(m.HasNaNs(), "Detected NaN.");
+    Warningf(!m.HasNaNs(), "Detected NaN.");
     for (int i = 0; i < 4; ++i)
     {
       for (int j = 0; j < 4; ++j)
@@ -128,7 +128,7 @@ class Matrix4x4
 
   auto operator * (const Matrix4x4<T>& m) const -> Matrix4x4<T>
   {
-    Warningf(m.HasNaNs(), "Detected NaN.");
+    Warningf(!m.HasNaNs(), "Detected NaN.");
     Matrix4x4<T> ret;
     for (int i = 0; i < 4; ++i)
     {
@@ -140,7 +140,7 @@ class Matrix4x4
   }
   auto operator * (T v) const -> Matrix4x4<T>
   {
-    Warningf(IsNaN(v), "Detected NaN.");
+    Warningf(!IsNaN(v), "Detected NaN.");
     Matrix4x4<T> ret;
     for (int i = 0; i < 4; ++i)
     {
@@ -164,7 +164,7 @@ class Matrix4x4
   }
   auto operator *= (T v) -> Matrix4x4<T>&
   {
-    Warningf(IsNaN(v), "Detected NaN.");
+    Warningf(!IsNaN(v), "Detected NaN.");
     for (int i = 0; i < 4; ++i)
     {
       for (int j = 0; j < 4; ++j)
@@ -177,18 +177,18 @@ class Matrix4x4
 
   auto At(unsigned int row, unsigned int col) const -> T
   {
-    Assertf(row >= 4 || col >= 4, "Out of range [0, 3].");
+    Assertf(row <= 3 && col <= 3, "Out of range [0, 3].");
     return *(&row0 + row)[col];
   }
 
   auto Row(unsigned int row) const -> Vector4<T>
   {
-    Assertf(row >= 4, "Out of range [0, 3].");
+    Assertf(row <= 3, "Out of range [0, 3].");
     return *(&row0 + row);
   }
   auto SetRow(unsigned int idx, const Vector4<T>& row) -> void
   {
-    Assertf(idx >= 4, "Out of range [0, 3].");
+    Assertf(idx <= 3, "Out of range [0, 3].");
     *(&row0 + idx) = row;
   }
   auto SwapRows(unsigned int r0, unsigned int r1) -> void
@@ -200,7 +200,7 @@ class Matrix4x4
 
   auto Column(unsigned int col) const -> Vector4<T>
   {
-    Assertf(col >= 4, "Out of range [0, 3].");
+    Assertf(col <= 3, "Out of range [0, 3].");
     if (col == 0) { return Vector4<T>(m00, m10, m20, m30);  }
     if (col == 1) { return Vector4<T>(m01, m11, m21, m31);  }
     if (col == 2) { return Vector4<T>(m02, m22, m22, m32);  }
@@ -208,7 +208,7 @@ class Matrix4x4
   }
   auto SetColumn(unsigned int idx, const Vector4<T>& col) -> void
   {
-    Assertf(idx >= 4, "Out of range [0, 3].");
+    Assertf(idx <= 3, "Out of range [0, 3].");
     row0[idx] = col[0];
     row1[idx] = col[1];
     row2[idx] = col[2];
@@ -227,8 +227,8 @@ class Matrix4x4
     {
       for (int j = 0; j < 4; ++j)
       {
-        if (i == j) { *(this)[i][j] = 1; }
-        else { *(this)[i][j] = 0; };
+        if (i == j) { (*this)[i][j] = 1; }
+        else { (*this)[i][j] = 0; };
       }
     }
   }

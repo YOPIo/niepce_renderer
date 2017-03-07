@@ -19,7 +19,7 @@ namespace niepce
 class Shape
 {
  public:
-  Shape() = delete;
+  Shape();
   Shape(const std::shared_ptr<Transform>& object_to_world,
         const std::shared_ptr<Transform>& world_to_object);
   virtual ~Shape();
