@@ -5,7 +5,7 @@ namespace niepce
 
 Sphere::Sphere(const std::shared_ptr<Transform>& object_to_world,
                const std::shared_ptr<Transform>& world_to_object,
-               const Float radius) :
+               Float radius) :
     Shape(object_to_world, world_to_object),
     radius_(radius)
 {}
@@ -41,9 +41,11 @@ auto Sphere::IsIntersect(const Ray &ray, Float *t, SurfaceInteraction *surface) 
   // Solve quadratic equation for t
   // See P136
   Float t0, t1;
-  if ( SolveQuadratic(a, b, c, &t0, &t1) ) { return false; } // See P1079
+  if ( !SolveQuadratic(a, b, c, &t0, &t1) ) { return false; }
 
-  const Point3f p_hit( ray(t0) );
+  const Point3f hit_position = ray(t0);
+
+  *surface = SurfaceInteraction();
 
   return true;
 }

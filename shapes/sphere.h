@@ -22,7 +22,7 @@ class Sphere : public Shape
  public:
   Sphere(const std::shared_ptr<Transform>& object_to_world,
          const std::shared_ptr<Transform>& world_to_object,
-         const Float radius);
+         Float radius);
   virtual ~Sphere();
 
   Sphere(const Sphere& sphere) = default;

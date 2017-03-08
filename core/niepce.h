@@ -106,12 +106,96 @@ inline auto SolveQuadratic(Float a, Float b, Float c, Float* t0, Float* t1) -> b
   Float q;
   if (b < 0.f) { q = -0.5f * (b - sqrt_discrim); }
   else         { q = -0.5f * (b + sqrt_discrim); }
-
   *t0 = q / a;
   *t1 = c / q;
   if (*t0 > *t1) { std::swap(*t0, *t1); }
 
   return true;
+}
+
+inline auto FloatToBits(float f) -> uint32_t
+{
+  uint32_t ui;
+  std::memcpy(&ui, &f, sizeof(float));
+  return ui;
+}
+
+inline auto BitsToFloat(uint32_t ui) -> float
+{
+  float f;
+  std::memcpy(&f, &ui, sizeof(ui));
+  return f;
+}
+
+inline auto FloatToBis(double d) -> uint64_t
+{
+  uint64_t ui;
+  std::memcpy(&ui, &d, sizeof(double));
+  return ui;
+}
+
+inline auto BitsToFloat(uint64_t ui) -> double
+{
+  double d;
+  std::memcpy(&d, &ui, sizeof(ui));
+  return d;
+}
+
+inline auto NextFloatUp(float v) -> float
+{
+  // Handle infinity and negative zero.
+  if ( std::isinf(v) && v > 0.f ) { return v; }
+  if (v == -0.f) { return v = 0.f;  }
+
+  uint32_t ui = FloatToBits(v);
+  if (v >= 0) { ++ui; }
+  else        { --ui; }
+
+  return BitsToFloat(ui);
+}
+
+inline auto NextFloatDown(float v) -> float
+{
+  // Handle infinity and posiive zero.
+  if ( std::isinf(v) && v < 0.f ) { return v; }
+  if (v == 0.f) { v = -0.f; }
+
+  uint32_t ui = FloatToBits(v);
+  if (v > 0.f) { --ui; }
+  else         { ++ui; }
+
+  return BitsToFloat(ui);
+}
+
+inline auto NextFloatUp(double v, int delta = 1) -> double
+{
+  // Handle infinity and negative zero.
+  if ( std::isinf(v) && v > 0.f ) { return v; }
+  if (v == -0.f) { return v = 0.f;  }
+
+  uint64_t ui = FloatToBits(v);
+  if (v >= 0) { ui += delta; }
+  else        { ui -= delta; }
+
+  return BitsToFloat(ui);
+}
+
+inline auto NextFloatDown(double v, int delta = 1) -> double
+{
+  // Handle infinity and posiive zero.
+  if ( std::isinf(v) && v < 0.f ) { return v; }
+  if (v == 0.f) { v = -0.f; }
+
+  uint64_t ui = FloatToBits(v);
+  if (v > 0.f) { ui -= delta; }
+  else         { ui += delta; }
+
+  return BitsToFloat(ui);
+}
+
+inline constexpr auto Gamma(int n ) -> Float
+{
+  return (n * kEpsilon) / (1 - n * kEpsilon);
 }
 
 }; // namespace niepce
