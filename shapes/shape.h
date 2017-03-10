@@ -39,12 +39,13 @@ class Shape
   // Check intersection with shape
   virtual auto IsIntersect(const Ray& ray, Float* t, SurfaceInteraction* surface) -> bool = 0;
 
-  auto ToObjectMatrix() -> Matrix4x4f;
+  // Get matrix
+  auto ToLocalMatrix() -> Matrix4x4f;
   auto ToWorldMatrix()  -> Matrix4x4f;
 
  protected:
-  std::shared_ptr<Transform> object_to_world_;
-  std::shared_ptr<Transform> world_to_object_; // Inverse matrix of object_to_world
+  std::shared_ptr<Transform> local_to_world_;
+  std::shared_ptr<Transform> world_to_local_; // Inverse matrix of object_to_world
 
   // Does normal vector aim to inside ?
   // bool reverse_orient;

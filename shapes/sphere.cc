@@ -26,7 +26,7 @@ auto Sphere::ObjectBound() const -> BBox3f
 auto Sphere::IsIntersect(const Ray &ray, Float *t, SurfaceInteraction *surface) -> bool
 {
   // Transform Ray to object space
-  Ray obj_ray( *world_to_object_ * ray );
+  Ray obj_ray( *world_to_local_ * ray );
 
   // Compute quadratic sphere coefficients
   // Todo: Floating-point rounding error
@@ -43,9 +43,9 @@ auto Sphere::IsIntersect(const Ray &ray, Float *t, SurfaceInteraction *surface) 
   Float t0, t1;
   if ( !SolveQuadratic(a, b, c, &t0, &t1) ) { return false; }
 
-  const Point3f  hit_position = *object_to_world_ * obj_ray(t0);
-  const Vector3f direction    = *object_to_world_ * obj_ray.direction;
-  const Normal3f normal       = *object_to_world_ * (hit_position - obj_ray.origin);
+  const Point3f  hit_position = *local_to_world_ * obj_ray(t0);
+  const Vector3f direction    = *local_to_world_ * obj_ray.direction;
+  const Normal3f normal       = *local_to_world_ * (hit_position - obj_ray.origin);
 
   const Point2f  uv;
   const Vector2f dpdu;
@@ -58,6 +58,16 @@ auto Sphere::IsIntersect(const Ray &ray, Float *t, SurfaceInteraction *surface) 
                                 dpdu,         dpdv,
                                 dndu,         dndv);
   return true;
+}
+
+auto Sphere::CenterInWorld() const -> Point3f
+{
+  return  *local_to_world_ * Point3f(0, 0, 0);
+}
+
+auto Sphere::CenterInLocal() const -> Point3f
+{
+  return Point3f(0, 0, 0);
 }
 
 }  // namespace niepce

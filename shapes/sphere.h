@@ -36,6 +36,9 @@ class Sphere : public Shape
   auto ObjectBound() const -> BBox3f;
   auto IsIntersect(const Ray& ray, Float* t, SurfaceInteraction* surface) -> bool;
 
+  auto CenterInWorld() const -> Point3f;
+  auto CenterInLocal() const -> Point3f;
+
  private:
   const Float radius_;
 
