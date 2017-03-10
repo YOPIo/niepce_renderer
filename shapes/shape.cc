@@ -15,4 +15,14 @@ Shape::Shape(const std::shared_ptr<Transform>& object_to_world,
 Shape::~Shape()
 {}
 
+auto Shape::ToObjectMatrix() -> Matrix4x4f
+{
+  return world_to_object_->GetMatrix();
+}
+
+auto Shape::ToWorldMatrix() -> Matrix4x4f
+{
+  return object_to_world_->GetMatrix();
+}
+
 } // namespace niepce

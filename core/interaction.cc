@@ -3,7 +3,10 @@
 namespace niepce
 {
 
-Interaction::Interaction()
+Interaction::Interaction() :
+    position( Point3f() ),
+    direction( Vector3f() ),
+    normal( Normal3f() )
 {}
 
 Interaction::Interaction(const Point3f&  _position,
@@ -12,7 +15,16 @@ Interaction::Interaction(const Point3f&  _position,
     position(_position), direction(_direction), normal(_normal)
 {}
 
-SurfaceInteraction::SurfaceInteraction()
+Interaction::~Interaction()
+{}
+
+SurfaceInteraction::SurfaceInteraction() :
+    Interaction(),
+    uv( Point2f() ),
+    dpdu( Vector2f() ),
+    dpdv( Vector2f() ),
+    dndu( Normal3f() ),
+    dndv( Normal3f() )
 {}
 
 SurfaceInteraction::SurfaceInteraction(const Point3f&  _position, const Vector3f& _direction,
@@ -24,5 +36,7 @@ SurfaceInteraction::SurfaceInteraction(const Point3f&  _position, const Vector3f
     dndu(_dndu), dndv(_dndv)
 {}
 
+SurfaceInteraction::~SurfaceInteraction()
+{}
 
 }  // namespace niepce

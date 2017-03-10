@@ -43,10 +43,20 @@ auto Sphere::IsIntersect(const Ray &ray, Float *t, SurfaceInteraction *surface) 
   Float t0, t1;
   if ( !SolveQuadratic(a, b, c, &t0, &t1) ) { return false; }
 
-  const Point3f hit_position = ray(t0);
+  const Point3f  hit_position = *object_to_world_ * obj_ray(t0);
+  const Vector3f direction    = *object_to_world_ * obj_ray.direction;
+  const Normal3f normal       = *object_to_world_ * (hit_position - obj_ray.origin);
 
-  *surface = SurfaceInteraction();
+  const Point2f  uv;
+  const Vector2f dpdu;
+  const Vector2f dpdv;
+  const Normal3f dndu;
+  const Normal3f dndv;
 
+  *surface = SurfaceInteraction(hit_position, direction,
+                                normal,       uv,
+                                dpdu,         dpdv,
+                                dndu,         dndv);
   return true;
 }
 

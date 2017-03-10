@@ -52,6 +52,11 @@ class Normal3
     return Vector3<T>(x, y, z);
   }
 
+  operator Normal3<T> () const
+  {
+    return Normal3<T>(x, y, z);
+  }
+
   // Basic operation
   auto operator + (const Normal3<T>& n) -> Normal3<T>
   {

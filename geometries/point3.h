@@ -2,6 +2,7 @@
 #define _POINT_3_
 
 #include "../core/niepce.h"
+#include "normal3.h"
 #include "vector3.h"
 
 namespace niepce
@@ -47,9 +48,14 @@ class Point3
     return *(&x + idx);
   }
 
-  operator Vector3<T>() const
+  operator Vector3<T> () const
   {
     return Vector3<T>(x, y, z);
+  }
+
+  operator Normal3<T> () const
+  {
+    return Normal3<T>(x, y, z);
   }
 
   // Offset move

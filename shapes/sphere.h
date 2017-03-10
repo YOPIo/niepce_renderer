@@ -1,10 +1,11 @@
 #ifndef _SPHERE_H_
 #define _SPHERE_H_
 
-#include "../core/niepce.h"
-#include "../core/ray.h"
 #include "../core/boundingbox2.h"
 #include "../core/boundingbox3.h"
+#include "../core/interaction.h"
+#include "../core/niepce.h"
+#include "../core/ray.h"
 #include "../geometries/normal3.h"
 #include "../geometries/point2.h"
 #include "../geometries/point3.h"
@@ -46,7 +47,6 @@ class Sphere : public Shape
   const Float theta_min_, theta_max_, phi_max_;
   */
 };
-
 
 }  // namespace niepce
 

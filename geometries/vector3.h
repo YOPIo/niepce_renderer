@@ -51,6 +51,11 @@ class Vector3
     return Point3<T>(x, y, z);
   }
 
+  operator Normal3<T> () const
+  {
+    return Normal3<T>(x, y, z);
+  }
+
   auto operator + (const Vector3& v) const -> Vector3<T>
   {
     Warningf(!v.HasNaNs(), "Detected NaNs.");
