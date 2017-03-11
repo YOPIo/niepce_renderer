@@ -21,8 +21,8 @@ namespace niepce
 class Sphere : public Shape
 {
  public:
-  Sphere(const std::shared_ptr<Transform>& object_to_world,
-         const std::shared_ptr<Transform>& world_to_object,
+  Sphere(const Transform* object_to_world,
+         const Transform* world_to_object,
          Float radius);
   virtual ~Sphere();
 
@@ -33,11 +33,9 @@ class Sphere : public Shape
   auto operator = (Sphere&& sphere)      -> Sphere& = default;
 
   auto SurfaceArea() const -> Float;
-  auto ObjectBound() const -> BBox3f;
+  auto LocalBoundingBox() const -> BBox3f;
+  auto WorldBoundingBox() const -> BBox3f;
   auto IsIntersect(const Ray& ray, Float* t, SurfaceInteraction* surface) -> bool;
-
-  auto CenterInWorld() const -> Point3f;
-  auto CenterInLocal() const -> Point3f;
 
  private:
   const Float radius_;

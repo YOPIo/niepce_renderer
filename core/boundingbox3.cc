@@ -18,6 +18,34 @@ BoundingBox3<T>::~BoundingBox3()
 {}
 
 template <typename T>
+BoundingBox3<T>::BoundingBox3(const std::initializer_list<Point3<T>>& list)
+{
+  Point3<T> max = Point3<T>::Min();
+  Point3<T> min = Point3<T>::Max();
+  for (auto& p : list)
+  {
+    min = niepce::Min(min, p);
+    max = niepce::Max(max, p);
+  }
+  min_ = min;
+  max_ = max;
+}
+
+template <typename T>
+BoundingBox3<T>::BoundingBox3(std::initializer_list<Point3<T>>&& list)
+{
+  Point3<T> max = Point3<T>::Min();
+  Point3<T> min = Point3<T>::Max();
+  for (auto& p : list)
+  {
+    min = niepce::Min(min, p);
+    max = niepce::Max(max, p);
+  }
+  min_ = min;
+  max_ = max;
+}
+
+template <typename T>
 auto BoundingBox3<T>::operator == (const BoundingBox3<T>& bbox) -> bool
 {
   return min_ == bbox.min_ && max_ == bbox.max_;
@@ -31,14 +59,14 @@ auto BoundingBox3<T>::operator != (const BoundingBox3<T>& bbox) -> bool
 template <typename T>
 auto BoundingBox3<T>::operator[](unsigned int idx) const -> Point3<T>
 {
-  Assertf(idx != 0 || idx != 1, "Out of bounds.");
+  Assertf(idx == 0 || idx == 1, "Out of bounds. [0, 1].");
   return idx == 0 ? min_ : max_;
 }
 
 template <typename T>
 auto BoundingBox3<T>::operator[](unsigned int idx) -> Point3<T>&
 {
-  Assertf(idx != 0 || idx != 1, "Out of bounds.");
+  Assertf(idx == 0 || idx == 1, "Out of bounds. [0, 1].");
   return idx == 0 ? min_ : max_;
 }
 

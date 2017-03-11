@@ -10,11 +10,11 @@ TriangleVertex::TriangleVertex(const Transform& local_to_world,
                                const Point3f&   position,
                                const Normal3f&  normal,
                                const Vector3f&  tangent,
-                               const Point2f&   uv) :
-    position_(local_to_world * position),
-    normal_(local_to_world * normal),
-    tangent_(local_to_world * tangent),
-    uv_(uv)
+                               const Point2f&   uv_coordinate) :
+    position(local_to_world * position),
+    normal(local_to_world * normal),
+    tangent(local_to_world * tangent),
+    uv(uv_coordinate)
 {}
 
 TriangleVertex::~TriangleVertex()
@@ -61,23 +61,35 @@ Triangle::~Triangle()
 
 auto Triangle::SurfaceArea() const -> Float
 {
-  // Transform vertex to local space
-  return 0;
+  // FIXME: 
+  const Point3f p0 = mesh_->operator[](indices_[0]).position;
+  const Point3f p1 = mesh_->operator[](indices_[1]).position;
+  const Point3f p2 = mesh_->operator[](indices_[2]).position;
+  return 0.5f * Cross(p1 - p0, p2 - p0).Length();
 }
 
 auto Triangle::LocalBoundingBox() const -> BBox3f
 {
-  return BBox3f();
+  // Because all of vertices located in world coordinate, transform them to local coordinate
+  // FIXME: 
+  const Point3f p0 = *local_to_world_ * mesh_->operator[](indices_[0]).position;
+  const Point3f p1 = *local_to_world_ * mesh_->operator[](indices_[1]).position;
+  const Point3f p2 = *local_to_world_ * mesh_->operator[](indices_[2]).position;
+  return BBox3f({p0, p1, p2});
 }
 
 auto Triangle::WorldBoundingBox() const -> BBox3f
 {
-  return BBox3f();
+  // FIXME: 
+  const Point3f p0 = mesh_->operator[](indices_[0]).position;
+  const Point3f p1 = mesh_->operator[](indices_[1]).position;
+  const Point3f p2 = mesh_->operator[](indices_[2]).position;
+  return BBox3f({p0, p1, p2});
 }
 
 auto Triangle::IsIntersect(const Ray &ray, Float *t, SurfaceInteraction *surface) const -> bool
 {
-  
+  // TODO: 
   return true;
 }
 

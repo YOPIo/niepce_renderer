@@ -22,6 +22,9 @@ class BoundingBox3
   BoundingBox3& operator = (const BoundingBox3<T>& bbox3) = default;
   BoundingBox3& operator = (BoundingBox3<T>&& bbox3)      = default;
 
+  BoundingBox3(const std::initializer_list<Point3<T>>& list);
+  BoundingBox3(std::initializer_list<Point3<T>>&& list);
+
   auto operator == (const BoundingBox3<T>& bbox) -> bool;
   auto operator != (const BoundingBox3<T>& bbox) -> bool;
 

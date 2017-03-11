@@ -24,10 +24,10 @@ struct TriangleVertex
   auto operator = (const TriangleVertex& tm) -> TriangleVertex& = default;
   auto operator = (TriangleVertex&& tm)      -> TriangleVertex& = default;
 
-  Point3f  position_; // Vertex positions
-  Normal3f normal_;   // Normal vectors at the vertex position
-  Vector3f tangent_;  // Tangent vectors at the vertex position
-  Point2f  uv_;       // Parametric (u, v) values at the vertex position
+  Point3f  position; // Vertex positions
+  Normal3f normal;   // Normal vectors at the vertex position
+  Vector3f tangent;  // Tangent vectors at the vertex position
+  Point2f  uv;       // Parametric (u, v) values at the vertex position
 };
 
 struct TriangleMesh

@@ -20,8 +20,8 @@ class Shape
 {
  public:
   Shape();
-  Shape(const std::shared_ptr<Transform>& object_to_world,
-        const std::shared_ptr<Transform>& world_to_object);
+  Shape(const Transform* local_to_world,
+        const Transform* world_to_local);
   virtual ~Shape();
 
   Shape(const Shape& shape) = default;
@@ -33,15 +33,14 @@ class Shape
   // Reture Surface Area
   virtual auto SurfaceArea() const -> Float = 0;
 
-  // Get BoundingBox
-  virtual auto ObjectBound() const -> BBox3f = 0;
+  // Get a bounding box at the local coordinate system
+  virtual auto LocalBoundingBox() const -> BBox3f = 0;
+
+  // Get a bounding box at the world coordinate system
+  virtual auto WorldBoundingBox() const -> BBox3f = 0;
 
   // Check intersection with shape
   virtual auto IsIntersect(const Ray& ray, Float* t, SurfaceInteraction* surface) -> bool = 0;
-
-  // Get matrix
-  auto ToLocalMatrix() -> Matrix4x4f;
-  auto ToWorldMatrix()  -> Matrix4x4f;
 
  protected:
   std::shared_ptr<Transform> local_to_world_;
