@@ -26,7 +26,9 @@ auto Sphere::ObjectBound() const -> BBox3f
 auto Sphere::IsIntersect(const Ray &ray, Float *t, SurfaceInteraction *surface) -> bool
 {
   // Transform Ray to object space
-  Ray obj_ray( *world_to_local_ * ray );
+  Ray local_ray( *world_to_local_ * ray );
+
+  std::cerr << "Origin: " << local_ray.origin << ", Direction: " << local_ray.direction << std::endl;
 
   // Compute quadratic sphere coefficients
   // Todo: Floating-point rounding error
@@ -43,9 +45,9 @@ auto Sphere::IsIntersect(const Ray &ray, Float *t, SurfaceInteraction *surface) 
   Float t0, t1;
   if ( !SolveQuadratic(a, b, c, &t0, &t1) ) { return false; }
 
-  const Point3f  hit_position = *local_to_world_ * obj_ray(t0);
-  const Vector3f direction    = *local_to_world_ * obj_ray.direction;
-  const Normal3f normal       = *local_to_world_ * (hit_position - obj_ray.origin);
+  const Point3f  hit_position = *local_to_world_ * local_ray(t0);
+  const Vector3f direction    = *local_to_world_ * local_ray.direction;
+  const Normal3f normal       = *local_to_world_ * (hit_position - local_ray.origin);
 
   const Point2f  uv;
   const Vector2f dpdu;
