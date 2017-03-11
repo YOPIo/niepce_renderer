@@ -50,7 +50,8 @@ struct TriangleMesh
   const unsigned int num_triangles_; // Number of tirangles
   const unsigned int num_vertices_;  // Number of vertices
 
-  std::shared_ptr<TriangleVertex> mesh_; // An array of vertices
+  std::vector<unsigned int>       vertex_indices_; // An array of indices
+  std::shared_ptr<TriangleVertex> mesh_;           // An array of vertices
 };
 
 /*

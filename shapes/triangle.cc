@@ -25,10 +25,10 @@ TriangleVertex::~TriangleVertex()
 */
 TriangleMesh::TriangleMesh(unsigned int    num_triangles,  unsigned int          num_vertices,
                            const int*      vertex_indices, const TriangleVertex* mesh) :
-    num_triangles_(num_triangles), num_vertices_(num_vertices)
-{
-  mesh_ = std::shared_ptr<TriangleVertex[]>(mesh, std::default_delete<TriangleVertex[]>());
-}
+    num_triangles_(num_triangles), num_vertices_(num_vertices),
+    vertex_indices_(vertex_indices, vertex_indices + 3 * num_triangles),
+    mesh_(mesh, std::default_delete<TriangleVertex[]>())
+{}
 
 TriangleMesh::~TriangleMesh()
 {}
@@ -62,20 +62,22 @@ Triangle::~Triangle()
 auto Triangle::SurfaceArea() const -> Float
 {
   // Transform vertex to local space
-
+  return 0;
 }
 
 auto Triangle::LocalBoundingBox() const -> BBox3f
 {
+  return BBox3f();
 }
 
 auto Triangle::WorldBoundingBox() const -> BBox3f
 {
+  return BBox3f();
 }
 
 auto Triangle::IsIntersect(const Ray &ray, Float *t, SurfaceInteraction *surface) const -> bool
 {
-
+  
   return true;
 }
 
