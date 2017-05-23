@@ -9,10 +9,14 @@ Interaction::Interaction() :
     normal( Normal3f() )
 {}
 
-Interaction::Interaction(const Point3f&  _position,
-                         const Vector3f& _direction,
-                         const Normal3f& _normal) :
-    position(_position), direction(_direction), normal(_normal)
+Interaction::Interaction(      Float     tt,
+                         const Point3f&  p,
+                         const Vector3f& dir,
+                         const Normal3f& n) :
+    t(tt),
+    position(p),
+    direction(dir),
+    normal(n)
 {}
 
 Interaction::~Interaction()
@@ -27,11 +31,13 @@ SurfaceInteraction::SurfaceInteraction() :
     dndv( Normal3f() )
 {}
 
-SurfaceInteraction::SurfaceInteraction(const Point3f&  _position, const Vector3f& _direction,
-                                       const Normal3f& _normal,   const Point2f&  _uv,
-                                       const Vector2f& _dpdu,     const Vector2f& _dpdv,
-                                       const Normal3f& _dndu,     const Normal3f& _dndv) :
-    Interaction(_position, _direction, _normal), uv(_uv),
+SurfaceInteraction::SurfaceInteraction(Float tt,
+                                       const Point3f&  _pos,  const Vector3f& _dir,
+                                       const Normal3f& _n,    const Point2f&  _uv,
+                                       const Vector2f& _dpdu, const Vector2f& _dpdv,
+                                       const Normal3f& _dndu, const Normal3f& _dndv) :
+    Interaction(tt, _pos, _dir, _n),
+    uv(_uv),
     dpdu(_dpdu), dpdv(_dpdv),
     dndu(_dndu), dndv(_dndv)
 {}

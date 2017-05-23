@@ -21,9 +21,11 @@ namespace niepce
 class Sphere : public Shape
 {
  public:
-  Sphere(const Transform* object_to_world,
-         const Transform* world_to_object,
+  Sphere();
+  Sphere(const std::shared_ptr<Transform>& object_to_world,
+         const std::shared_ptr<Transform>& world_to_object,
          Float radius);
+  Sphere(const Point3f& p, Float radius);
   virtual ~Sphere();
 
   Sphere(const Sphere& sphere) = default;
@@ -32,21 +34,23 @@ class Sphere : public Shape
   auto operator = (const Sphere& sphere) -> Sphere& = default;
   auto operator = (Sphere&& sphere)      -> Sphere& = default;
 
-  auto SurfaceArea() const -> Float;
-  auto LocalBoundingBox() const -> BBox3f;
-  auto WorldBoundingBox() const -> BBox3f;
-  auto IsIntersect(const Ray& ray, Float* t, SurfaceInteraction* surface) -> bool;
 
+  // ---------------------------------------------------------------------------
+  // Sphere public override methods
+  // ---------------------------------------------------------------------------
+ public:
+  auto SurfaceArea()      const -> Float    override;
+  auto LocalBoundingBox() const -> Bounds3f override;
+  auto WorldBoundingBox() const -> Bounds3f override;
+  auto IsIntersect(const Ray&   ray,
+                   Interaction* inter) const -> bool override;
+
+
+  // ---------------------------------------------------------------------------
+  // Sphere private data
+  // ---------------------------------------------------------------------------
  private:
   const Float radius_;
-
-  /*
-  const Float z_min_, z_max_;
-
-  Theta range: [0,  pi]
-  Phi range  : [0, 2pi]
-  const Float theta_min_, theta_max_, phi_max_;
-  */
 };
 
 }  // namespace niepce

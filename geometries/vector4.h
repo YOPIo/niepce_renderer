@@ -17,13 +17,18 @@ class Vector4
   {}
   explicit Vector4(const Point4<T>& p) : x(p.x), y(p.y), z(p.z), w(p.w)
   {
-    Warningf(HasNaNs(), "Detected NaNs");
+    // TODO: Check NaNs
   }
   ~Vector4()
   {}
 
   Vector4(const Vector4& vec4) = default;
   Vector4(Vector4&& vec4)      = default;
+
+
+  // ---------------------------------------------------------------------------
+  // Vector4 public operator
+  // ---------------------------------------------------------------------------
   Vector4& operator = (const Vector4& vec4) = default;
   Vector4& operator = (Vector4&& vec4)      = default;
 
@@ -38,12 +43,12 @@ class Vector4
 
   auto operator [] (unsigned int idx) const -> T
   {
-    Assertf(idx <= 4, "Out of bounds.");
+    // TODO: Check out-of-bounds
     return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
-    Assertf(idx <= 4, "Out of bounds.");
+    // TODO: Check out-of-bounds
     return *(&x + idx);
   }
 
@@ -54,12 +59,12 @@ class Vector4
 
   auto operator + (const Vector4& v) const -> Vector4<T>
   {
-    Warningf(!v.HasNaNs(), "Detected NaNs.");
+    // TODO: Check NaNs
     return Vector4<T>(x + v.x, y + v.y, z + v.z, w + v.w);
   }
   auto operator += (const Vector4& v) -> Vector4<T>&
   {
-    Warningf(!v.HasNaNs(), "Detected NaNs.");
+    // TODO: Check NaNs
     x += v.x;
     y += v.y;
     z += v.z;
@@ -69,12 +74,12 @@ class Vector4
 
   auto operator - (const Vector4& v) const -> Vector4<T>
   {
-    Warningf(!v.HasNaNs(), "Detected NaNs.");
+    // TODO: Check NaNs
     return Vector4<T>(x - v.x, y - v.y, z - v.z, w - v.w);
   }
   auto operator -= (const Vector4& v) -> Vector4<T>&
   {
-    Warningf(!v.HasNaNs(), "Detected NaNs.");
+    // TODO: Check NaNs
     x -= v.x;
     y -= v.y;
     z -= v.z;
@@ -85,13 +90,13 @@ class Vector4
   template<typename U>
   auto operator * (U f) const -> Vector4<T>
   {
-    Warningf(!IsNaN(f), "Detected Nan.");
+    // TODO: Check NaNs
     return Vector4<T>(f * x, f * y, f * z, f * w);
   }
   template<typename U>
   auto operator *= (U f) -> Vector4<T>&
   {
-    Warningf(!IsNaN(f), "Detected NaNs.");
+    // TODO: Check NaNs
     x *= f;
     y *= f;
     z *= f;
@@ -102,14 +107,14 @@ class Vector4
   template<typename U>
   auto operator / (U f) const -> Vector4<T>
   {
-    Warningf(f != 0, "Zero division.");
+    // TODO: Check zero division
     Float inv = 1.0 / f;
     return Vector4<T>(x * inv, y * inv, z * inv, w * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Vector4<T>&
   {
-    Warningf(f != 0, "Zero division.");
+    // TODO: Check zero division
     Float inv = 1.0 / f;
     x *= inv;
     y *= inv;
@@ -123,6 +128,11 @@ class Vector4
     return Vector4<T>(-x, -y, -z, -w);
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Vector4 public methods
+  // ---------------------------------------------------------------------------
+ public:
   auto LengthSquared() const -> Float
   {
     return x * x + y * y + z * z + w * w;
@@ -131,9 +141,12 @@ class Vector4
   {
     return std::sqrt( LengthSquared() );
   }
-  /*
-    constexpr value
-   */
+
+
+  // ---------------------------------------------------------------------------
+  // Vector4 public constant values
+  // ---------------------------------------------------------------------------
+ public:
   static constexpr auto One() -> Point4<T>
   {
     return Point4<T>(1, 1, 1, 1);
@@ -177,18 +190,29 @@ class Vector4
                      std::numeric_limits<T>::epsilon(),
                      std::numeric_limits<T>::epsilon());
   }
+
+
+  // ---------------------------------------------------------------------------
+  // Vector4 private methods
+  // ---------------------------------------------------------------------------
+ private:
   auto HasNaNs() const -> bool
   {
     return IsNaN(x) || IsNaN(y) || IsNaN(z) || IsNaN(w);
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Vector4 public data
+  // ---------------------------------------------------------------------------
  public:
   T x, y, z, w;
 };
 
-/*
-  Inline Global Functions
-*/
+
+// ---------------------------------------------------------------------------
+// Inline Global Functions
+// ---------------------------------------------------------------------------
 template <typename T>
 inline auto operator << (std::ostream& os, const Vector4<T>& v) -> std::ostream&
 {
@@ -202,9 +226,12 @@ inline auto operator * (U f, const Vector4<T>& v) -> Vector4<T>
   return v * f;
 }
 
+
+// Not implemented
 template <typename T>
 inline auto Dot(const Vector4<T>& v1, const Vector4<T>& v2) -> T = delete;
 
+// Not implemented
 template <typename T>
 inline auto Cross(const Vector4<T>& v1, const Vector4<T>& v2) -> Vector4<T> = delete;
 
@@ -230,6 +257,44 @@ template <typename T>
 inline auto Homogeneous(const Vector4<T>& v) -> Vector3<T>
 {
   return Vector3<T>(v.x, v.y, v.z) / v.z;
+}
+
+template <typename T>
+inline auto Min(const Vector4<T>& p0, const Vector4<T>& p1) -> Vector4<T>
+{
+  return Vector4<T>( std::min(p0.x, p1.x),
+                     std::min(p0.y, p1.y),
+                     std::min(p0.z, p1.z),
+                     std::min(p0.w, p1.w));
+}
+
+template <typename T>
+inline auto Max(const Vector4<T>& p0, const Vector4<T>& p1) -> Vector4<T>
+{
+  return Vector4<T>( std::max(p0.x, p1.x),
+                     std::max(p0.y, p1.y),
+                     std::max(p0.z, p1.z),
+                     std::max(p0.w, p1.w));
+}
+
+template <typename T>
+inline auto MinComponentIndex(const Vector4<T>& p) -> int
+{
+  const T v = Min(p);
+  if (v == p.x) { return 0; }
+  if (v == p.y) { return 1; }
+  if (v == p.z) { return 2; }
+  return 3;
+}
+
+template <typename T>
+inline auto MaxComponentIndex(const Vector4<T>& p) -> int
+{
+  const T v = Max(p);
+  if (v == p.x) { return 0; }
+  if (v == p.y) { return 1; }
+  if (v == p.z) { return 2; }
+  return 3;
 }
 
 } // namespace niepce

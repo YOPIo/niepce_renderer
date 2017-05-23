@@ -26,10 +26,17 @@ class Transform
             Float m20, Float m21, Float m22, Float m23,
             Float m30, Float m31, Float m32, Float m33);
   Transform(const Matrix4x4f& m);
+  Transform(const Point3f& p);
   virtual ~Transform();
 
   Transform(const Transform& t) = default;
   Transform(Transform&&      t) = default;
+
+
+  // ---------------------------------------------------------------------------
+  // Transform public operators
+  // ---------------------------------------------------------------------------
+ public:
   auto operator = (const Transform& t) -> Transform& = default;
   auto operator = (Transform&&      t) -> Transform& = default;
 
@@ -39,28 +46,40 @@ class Transform
   auto operator [] (unsigned int idx) const -> Vector4f;
   auto operator [] (unsigned int idx)       -> Vector4f&;
 
+
+  // ---------------------------------------------------------------------------
   // Applying transformatiuons
   // niepce renderer follows right hand coordinate system
-  auto operator * (const Point3f& p)    const -> Point3f;
-  auto operator * (const Vector3f& v)   const -> Vector3f;
-  auto operator * (const Normal3f& n)   const -> Normal3f;
-  auto operator * (const Ray& ray)      const -> Ray;
-  auto operator * (const BBox3f& bbox)  const -> BBox3f;
+  // ---------------------------------------------------------------------------
+  auto operator * (const Point3f& p)     const -> Point3f;
+  auto operator * (const Vector3f& v)    const -> Vector3f;
+  auto operator * (const Normal3f& n)    const -> Normal3f;
+  auto operator * (const Ray& ray)       const -> Ray;
+  auto operator * (const Bounds3f& bbox) const -> Bounds3f;
 
 
+  // ---------------------------------------------------------------------------
+  // Transform public methods
+  // ---------------------------------------------------------------------------
+ public:
   auto GetMatrix()    const -> Matrix4x4f;
   auto GetInvMatrix() const -> Matrix4x4f;
   auto IsIdentity()   const -> bool;
   auto ToIdentity()         -> void;
 
+
+  // ---------------------------------------------------------------------------
+  // Transform private data
+  // ---------------------------------------------------------------------------
  private:
   Matrix4x4f m_;
   Matrix4x4f inv_m_;
 };
 
-/*
-  Global functions for Transform class
-*/
+
+// ---------------------------------------------------------------------------
+// Global functions for Transform class
+// ---------------------------------------------------------------------------
 auto Translate(const Vector3f& delta) -> Transform;
 auto Scale(Float x, Float y, Float z) -> Transform;
 auto RotateX(Float theta)             -> Transform;

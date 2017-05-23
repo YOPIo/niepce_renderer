@@ -26,6 +26,14 @@ Transform::Transform(const Matrix4x4f& m) :
     m_(m), inv_m_( Inverse(m) )
 {}
 
+Transform::Transform(const Point3f& p) :
+    m_( Matrix4x4f(1, 0, 0, p.x,
+                   0, 1, 0, p.y,
+                   0, 0, 1, p.z,
+                   0, 0, 0, 1) ),
+    inv_m_( Inverse(m_) )
+{}
+
 Transform::~Transform()
 {}
 
@@ -41,7 +49,7 @@ auto Transform::operator != (const Transform& t) const -> bool
 
 auto Transform::operator [] (unsigned int idx) const -> Vector4f
 {
-  Assertf(idx >= 4, "Out of bounds.");
+  // Check out-of-bounds
   if (idx == 0) { return m_[0];  }
   if (idx == 1) { return m_[1];  }
   if (idx == 2) { return m_[2];  }
@@ -50,7 +58,7 @@ auto Transform::operator [] (unsigned int idx) const -> Vector4f
 
 auto Transform::operator [] (unsigned int idx) -> Vector4f&
 {
-  Assertf(idx >= 4, "Out of bounds.");
+  // Check out-of-bounds
   if (idx == 0) { return m_[0];  }
   if (idx == 1) { return m_[1];  }
   if (idx == 2) { return m_[2];  }
@@ -91,10 +99,10 @@ auto Transform::operator * (const Ray& ray) const -> Ray
   return Ray(origin, direction);
 }
 
-auto Transform::operator * (const BBox3f& bbox) const -> BBox3f
+auto Transform::operator * (const Bounds3f& bbox) const -> Bounds3f
 {
   const Transform m = *this;
-  BBox3f ret;
+  Bounds3f ret;
   ret = Union(ret, m * Point3f(bbox.Min().x, bbox.Min().y, bbox.Min().z) );
   ret = Union(ret, m * Point3f(bbox.Min().x, bbox.Min().y, bbox.Max().z) );
   ret = Union(ret, m * Point3f(bbox.Min().x, bbox.Max().y, bbox.Min().z) );
@@ -130,10 +138,10 @@ auto Transform::ToIdentity() -> void
   inv_m_ = Inverse(m_);
 }
 
-/*
-  Global functions for Transform class
-*/
 
+// ---------------------------------------------------------------------------
+// Global functions for Transform class
+// ---------------------------------------------------------------------------
 auto Translate(const Vector3f& delta) -> Transform
 {
   return Transform(1.f, 0.f, 0.f, delta.x,

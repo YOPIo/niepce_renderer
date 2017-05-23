@@ -1,18 +1,15 @@
 #ifndef _XORSHIFT_H_
 #define _XORSHIFT_H_
 
-/* Our file includes */
 #include "../core/niepce.h"
-#include "random.h"
 
-/* std includes */
 #include <climits>
 #include <inttypes.h>
 
 namespace niepce
 {
 
-class XorShift : public Random
+class XorShift
 {
  public:
   XorShift();
@@ -22,18 +19,27 @@ class XorShift : public Random
   XorShift(const XorShift& rnd) = default;
   XorShift(XorShift&& rnd)      = default;
 
+
+  // ---------------------------------------------------------------------------
+  // XorShift public operators
+  // ---------------------------------------------------------------------------
+ public:
   auto operator = (const XorShift& rnd) -> XorShift& = default;
   auto operator = (XorShift&& rnd)      -> XorShift& = default;
 
-  /* Public methods */
-  auto Next01()     -> Float;
-  auto NextUInt32() -> uint32_t;
+
+  // ---------------------------------------------------------------------------
+  // XorShift public methods
+  // ---------------------------------------------------------------------------
+ public:
+  static auto Next01()     -> Float;
+  static auto NextUInt32() -> uint32_t;
 
  private:
-  uint32_t x_;
-  uint32_t y_;
-  uint32_t z_;
-  uint32_t w_;
+  static uint32_t x_;
+  static uint32_t y_;
+  static uint32_t z_;
+  static uint32_t w_;
 };
 
 }  // namespace niepce

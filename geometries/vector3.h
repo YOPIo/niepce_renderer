@@ -17,12 +17,18 @@ class Vector3
   {}
   explicit Vector3(const Point3<T>& p) : x(p.x), y(p.y), z(p.z)
   {
-    Warningf(HasNaNs(), "Detected NaNs");
+    // TODO: Check NaNs
   }
   ~Vector3()
   {}
   Vector3(const Vector3& vec3) = default;
   Vector3(Vector3&& vec3)      = default;
+
+
+  // ---------------------------------------------------------------------------
+  // Vector3 public operators
+  // ---------------------------------------------------------------------------
+ public:
   Vector3& operator = (const Vector3& vec3) = default;
   Vector3& operator = (Vector3&& vec3)      = default;
 
@@ -37,12 +43,12 @@ class Vector3
 
   auto operator [] (unsigned int idx) const -> T
   {
-    Assertf(idx <= 3, "Out of bounds.");
+    // TODO: Check Out-of-bounds
     return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
-    Assertf(idx <= 3, "Out of bounds.");
+    // TODO: Check Out-of-bounds
     return *(&x + idx);
   }
 
@@ -58,12 +64,12 @@ class Vector3
 
   auto operator + (const Vector3& v) const -> Vector3<T>
   {
-    Warningf(!v.HasNaNs(), "Detected NaNs.");
+    // TODO: Check NaNs
     return Vector3<T>(x + v.x, y + v.y, z + v.z);
   }
   auto operator += (const Vector3& v) -> Vector3<T>&
   {
-    Warningf(!v.HasNaNs(), "Detected NaNs.");
+    // TODO: Check NaNs
     x += v.x;
     y += v.y;
     z += v.z;
@@ -72,12 +78,12 @@ class Vector3
 
   auto operator - (const Vector3& v) const -> Vector3<T>
   {
-    Warningf(!v.HasNaNs(), "Detected NaNs.");
+    // TODO: Check NaNs
     return Vector3<T>(x - v.x, y - v.y, z - v.z);
   }
   auto operator -= (const Vector3& v) -> Vector3<T>&
   {
-    Warningf(!v.HasNaNs(), "Detected NaNs.");
+    // TODO: Check NaNs
     x -= v.x;
     y -= v.y;
     z -= v.z;
@@ -87,13 +93,13 @@ class Vector3
   template<typename U>
   auto operator * (U f) const -> Vector3<T>
   {
-    Warningf(!IsNaN(f), "Detected Nan.");
+    // TODO: Check NaNs
     return Vector3<T>(f * x, f * y, f * z);
   }
   template<typename U>
   auto operator *= (U f) -> Vector3<T>&
   {
-    Warningf(!IsNaN(f), "Detected NaNs.");
+    // TODO: Check NaNs
     x *= f;
     y *= f;
     z *= f;
@@ -103,14 +109,14 @@ class Vector3
   template<typename U>
   auto operator / (U f) const -> Vector3<T>
   {
-    Warningf(f != 0, "Zero division.");
+    // TODO: Check NaNs, Zero division
     Float inv = 1.0 / f;
     return Vector3<T>(x * inv, y * inv, z * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Vector3<T>&
   {
-    Warningf(f != 0, "Zero division.");
+    // TODO: Check NaNs, Zero division
     Float inv = 1.0 / f;
     x *= inv;
     y *= inv;
@@ -123,6 +129,11 @@ class Vector3
     return Vector3<T>(-x, -y, -z);
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Vector3 public methods
+  // ---------------------------------------------------------------------------
+ public:
   auto LengthSquared() const -> Float
   {
     return x * x + y * y + z * z;
@@ -131,9 +142,11 @@ class Vector3
   {
     return std::sqrt( LengthSquared() );
   }
-  /*
-    Constexpr value
-   */
+
+
+  // ---------------------------------------------------------------------------
+  // Vector3 public constant values
+  // ---------------------------------------------------------------------------
   static constexpr auto One() -> Vector3<T>
   {
     return Vector3<T>(1, 1, 1);
@@ -173,18 +186,28 @@ class Vector3
                       std::numeric_limits<T>::epsilon());
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Vector3 private methods
+  // ---------------------------------------------------------------------------
+ private:
   auto HasNaNs() const -> bool
   {
     return IsNaN(x) || IsNaN(y) || IsNaN(z);
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Vector3 public data
+  // ---------------------------------------------------------------------------
  public:
   T x, y, z;
 };
 
-/*
-  Inline Global Functions
-*/
+
+// ---------------------------------------------------------------------------
+// Inline Global Functions
+// ---------------------------------------------------------------------------
 template <typename T>
 inline auto operator << (std::ostream& os, const Vector3<T>& v) -> std::ostream&
 {
@@ -199,19 +222,55 @@ inline auto operator * (U f, const Vector3<T>& v) -> Vector3<T>
 }
 
 template <typename T>
+inline auto Mult(const Vector3<T>& v1, const Vector3<T>& v2) -> Vector3<T>
+{
+  return Vector3<T>(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z);
+}
+
+template <typename T>
 inline auto Dot(const Vector3<T>& v1, const Vector3<T>& v2) -> T
 {
-  Warningf(v1.HasNaNs() || v2.HasNaNs(), "Detected NaNs");
+  // Check NaNs
   return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+}
+
+template <typename T>
+inline auto Dot(const Vector3<T>& v, const Point3<T>& p) -> T
+{
+  return p.x * v.x + p.y * v.y + p.z * v.z;
+}
+
+template <typename T>
+inline auto Dot(const Point3<T>& p, const Vector3<T>& v) -> T
+{
+  return p.x * v.x + p.y * v.y + p.z * v.z;
 }
 
 template <typename T>
 inline auto Cross(const Vector3<T>& v1, const Vector3<T>& v2) -> Vector3<T>
 {
-  Warningf(v1.HasNaNs() || v2.HasNaNs(), "Detected NaNs.");
+  // Check NaNs
   return Vector3<T>(v1.y * v2.z - v1.z * v2.y,
                     v1.z * v2.x - v1.x * v2.z,
                     v1.x * v2.y - v1.y * v2.x);
+}
+
+template <typename T>
+inline auto Cross(const Vector3<T>& v, const Point3<T>& p) -> Vector3<T>
+{
+  // Check NaNs
+  return Vector3<T>(v.y * p.z - v.z * p.y,
+                    v.z * p.x - v.x * p.z,
+                    v.x * p.y - v.y * p.x);
+}
+
+template <typename T>
+inline auto Cross(const Point3<T>& p, const Vector3<T>& v) -> Vector3<T>
+{
+  // Check NaNs
+  return Vector3<T>(v.y * p.z - v.z * p.y,
+                    v.z * p.x - v.x * p.z,
+                    v.x * p.y - v.y * p.x);
 }
 
 template <typename T>
@@ -230,6 +289,46 @@ template <typename T>
 inline auto Lerp(Float t, const Vector3<T>& v1, const Vector3<T>& v2) -> Vector3<T>
 {
   return t * v1 + (1.f - t) * v2;
+}
+
+template <typename T>
+inline auto Min(const Vector3<T>& v1, const Vector3<T>& v2) -> Vector3<T>
+{
+  return Vector3<T>(std::min(v1.x, v2.x),
+                    std::min(v1.y, v2.y),
+                    std::min(v1.z, v2.z));
+}
+
+template <typename T>
+inline auto Max(const Vector3<T>& v1, const Vector3<T>& v2) -> Vector3<T>
+{
+  return Vector3<T>(std::max(v1.x, v2.x),
+                    std::max(v1.y, v2.y),
+                    std::max(v1.z, v2.z));
+}
+
+template <typename T>
+inline auto MinComponentIndex(const Vector3<T>& p) -> int
+{
+  const T v = Min(p);
+  if (v == p.x) { return 0; }
+  if (v == p.y) { return 1; }
+  return 2;
+}
+
+template <typename T>
+inline auto MaxComponentIndex(const Vector3<T>& p) -> int
+{
+  const T v = Max(p);
+  if (v == p.x) { return 0; }
+  if (v == p.y) { return 1; }
+  return 2;
+}
+
+template <typename T>
+inline auto Permute(const Vector3<T>& p, int x, int y, int z) -> Vector3<T>
+{
+  return Vector3<T>(p[x], p[y], p[z]);
 }
 
 } // namespace niepce

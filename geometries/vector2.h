@@ -17,7 +17,7 @@ class Vector2
   {}
   explicit Vector2(const Point2<T>& p) : x(p.x), y(p.y)
   {
-    Warningf(HasNaNs(), "Detected NaNs");
+    // TODO: Check NaNs
   }
   ~Vector2()
   {}
@@ -27,6 +27,10 @@ class Vector2
   Vector2& operator = (const Vector2& vec2) = default;
   Vector2& operator = (Vector2&& vec2)      = default;
 
+
+  // ---------------------------------------------------------------------------
+  // Vector2 public operator
+  // ---------------------------------------------------------------------------
   auto operator == (const Vector2& v) const noexcept -> bool
   {
     return (x == v.x && y == v.y);
@@ -38,12 +42,12 @@ class Vector2
 
   auto operator [] (unsigned int idx) const -> T
   {
-    Assertf(idx <= 2, "Out of bounds.");
+    // TODO: Throw Out-of-bounds Exception
     return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
-    Assertf(idx <= 2, "Out of bounds.");
+    // TODO: Throw Out-of-bounds Exception
     return *(&x + idx);
   }
 
@@ -54,12 +58,12 @@ class Vector2
 
   auto operator +  (const Vector2& v) const -> Vector2<T>
   {
-    Warningf(!v.HasNaNs(), "Detected NaNs");
+    // TODO: Check NaNs
     return Vector2<T>(x + v.x, y + v.y);
   }
   auto operator += (const Vector2& v) -> Vector2<T>&
   {
-    Warningf(!v.HasNaNs(), "Detected NaNs");
+    // TODO: Check NaNs
     x += v.x;
     y += v.y;
     return *this;
@@ -67,12 +71,12 @@ class Vector2
 
   auto operator - (const Vector2& v) const -> Vector2<T>
   {
-    Warningf(!v.HasNaNs(), "Detected NaNs");
+    // TODO: Check NaNs
     return Vector2<T>(x - v.x, y - v.y);
   }
   auto operator -= (const Vector2& v) -> Vector2<T>&
   {
-    Warningf(!v.HasNaNs(), "Detected NaNs.");
+    // TODO: Check NaNs
     x -= v.x;
     y -= v.y;
     return *this;
@@ -81,14 +85,14 @@ class Vector2
   template<typename U>
   auto operator * (U f) const -> Vector2<T>
   {
-    Warningf(IsNaN(f), "Detected Nan.");
+    // TODO: Check NaNs
     return Vector2<T>(f * x, f * y);
   }
 
   template<typename U>
   auto operator *= (U f) -> Vector2<T>&
   {
-    Warningf(IsNaN(f), "Detected NaNs.");
+    // TODO: Check NaNs
     x *= f;
     y *= f;
     return *this;
@@ -97,14 +101,14 @@ class Vector2
   template<typename U>
   auto operator / (U f) const -> Vector2<T>
   {
-    Warningf(f != 0, "Zero division.");
+    // TODO: Check Zero division
     Float inv = 1.0 / f;
     return Vector2<T>(x * inv, f * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Vector2<T>&
   {
-    Warningf(f != 0, "Zero division.");
+    // TODO: Check Zero division
     Float inv = 1.0 / f;
     x *= inv;
     y *= inv;
@@ -116,6 +120,10 @@ class Vector2
     return Vector2<T>(-x, -y);
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Vector2 public methods
+  // ---------------------------------------------------------------------------
   auto LengthSquared() const -> Float
   {
     return x * x + y * y;
@@ -124,9 +132,12 @@ class Vector2
   {
     return std::sqrt( LengthSquared() );
   }
-  /*
-    constexpr value
-   */
+
+
+  // ---------------------------------------------------------------------------
+  // Vector2 public constant values
+  // ---------------------------------------------------------------------------
+ public:
   static constexpr auto One() -> Vector2<T>
   {
     return Vector2<T>(1, 1);
@@ -159,18 +170,28 @@ class Vector2
                       std::numeric_limits<T>::epsilon());
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Vector2 private methods
+  // ---------------------------------------------------------------------------
+ private:
   auto HasNaNs() const -> bool
   {
     return IsNaN(x) || IsNaN(y);
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Vector2 public data
+  // ---------------------------------------------------------------------------
  public:
   T x, y;
 };
 
-/*
-  Inline Global Functions
-*/
+
+// ---------------------------------------------------------------------------
+// Inline Global Functions
+// ---------------------------------------------------------------------------
 template <typename T>
 inline auto operator << (std::ostream& os, const Vector2<T>& v) -> std::ostream&
 {
@@ -185,16 +206,22 @@ inline auto operator * (U f, const Vector2<T>& v) -> Vector2<T>
 }
 
 template <typename T>
+inline auto operator * (const Vector2<T>& v1, const Vector2<T>& v2) -> Vector2<T>
+{
+  return Vector2<T>(v1.x * v2.x, v1.y * v2.y);
+}
+
+template <typename T>
 inline auto Dot(const Vector2<T>& v1, const Vector2<T>& v2) -> T
 {
-  Warningf(v1.HasNaNs() || v2.HasNaNs(), "Detected NaNs");
+  // Check NaNs
   return v1.x * v2.x + v1.y * v2.y;
 }
 
 template <typename T>
 inline auto Cross(const Vector2<T>& v1, const Vector2<T>& v2) -> T
 {
-  Warningf(v1.HasNaNs() || v2.HasNaNs(), "Detected NaNs");
+  // Check NaNs
   return v1.x * v2.y - v1.y * v2.x;
 }
 
@@ -214,6 +241,36 @@ template <typename T>
 inline auto Lerp(Float t, const Vector2<T>& v1, const Vector2<T>& v2) -> Vector2<T>
 {
   return t * v1 + (1.f - t) * v2;
+}
+
+template <typename T>
+inline auto Min(const Vector2<T>& v1, const Vector2<T>& v2) -> Vector2<T>
+{
+  return Vector2<T>(std::min(v1.x, v2.x),
+                    std::min(v1.y, v2.y));
+}
+
+template <typename T>
+inline auto Max(const Vector2<T>& v1, const Vector2<T>& v2) -> Vector2<T>
+{
+  return Vector2<T>(std::max(v1.x, v2.x),
+                    std::max(v1.y, v2.y));
+}
+
+template <typename T>
+inline auto MinComponentIndex(const Vector2<T>& v) -> int
+{
+  const T val = Min(v);
+  if (val == v.x) { return 0; }
+  return 1;
+}
+
+template <typename T>
+inline auto MaxComponentIndex(const Vector2<T>& v) -> int
+{
+  const T val = Max(v);
+  if (val == v.x) { return 0; }
+  return 1;
 }
 
 } // namespace niepce

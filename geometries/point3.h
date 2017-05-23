@@ -18,13 +18,18 @@ class Point3
   {}
   explicit Point3(const Vector3<T>& v) : x(v.x), y(v.y), z(v.z)
   {
-    Warningf(!HasNaNs(), "Detected NaNs");
+    /// TODO: Check NaNs
   }
   virtual ~Point3()
   {};
 
   Point3(const Point3& p) = default;
   Point3(Point3&& p)      = default;
+
+  // ---------------------------------------------------------------------------
+  // Point3 public operators
+  // ---------------------------------------------------------------------------
+ public:
   Point3& operator = (const Point3& p) = default;
   Point3& operator = (Point3&& p)      = default;
 
@@ -39,12 +44,12 @@ class Point3
 
   auto operator [] (unsigned int idx) const -> T
   {
-    Assertf(idx <= 2, "Out of bounds.");
+    // TODO: Check Out-of-bounds
     return *(&x + idx);
   }
   auto operator [] (unsigned int idx) -> T&
   {
-    Assertf(idx <= 2, "Out of bounds.");
+    // TODO: Check Out-of-bounds
     return *(&x + idx);
   }
 
@@ -58,26 +63,25 @@ class Point3
     return Normal3<T>(x, y, z);
   }
 
-  // Offset move
   auto operator + (const Vector3<T>& p) const -> Point3<T>
   {
-    Warningf(!p.HasNaNs(), "Detected NaNs.");
+    // TODO: Check NaNs
     return Point3<T>(x + p.x, y + p.y, z + p.z);
   }
   auto operator += (const Vector3<T>& p) const -> Point3<T>
   {
-    Warningf(!p.HasNaNs(), "Detected NaNs.");
+    // TODO: Check NaNs
     return Point3<T>(x + p.x, y + p.y, z + p.z);
   }
 
   auto operator * (T f) -> Point3<T>
   {
-    Warningf(!IsNaN(f), "Detected NaNs.");
+    // TODO: Check NaNs
     return Point3<T>(x * f, y * f, z * f);
   }
   auto operator *= (T f) -> Point3<T>&
   {
-    Warningf(!IsNaN(f), "Detected NaNs.");
+    // TODO: Check NaNs
     x *= f;
     y *= f;
     z *= f;
@@ -86,13 +90,13 @@ class Point3
 
   auto operator / (T f) -> Point3<T>
   {
-    Warningf(f != 0, "Detected NaNs.");
+    // TODO: Check NaNs
     Float inv = 1.f / f;
     return Point3<T>(x * inv, y * inv, z * inv);
   }
   auto operator /= (T f) -> Point3<T>&
   {
-    Warningf(f != 0, "Detected NaNs.");
+    // TODO: Check NaNs
     Float inv = 1.f / f;
     x /= inv;
     y /= inv;
@@ -103,10 +107,14 @@ class Point3
   // Generate vector
   auto operator - (const Point3<T>& p) const -> Vector3<T>
   {
-    Warningf(!p.HasNaNs(), "Detected NaNs.");
+    // TODO: Check NaNs
     return Vector3<T>(x - p.x, y - p.y, z - p.z);
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Point3 public methods
+  // ---------------------------------------------------------------------------
   auto LengthSquared() const -> Float
   {
     return x * x + y * y + z * z;
@@ -115,9 +123,12 @@ class Point3
   {
     return std::sqrt( LengthSquared() );
   }
-  /*
-    constexpr value
-   */
+
+
+  // ---------------------------------------------------------------------------
+  // Point3 public constant values
+  // ---------------------------------------------------------------------------
+ public:
   static constexpr auto One() -> Point3<T>
   {
     return Point3<T>(1, 1, 1);
@@ -157,18 +168,29 @@ class Point3
                      std::numeric_limits<T>::epsilon());
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Point3 private methods
+  // ---------------------------------------------------------------------------
+ private:
   auto HasNaNs() const -> bool
   {
     return IsNaN(x) || IsNaN(y) || IsNaN(z);
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Point3 public data
+  // ---------------------------------------------------------------------------
  public:
   T x, y, z;
 };
 
-/*
-  Inline Global Functions
-*/
+
+
+// ---------------------------------------------------------------------------
+// Inline Global Functions
+// ---------------------------------------------------------------------------
 template <typename T>
 inline auto operator << (std::ostream& os, const Point3<T>& v) -> std::ostream&
 {
@@ -208,6 +230,30 @@ inline auto Max(const Point3<T>& p0, const Point3<T>& p1) -> Point3<T>
   return Point3<T>(std::max(p0.x, p1.x),
                    std::max(p0.y, p1.y),
                    std::max(p0.z, p1.z));
+}
+
+template <typename T>
+inline auto MinComponentIndex(const Point3<T>& p) -> int
+{
+  const T v = Min(p);
+  if (v == p.x) { return 0; }
+  if (v == p.y) { return 1; }
+  return 2;
+}
+
+template <typename T>
+inline auto MaxComponentIndex(const Point3<T>& p) -> int
+{
+  const T v = Max(p);
+  if (v == p.x) { return 0; }
+  if (v == p.y) { return 1; }
+  return 2;
+}
+
+template <typename T>
+inline auto Permute(const Point3<T>& p, int x, int y, int z) -> Point3<T>
+{
+  return Point3<T>(p[x], p[y], p[z]);
 }
 
 }  // namespace niepce

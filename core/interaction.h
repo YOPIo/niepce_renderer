@@ -11,19 +11,16 @@
 namespace niepce
 {
 
-class Shape;
-
-/*
-  Store a hit position, ray direction to hit position, normal at the position etc.
-*/
-
-class Interaction
+// ---------------------------------------------------------------------------
+// Store a hit position, ray direction to hit position, normal at the position etc.
+// ---------------------------------------------------------------------------
+struct Interaction
 {
- public:
   Interaction();
-  Interaction(const Point3f&  _position,
-              const Vector3f& _direction,
-              const Normal3f& _normal);
+  Interaction(      Float     t,
+              const Point3f&  p,
+              const Vector3f& dir,
+              const Normal3f& n);
   virtual ~Interaction();
 
   Interaction(const Interaction& interaction) = default;
@@ -32,26 +29,26 @@ class Interaction
   auto operator = (const Interaction& interaction) -> Interaction& = default;
   auto operator = (Interaction&& interaction)      -> Interaction& = default;
 
- public:
+  // ---------------------------------------------------------------------------
+  // Interaction data
+  // ---------------------------------------------------------------------------
+  Float    t;         // 
   Point3f  position;  // Hit position
   Vector3f direction; // Direction to hit position from origin of ray
   Normal3f normal;    // Normal at hit position
 
-  /*
-    Unimplemented
-    Vector3f p_error;
-    Vector3f nagative_direction;
-   */
+  // Vector3f p_error;
+  // Vector3f nagative_direction;
 };
 
-class SurfaceInteraction : public Interaction
+struct SurfaceInteraction : public Interaction
 {
- public:
   SurfaceInteraction();
-  SurfaceInteraction(const Point3f&  _position, const Vector3f& _direction,
-                     const Normal3f& _normal,   const Point2f&  _uv,
-                     const Vector2f& _dpdu,     const Vector2f& _dpdv,
-                     const Normal3f& _dndu,     const Normal3f& _dndv);
+  SurfaceInteraction(Float t,
+                     const Point3f&  pos,   const Vector3f& dir,
+                     const Normal3f& n,     const Point2f&  _uv,
+                     const Vector2f& _dpdu, const Vector2f& _dpdv,
+                     const Normal3f& _dndu, const Normal3f& _dndv);
   virtual ~SurfaceInteraction();
 
   SurfaceInteraction(const SurfaceInteraction& surface) = default;
@@ -60,20 +57,22 @@ class SurfaceInteraction : public Interaction
   auto operator = (const SurfaceInteraction& surface) -> SurfaceInteraction& = default;
   auto operator = (SurfaceInteraction&& surface)      -> SurfaceInteraction& = default;
 
- public:
-  Point2f  uv;         // For texture coordinate
-  Vector2f dpdu, dpdv; // Partial derivative of point
+
+  // ---------------------------------------------------------------------------
+  // Surface interaction data
+  // ---------------------------------------------------------------------------
+  Point2f  uv;         // Texture coordinate
+  Vector2f dpdu, dpdv; // Partial derivative of position
   Normal3f dndu, dndv; // Partial derivative of normal
 
   /*
-    Unimplemented
     struct shading  // For bump shading
     {
       Normal3f n;
       Vector2f dpdu, dpdv;
       Normal3f dndu, dndv;
     };
-   */
+  */
 };
 
 }  // namespace niepce

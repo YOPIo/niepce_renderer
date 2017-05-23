@@ -1,30 +1,52 @@
 #ifndef _NIEPCE_H_
 #define _NIEPCE_H_
 
-// Global include std libraries
+// Global include std libraries and define assert functions
 #include "defines.h"
-
-// Data quality
-typedef float Float;
 
 namespace niepce
 {
 
+// ---------------------------------------------------------------------------
+// Render settings
+// ---------------------------------------------------------------------------
+// Data
+typedef float Float;
+// Maximum depth
+static const Float kMaxDepth = 10;
+// Image size
+static const int kWidth  = 640;
+static const int kHeight = 480;
+// Samples per pixel
+static const int kSamples = 32;
+
+
+// ---------------------------------------------------------------------------
 // Global class declarations
-template <typename T> class Vector2;
-template <typename T> class Vector3;
-template <typename T> class Vector4;
+// Point<2, 3, 4>
+// Vector<2, 3, 4>
+// Normal3
+// Matrix4x4
+// BoundingBox<2, 3>
+// ---------------------------------------------------------------------------
 template <typename T> class Point2;
 template <typename T> class Point3;
 template <typename T> class Point4;
+
+template <typename T> class Vector2;
+template <typename T> class Vector3;
+template <typename T> class Vector4;
+
 template <typename T> class Normal3;
+
 template <typename T> class Matrix4x4;
+
 template <typename T> class BoundingBox2;
 template <typename T> class BoundingBox3;
 
-/*
-  Global typedef
-*/
+// ---------------------------------------------------------------------------
+// Global typedefs
+// ---------------------------------------------------------------------------
 typedef Vector2<int>        Vector2i;
 typedef Vector2<Float>      Vector2f;
 typedef Vector3<int>        Vector3i;
@@ -41,22 +63,22 @@ typedef Normal3<int>        Normal3i;
 typedef Normal3<Float>      Normal3f;
 typedef Matrix4x4<int>      Matrix4x4i;
 typedef Matrix4x4<Float>    Matrix4x4f;
-typedef BoundingBox2<int>   BBox2i;
-typedef BoundingBox2<Float> BBox2f;
-typedef BoundingBox3<int>   BBox3i;
-typedef BoundingBox3<Float> BBox3f;
+typedef BoundingBox2<int>   Bounds2i;
+typedef BoundingBox2<Float> Bounds2f;
+typedef BoundingBox3<int>   Bounds3i;
+typedef BoundingBox3<Float> Bounds3f;
 
-/*
-  Global constant expression
-*/
+// ---------------------------------------------------------------------------
+// Global constant expression
+// ---------------------------------------------------------------------------
 constexpr Float kInfinity = std::numeric_limits<Float>::infinity();
 constexpr Float kFloatMax = std::numeric_limits<Float>::max();
-constexpr Float kEpsilon  = std::numeric_limits<Float>::epsilon() * 0.5;
+constexpr Float kEpsilon  = std::numeric_limits<Float>::epsilon();
 constexpr Float kPi       = 3.14159265358979323846;
 
-/*
-  Global inline functions
-*/
+// ---------------------------------------------------------------------------
+// Global inline functions
+// ---------------------------------------------------------------------------
 inline auto Clamp(Float value, Float min = 0.f, Float max = kInfinity) -> Float
 {
   if (value < min) { return min; }
@@ -93,10 +115,10 @@ inline auto Degrees(Float radian) -> Float
   return (180.f / kPi) * radian;
 }
 
-/*
-  Solve quadratic equation $at^2 + bt + c = 0$
-  Return boolean value whether solution were found or not.
-*/
+// ---------------------------------------------------------------------------
+// Solve quadratic equation $at^2 + bt + c = 0$
+// Return boolean value whether solution were found or not.
+// ---------------------------------------------------------------------------
 inline auto SolveQuadratic(Float a, Float b, Float c, Float* t0, Float* t1) -> bool
 {
   const Float discrim = b * b - 4 * a * c;
