@@ -42,21 +42,21 @@ class Point4
 
   auto operator [] (std::size_t idx) const -> T
   {
-#ifdef DEBUG
+#ifdef Debug
     try { return xyzw.at(idx); }
     catch (const std::out_of_range& e) { console->error(e.what()); }
 #else
     return xyzw[idx];
-#endif // DEBUG
+#endif // Debug
   }
   auto operator [] (std::size_t idx) -> T&
   {
-#ifdef DEBUG
+#ifdef Debug
     try { return xyzw.at(idx); }
     catch (const std::out_of_range& e) { console->error(e.what()); }
 #else
     return xyzw[idx];
-#endif // DEBUG
+#endif // Debug
   }
 
   operator Vector4<T>() const

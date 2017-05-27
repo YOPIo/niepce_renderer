@@ -66,9 +66,9 @@ class Matrix4x4
 
   auto operator [] (const std::size_t idx) const -> std::array<T, 4>
   {
-#ifdef DEBUG
+#ifdef Debug
     // TODO: Range check
-#endif // DEBUG
+#endif // Debug
     if (idx == 0) { return row0; }
     if (idx == 1) { return row1; }
     if (idx == 2) { return row2; }
@@ -76,9 +76,9 @@ class Matrix4x4
   }
   auto operator [] (const std::size_t idx) -> std::array<T, 4>&
   {
-#ifdef DEBUG
+#ifdef Debug
     // TODO: Range check
-#endif // DEBUG
+#endif // Debug
     if (idx == 0) { return row0; }
     if (idx == 1) { return row1; }
     if (idx == 2) { return row2; }
@@ -172,13 +172,13 @@ class Matrix4x4
 
   auto At(std::size_t row, std::size_t col) const -> T
   {
-#ifdef DEBUG
+#ifdef Debug
     if (row >= 4) { throw std::out_of_range("row should be in range[0, 3]."); }
     if (col >= 4) { throw std::out_of_range("column should be in range[0, 3]."); }
     return *(&row0 + row)[col];
 #else
     return *(&row0 + row)[col];
-#endif // DEBUG
+#endif // Debug
   }
 
   auto Row(std::size_t row) const -> std::array<T, 4>

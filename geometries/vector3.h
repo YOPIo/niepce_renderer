@@ -41,21 +41,21 @@ class Vector3
 
   auto operator [] (std::size_t idx) const -> T
   {
-#ifdef DEBUG
+#ifdef Debug
     try { return xyz.at(idx); }
     catch (const std::out_of_range& e) { console->error(e.what()); }
 #else
     return xyz[idx];
-#endif // DEBUG
+#endif // Debug
   }
   auto operator [] (std::size_t idx) -> T&
   {
-#ifdef DEBUG
+#ifdef Debug
     try { return xyz.at(idx); }
     catch (const std::out_of_range& e) { console->error(e.what()); }
 #else
     return xyz[idx];
-#endif // DEBUG
+#endif // Debug
   }
 
   operator Point3<T>() const

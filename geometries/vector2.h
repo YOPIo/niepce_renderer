@@ -40,21 +40,21 @@ class Vector2
 
   auto operator [] (std::size_t idx) const -> T
   {
-#ifdef DEBUG
+#ifdef Debug
     try { return xy.at(idx); }
     catch (const std::out_of_range& e) { console->error(e.what()); }
 #else
     return xy.at(idx);
-#endif // DEBUG
+#endif // Debug
   }
   auto operator [] (std::size_t idx) -> T&
   {
-#ifdef DEBUG
+#ifdef Debug
     try { return xy.at(idx); }
     catch (const std::out_of_range& e) { console->error(e.what()); }
 #else
     return xy.at(idx);
-#endif // DEBUG
+#endif // Debug
   }
 
   operator Point2<T>() const
