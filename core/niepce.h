@@ -1,52 +1,84 @@
 #ifndef _NIEPCE_H_
 #define _NIEPCE_H_
 
-// Global include std libraries and define assert functions
-#include "defines.h"
+
+// ---------------------------------------------------------------------------
+// STL includes
+// ---------------------------------------------------------------------------
+#include <algorithm>
+#include <array>
+#include <cassert>
+#include <cmath>
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <limits>
+#include <memory>
+#include <random>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+
+// ---------------------------------------------------------------------------
+// Dependent libraries
+// ---------------------------------------------------------------------------
+#include <spdlog/async_logger.h>
+#include <spdlog/common.h>
+#include <spdlog/formatter.h>
+#include <spdlog/logger.h>
+#include <spdlog/spdlog.h>
+#include <spdlog/tweakme.h>
 
 namespace niepce
 {
 
 // ---------------------------------------------------------------------------
+// Data quality settings
+// ---------------------------------------------------------------------------
+typedef float Float;
+
+// ---------------------------------------------------------------------------
+// Debug
+// ---------------------------------------------------------------------------
+static auto console = spdlog::stdout_color_mt("console");
+
+// ---------------------------------------------------------------------------
 // Render settings
 // ---------------------------------------------------------------------------
-// Data
-typedef float Float;
 // Maximum depth
-static const Float kMaxDepth = 10;
+static const int kMaxTrace = 10;
+// Samples per pixel
+static const int kSamples = 32;
 // Image size
 static const int kWidth  = 640;
 static const int kHeight = 480;
-// Samples per pixel
-static const int kSamples = 32;
+
+// ---------------------------------------------------------------------------
+// Global constant expression
+// ---------------------------------------------------------------------------
+constexpr Float kInfinity = std::numeric_limits<Float>::infinity();
+constexpr Float kFloatMax = std::numeric_limits<Float>::max();
+constexpr Float kEpsilon  = std::numeric_limits<Float>::epsilon();
+constexpr Float kPi       = 3.14159265358979323846;
 
 
 // ---------------------------------------------------------------------------
 // Global class declarations
-// Point<2, 3, 4>
-// Vector<2, 3, 4>
-// Normal3
-// Matrix4x4
-// BoundingBox<2, 3>
 // ---------------------------------------------------------------------------
+
+// Defined in /geometries
+template <typename T> class BoundingBox2;
+template <typename T> class BoundingBox3;
+template <typename T> class Matrix4x4;
+template <typename T> class Normal3;
 template <typename T> class Point2;
 template <typename T> class Point3;
 template <typename T> class Point4;
-
 template <typename T> class Vector2;
 template <typename T> class Vector3;
 template <typename T> class Vector4;
 
-template <typename T> class Normal3;
-
-template <typename T> class Matrix4x4;
-
-template <typename T> class BoundingBox2;
-template <typename T> class BoundingBox3;
-
-// ---------------------------------------------------------------------------
-// Global typedefs
-// ---------------------------------------------------------------------------
 typedef Vector2<int>        Vector2i;
 typedef Vector2<Float>      Vector2f;
 typedef Vector3<int>        Vector3i;
@@ -68,13 +100,6 @@ typedef BoundingBox2<Float> Bounds2f;
 typedef BoundingBox3<int>   Bounds3i;
 typedef BoundingBox3<Float> Bounds3f;
 
-// ---------------------------------------------------------------------------
-// Global constant expression
-// ---------------------------------------------------------------------------
-constexpr Float kInfinity = std::numeric_limits<Float>::infinity();
-constexpr Float kFloatMax = std::numeric_limits<Float>::max();
-constexpr Float kEpsilon  = std::numeric_limits<Float>::epsilon();
-constexpr Float kPi       = 3.14159265358979323846;
 
 // ---------------------------------------------------------------------------
 // Global inline functions
@@ -104,13 +129,13 @@ inline auto IsNaN(const int val) -> bool
 }
 
 // Convert to radians from degree
-inline auto Radians(Float degree) -> Float
+inline auto ToRadians(Float degree) -> Float
 {
   return (kPi / 180.f) * degree;
 }
 
 // Convert to degrees from radian
-inline auto Degrees(Float radian) -> Float
+inline auto ToDegrees(Float radian) -> Float
 {
   return (180.f / kPi) * radian;
 }

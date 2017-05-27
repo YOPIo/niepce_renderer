@@ -2,12 +2,11 @@
 #define _PCG_H_
 
 #include "../core/niepce.h"
-#include "random.h"
 
 namespace niepce
 {
 
-class PCG : public Random
+class PCG
 {
  public:
   PCG();

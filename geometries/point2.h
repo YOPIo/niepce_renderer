@@ -16,14 +16,17 @@ class Point2
   Point2(T xx, T yy) : x(xx), y(yy)
   {}
   explicit Point2(const Vector2<T>& v) : x(v.x), y(v.y)
-  {
-    Warningf(!HasNaNs(), "Detected NaNs");
-  }
+  {}
   virtual ~Point2()
   {};
 
   Point2(const Point2& p) = default;
   Point2(Point2&& p)      = default;
+
+
+  // ---------------------------------------------------------------------------
+  // Point2 public operators
+  // ---------------------------------------------------------------------------
   Point2& operator = (const Point2& p) = default;
   Point2& operator = (Point2&& p)      = default;
 
@@ -36,15 +39,23 @@ class Point2
     return (x != p.x || y != p.y);
   }
 
-  auto operator [] (unsigned int idx) const -> T
+  auto operator [] (std::size_t idx) const -> T
   {
-    Assertf(idx <= 1, "Out of range [0, 2].");
-    return *(&x + idx);
+#ifdef DEBUG
+    try { return xyz.at(idx); }
+    catch (const std::out_of_range& e) { console->error(e.what()); }
+#else
+    return xy[idx];
+#endif
   }
-  auto operator [] (unsigned int idx) -> T&
+  auto operator [] (std::size_t idx) -> T&
   {
-    Assertf(idx <= 1, "Out of range [0, 2].");
-    return *(&x + idx);
+#ifdef DEBUG
+    try { return xyz.at(idx); }
+    catch (const std::out_of_range& e) { console->error(e.what()); }
+#else
+    return xy[idx];
+#endif
   }
 
   operator Vector2<T>() const
@@ -55,12 +66,10 @@ class Point2
   // Offset move
   auto operator + (const Vector2<T>& v) const -> Point2<T>
   {
-    Warningf(!v.HasNaNs(), "Detected");
     return Point2<T>(x + v.x, y + v.y);
   }
   auto operator += (const Vector2<T>& v) -> Point2<T>&
   {
-    Warningf(!v.HasNaNs(), "Detected");
     x += v.x;
     y += v.y;
     return *this;
@@ -68,12 +77,10 @@ class Point2
 
   auto operator * (T f) const -> Point2<T>
   {
-    Warningf(!IsNaN(f), "Detected NaNs.");
     return Point2<T>(x * f, y * f);
   }
   auto operator *= (T f) -> Point2<T>&
   {
-    Warningf(!IsNaN(f), "Detected NaNs.");
     x *= f;
     y *= f;
     return *this;
@@ -81,13 +88,11 @@ class Point2
 
   auto operator / (T f) const -> Point2<T>
   {
-    Warningf(f != 0, "Zero division.");
     Float inv = 1.f / f;
     return Point2<T>(x * inv, y * inv);
   }
   auto operator /= (T f) -> Point2<T>&
   {
-    Warningf(f != 0, "Zero division..");
     Float inv = 1.f / f;
     x /= inv;
     y /= inv;
@@ -97,10 +102,14 @@ class Point2
   // Generate vector
   auto operator - (const Point2<T>& p) const -> Vector2<T>
   {
-    Warningf(!p.HasNaNs(), "Detected");
     return Vector2<T>(x - p.x, y - p.y);
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Point2 public methods
+  // ---------------------------------------------------------------------------
+ public:
   auto LengthSquared() const -> Float
   {
     return x * x + y * y;
@@ -110,9 +119,10 @@ class Point2
     return std::sqrt( LengthSquared() );
   }
 
-  /*
-    Constexpr value
-   */
+
+  // ---------------------------------------------------------------------------
+  // Point2 public constant value
+  // ---------------------------------------------------------------------------
   static constexpr auto One() -> Point2<T>
   {
     return Point2<T>(1, 1);
@@ -145,18 +155,28 @@ class Point2
                      std::numeric_limits<T>::epsilon());
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Point2 private methods
+  // ---------------------------------------------------------------------------
+ private:
   auto HasNaNs() const -> bool
   {
     return IsNaN(x) || IsNaN(y);
   }
 
  public:
-  T x, y;
+  union
+  {
+    struct { T x, y; };
+    std::array<T, 2> xy;
+  };
 };
 
-/*
-  Inline Global Functions
-*/
+
+// ---------------------------------------------------------------------------
+// Inline Global Functions
+// ---------------------------------------------------------------------------
 template <typename T>
 inline auto operator << (std::ostream& os, const Point2<T>& v) -> std::ostream&
 {

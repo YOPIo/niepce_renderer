@@ -2,11 +2,6 @@
 #define _MATRIX4X4_H_
 
 #include "../core/niepce.h"
-#include "vector2.h"
-#include "vector3.h"
-#include "vector4.h"
-#include "point2.h"
-#include "point3.h"
 
 namespace niepce
 {
@@ -44,6 +39,12 @@ class Matrix4x4
 
   Matrix4x4(const Matrix4x4& m) = default;
   Matrix4x4(Matrix4x4&&      m) = default;
+
+
+  // ---------------------------------------------------------------------------
+  // Matrix4x4 public operator
+  // ---------------------------------------------------------------------------
+ public:
   auto operator = (const Matrix4x4& m) -> Matrix4x4& = default;
   auto operator = (Matrix4x4&&      m) -> Matrix4x4& = default;
 
@@ -60,24 +61,24 @@ class Matrix4x4
   }
   auto operator != (const Matrix4x4& m) const -> bool
   {
-    for (int i = 0; i < 4; ++i)
-    {
-      for (int j = 0 ; j < 4; ++j)
-      {
-        if ((*this)[i][j] != m[i][j]) { return true; }
-      }
-    }
-    return false;
+    return !(*this == m);
   }
 
-  auto operator [] (const unsigned int idx) const -> Vector4<T>
+  auto operator [] (const std::size_t idx) const -> std::array<T, 4>
   {
-    Assertf(idx <= 3, "Out of range [0, 3].");
-    return *(&row0 + idx);
+#ifdef DEBUG
+    // TODO: Range check
+#endif // DEBUG
+    if (idx == 0) { return row0; }
+    if (idx == 1) { return row1; }
+    if (idx == 2) { return row2; }
+    return row3;
   }
-  auto operator [] (const unsigned int idx) -> Vector4<T>&
+  auto operator [] (const std::size_t idx) -> std::array<T, 4>&
   {
-    Assertf(idx <= 3, "Out of range [0, 3].");
+#ifdef DEBUG
+    // TODO: Range check
+#endif // DEBUG
     if (idx == 0) { return row0; }
     if (idx == 1) { return row1; }
     if (idx == 2) { return row2; }
@@ -86,7 +87,6 @@ class Matrix4x4
 
   auto operator + (const Matrix4x4<T>& m) const -> Matrix4x4<T>
   {
-    Warningf(!m.HasNaNs(), "Detected NaN.");
     return Matrix4x4<T>((*this)[0][0] + m[0][0], (*this)[0][1] + m[0][1], (*this)[0][2] + m[0][2], (*this)[0][3] + m[0][3],
                         (*this)[1][0] + m[1][0], (*this)[1][1] + m[1][1], (*this)[1][2] + m[1][2], (*this)[1][3] + m[1][3],
                         (*this)[2][0] + m[2][0], (*this)[2][1] + m[2][1], (*this)[2][2] + m[2][2], (*this)[2][3] + m[2][3],
@@ -94,7 +94,6 @@ class Matrix4x4
   }
   auto operator += (const Matrix4x4<T>& m) -> Matrix4x4<T>&
   {
-    Warningf(!m.HasNaNs(), "Detected NaN.");
     for (int i = 0; i < 4; ++i)
     {
       for (int j = 0; j < 4; ++j)
@@ -107,7 +106,6 @@ class Matrix4x4
 
   auto operator - (const Matrix4x4<T>& m) const -> Matrix4x4<T>
   {
-    Warningf(!m.HasNaNs(), "Detected NaN.");
     return Matrix4x4<T>((*this)[0][0] - m[0][0], (*this)[0][1] - m[0][1], (*this)[0][2] - m[0][2], (*this)[0][3] - m[0][3],
                         (*this)[1][0] - m[1][0], (*this)[1][1] - m[1][1], (*this)[1][2] - m[1][2], (*this)[1][3] - m[1][3],
                         (*this)[2][0] - m[2][0], (*this)[2][1] - m[2][1], (*this)[2][2] - m[2][2], (*this)[2][3] - m[2][3],
@@ -115,7 +113,6 @@ class Matrix4x4
   }
   auto operator -= (const Matrix4x4<T>& m) -> Matrix4x4<T>&
   {
-    Warningf(!m.HasNaNs(), "Detected NaN.");
     for (int i = 0; i < 4; ++i)
     {
       for (int j = 0; j < 4; ++j)
@@ -128,7 +125,6 @@ class Matrix4x4
 
   auto operator * (const Matrix4x4<T>& m) const -> Matrix4x4<T>
   {
-    Warningf(!m.HasNaNs(), "Detected NaN.");
     Matrix4x4<T> ret;
     for (int i = 0; i < 4; ++i)
     {
@@ -140,7 +136,6 @@ class Matrix4x4
   }
   auto operator * (T v) const -> Matrix4x4<T>
   {
-    Warningf(!IsNaN(v), "Detected NaN.");
     Matrix4x4<T> ret;
     for (int i = 0; i < 4; ++i)
     {
@@ -175,20 +170,25 @@ class Matrix4x4
     return *this;
   }
 
-  auto At(unsigned int row, unsigned int col) const -> T
+  auto At(std::size_t row, std::size_t col) const -> T
   {
-    Assertf(row <= 3 && col <= 3, "Out of range [0, 3].");
+#ifdef DEBUG
+    if (row >= 4) { throw std::out_of_range("row should be in range[0, 3]."); }
+    if (col >= 4) { throw std::out_of_range("column should be in range[0, 3]."); }
     return *(&row0 + row)[col];
+#else
+    return *(&row0 + row)[col];
+#endif // DEBUG
   }
 
-  auto Row(unsigned int row) const -> Vector4<T>
+  auto Row(std::size_t row) const -> std::array<T, 4>
   {
-    Assertf(row <= 3, "Out of range [0, 3].");
+    // TODO: Range check
     return *(&row0 + row);
   }
-  auto SetRow(unsigned int idx, const Vector4<T>& row) -> void
+  auto SetRow(std::size_t idx, const Vector4<T>& row) -> void
   {
-    Assertf(idx <= 3, "Out of range [0, 3].");
+    // TODO: Range check
     *(&row0 + idx) = row;
   }
   auto SwapRows(unsigned int r0, unsigned int r1) -> void
@@ -198,9 +198,9 @@ class Matrix4x4
     SetRow(r1, temp);
   }
 
-  auto Column(unsigned int col) const -> Vector4<T>
+  auto Column(unsigned int col) const -> std::array<T, 4>
   {
-    Assertf(col <= 3, "Out of range [0, 3].");
+    // TODO: Range check
     if (col == 0) { return Vector4<T>(m00, m10, m20, m30);  }
     if (col == 1) { return Vector4<T>(m01, m11, m21, m31);  }
     if (col == 2) { return Vector4<T>(m02, m22, m22, m32);  }
@@ -208,7 +208,7 @@ class Matrix4x4
   }
   auto SetColumn(unsigned int idx, const Vector4<T>& col) -> void
   {
-    Assertf(idx <= 3, "Out of range [0, 3].");
+    // TODO: Range check
     row0[idx] = col[0];
     row1[idx] = col[1];
     row2[idx] = col[2];
@@ -221,6 +221,11 @@ class Matrix4x4
     SetColumn(c1, temp);
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Matrix4x4 public methods
+  // ---------------------------------------------------------------------------
+ public:
   auto ToIdentity() -> void
   {
     for (int i = 0; i < 4; ++i)
@@ -232,6 +237,11 @@ class Matrix4x4
       }
     }
   }
+
+  // ---------------------------------------------------------------------------
+  // Matrix private methods
+  // ---------------------------------------------------------------------------
+ private:
   auto HasNaNs() -> bool
   {
     for (int i = 0; i < 4; ++i)
@@ -244,45 +254,48 @@ class Matrix4x4
     return false;
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Matrix4x4 public data
+  // ---------------------------------------------------------------------------
  public:
     union
     {
-      Vector4<T> row0;
+      std::array<T, 4> row0;
       struct { T m00, m01, m02, m03; };
     };
     union
     {
-      Vector4<T> row1;
+      std::array<T, 4> row1;
       struct { T m10, m11, m12, m13; };
     };
     union
     {
-      Vector4<T> row2;
+      std::array<T, 4> row2;
       struct { T m20, m21, m22, m23; };
     };
     union
     {
-      Vector4<T> row3;
+      std::array<T, 4> row3;
       struct { T m30, m31, m32, m33; };
     };
 };
 
-/*
-  Global inline function
-*/
+
+// ---------------------------------------------------------------------------
+// Global inline function
+// ---------------------------------------------------------------------------
 template <typename T>
 inline auto operator << (std::ostream& os, const Matrix4x4<T>& m) -> std::ostream&
 {
-  os << m[0] << "\n" <<
-        m[1] << "\n" <<
-        m[2] << "\n" <<
-        m[3];
+  // TODO: Implementation
   return os;
 }
 
-/*
-  Global functions
-*/
+
+// ---------------------------------------------------------------------------
+// Global functions
+// ---------------------------------------------------------------------------
 template <typename T>
 auto Inverse(const Matrix4x4<T>& m) -> Matrix4x4<T>;
 

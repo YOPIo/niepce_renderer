@@ -16,9 +16,7 @@ class Vector3
   Vector3(T xx, T yy, T zz) : x(xx), y(yy), z(zz)
   {}
   explicit Vector3(const Point3<T>& p) : x(p.x), y(p.y), z(p.z)
-  {
-    // TODO: Check NaNs
-  }
+  {}
   ~Vector3()
   {}
   Vector3(const Vector3& vec3) = default;
@@ -41,22 +39,29 @@ class Vector3
     return (x != v.x || y != v.y || z != v.z);
   }
 
-  auto operator [] (unsigned int idx) const -> T
+  auto operator [] (std::size_t idx) const -> T
   {
-    // TODO: Check Out-of-bounds
-    return *(&x + idx);
+#ifdef DEBUG
+    try { return xyz.at(idx); }
+    catch (const std::out_of_range& e) { console->error(e.what()); }
+#else
+    return xyz[idx];
+#endif // DEBUG
   }
-  auto operator [] (unsigned int idx) -> T&
+  auto operator [] (std::size_t idx) -> T&
   {
-    // TODO: Check Out-of-bounds
-    return *(&x + idx);
+#ifdef DEBUG
+    try { return xyz.at(idx); }
+    catch (const std::out_of_range& e) { console->error(e.what()); }
+#else
+    return xyz[idx];
+#endif // DEBUG
   }
 
   operator Point3<T>() const
   {
     return Point3<T>(x, y, z);
   }
-
   operator Normal3<T> () const
   {
     return Normal3<T>(x, y, z);
@@ -64,12 +69,10 @@ class Vector3
 
   auto operator + (const Vector3& v) const -> Vector3<T>
   {
-    // TODO: Check NaNs
     return Vector3<T>(x + v.x, y + v.y, z + v.z);
   }
   auto operator += (const Vector3& v) -> Vector3<T>&
   {
-    // TODO: Check NaNs
     x += v.x;
     y += v.y;
     z += v.z;
@@ -78,12 +81,10 @@ class Vector3
 
   auto operator - (const Vector3& v) const -> Vector3<T>
   {
-    // TODO: Check NaNs
     return Vector3<T>(x - v.x, y - v.y, z - v.z);
   }
   auto operator -= (const Vector3& v) -> Vector3<T>&
   {
-    // TODO: Check NaNs
     x -= v.x;
     y -= v.y;
     z -= v.z;
@@ -93,13 +94,11 @@ class Vector3
   template<typename U>
   auto operator * (U f) const -> Vector3<T>
   {
-    // TODO: Check NaNs
     return Vector3<T>(f * x, f * y, f * z);
   }
   template<typename U>
   auto operator *= (U f) -> Vector3<T>&
   {
-    // TODO: Check NaNs
     x *= f;
     y *= f;
     z *= f;
@@ -109,14 +108,12 @@ class Vector3
   template<typename U>
   auto operator / (U f) const -> Vector3<T>
   {
-    // TODO: Check NaNs, Zero division
     Float inv = 1.0 / f;
     return Vector3<T>(x * inv, y * inv, z * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Vector3<T>&
   {
-    // TODO: Check NaNs, Zero division
     Float inv = 1.0 / f;
     x *= inv;
     y *= inv;
@@ -201,7 +198,11 @@ class Vector3
   // Vector3 public data
   // ---------------------------------------------------------------------------
  public:
-  T x, y, z;
+  union
+  {
+    struct { T x, y, z; };
+    std::array<T, 3> xyz;
+  };
 };
 
 

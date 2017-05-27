@@ -16,14 +16,18 @@ class Point4
   Point4(T xx, T yy, T zz, T ww) : x(xx), y(yy), z(zz), w(ww)
   {}
   explicit Point4(const Vector4<T>& v) : x(v.x), y(v.y), z(v.z), w(v.w)
-  {
-    Warningf(HasNaNs(), "Detected NaNs");
-  }
+  {}
   virtual ~Point4()
   {}
 
   Point4(const Point4& p4) = default;
   Point4(Point4&& p4)      = default;
+
+
+  // ---------------------------------------------------------------------------
+  // Point4 public operators
+  // ---------------------------------------------------------------------------
+ public:
   Point4& operator = (const Point4& p4) = default;
   Point4& operator = (Point4&& p4)      = default;
 
@@ -36,15 +40,23 @@ class Point4
     return (x != p.x || y != p.y || z != p.z || w != p.w);
   }
 
-  auto operator [] (unsigned int idx) const -> T
+  auto operator [] (std::size_t idx) const -> T
   {
-    Assertf(idx <= 4, "Out of bounds.");
-    return *(&x + idx);
+#ifdef DEBUG
+    try { return xyzw.at(idx); }
+    catch (const std::out_of_range& e) { console->error(e.what()); }
+#else
+    return xyzw[idx];
+#endif // DEBUG
   }
-  auto operator [] (unsigned int idx) -> T&
+  auto operator [] (std::size_t idx) -> T&
   {
-    Assertf(idx <= 4, "Out of bounds.");
-    return *(&x + idx);
+#ifdef DEBUG
+    try { return xyzw.at(idx); }
+    catch (const std::out_of_range& e) { console->error(e.what()); }
+#else
+    return xyzw[idx];
+#endif // DEBUG
   }
 
   operator Vector4<T>() const
@@ -54,12 +66,10 @@ class Point4
 
   auto operator + (const Point4& p) const -> Point4<T>
   {
-    Warningf(!p.HasNaNs(), "Detected NaNs.");
     return Point4<T>(x + p.x, y + p.y, z + p.z, w + p.w);
   }
   auto operator += (const Point4& p) -> Point4<T>&
   {
-    Warningf(!p.HasNaNs(), "Detected NaNs.");
     x += p.x;
     y += p.y;
     z += p.z;
@@ -69,12 +79,10 @@ class Point4
 
   auto operator - (const Point4& p) const -> Point4<T>
   {
-    Warningf(!p.HasNaNs(), "Detected NaNs.");
     return Point4<T>(x - p.x, y - p.y, z - p.z, w - p.w);
   }
   auto operator -= (const Point4& p) -> Point4<T>&
   {
-    Warningf(!p.HasNaNs(), "Detected NaNs.");
     x -= p.x;
     y -= p.y;
     z -= p.z;
@@ -85,13 +93,11 @@ class Point4
   template<typename U>
   auto operator * (U f) const -> Point4<T>
   {
-    Warningf(!IsNaN(f), "Detected Nan.");
     return Point4<T>(f * x, f * y, f * z, f * w);
   }
   template<typename U>
   auto operator *= (U f) -> Point4<T>&
   {
-    Warningf(!IsNaN(f), "Detected NaNs.");
     x *= f;
     y *= f;
     z *= f;
@@ -102,14 +108,12 @@ class Point4
   template<typename U>
   auto operator / (U f) const -> Point4<T>
   {
-    Warningf(f != 0, "Zero division.");
     Float inv = 1.0 / f;
     return Point4<T>(x * inv, y * inv, z * inv, w * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Point4<T>&
   {
-    Warningf(f != 0, "Zero division.");
     Float inv = 1.0 / f;
     x *= inv;
     y *= inv;
@@ -131,9 +135,11 @@ class Point4
   {
     return std::sqrt( LengthSquared() );
   }
-  /*
-    constexpr value
-   */
+
+
+  // ---------------------------------------------------------------------------
+  // Point4 public methods
+  // ---------------------------------------------------------------------------
   static constexpr auto One() -> Point4<T>
   {
     return Point4<T>(1, 1, 1, 1);
@@ -178,18 +184,32 @@ class Point4
                      std::numeric_limits<T>::epsilon());
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Point4 private methods
+  // ---------------------------------------------------------------------------
+ private:
   auto HasNaNs() const -> bool
   {
     return IsNaN(x) || IsNaN(y) || IsNaN(z) || IsNaN(w);
   }
 
+
+  // ---------------------------------------------------------------------------
+  // Point4 public data
+  // ---------------------------------------------------------------------------
  public:
-  T x, y, z, w;
+  union
+  {
+    struct { T x, y, z, w; };
+    std::array<T, 4> xyzw;
+  };
 };
 
-/*
-  Inline Global Functions
-*/
+
+// ---------------------------------------------------------------------------
+// Inline Global Functions
+// ---------------------------------------------------------------------------
 template <typename T>
 inline auto operator << (std::ostream& os, const Point4<T>& p) -> std::ostream&
 {

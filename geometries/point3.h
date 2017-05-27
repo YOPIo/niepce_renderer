@@ -42,15 +42,23 @@ class Point3
     return (x != p.x || y != p.y || z != p.z);
   }
 
-  auto operator [] (unsigned int idx) const -> T
+  auto operator [] (std::size_t idx) const -> T
   {
-    // TODO: Check Out-of-bounds
-    return *(&x + idx);
+#ifdef DEBUG
+    try { return xyz.at(idx); }
+    catch (const std::out_of_range& e) { console->error(e.what()); }
+#else
+    return xyz[idx];
+#endif // DEBUG
   }
-  auto operator [] (unsigned int idx) -> T&
+  auto operator [] (std::size_t idx) -> T&
   {
-    // TODO: Check Out-of-bounds
-    return *(&x + idx);
+#ifdef DEBUG
+    try { return xyz.at(idx); }
+    catch (const std::out_of_range& e) { console->error(e.what()); }
+#else
+    return xyz[idx];
+#endif // DEBUG
   }
 
   operator Vector3<T> () const
@@ -65,23 +73,19 @@ class Point3
 
   auto operator + (const Vector3<T>& p) const -> Point3<T>
   {
-    // TODO: Check NaNs
     return Point3<T>(x + p.x, y + p.y, z + p.z);
   }
   auto operator += (const Vector3<T>& p) const -> Point3<T>
   {
-    // TODO: Check NaNs
     return Point3<T>(x + p.x, y + p.y, z + p.z);
   }
 
   auto operator * (T f) -> Point3<T>
   {
-    // TODO: Check NaNs
     return Point3<T>(x * f, y * f, z * f);
   }
   auto operator *= (T f) -> Point3<T>&
   {
-    // TODO: Check NaNs
     x *= f;
     y *= f;
     z *= f;
@@ -90,13 +94,11 @@ class Point3
 
   auto operator / (T f) -> Point3<T>
   {
-    // TODO: Check NaNs
     Float inv = 1.f / f;
     return Point3<T>(x * inv, y * inv, z * inv);
   }
   auto operator /= (T f) -> Point3<T>&
   {
-    // TODO: Check NaNs
     Float inv = 1.f / f;
     x /= inv;
     y /= inv;
@@ -183,7 +185,11 @@ class Point3
   // Point3 public data
   // ---------------------------------------------------------------------------
  public:
-  T x, y, z;
+  union
+  {
+    struct { T x, y, z; };
+    std::array<T, 3> xyz;
+  };
 };
 
 

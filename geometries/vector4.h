@@ -16,9 +16,7 @@ class Vector4
   Vector4(T xx, T yy, T zz, T ww) : x(xx), y(yy), z(zz), w(ww)
   {}
   explicit Vector4(const Point4<T>& p) : x(p.x), y(p.y), z(p.z), w(p.w)
-  {
-    // TODO: Check NaNs
-  }
+  {}
   ~Vector4()
   {}
 
@@ -41,15 +39,23 @@ class Vector4
     return (x != v.x || y != v.y || z != v.z || w != v.w);
   }
 
-  auto operator [] (unsigned int idx) const -> T
+  auto operator [] (std::size_t idx) const -> T
   {
-    // TODO: Check out-of-bounds
-    return *(&x + idx);
+#ifdef DEBUG
+    try { return xyzw.at(idx); }
+    catch (const std::out_of_range& e) { console->error(e.what()); }
+#else
+    return xyzw[idx];
+#endif // DEBUG
   }
-  auto operator [] (unsigned int idx) -> T&
+  auto operator [] (std::size_t idx) -> T&
   {
-    // TODO: Check out-of-bounds
-    return *(&x + idx);
+#ifdef DEBUG
+    try { return xyzw.at(idx); }
+    catch (const std::out_of_range& e) { console->error(e.what()); }
+#else
+    return xyzw[idx];
+#endif // DEBUG
   }
 
   operator Point4<T>() const
@@ -59,12 +65,10 @@ class Vector4
 
   auto operator + (const Vector4& v) const -> Vector4<T>
   {
-    // TODO: Check NaNs
     return Vector4<T>(x + v.x, y + v.y, z + v.z, w + v.w);
   }
   auto operator += (const Vector4& v) -> Vector4<T>&
   {
-    // TODO: Check NaNs
     x += v.x;
     y += v.y;
     z += v.z;
@@ -74,12 +78,10 @@ class Vector4
 
   auto operator - (const Vector4& v) const -> Vector4<T>
   {
-    // TODO: Check NaNs
     return Vector4<T>(x - v.x, y - v.y, z - v.z, w - v.w);
   }
   auto operator -= (const Vector4& v) -> Vector4<T>&
   {
-    // TODO: Check NaNs
     x -= v.x;
     y -= v.y;
     z -= v.z;
@@ -90,13 +92,11 @@ class Vector4
   template<typename U>
   auto operator * (U f) const -> Vector4<T>
   {
-    // TODO: Check NaNs
     return Vector4<T>(f * x, f * y, f * z, f * w);
   }
   template<typename U>
   auto operator *= (U f) -> Vector4<T>&
   {
-    // TODO: Check NaNs
     x *= f;
     y *= f;
     z *= f;
@@ -107,14 +107,12 @@ class Vector4
   template<typename U>
   auto operator / (U f) const -> Vector4<T>
   {
-    // TODO: Check zero division
     Float inv = 1.0 / f;
     return Vector4<T>(x * inv, y * inv, z * inv, w * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Vector4<T>&
   {
-    // TODO: Check zero division
     Float inv = 1.0 / f;
     x *= inv;
     y *= inv;
@@ -206,7 +204,11 @@ class Vector4
   // Vector4 public data
   // ---------------------------------------------------------------------------
  public:
-  T x, y, z, w;
+  union
+  {
+    struct { T x, y, z, w; };
+    std::array<T, 4> xyzw;
+  };
 };
 
 

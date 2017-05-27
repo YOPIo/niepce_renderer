@@ -16,9 +16,7 @@ class Vector2
   Vector2(T xx, T yy) : x(xx), y(yy)
   {}
   explicit Vector2(const Point2<T>& p) : x(p.x), y(p.y)
-  {
-    // TODO: Check NaNs
-  }
+  {}
   ~Vector2()
   {}
 
@@ -40,15 +38,23 @@ class Vector2
     return (x != v.x || y != v.y);
   }
 
-  auto operator [] (unsigned int idx) const -> T
+  auto operator [] (std::size_t idx) const -> T
   {
-    // TODO: Throw Out-of-bounds Exception
-    return *(&x + idx);
+#ifdef DEBUG
+    try { return xy.at(idx); }
+    catch (const std::out_of_range& e) { console->error(e.what()); }
+#else
+    return xy.at(idx);
+#endif // DEBUG
   }
-  auto operator [] (unsigned int idx) -> T&
+  auto operator [] (std::size_t idx) -> T&
   {
-    // TODO: Throw Out-of-bounds Exception
-    return *(&x + idx);
+#ifdef DEBUG
+    try { return xy.at(idx); }
+    catch (const std::out_of_range& e) { console->error(e.what()); }
+#else
+    return xy.at(idx);
+#endif // DEBUG
   }
 
   operator Point2<T>() const
@@ -58,12 +64,10 @@ class Vector2
 
   auto operator +  (const Vector2& v) const -> Vector2<T>
   {
-    // TODO: Check NaNs
     return Vector2<T>(x + v.x, y + v.y);
   }
   auto operator += (const Vector2& v) -> Vector2<T>&
   {
-    // TODO: Check NaNs
     x += v.x;
     y += v.y;
     return *this;
@@ -71,12 +75,10 @@ class Vector2
 
   auto operator - (const Vector2& v) const -> Vector2<T>
   {
-    // TODO: Check NaNs
     return Vector2<T>(x - v.x, y - v.y);
   }
   auto operator -= (const Vector2& v) -> Vector2<T>&
   {
-    // TODO: Check NaNs
     x -= v.x;
     y -= v.y;
     return *this;
@@ -85,14 +87,12 @@ class Vector2
   template<typename U>
   auto operator * (U f) const -> Vector2<T>
   {
-    // TODO: Check NaNs
     return Vector2<T>(f * x, f * y);
   }
 
   template<typename U>
   auto operator *= (U f) -> Vector2<T>&
   {
-    // TODO: Check NaNs
     x *= f;
     y *= f;
     return *this;
@@ -101,14 +101,12 @@ class Vector2
   template<typename U>
   auto operator / (U f) const -> Vector2<T>
   {
-    // TODO: Check Zero division
     Float inv = 1.0 / f;
     return Vector2<T>(x * inv, f * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Vector2<T>&
   {
-    // TODO: Check Zero division
     Float inv = 1.0 / f;
     x *= inv;
     y *= inv;
@@ -185,7 +183,11 @@ class Vector2
   // Vector2 public data
   // ---------------------------------------------------------------------------
  public:
-  T x, y;
+  union
+  {
+    struct { T x, y; };
+    std::array<T, 2> xy;
+  };
 };
 
 
