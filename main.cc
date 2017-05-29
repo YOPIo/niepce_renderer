@@ -30,7 +30,6 @@ namespace niepce
 // ---------------------------------------------------------------------------
 // Scene definition
 // ---------------------------------------------------------------------------
-
 Lambert* white = new Lambert(Vector3f(0, 0, 0), Vector3f(0.8, 0.8, 0.8));
 Lambert* red   = new Lambert(Vector3f(0, 0, 0), Vector3f(0.8, 0.3, 0.3));
 Lambert* green = new Lambert(Vector3f(0, 0, 0), Vector3f(0.3, 0.8, 0.3));

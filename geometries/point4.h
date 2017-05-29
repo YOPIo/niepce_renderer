@@ -7,11 +7,16 @@
 namespace niepce
 {
 
+// ---------------------------------------------------------------------------
+// Logger declaration
+// ---------------------------------------------------------------------------
+extern std::shared_ptr<spdlog::logger> console;
+
 template<typename T>
 class Point4
 {
  public:
-  Point4(T v = 0.f) : x(v), y(v), z(v), w(1)
+  Point4(T v = 0.f) : x(v), y(v), z(v), w(v)
   {}
   Point4(T xx, T yy, T zz, T ww) : x(xx), y(yy), z(zz), w(ww)
   {}
@@ -135,6 +140,10 @@ class Point4
   {
     return std::sqrt( LengthSquared() );
   }
+  auto HasNaNs() const -> bool
+  {
+    return IsNaN(x) || IsNaN(y) || IsNaN(z) || IsNaN(w);
+  }
 
 
   // ---------------------------------------------------------------------------
@@ -182,16 +191,6 @@ class Point4
                      std::numeric_limits<T>::epsilon(),
                      std::numeric_limits<T>::epsilon(),
                      std::numeric_limits<T>::epsilon());
-  }
-
-
-  // ---------------------------------------------------------------------------
-  // Point4 private methods
-  // ---------------------------------------------------------------------------
- private:
-  auto HasNaNs() const -> bool
-  {
-    return IsNaN(x) || IsNaN(y) || IsNaN(z) || IsNaN(w);
   }
 
 

@@ -7,6 +7,11 @@
 namespace niepce
 {
 
+// ---------------------------------------------------------------------------
+// Logger declaration
+// ---------------------------------------------------------------------------
+extern std::shared_ptr<spdlog::logger> console;
+
 template<typename T>
 class Vector4
 {
@@ -139,6 +144,10 @@ class Vector4
   {
     return std::sqrt( LengthSquared() );
   }
+  auto HasNaNs() const -> bool
+  {
+    return IsNaN(x) || IsNaN(y) || IsNaN(z) || IsNaN(w);
+  }
 
 
   // ---------------------------------------------------------------------------
@@ -187,16 +196,6 @@ class Vector4
                      std::numeric_limits<T>::epsilon(),
                      std::numeric_limits<T>::epsilon(),
                      std::numeric_limits<T>::epsilon());
-  }
-
-
-  // ---------------------------------------------------------------------------
-  // Vector4 private methods
-  // ---------------------------------------------------------------------------
- private:
-  auto HasNaNs() const -> bool
-  {
-    return IsNaN(x) || IsNaN(y) || IsNaN(z) || IsNaN(w);
   }
 
 

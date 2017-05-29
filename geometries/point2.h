@@ -7,6 +7,11 @@
 namespace niepce
 {
 
+// ---------------------------------------------------------------------------
+// Logger declaration
+// ---------------------------------------------------------------------------
+extern std::shared_ptr<spdlog::logger> console;
+
 template <typename T>
 class Point2
 {
@@ -41,7 +46,7 @@ class Point2
 
   auto operator [] (std::size_t idx) const -> T
   {
-#ifdef DEBUG
+#ifdef Debug
     try { return xyz.at(idx); }
     catch (const std::out_of_range& e) { console->error(e.what()); }
 #else
@@ -50,7 +55,7 @@ class Point2
   }
   auto operator [] (std::size_t idx) -> T&
   {
-#ifdef DEBUG
+#ifdef Debug
     try { return xyz.at(idx); }
     catch (const std::out_of_range& e) { console->error(e.what()); }
 #else
@@ -154,12 +159,6 @@ class Point2
     return Point2<T>(std::numeric_limits<T>::epsilon(),
                      std::numeric_limits<T>::epsilon());
   }
-
-
-  // ---------------------------------------------------------------------------
-  // Point2 private methods
-  // ---------------------------------------------------------------------------
- private:
   auto HasNaNs() const -> bool
   {
     return IsNaN(x) || IsNaN(y);

@@ -23,12 +23,18 @@
 // ---------------------------------------------------------------------------
 // Dependent libraries
 // ---------------------------------------------------------------------------
+// Logger library
 #include <spdlog/async_logger.h>
 #include <spdlog/common.h>
 #include <spdlog/formatter.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/tweakme.h>
+
+// File loader
+#include <assimp/Importer.hpp>  // C++ importer interface
+#include <assimp/scene.h>       // Output data structure
+#include <assimp/postprocess.h> // Post processing flags
 
 namespace niepce
 {
@@ -41,7 +47,7 @@ typedef float Float;
 // ---------------------------------------------------------------------------
 // Debug
 // ---------------------------------------------------------------------------
-static auto console = spdlog::stdout_color_mt("console");
+extern std::shared_ptr<spdlog::logger> console;
 
 // ---------------------------------------------------------------------------
 // Render settings

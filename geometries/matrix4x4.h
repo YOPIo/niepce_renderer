@@ -6,16 +6,18 @@
 namespace niepce
 {
 
+// ---------------------------------------------------------------------------
+// Logger declaration
+// ---------------------------------------------------------------------------
+extern std::shared_ptr<spdlog::logger> console;
+
 template <typename T>
 class Matrix4x4
 {
  public:
   Matrix4x4()
   {
-    m00 = m01 = m02 = m03 = 0;
-    m10 = m11 = m12 = m13 = 0;
-    m20 = m21 = m22 = m23 = 0;
-    m30 = m31 = m32 = m33 = 0;
+    this->ToIdentity();
   };
   Matrix4x4(T mat00, T mat01, T mat02, T mat03,
             T mat10, T mat11, T mat12, T mat13,
@@ -133,6 +135,7 @@ class Matrix4x4
         ret[i][j] = (*this)[i][0] * m[0][j] + (*this)[i][1] * m[1][j] + (*this)[i][2] * m[2][j] + (*this)[i][3] * m[3][j];
       }
     }
+    return ret;
   }
   auto operator * (T v) const -> Matrix4x4<T>
   {
@@ -159,7 +162,6 @@ class Matrix4x4
   }
   auto operator *= (T v) -> Matrix4x4<T>&
   {
-    Warningf(!IsNaN(v), "Detected NaN.");
     for (int i = 0; i < 4; ++i)
     {
       for (int j = 0; j < 4; ++j)
@@ -232,8 +234,8 @@ class Matrix4x4
     {
       for (int j = 0; j < 4; ++j)
       {
-        if (i == j) { (*this)[i][j] = 1; }
-        else { (*this)[i][j] = 0; };
+        if (i == j) { (*this)[i][j] = 1; continue; }
+        (*this)[i][j] = 0;
       }
     }
   }
@@ -279,7 +281,7 @@ class Matrix4x4
       std::array<T, 4> row3;
       struct { T m30, m31, m32, m33; };
     };
-};
+}; // class Matrix4x4
 
 
 // ---------------------------------------------------------------------------
@@ -288,7 +290,11 @@ class Matrix4x4
 template <typename T>
 inline auto operator << (std::ostream& os, const Matrix4x4<T>& m) -> std::ostream&
 {
-  // TODO: Implementation
+  os << "matrix: \n";
+  os << "[" << m[0][0] << ", " << m[0][1] << ", " << m[0][2] << ", " << m[0][3] << "]\n";
+  os << "[" << m[1][0] << ", " << m[1][1] << ", " << m[1][2] << ", " << m[1][3] << "]\n";
+  os << "[" << m[2][0] << ", " << m[2][1] << ", " << m[2][2] << ", " << m[2][3] << "]\n";
+  os << "[" << m[3][0] << ", " << m[3][1] << ", " << m[3][2] << ", " << m[3][3] << "]\n";
   return os;
 }
 

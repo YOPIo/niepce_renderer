@@ -7,6 +7,11 @@
 namespace niepce
 {
 
+// ---------------------------------------------------------------------------
+// Logger declaration
+// ---------------------------------------------------------------------------
+extern std::shared_ptr<spdlog::logger> console;
+
 template<typename T>
 class Vector2
 {
@@ -102,7 +107,7 @@ class Vector2
   auto operator / (U f) const -> Vector2<T>
   {
     Float inv = 1.0 / f;
-    return Vector2<T>(x * inv, f * inv);
+    return Vector2<T>(x * inv, y * inv);
   }
   template<typename U>
   auto operator /= (U f) -> Vector2<T>&
@@ -129,6 +134,10 @@ class Vector2
   auto Length() const -> Float
   {
     return std::sqrt( LengthSquared() );
+  }
+  auto HasNaNs() const -> bool
+  {
+    return IsNaN(x) || IsNaN(y);
   }
 
 
@@ -166,16 +175,6 @@ class Vector2
   {
     return Vector2<T>(std::numeric_limits<T>::epsilon(),
                       std::numeric_limits<T>::epsilon());
-  }
-
-
-  // ---------------------------------------------------------------------------
-  // Vector2 private methods
-  // ---------------------------------------------------------------------------
- private:
-  auto HasNaNs() const -> bool
-  {
-    return IsNaN(x) || IsNaN(y);
   }
 
 
