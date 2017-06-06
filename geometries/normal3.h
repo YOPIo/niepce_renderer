@@ -147,18 +147,12 @@ class Normal3
   {
     return std::sqrt( LengthSquared() );
   }
-
-
-  // ---------------------------------------------------------------------------
-  // Normal private methods
-  // ---------------------------------------------------------------------------
   auto HasNaNs() const -> bool
   {
     return niepce::IsNaN(x) ||
            niepce::IsNaN(y) ||
            niepce::IsNaN(z);
   }
-
 
   // ---------------------------------------------------------------------------
   // Normal public data

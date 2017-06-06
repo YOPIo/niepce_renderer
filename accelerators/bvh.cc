@@ -151,9 +151,12 @@ auto BVH::BuildRecursive(PrimitivePtrs& primitives) -> std::unique_ptr<BVHNode>
   return std::move(node);
 }
 
+/*
+  Now its deleted!!
 auto BVH::BuildHLBVH() -> BVHNode*
 {
 
 }
+*/
 
 }  // namespace niepce

@@ -1,89 +1,82 @@
 #include "../core/niepce.h"
 #include "../core/transform.h"
+#include "../geometries/ray.h"
+#include "../geometries/boundingbox3.h"
+#include "vertex.h"
 #include "shape.h"
 
 namespace niepce
 {
 
-/*
-  NOTE: All of vertex positions of triangles are stored as world space coordinate
-*/
-struct TriangleVertex
-{
-  TriangleVertex() = delete;
-  TriangleVertex(const Transform& local_to_world,
-                 const Point3f&   position,
-                 const Normal3f&  normal,
-                 const Vector3f&  tangent,
-                 const Point2f&   uv);
-  virtual ~TriangleVertex();
-
-  TriangleVertex(const TriangleVertex& tm) = default;
-  TriangleVertex(TriangleVertex&& tm)      = default;
-
-  auto operator = (const TriangleVertex& tm) -> TriangleVertex& = default;
-  auto operator = (TriangleVertex&& tm)      -> TriangleVertex& = default;
-
-  Point3f  position; // Vertex positions
-  Normal3f normal;   // Normal vectors at the vertex position
-  Vector3f tangent;  // Tangent vectors at the vertex position
-  Point2f  uv;       // Parametric (u, v) values at the vertex position
-};
-
 struct TriangleMesh
 {
-  TriangleMesh() = delete;
-  TriangleMesh(unsigned int    num_triangle,   unsigned int          num_vertices,
-               const int*      vertex_indices, const TriangleVertex* mesh);
-  virtual ~TriangleMesh();
+  TriangleMesh () = delete;
 
-  TriangleMesh(const TriangleMesh& tm) = default;
-  TriangleMesh(TriangleMesh&& tm)      = default;
+  TriangleMesh (const std::vector<Vertex>&       mesh,
+                const std::vector<unsigned int>& indices,
+                      unsigned int               num_triangles);
 
-  auto operator = (const TriangleMesh& tm) -> TriangleMesh& = default;
-  auto operator = (TriangleMesh&& tm)      -> TriangleMesh& = default;
+  virtual ~TriangleMesh ();
 
-  auto operator [] (unsigned int idx) const -> TriangleVertex;
-  auto operator [] (unsigned int idx)       -> TriangleVertex&;
+  TriangleMesh (const TriangleMesh&  tm) = default;
+  TriangleMesh (      TriangleMesh&& tm) = default;
 
-  // Member data
-  const unsigned int num_triangles_; // Number of tirangles
-  const unsigned int num_vertices_;  // Number of vertices
 
-  std::vector<unsigned int>       vertex_indices_; // An array of indices
-  std::shared_ptr<TriangleVertex> mesh_;           // An array of vertices
+  // ---------------------------------------------------------------------------
+  // TriangleMesh operators
+  // ---------------------------------------------------------------------------
+  auto operator = (const TriangleMesh&  tm) -> TriangleMesh& = default;
+  auto operator = (      TriangleMesh&& tm) -> TriangleMesh& = default;
+
+  auto operator [] (unsigned int idx) const -> Vertex;
+
+  // ---------------------------------------------------------------------------
+  // TriangleMesh data  (*All of faces should be triangle)
+  // ---------------------------------------------------------------------------
+  const std::vector<Vertex>       mesh_;       // An array of vertices
+  const std::vector<unsigned int> indices_;    // Reference to pointers
+  const unsigned int              kTriangles_; // Number of tirangles
+
+  // Todo: append
+  // std::shared_ptr<Texture> textures_;
 };
 
-/*
-  Triangle class has three indices
-*/
+
+// ---------------------------------------------------------------------------
+// Triangle class has just three reference indices
+// ---------------------------------------------------------------------------
 class Triangle : public Shape
 {
  public:
-  Triangle() = delete;
-  Triangle(const Transform*    local_to_world, const Transform* world_to_local,
-           const TriangleMesh* mesh,           unsigned int*    idx);
-  virtual ~Triangle();
+  Triangle () = delete;
+  Triangle (const std::shared_ptr<TriangleMesh>& mesh,
+            const std::array<unsigned int, 3>&   indices);
+  virtual ~Triangle ();
 
-  Triangle(const Triangle& t) = default;
-  Triangle(Triangle&& t)      = default;
+  Triangle (const Triangle&  t) = default;
+  Triangle (      Triangle&& t) = default;
 
   auto operator = (const Triangle& t) -> Triangle& = default;
   auto operator = (Triangle&& t)      -> Triangle& = default;
 
-  auto SurfaceArea() const -> Float;
-  auto LocalBoundingBox() const -> BBox3f;
-  auto WorldBoundingBox() const -> BBox3f;
-  auto IsIntersect(const Ray& ray, Float* t, SurfaceInteraction* surface) const -> bool;
+  // Return surface area of triangle
+  auto SurfaceArea      () const -> Float;
+
+  // Return bounding box in object coordinate
+  auto LocalBoundingBox () const -> Bounds3f;
+
+  // Return bounding box in world coordinate
+  auto WorldBoundingBox () const -> Bounds3f;
+
+  // Intersection test
+  auto IsIntersect (const Ray&          ray,
+                    Float*              t,
+                    SurfaceInteraction* surface) const -> bool;
 
  private:
   std::shared_ptr<TriangleMesh> mesh_;
-  std::array<unsigned int, 3>   indices_; // A fixed array of references to face
+  std::array<unsigned int,   3> indices_; // A fixed array of references to vertex
 };
-
-/*
-
-*/
 
 
 }  // namespace niepce
