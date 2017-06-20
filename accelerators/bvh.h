@@ -1,73 +1,67 @@
 #ifndef _BVH_H_
 #define _BVH_H_
 
-#include "bvh_node.h"
-#include "bvh_boundingbox.h"
 #include "../core/niepce.h"
-#include "../core/interaction.h"
 #include "../primitives/primitive.h"
-#include "../geometries/ray.h"
-#include "../geometries/boundingbox3.h"
+#include "../primitives/aggregate_primitive.h"
+#include "../materials/material.h"
+#include "bvh_node.h"
+#include "bvh_primitive_info.h"
+#include "bvh_bucket.h"
+
+// ---------------------------------------------------------------------------
+// TODO List:
+// - Write a 'CreateLeaf()' method when building a BVH
+// ---------------------------------------------------------------------------
 
 namespace niepce
 {
 
+auto BuildBVH (std::vector<std::shared_ptr<Primitive>> prims) -> std::shared_ptr<Primitive>;
 
-// ---------------------------------------------------------------------------
-// BVH declarations
-// ---------------------------------------------------------------------------
-class BVH
+class BVH : public AggregatePrimitive
 {
- public:
-  using PrimitivePtrs = std::vector<std::shared_ptr<Primitive>>;
-  using BVHBounds     = std::vector<BVHBoundingBox>;
+ private:
+  using Aggregate = std::vector<std::shared_ptr<Primitive>>;
+  using Root      = std::shared_ptr<BVHNode>;
 
  public:
-  BVH() = delete;
-  BVH(const PrimitivePtrs& p);
-  virtual ~BVH();
+  /* BVH constructors */
+  BVH () = delete;
+  BVH (const Aggregate& primitives);
+  virtual ~BVH ();
 
-  BVH(const BVH& bvh) = default;
-  BVH(BVH&& bvh)      = default;
+  BVH (const BVH&  bvh) = default;
+  BVH (      BVH&& bvh) = default;
 
-  // ---------------------------------------------------------------------------
-  // BVH public operators
-  // ---------------------------------------------------------------------------
+
+  /* BVH operators*/
  public:
   auto operator = (const BVH& bvh) -> BVH& = default;
   auto operator = (BVH&& bvh)      -> BVH& = default;
 
 
-  // ---------------------------------------------------------------------------
-  // BVH public methods
-  // ---------------------------------------------------------------------------
+  /* BVH public methods */
  public:
-  // Get boundingb box
-  auto WorldBounds() const -> Bounds3f;
+  auto WorldBounds () const -> Bounds3f override;
+  auto LocalBounds () const -> Bounds3f override;
+  auto IsIntersect (const Ray& ray, Interaction* interaction) const -> bool override;
+  auto SurfaceArea () const -> Float override;
 
-  // Intersect test
-  auto IsIntersect(const Ray& ray, Interaction* inter) -> bool;
-
-  // ---------------------------------------------------------------------------
-  // BVH private methods
-  // ---------------------------------------------------------------------------
+  /* BVH private methods */
  private:
-  // Build BVH using SAH split method
-  auto BuildRecursive(PrimitivePtrs& primitives) -> std::unique_ptr<BVHNode>;
+  auto RecursiveBuild (std::vector<BVHPrimitiveInfo>& info,
+                       unsigned int                   first,
+                       unsigned int                   last,
+                       Aggregate*                     ordered_aggregate,
+                       unsigned int*                  num_nodes) -> std::shared_ptr<BVHNode>;
 
-  // Build BVH using HLBVH split methods
-  // todo: implementation
-  auto BuildHLBVH() -> BVHNode* = delete;
 
-
-  // ---------------------------------------------------------------------------
-  // BVH private data
-  // ---------------------------------------------------------------------------
+  /* BVH private data */
  private:
-  std::unique_ptr<BVHNode> root_;
+  Root      root_;       // Root node of BVH
+  Aggregate primitives_; // Leaf nodes refers to this data
 }; // class BVH
-
-
 
 
 }  // namespace niepce

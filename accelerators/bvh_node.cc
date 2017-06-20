@@ -3,40 +3,118 @@
 namespace niepce
 {
 
-BVHNode::BVHNode()
+// ---------------------------------------------------------------------------
+// BVHNode
+// ---------------------------------------------------------------------------
+BVHNode::BVHNode () :
+    bounds_()
 {}
 
-BVHNode::~BVHNode()
+BVHNode::BVHNode (const Bounds3f& bounds) :
+    bounds_(bounds)
 {}
 
-auto BVHNode::InitLeafs(const Bounds3f& b, const PrimitivePtrs& p) -> void
+BVHNode::~BVHNode ()
+{}
+
+auto BVHNode::SetBoundingBox (const Bounds3f &bounds) -> void
 {
-  bounds     = b;
-  nodes[0]   = nullptr;
-  nodes[1]   = nullptr;
-  split_axis = Axis::kNone;
-  primitives = p;
+  bounds_ = bounds;
 }
 
-auto BVHNode::InitInterior(Axis axis,
-                           std::unique_ptr<BVHNode>&& node1,
-                           std::unique_ptr<BVHNode>&& node2) -> void
+auto BVHNode::GetBoundingBox () const -> Bounds3f
 {
-  bounds     = Bounds3f();
-  nodes[0]   = std::move(node1);
-  nodes[1]   = std::move(node2);
-  split_axis = Axis::kNone;
-
+  return bounds_;
 }
 
-inline auto BVHNode::IsLeaf() -> bool
+
+// ---------------------------------------------------------------------------
+// BHV interior node
+// ---------------------------------------------------------------------------
+Interior::Interior () :
+    BVHNode  (),
+    childlen_( {nullptr, nullptr} )
+{}
+
+Interior::Interior (const Bounds3f&    bounds,
+                          unsigned int split_axis,
+                    const Childlen&    childlen) :
+    BVHNode     (bounds),
+    split_axis_ (split_axis),
+    childlen_   (childlen)
+{}
+
+Interior::~Interior ()
+{}
+
+auto Interior::operator [] (unsigned int idx) const -> std::shared_ptr<BVHNode>
 {
-  return (nodes[0] == nullptr && nodes[1] == nullptr);
+#ifdef DEBUG
+  try { return childlen_.at(idx); }
+  catch (const std::out_of_range& e) {}
+#else
+  return childlen_[idx];
+#endif
 }
 
-inline auto BVHNode::IsInterior() -> bool
+auto Interior::operator [] (unsigned int idx) -> std::shared_ptr<BVHNode>&
 {
-  return !(IsLeaf());
+#ifdef DEBUG
+  try { return childlen_.at(idx); }
+  catch (const std::out_of_range& e) {}
+#else
+  return childlen_[idx];
+#endif
 }
+
+auto Interior::IsInterior () const -> bool
+{
+  return true;
+}
+
+auto Interior::IsLeaf () const -> bool
+{
+  return false;
+}
+
+auto Interior::SetChildNode (unsigned int idx, const std::shared_ptr<BVHNode>& node) -> void
+{
+#ifdef DEBUG
+  try   { childlen_.at(idx) = node; }
+  catch (const std::out_of_range& e) {}
+#else
+  childlen_[idx] = node;
+#endif
+}
+
+
+// ---------------------------------------------------------------------------
+// BVH leaf node
+// ---------------------------------------------------------------------------
+Leaf::Leaf () :
+    BVHNode ()
+{}
+
+Leaf::Leaf (const Bounds3f& bounds,
+            unsigned int    first,
+            unsigned int    last) :
+    BVHNode (bounds),
+    first_  (first),
+    last_   (last)
+{}
+
+Leaf::~Leaf ()
+{}
+
+auto Leaf::IsInterior () const -> bool
+{
+  return false;
+}
+
+auto Leaf::IsLeaf () const -> bool
+{
+  return true;
+}
+
 
 }  // namespace niepce

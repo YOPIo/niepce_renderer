@@ -1,162 +1,268 @@
 #include "bvh.h"
 
-
 namespace niepce
 {
 
-/*
-  BVH constructor
-  There are three step to BVH construction
-  - Bounding box information about each primitive should be computed and stored in an array
-  - Build BVH with split methods (SAH, HLBVH)
-  - Result of construction is binary tree
-    It holds pointers to its leaf nodes
-*/
-BVH::BVH(const PrimitivePtrs& primitives)
+BVH::BVH (const Aggregate& primitives) :
+    primitives_(primitives)
 {
-  // No construction
-  if (primitives.size() == 0) { return ; }
+  // Handling case
+  if (primitives_.size() == 0)
+  {
+    std::cerr << "Error (BVH)" << std::endl;
+    // Error:
+    return ;
+  }
 
-  PrimitivePtrs p(primitives);
+  // Initialize primitive information array
+  std::vector<BVHPrimitiveInfo> info (primitives_.size());
+  for (int i = 0 ; i < info.size(); ++i)
+  {
+    info[i] = BVHPrimitiveInfo(i, primitives_[i]->WorldBounds());
+  }
 
-  // Build BVH with calling _BuildRecursively()_ or _BuildHVBVH()_
-  // They return a pointer to the root of the tree
-  root_ = BuildRecursive(p);
+  // Create empty primitives vector
+  // When a leaf nodes is created, Recursivebuild () method add the primitive(s)
+  Aggregate ordered_aggregate (primitives_.size());
+
+  // Build BVH with SAH algorithm
+  unsigned int num_nodes = 0;
+  root_ = RecursiveBuild (info, 0, info.size(), &ordered_aggregate, &num_nodes);
+
+
+  // Finally, swapping 'ordered_aggregate' for 'primitves_'
+  std::swap (primitives_, ordered_aggregate);
 }
 
-BVH::~BVH()
+BVH::~BVH ()
 {}
 
-
-// ---------------------------------------------------------------------------
-// BVH private methods
-// ---------------------------------------------------------------------------
-/*
-  Construct BVH by SAH methods
-  Reference paper
-  'Ray Tracing Deformable Scenes using Dynamic Bounding Volume Hierarchies'
-*/
-auto BVH::BuildRecursive(PrimitivePtrs& primitives) -> std::unique_ptr<BVHNode>
+auto BVH::WorldBounds () const -> Bounds3f
 {
-  // The time to compute a ray-triangle intersection (constant variable)
-  constexpr Float kTriangleTime = 1.0f;
-  // The time to compute a ray-AABB intersection (constant variable)
-  constexpr Float kBoundsTime   = 1.0f;
 
-  // Create BVHNode
-  std::unique_ptr<BVHNode> node(new BVHNode());
+}
 
-  // Precompute boundingboxes for each primitives and compute surface area of all primitives
-  std::vector<Bounds3f> boundingboxes(primitives.size());
+auto BVH::LocalBounds () const -> Bounds3f
+{
+
+}
+
+auto BVH::IsIntersect(const Ray &ray, Interaction* interaction) const -> bool
+{
+
+}
+
+auto BVH::SurfaceArea () const -> Float
+{
+
+}
+
+auto BVH::RecursiveBuild (std::vector<BVHPrimitiveInfo>& info,  // Number of data should be last - first
+                          unsigned int                   first, // Where the data starts from
+                          unsigned int                   last,  // Where the data end
+                          Aggregate*                     ordered_aggregate,
+                          unsigned int*                  num_nodes) -> std::shared_ptr<BVHNode>
+{
+  // Increasing number of node
+  (*num_nodes)++;
+
+  // Check handling case
+  if (last < first)
+  {
+    // Error:
+  }
+
+  // Compute bounding box of all primitives in BVH node
   Bounds3f bounds;
-  for (int i = 0; i < primitives.size(); ++i)
+  for (int i = first; i <= last; ++i)
   {
-    boundingboxes[i] = primitives[i]->WorldBoundingBox();
-    bounds = Union(bounds, boundingboxes[i]);
+    bounds = Union (bounds, info[i].bounds);
   }
-  const Float surface_area_of_node = bounds.SurfaceArea();
 
-  // Cost of making a leaf
-  Float best_cost = kTriangleTime * primitives.size();
+  std::shared_ptr<BVHNode> node;
 
-  // 0:x-axis, 1:y-axis, 2:z-axis, -1:Unknown
-  int best_axis = -1;
+  const unsigned int num_primitives = last - first + 1;
 
-  // What
-  int best_split_index = -1;
+  // ---------------------------------------------------------------------------
+  // Create a leaf node
+  // ---------------------------------------------------------------------------
 
-  bounds = Bounds3f();
-  // Loop for x, y and z axis
-  for (int axis = 0; axis < 3; ++axis)
+  if (num_primitives == 1)
   {
-    // Sort primitives using centroid of boxes in current axis
-    auto lambda = [&axis](const Bounds3f& b1, const Bounds3f& b2)
-                  {
-                    return b1.Centroid()[axis] > b2.Centroid()[axis];
-                  };
-    std::sort(boundingboxes.begin(), boundingboxes.end(), lambda);
+    // Compute index where a leaf node should refer to as first
+    const unsigned int first_index = ordered_aggregate->size();
+    // Compute index where a leaf ndoe should refer to as last
+    const unsigned int last_index  = first_index + num_primitives;
 
-    // Create surface area list
-    std::vector<Float> surface_area_list1(boundingboxes.size() + 1, kInfinity);
-    std::vector<Float> surface_area_list2(boundingboxes.size() + 1, kInfinity);
+    // Allocating a memory
+    node.reset(new Leaf(bounds, first_index, last_index));
 
-
-    // Sweep from left
-    // Compute surface area of each patern
-    for (int i = 0; i <= primitives.size(); ++i)
+    // Store primitive(s) to 'ordered_aggregate'
+    for (int i = first; i <= last; ++i)
     {
-      if (i == 0)
-      {
-        bounds = Union(bounds, boundingboxes[i - 1]);
-        continue;
-      }
-      // Compute each surface area
-      surface_area_list1[i] = bounds.SurfaceArea();
-      bounds = Union(bounds, boundingboxes[i - 1]);
+      // Get a primitive index
+      const unsigned int primitive_index = info[i].primitive_number;
+      ordered_aggregate->push_back (primitives_[primitive_index]);
+    }
+    return node;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Continue to build
+  // BVH is built by SAH (surface area heuristic) algorithm
+  // ---------------------------------------------------------------------------
+
+  // Computing the largest range of the centroids of each primitive
+  Bounds3f centroid_bounds;
+  for (int i = first; i <= last; ++i)
+  {
+    centroid_bounds = Union (centroid_bounds, info[i].centroid);
+  }
+
+  // Choosing one of the three coordinate axes to use in partitioning
+  const unsigned int partition_dimension = centroid_bounds.MaxExtent();
+
+  // All of the centroid points are at the same position (unusual case)
+  // Handling case, create leaf node
+  if (centroid_bounds.Max()[partition_dimension] == centroid_bounds.Min()[partition_dimension])
+  {
+    // Compute index where a leaf node should refer to as first
+    const unsigned int first_index = ordered_aggregate->size();
+    // Compute index where a leaf ndoe should refer to as last
+    const unsigned int last_index  = first_index + num_primitives;
+
+    node.reset(new Leaf(bounds, first_index, last_index));
+
+    // Store primitive(s) to 'ordered_aggregate'
+    for (int i = first; i <= last; ++i)
+    {
+      // Get a 'primitives_' index
+      const unsigned int primitive_index = info[i].primitive_number;
+      ordered_aggregate->push_back (primitives_[primitive_index]);
+    }
+    return node;
+  }
+
+  // ---------------------------------------------------------------------------
+  // Partition primitives into two groups
+  // 1. Create buckets which store a number of primitive and its bounding box
+  // 2. Initialize them (store that how many primitives and compute bounding box)
+  // 3. Compute each cost
+  // 4. Find a minimum cost and best plane to split
+  // 5. Decide to creating a leaf node or continue to build
+  // ---------------------------------------------------------------------------
+
+  unsigned int middle = (last + first + 1) / 2;
+  // Partition primitives using approximate SAH algorithm
+  // See also section 4.3.2 in PBR
+  if (num_primitives == 4)
+  {
+    // Partition primitives into equally sized
+    const auto equally = [&partition_dimension](const BVHPrimitiveInfo& a, const BVHPrimitiveInfo& b)
+                         {
+                           return a.centroid[partition_dimension] < b.centroid[partition_dimension];
+                         };
+    std::nth_element(&info[first], &info[middle], &info[last] + 1, equally);
+  }
+
+  // 1. Create buckets which store a number of primitive and its bounding box
+  // This is a kind of magic number, this number should be small because we will compurte $O(n^2)$
+  constexpr unsigned int kNumBucket = 16;
+  std::array<Bucket, kNumBucket> buckets;
+
+  // 2. Initialize them (store that how many primitives and compute bounding box)
+  for (int i = first; i <= last; ++i)
+  {
+    Float        distance = (info[i].centroid - bounds.Min())[partition_dimension];
+    unsigned int idx      = distance / bounds.Diagonal()[partition_dimension] * kNumBucket;
+    if (idx == kNumBucket) { idx -= 1; }
+    buckets[idx].count++;
+    buckets[idx].bounds = Union (buckets[idx].bounds, info[i].centroid);
+  }
+
+  /*
+    Compute SAH cost
+    There are two important values time it takes to traverse the interior node and time it
+    takes to ray-object intersection
+    Here as a constant values in niepce renderer
+    constexpr Float kTraverseTime  = 1.0;
+    constexpr Float kIntersectTime = 1.0;
+  */
+
+  // 3. Compute each cost
+  std::array<Float, kNumBucket - 1> costs;
+  for (int i = 0; i < kNumBucket - 1; ++i)
+  {
+    Bounds3f bounds1, bounds2;
+    unsigned int cnt1 = 0;
+    unsigned int cnt2 = 0;
+
+    for (int j = 0; j <= i; ++j)
+    {
+      bounds1 =  Union (bounds1, buckets[j].bounds);
+      cnt1    += buckets[j].count;
     }
 
-    bounds = Bounds3f();
-    // Sweep from right
-    for (int i = primitives.size(); i >= 0; --i)
+    for (int j = i; j <= kNumBucket; ++j)
     {
-      if (i == primitives.size())
-      {
-        bounds = Union(bounds, boundingboxes[i - 1]);
-        continue;
-      }
-      // Compute surface area
-      surface_area_list2[i] = bounds.SurfaceArea();
-
-      // Evaluate equation 2 (see papaers in detail)
-      Float new_cost = 2 * kBoundsTime + (surface_area_list1[i] * surface_area_list1.size() +
-                                          surface_area_list2[i] * surface_area_list2.size()) *
-                       kTriangleTime / surface_area_of_node;
-
-      // Check best cost
-      if (new_cost < best_cost)
-      {
-        best_cost        = new_cost;
-        best_axis        = axis;
-        best_split_index = i;
-      }
-
-      bounds = Union(bounds, boundingboxes[i - 1]);
+      bounds2 =  Union (bounds2, buckets[j].bounds);
+      cnt2    += buckets[j].count;
     }
+
+    // Compute cost
+    costs[i] = (cnt1 * bounds1.SurfaceArea() + cnt2 * bounds2.SurfaceArea()) / bounds.SurfaceArea();
   }
 
-  if (best_axis == -1)
+  // 4. Find a minimum cost and best plane to split
+  Float        min_cost = costs[0];
+  for (int i = 1; i < kNumBucket - 1; ++i)
   {
-    // Create leaf node
-    node->InitLeafs(bounds, primitives);
-    return std::move(node);
+    if (costs[i] < min_cost) { min_cost = costs[i]; }
   }
 
-  // Call this function again to build BVH
-  // Sort again besed on best axis
-  auto lambda = [&best_axis](const Bounds3f& b1, const Bounds3f& b2)
-                {
-                  return b1.Centroid()[best_axis] > b2.Centroid()[best_axis];
-                };
-  std::sort(boundingboxes.begin(), boundingboxes.end(), lambda);
+  // 5. Decide to creating a leaf node or continue to build
+  const Float leaf_cost = num_primitives;
+  if (leaf_cost < min_cost)
+  {
+    // Create a leaf node
+    // Compute index where a leaf node should refer to as first
+    const unsigned int first_index = ordered_aggregate->size();
+    // Compute index where a leaf ndoe should refer to as last
+    const unsigned int last_index  = first_index + num_primitives;
 
-  // Divide primitives
-  PrimitivePtrs left_primitives(primitives.begin(), primitives.begin() + best_split_index);
-  PrimitivePtrs right_primitives(primitives.begin() + best_split_index, primitives.end());
+    node.reset(new Leaf(bounds, first_index, last_index));
 
-  // Create interior node
-  node->InitInterior(static_cast<BVHNode::Axis>(best_axis), // Split axis
-                     BuildRecursive(left_primitives),
-                     BuildRecursive(right_primitives));
+    // Store primitive(s) to 'ordered_aggregate'
+    for (int i = first; i <= last; ++i)
+    {
+      // Get a 'primitives_' index
+      const unsigned int primitive_index = info[i].primitive_number;
+      ordered_aggregate->push_back (primitives_[primitive_index]);
+    }
+    return node;
+  }
+  // Continue to build
+  auto partition = [=](const BVHPrimitiveInfo& i)
+                   {
+                     Float        distance = (i.centroid - bounds.Min())[partition_dimension];
+                     unsigned int idx      =
+                                  distance / bounds.Diagonal()[partition_dimension] * kNumBucket;
 
-  return std::move(node);
+                     if (idx == kNumBucket) { idx -= 1; }
+                     return costs[idx] < min_cost;
+                   };
+  auto pos = std::partition(&info[first], &info[last], partition);
+  middle = pos - &info[0];
+
+  // Allocating interior node memory
+  const std::array<std::shared_ptr<BVHNode>, 2> childlen =
+      { RecursiveBuild(info, first,  middle - 1, ordered_aggregate, num_nodes),
+        RecursiveBuild(info, middle, last,       ordered_aggregate, num_nodes) };
+
+  node.reset( new Interior(bounds,
+                           partition_dimension,
+                           childlen));
+  return node;
 }
-
-/*
-  Now its deleted!!
-auto BVH::BuildHLBVH() -> BVHNode*
-{
-
-}
-*/
 
 }  // namespace niepce
