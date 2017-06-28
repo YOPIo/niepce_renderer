@@ -3,117 +3,96 @@
 namespace niepce
 {
 
-// ---------------------------------------------------------------------------
-// BVHNode
-// ---------------------------------------------------------------------------
-BVHNode::BVHNode () :
-    bounds_()
+BVHNode::BVHNode ()
 {}
 
-BVHNode::BVHNode (const Bounds3f& bounds) :
-    bounds_(bounds)
+BVHNode::BVHNode (const Bounds3f&  bounds,
+                  const Aggregate& aggregate) :
+    bounds_    (bounds),
+    aggregate_ (aggregate),
+    childlen_  ( {nullptr, nullptr} )
 {}
 
-BVHNode::~BVHNode ()
+BVHNode::BVHNode (const Bounds3f&  bounds,
+                  const std::shared_ptr<BVHNode>& left,
+                  const std::shared_ptr<BVHNode>& right) :
+    bounds_   (bounds),
+    childlen_ ( {left, right} )
 {}
 
-auto BVHNode::SetBoundingBox (const Bounds3f &bounds) -> void
+auto BVHNode::InitLeaf (const Bounds3f& bounds, const Aggregate& aggregate) -> void
 {
   bounds_ = bounds;
+  if (!aggregate_.empty ())
+  {
+    aggregate_.clear ();
+    aggregate_ = aggregate;
+  }
+  childlen_[0].reset ();
+  childlen_[1].reset ();
 }
 
-auto BVHNode::GetBoundingBox () const -> Bounds3f
+auto BVHNode::InitInterior (const Bounds3f&                 bounds,
+                            const std::shared_ptr<BVHNode>& left,
+                            const std::shared_ptr<BVHNode>& right) -> void
+{
+  bounds_ = bounds;
+  if (!aggregate_.empty ())
+  {
+    aggregate_.clear ();
+  }
+  childlen_[0] = std::move (left);
+  childlen_[1] = std::move (right);
+}
+
+auto BVHNode::WorldBounds () const -> Bounds3f
 {
   return bounds_;
 }
 
-
-// ---------------------------------------------------------------------------
-// BHV interior node
-// ---------------------------------------------------------------------------
-Interior::Interior () :
-    BVHNode  (),
-    childlen_( {nullptr, nullptr} )
-{}
-
-Interior::Interior (const Bounds3f&    bounds,
-                          unsigned int split_axis,
-                    const Childlen&    childlen) :
-    BVHNode     (bounds),
-    split_axis_ (split_axis),
-    childlen_   (childlen)
-{}
-
-Interior::~Interior ()
-{}
-
-auto Interior::operator [] (unsigned int idx) const -> std::shared_ptr<BVHNode>
+auto BVHNode::IsInterior () const -> bool
 {
-#ifdef DEBUG
-  try { return childlen_.at(idx); }
-  catch (const std::out_of_range& e) {}
-#else
-  return childlen_[idx];
-#endif
-}
-
-auto Interior::operator [] (unsigned int idx) -> std::shared_ptr<BVHNode>&
-{
-#ifdef DEBUG
-  try { return childlen_.at(idx); }
-  catch (const std::out_of_range& e) {}
-#else
-  return childlen_[idx];
-#endif
-}
-
-auto Interior::IsInterior () const -> bool
-{
-  return true;
-}
-
-auto Interior::IsLeaf () const -> bool
-{
+  if (aggregate_.empty ()     &&
+      childlen_[0] != nullptr &&
+      childlen_[1] != nullptr)
+  {
+    return true;
+  }
   return false;
 }
 
-auto Interior::SetChildNode (unsigned int idx, const std::shared_ptr<BVHNode>& node) -> void
+auto BVHNode::IsLeaf () const -> bool
 {
-#ifdef DEBUG
-  try   { childlen_.at(idx) = node; }
-  catch (const std::out_of_range& e) {}
-#else
-  childlen_[idx] = node;
-#endif
-}
-
-
-// ---------------------------------------------------------------------------
-// BVH leaf node
-// ---------------------------------------------------------------------------
-Leaf::Leaf () :
-    BVHNode ()
-{}
-
-Leaf::Leaf (const Bounds3f& bounds,
-            unsigned int    first,
-            unsigned int    last) :
-    BVHNode (bounds),
-    first_  (first),
-    last_   (last)
-{}
-
-Leaf::~Leaf ()
-{}
-
-auto Leaf::IsInterior () const -> bool
-{
+  if (aggregate_.size () > 0  &&
+      childlen_[0] == nullptr &&
+      childlen_[1] == nullptr)
+  {
+    return true;
+  }
   return false;
 }
 
-auto Leaf::IsLeaf () const -> bool
+auto BVHNode::IsIntersect (const Ray& ray, Interaction* interaction) const -> bool
 {
-  return true;
+  // Leaf node check
+  if (aggregate_.empty ()     &&
+      childlen_[0] != nullptr &&
+      childlen_[1] != nullptr)
+  {
+    // Node state is interior
+    return false;
+  }
+
+  bool is_hit = false;
+  for (auto& p : aggregate_)
+  {
+    if (p->IsIntersect(ray, interaction))
+    {
+      is_hit = true;
+    }
+  }
+
+  return is_hit;
 }
 
 

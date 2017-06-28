@@ -1,0 +1,2 @@
+/usr/bin/ar qc libRandoms.a  CMakeFiles/Randoms.dir/pcg.cc.o CMakeFiles/Randoms.dir/xorshift.cc.o
+/usr/bin/ranlib libRandoms.a

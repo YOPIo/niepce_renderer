@@ -17,13 +17,10 @@
 namespace niepce
 {
 
-auto BuildBVH (std::vector<std::shared_ptr<Primitive>> prims) -> std::shared_ptr<Primitive>;
-
 class BVH : public AggregatePrimitive
 {
  private:
   using Aggregate = std::vector<std::shared_ptr<Primitive>>;
-  using Root      = std::shared_ptr<BVHNode>;
 
  public:
   /* BVH constructors */
@@ -37,8 +34,8 @@ class BVH : public AggregatePrimitive
 
   /* BVH operators*/
  public:
-  auto operator = (const BVH& bvh) -> BVH& = default;
-  auto operator = (BVH&& bvh)      -> BVH& = default;
+  auto operator = (const BVH&  bvh) -> BVH& = default;
+  auto operator = (      BVH&& bvh) -> BVH& = default;
 
 
   /* BVH public methods */
@@ -48,19 +45,19 @@ class BVH : public AggregatePrimitive
   auto IsIntersect (const Ray& ray, Interaction* interaction) const -> bool override;
   auto SurfaceArea () const -> Float override;
 
+#ifdef Debug
+  auto Dump (const char* filename) const -> void;
+#endif // Debug
+
+
   /* BVH private methods */
  private:
-  auto RecursiveBuild (std::vector<BVHPrimitiveInfo>& info,
-                       unsigned int                   first,
-                       unsigned int                   last,
-                       Aggregate*                     ordered_aggregate,
-                       unsigned int*                  num_nodes) -> std::shared_ptr<BVHNode>;
-
+  auto RecursiveConstruct (Aggregate* aggregate) -> std::shared_ptr<BVHNode>;
+  auto CreateLeaf         (Aggregate* aggregate) -> std::shared_ptr<BVHNode>;
 
   /* BVH private data */
  private:
-  Root      root_;       // Root node of BVH
-  Aggregate primitives_; // Leaf nodes refers to this data
+  std::shared_ptr<BVHNode> root_;
 }; // class BVH
 
 

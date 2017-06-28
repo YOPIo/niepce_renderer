@@ -154,6 +154,12 @@ class Point3
                      std::numeric_limits<T>::max(),
                      std::numeric_limits<T>::max());
   }
+  static constexpr auto Lowest () -> Point3<T>
+  {
+    return Point3<T> (std::numeric_limits<T>::lowest (),
+                      std::numeric_limits<T>::lowest (),
+                      std::numeric_limits<T>::lowest ());
+  }
   static constexpr auto Min() -> Point3<T>
   {
     return Point3<T>(std::numeric_limits<T>::min(),
@@ -221,19 +227,19 @@ inline auto Lerp(Float t, const Point3<T>& v1, const Point3<T>& v2) -> Point3<T>
 }
 
 template <typename T>
-inline auto Min(const Point3<T>& p0, const Point3<T>& p1) -> Point3<T>
+inline auto Min (const Point3<T>& p0, const Point3<T>& p1) -> Point3<T>
 {
-  return Point3<T>(std::min(p0.x, p1.x),
-                   std::min(p0.y, p1.y),
-                   std::min(p0.z, p1.z));
+  return Point3<T> (std::min(p0.x, p1.x),
+                    std::min(p0.y, p1.y),
+                    std::min(p0.z, p1.z));
 }
 
 template <typename T>
-inline auto Max(const Point3<T>& p0, const Point3<T>& p1) -> Point3<T>
+inline auto Max (const Point3<T>& p0, const Point3<T>& p1) -> Point3<T>
 {
-  return Point3<T>(std::max(p0.x, p1.x),
-                   std::max(p0.y, p1.y),
-                   std::max(p0.z, p1.z));
+  return Point3<T> (std::max(p0.x, p1.x),
+                    std::max(p0.y, p1.y),
+                    std::max(p0.z, p1.z));
 }
 
 template <typename T>

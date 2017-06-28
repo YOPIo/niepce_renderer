@@ -3,10 +3,10 @@
 
 #include "../core/niepce.h"
 #include "../core/interaction.h"
-#include "../core/ray.h"
+#include "../geometries/ray.h"
 #include "../core/transform.h"
-#include "../core/boundingbox2.h"
-#include "../core/boundingbox3.h"
+#include "../geometries/boundingbox2.h"
+#include "../geometries/boundingbox3.h"
 #include "../geometries/normal3.h"
 #include "../geometries/point2.h"
 #include "../geometries/point3.h"
@@ -21,14 +21,14 @@ namespace niepce
 class Shape
 {
  public:
-  Shape();
-  Shape(const Point3f& p); // Initialize with vertex position
-  Shape(const std::shared_ptr<Transform>& local_to_world,
-        const std::shared_ptr<Transform>& world_to_local);
-  virtual ~Shape();
+  Shape ();
+  Shape (const Point3f& p); // Initialize with vertex position
+  Shape (const std::shared_ptr<Transform>& local_to_world,
+         const std::shared_ptr<Transform>& world_to_local);
+  virtual ~Shape ();
 
-  Shape(const Shape& shape) = default;
-  Shape(Shape&&      shape) = default;
+  Shape (const Shape& shape) = default;
+  Shape (Shape&&      shape) = default;
 
   auto operator = (const Shape& shape) -> Shape& = default;
   auto operator = (Shape&&      shape) -> Shape& = default;
@@ -37,17 +37,17 @@ class Shape
   // Shape override functions
   // ---------------------------------------------------------------------------
   // Reture Surface Area
-  virtual auto SurfaceArea() const -> Float = 0;
+  virtual auto SurfaceArea () const -> Float = 0;
 
   // Get a bounding box at the local coordinate system
-  virtual auto LocalBoundingBox() const -> Bounds3f = 0;
+  virtual auto LocalBounds () const -> Bounds3f = 0;
 
   // Get a bounding box at the world coordinate system
-  virtual auto WorldBoundingBox() const -> Bounds3f = 0;
+  virtual auto WorldBounds () const -> Bounds3f = 0;
 
   // Check intersection with shape
-  virtual auto IsIntersect(const Ray&   ray,
-                           Interaction* surface) const -> bool = 0;
+  virtual auto IsIntersect (const Ray&   ray,
+                            Interaction* surface) const -> bool = 0;
 
  protected:
   std::shared_ptr<Transform> local_to_world_;

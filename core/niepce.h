@@ -10,6 +10,7 @@
 #include <cassert>
 #include <cmath>
 #include <cstring>
+#include <cstdlib>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -32,9 +33,9 @@
 #include <spdlog/tweakme.h>
 
 // File loader
-#include <assimp/Importer.hpp>  // C++ importer interface
-#include <assimp/scene.h>       // Output data structure
-#include <assimp/postprocess.h> // Post processing flags
+//#include <assimp/Importer.hpp>  // C++ importer interface
+//#include <assimp/scene.h>       // Output data structure
+//#include <assimp/postprocess.h> // Post processing flags
 
 namespace niepce
 {
@@ -44,10 +45,50 @@ namespace niepce
 // ---------------------------------------------------------------------------
 typedef float Float;
 
+
+// ---------------------------------------------------------------------------
+// 
+// ---------------------------------------------------------------------------
+class Matrix4x4;
+
+
+template <typename T> class BoundingBox2;
+template <typename T> class BoundingBox3;
+template <typename T> class Point2;
+template <typename T> class Point3;
+template <typename T> class Point4;
+template <typename T> class Vector2;
+template <typename T> class Vector3;
+template <typename T> class Vector4;
+template <typename T> class Normal3;
+
+typedef BoundingBox2<Float> Bounds2f;
+typedef BoundingBox2<int>   Bounds2i;
+typedef BoundingBox3<Float> Bounds3f;
+typedef BoundingBox3<int>   Bounds3i;
+
+typedef Point2<Float> Point2f;
+typedef Point2<int>   Point2i;
+typedef Point3<Float> Point3f;
+typedef Point3<int>   Point3i;
+typedef Point4<Float> Point4f;
+typedef Point4<int>   Point4i;
+
+typedef Vector2<Float> Vector2f;
+typedef Vector2<int>   Vector2i;
+typedef Vector3<Float> Vector3f;
+typedef Vector3<int>   Vector3i;
+typedef Vector4<Float> Vector4f;
+typedef Vector4<int>   Vector4i;
+
+typedef Normal3<Float> Normal3f;
+typedef Normal3<int>   Normal3i;
+
+
 // ---------------------------------------------------------------------------
 // Debug
 // ---------------------------------------------------------------------------
-extern std::shared_ptr<spdlog::logger> console;
+// extern std::shared_ptr<spdlog::logger> console;
 
 // ---------------------------------------------------------------------------
 // Render settings
@@ -67,44 +108,6 @@ constexpr Float kInfinity = std::numeric_limits<Float>::infinity();
 constexpr Float kFloatMax = std::numeric_limits<Float>::max();
 constexpr Float kEpsilon  = std::numeric_limits<Float>::epsilon();
 constexpr Float kPi       = 3.14159265358979323846;
-
-
-// ---------------------------------------------------------------------------
-// Global class declarations
-// ---------------------------------------------------------------------------
-
-// Defined in /geometries
-template <typename T> class BoundingBox2;
-template <typename T> class BoundingBox3;
-template <typename T> class Matrix4x4;
-template <typename T> class Normal3;
-template <typename T> class Point2;
-template <typename T> class Point3;
-template <typename T> class Point4;
-template <typename T> class Vector2;
-template <typename T> class Vector3;
-template <typename T> class Vector4;
-
-typedef Vector2<int>        Vector2i;
-typedef Vector2<Float>      Vector2f;
-typedef Vector3<int>        Vector3i;
-typedef Vector3<Float>      Vector3f;
-typedef Vector4<int>        Vector4i;
-typedef Vector4<Float>      Vector4f;
-typedef Point2<int>         Point2i;
-typedef Point2<Float>       Point2f;
-typedef Point3<int>         Point3i;
-typedef Point3<Float>       Point3f;
-typedef Point4<int>         Point4i;
-typedef Point4<Float>       Point4f;
-typedef Normal3<int>        Normal3i;
-typedef Normal3<Float>      Normal3f;
-typedef Matrix4x4<int>      Matrix4x4i;
-typedef Matrix4x4<Float>    Matrix4x4f;
-typedef BoundingBox2<int>   Bounds2i;
-typedef BoundingBox2<Float> Bounds2f;
-typedef BoundingBox3<int>   Bounds3i;
-typedef BoundingBox3<Float> Bounds3f;
 
 
 // ---------------------------------------------------------------------------
@@ -244,6 +247,16 @@ inline auto NextFloatDown(double v, int delta = 1) -> double
   else         { ui += delta; }
 
   return BitsToFloat(ui);
+}
+
+inline auto Radians (Float degree) -> Float
+{
+  return 0;
+}
+
+inline auto Degree (Float Radians) -> Float
+{
+  return 0;
 }
 
 inline constexpr auto Gamma(int n ) -> Float

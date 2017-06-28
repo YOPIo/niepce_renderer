@@ -1,15 +1,15 @@
 #ifndef _SPHERE_H_
 #define _SPHERE_H_
 
-#include "../core/boundingbox2.h"
-#include "../core/boundingbox3.h"
 #include "../core/interaction.h"
 #include "../core/niepce.h"
-#include "../core/ray.h"
+#include "../geometries/boundingbox2.h"
+#include "../geometries/boundingbox3.h"
 #include "../geometries/normal3.h"
 #include "../geometries/point2.h"
 #include "../geometries/point3.h"
 #include "../geometries/point4.h"
+#include "../geometries/ray.h"
 #include "../geometries/vector2.h"
 #include "../geometries/vector3.h"
 #include "../geometries/vector4.h"
@@ -39,11 +39,11 @@ class Sphere : public Shape
   // Sphere public override methods
   // ---------------------------------------------------------------------------
  public:
-  auto SurfaceArea()      const -> Float    override;
-  auto LocalBoundingBox() const -> Bounds3f override;
-  auto WorldBoundingBox() const -> Bounds3f override;
-  auto IsIntersect(const Ray&   ray,
-                   Interaction* inter) const -> bool override;
+  auto SurfaceArea () const -> Float    override;
+  auto LocalBounds () const -> Bounds3f override;
+  auto WorldBounds () const -> Bounds3f override;
+  auto IsIntersect (const Ray&   ray,
+                    Interaction* inter) const -> bool override;
 
 
   // ---------------------------------------------------------------------------

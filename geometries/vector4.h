@@ -7,33 +7,27 @@
 namespace niepce
 {
 
-// ---------------------------------------------------------------------------
-// Logger declaration
-// ---------------------------------------------------------------------------
-extern std::shared_ptr<spdlog::logger> console;
-
-template<typename T>
+template <typename T>
 class Vector4
 {
+  /* Vector4 public constructors */
  public:
-  Vector4(T v = 0.f) : x(v), y(v), z(v), w(v)
+  Vector4 (T v = 0.f) : x(v), y(v), z(v), w(v)
   {}
-  Vector4(T xx, T yy, T zz, T ww) : x(xx), y(yy), z(zz), w(ww)
+  Vector4 (T xx, T yy, T zz, T ww) : x(xx), y(yy), z(zz), w(ww)
   {}
-  explicit Vector4(const Point4<T>& p) : x(p.x), y(p.y), z(p.z), w(p.w)
+  explicit Vector4 (const Point4<T>& p) : x(p.x), y(p.y), z(p.z), w(p.w)
   {}
-  ~Vector4()
+  ~Vector4 ()
   {}
 
-  Vector4(const Vector4& vec4) = default;
-  Vector4(Vector4&& vec4)      = default;
+  Vector4(const Vector4&  vec4) = default;
+  Vector4(      Vector4&& vec4) = default;
 
 
-  // ---------------------------------------------------------------------------
-  // Vector4 public operator
-  // ---------------------------------------------------------------------------
-  Vector4& operator = (const Vector4& vec4) = default;
-  Vector4& operator = (Vector4&& vec4)      = default;
+  /* Vector4 public operators */
+  Vector4& operator = (const Vector4&  vec4) = default;
+  Vector4& operator = (      Vector4&& vec4) = default;
 
   auto operator == (const Vector4& v) const noexcept -> bool
   {
@@ -47,8 +41,8 @@ class Vector4
   auto operator [] (std::size_t idx) const -> T
   {
 #ifdef Debug
-    try { return xyzw.at(idx); }
-    catch (const std::out_of_range& e) { console->error(e.what()); }
+    try   { return xyzw.at(idx); }
+    catch (const std::out_of_range& e) { }
 #else
     return xyzw[idx];
 #endif // Debug
@@ -56,24 +50,26 @@ class Vector4
   auto operator [] (std::size_t idx) -> T&
   {
 #ifdef Debug
-    try { return xyzw.at(idx); }
-    catch (const std::out_of_range& e) { console->error(e.what()); }
+    try   { return xyzw.at(idx); }
+    catch (const std::out_of_range& e) { }
 #else
     return xyzw[idx];
 #endif // Debug
   }
 
-  operator Point4<T>() const
+  operator Point4<T> () const
   {
     return Point4<T>(x, y, z, w);
   }
 
   auto operator + (const Vector4& v) const -> Vector4<T>
   {
+    // TODO: NaN check
     return Vector4<T>(x + v.x, y + v.y, z + v.z, w + v.w);
   }
   auto operator += (const Vector4& v) -> Vector4<T>&
   {
+    // TODO: NaN check
     x += v.x;
     y += v.y;
     z += v.z;
@@ -83,10 +79,12 @@ class Vector4
 
   auto operator - (const Vector4& v) const -> Vector4<T>
   {
+    // TODO: NaN check
     return Vector4<T>(x - v.x, y - v.y, z - v.z, w - v.w);
   }
   auto operator -= (const Vector4& v) -> Vector4<T>&
   {
+    // TODO: NaN check
     x -= v.x;
     y -= v.y;
     z -= v.z;
@@ -94,14 +92,16 @@ class Vector4
     return *this;
   }
 
-  template<typename U>
+  template <typename U>
   auto operator * (U f) const -> Vector4<T>
   {
+    // TODO: NaN check
     return Vector4<T>(f * x, f * y, f * z, f * w);
   }
-  template<typename U>
+  template <typename U>
   auto operator *= (U f) -> Vector4<T>&
   {
+    // TODO: NaN check
     x *= f;
     y *= f;
     z *= f;
@@ -109,15 +109,17 @@ class Vector4
     return *this;
   }
 
-  template<typename U>
+  template <typename U>
   auto operator / (U f) const -> Vector4<T>
   {
+    // TODO: NaN check
     Float inv = 1.0 / f;
     return Vector4<T>(x * inv, y * inv, z * inv, w * inv);
   }
-  template<typename U>
+  template <typename U>
   auto operator /= (U f) -> Vector4<T>&
   {
+    // TODO: NaN check
     Float inv = 1.0 / f;
     x *= inv;
     y *= inv;
@@ -128,80 +130,78 @@ class Vector4
 
   auto operator - () const -> Vector4<T>
   {
+    // TODO: NaN check
     return Vector4<T>(-x, -y, -z, -w);
   }
 
 
-  // ---------------------------------------------------------------------------
-  // Vector4 public methods
-  // ---------------------------------------------------------------------------
+  /* Vector public methods */
  public:
-  auto LengthSquared() const -> Float
+  auto LengthSquared () const -> Float
   {
+    // TODO: NaN check
     return x * x + y * y + z * z + w * w;
   }
-  auto Length() const -> Float
+  auto Length () const -> Float
   {
+    // TODO: NaN check
     return std::sqrt( LengthSquared() );
   }
-  auto HasNaNs() const -> bool
+  auto HasNaNs () const -> bool
   {
+    // TODO: NaN check
     return IsNaN(x) || IsNaN(y) || IsNaN(z) || IsNaN(w);
   }
 
 
-  // ---------------------------------------------------------------------------
-  // Vector4 public constant values
-  // ---------------------------------------------------------------------------
+  /* Vector4 public constant values */
  public:
-  static constexpr auto One() -> Point4<T>
+  static constexpr auto One () -> Point4<T>
   {
-    return Point4<T>(1, 1, 1, 1);
+    return Point4<T> (1, 1, 1, 1);
   }
-  static constexpr auto Zero() -> Point4<T>
+  static constexpr auto Zero () -> Point4<T>
   {
-    return Point4<T>(0, 0, 0, 0);
+    return Point4<T> (0, 0, 0, 0);
   }
-  static constexpr auto Max() -> Point4<T>
+  static constexpr auto Max () -> Point4<T>
   {
-    return Point4<T>(std::numeric_limits<T>::max(),
-                     std::numeric_limits<T>::max(),
-                     std::numeric_limits<T>::max(),
-                     std::numeric_limits<T>::max());
+    return Point4<T> (std::numeric_limits<T>::max (),
+                      std::numeric_limits<T>::max (),
+                      std::numeric_limits<T>::max (),
+                      std::numeric_limits<T>::max ());
   }
-  static constexpr auto Min() -> Point4<T>
+  static constexpr auto Min () -> Point4<T>
   {
-    return Point4<T>(std::numeric_limits<T>::min(),
-                     std::numeric_limits<T>::min(),
-                     std::numeric_limits<T>::min(),
-                     std::numeric_limits<T>::min());
+    return Point4<T> (std::numeric_limits<T>::min (),
+                      std::numeric_limits<T>::min (),
+                      std::numeric_limits<T>::min (),
+                      std::numeric_limits<T>::min ());
   }
-  static constexpr auto Inf() -> Point4<T>
+  static constexpr auto Inf () -> Point4<T>
   {
-    return Point4<T>(std::numeric_limits<T>::infinity(),
-                     std::numeric_limits<T>::infinity(),
-                     std::numeric_limits<T>::infinity(),
-                     std::numeric_limits<T>::infinity());
+    return Point4<T> (std::numeric_limits<T>::infinity(),
+                      std::numeric_limits<T>::infinity(),
+                      std::numeric_limits<T>::infinity(),
+                      std::numeric_limits<T>::infinity());
   }
-  static constexpr auto NaN() -> Point4<T>
+  static constexpr auto NaN () -> Point4<T>
   {
-    return Point4<T>(std::numeric_limits<T>::quiet_NaN(),
-                     std::numeric_limits<T>::quiet_NaN(),
-                     std::numeric_limits<T>::quiet_NaN(),
-                     std::numeric_limits<T>::quiet_NaN());
+    return Point4<T> (std::numeric_limits<T>::quiet_NaN(),
+                      std::numeric_limits<T>::quiet_NaN(),
+                      std::numeric_limits<T>::quiet_NaN(),
+                      std::numeric_limits<T>::quiet_NaN());
   }
-  static constexpr auto Eps() -> Point4<T>
+  static constexpr auto Eps () -> Point4<T>
   {
-    return Point4<T>(std::numeric_limits<T>::epsilon(),
-                     std::numeric_limits<T>::epsilon(),
-                     std::numeric_limits<T>::epsilon(),
-                     std::numeric_limits<T>::epsilon());
+    return Point4<T> (std::numeric_limits<T>::epsilon(),
+                      std::numeric_limits<T>::epsilon(),
+                      std::numeric_limits<T>::epsilon(),
+                      std::numeric_limits<T>::epsilon());
   }
 
 
-  // ---------------------------------------------------------------------------
-  // Vector4 public data
-  // ---------------------------------------------------------------------------
+  /* Vector4 public data */
  public:
   union
   {

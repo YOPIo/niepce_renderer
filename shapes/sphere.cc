@@ -26,23 +26,23 @@ Sphere::~Sphere()
 // ---------------------------------------------------------------------------
 // Sphere public override methods
 // ---------------------------------------------------------------------------
-auto Sphere::SurfaceArea() const -> Float
+auto Sphere::SurfaceArea () const -> Float
 {
   return 4 * kPi * radius_ * radius_;
 }
 
-auto Sphere::LocalBoundingBox() const -> Bounds3f
+auto Sphere::LocalBounds () const -> Bounds3f
 {
   return Bounds3f();
 }
 
-auto Sphere::WorldBoundingBox() const -> Bounds3f
+auto Sphere::WorldBounds () const -> Bounds3f
 {
   return Bounds3f();
 }
 
-auto Sphere::IsIntersect(const Ray&   ray,
-                         Interaction* inter) const -> bool
+auto Sphere::IsIntersect (const Ray&   ray,
+                          Interaction* inter) const -> bool
 {
   // Transform Ray to object space
   Ray local_ray = Ray(*world_to_local_ * ray );

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libCores.a  CMakeFiles/Cores.dir/interaction.cc.o CMakeFiles/Cores.dir/transform.cc.o CMakeFiles/Cores.dir/settings.cc.o
+/usr/bin/ranlib libCores.a

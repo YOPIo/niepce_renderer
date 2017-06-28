@@ -202,6 +202,18 @@ inline auto Dot(const Normal3<T>& n, const Vector3<T>& v) -> T
 }
 
 template <typename T>
+inline auto Dot(const Normal3<T>& n, const Point3<T>& p) -> T
+{
+  return n.x * p.x + n.y * p.y + n.z * p.z;
+}
+
+template <typename T>
+inline auto Dot(const Point3<T>& p, const Normal3<T>& n) -> T
+{
+  return n.x * p.x + n.y * p.y + n.z * p.z;
+}
+
+template <typename T>
 inline auto Cross(const Normal3<T>& n1, const Normal3<T>& n2) -> Normal3<T>
 {
   return Normal3<T>(n1.y * n2.z - n1.z * n2.y,

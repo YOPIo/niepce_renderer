@@ -1,0 +1,2 @@
+/usr/bin/ar qc libShapes.a  CMakeFiles/Shapes.dir/vertex.cc.o CMakeFiles/Shapes.dir/shape.cc.o CMakeFiles/Shapes.dir/sphere.cc.o CMakeFiles/Shapes.dir/triangle_mesh.cc.o CMakeFiles/Shapes.dir/triangle.cc.o
+/usr/bin/ranlib libShapes.a

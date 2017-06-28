@@ -4,11 +4,13 @@ namespace niepce
 {
 
 // Default values
-XorShift::XorShift() :
-    x_(123456789),
-    y_(362436069),
-    z_(521288629),
-    w_(88675123)
+uint32_t XorShift::x_ = 123456789;
+uint32_t XorShift::y_ = 362436069;
+uint32_t XorShift::z_ = 521288629;
+uint32_t XorShift::w_ = 88675123;
+
+
+XorShift::XorShift()
 {}
 
 // Initialize with seed
