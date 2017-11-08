@@ -1,0 +1,111 @@
+#include "individual.h"
+/*
+// ---------------------------------------------------------------------------
+*/
+namespace niepce
+{
+/*
+// ---------------------------------------------------------------------------
+*/
+Individual::Individual () :
+  Primitive (),
+  shape_    (nullptr),
+  material_ (nullptr),
+  ligth_    (nullptr)
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+Individual::Individual
+(
+ const std::shared_ptr<Shape>&    shape,
+ const std::shared_ptr<Material>& material,
+ const std::shared_ptr<Light>&    light
+) :
+  Primitive (),
+  shape_    (shape),
+  material_ (material),
+  ligth_    (light)
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+Individual::~Individual ()
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Individual::WorldBounds () const -> Bounds3f
+{
+
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Individual::LocalBounds () const -> Bounds3f
+{
+
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Individual::SurfaceArea () const -> Float
+{
+
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Individual::IsIntersect
+(
+ const Ray&       ray,
+       HitRecord* interaction
+)
+const -> bool
+{
+  if (shape_)
+  {
+    return shape_->IsIntersect (ray, interaction);
+  }
+  return false;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Individual::GetAreaLight () const -> std::shared_ptr<Light>
+{
+  if (ligth_ != nullptr)
+  {
+    return ligth_;
+  }
+  // TODO: Reprot a error
+  return nullptr;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Individual::GetMaterial () const -> std::shared_ptr<Material>
+{
+  if (material_ != nullptr)
+  {
+    return material_;
+  }
+  // TODO: Report a error
+  return nullptr;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Individual::GetShape () const -> std::shared_ptr<Shape>
+{
+  if (shape_ != nullptr)
+  {
+    return shape_;
+  }
+  // TODO: Reprot a error
+  return nullptr;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+}  // namespace niepce
