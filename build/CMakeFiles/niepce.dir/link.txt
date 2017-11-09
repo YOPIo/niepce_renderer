@@ -1,1 +1,0 @@
-/usr/bin/clang++  -pthread -std=c++11 -O2  -rdynamic CMakeFiles/niepce.dir/bvh_test.cc.o  -o niepce scene/libScene.a shapes/libShapes.a core/libCores.a geometries/libGeometries.a accelerators/libAccelerators.a cameras/libCameras.a materials/libMaterials.a primitives/libPrimitives.a randoms/libRandoms.a 

@@ -1,2 +1,0 @@
-/usr/bin/ar qc libAccelerators.a  CMakeFiles/Accelerators.dir/bvh_node.cc.o CMakeFiles/Accelerators.dir/bvh_bucket.cc.o CMakeFiles/Accelerators.dir/bvh_primitive_info.cc.o CMakeFiles/Accelerators.dir/bvh.cc.o
-/usr/bin/ranlib libAccelerators.a

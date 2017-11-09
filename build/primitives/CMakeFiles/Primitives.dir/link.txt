@@ -1,2 +1,0 @@
-/usr/bin/ar qc libPrimitives.a  CMakeFiles/Primitives.dir/primitive.cc.o CMakeFiles/Primitives.dir/aggregate_primitive.cc.o CMakeFiles/Primitives.dir/geometric_primitive.cc.o
-/usr/bin/ranlib libPrimitives.a
