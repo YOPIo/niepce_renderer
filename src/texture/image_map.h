@@ -38,6 +38,8 @@ public:
 public:
   auto Evaluate (const SurfaceInteraction& si) const -> Vector4f override final;
 
+  auto ToString () const -> std::string override final;
+
 
   /* ImageMapTexture private data */
 private:

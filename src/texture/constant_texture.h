@@ -39,7 +39,10 @@ public:
 
   /* ConstantTexture public methods  */
  public:
-  auto Evaluate (const SurfaceInteraction& si) const -> ReturnType override;
+  auto Evaluate (const SurfaceInteraction& si) const
+    -> ReturnType override final;
+
+  auto ToString () const -> std::string override final;
 
 
   /* ConstantTexture private data */

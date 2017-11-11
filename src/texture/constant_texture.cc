@@ -28,6 +28,14 @@ auto ConstantTexture<ReturnType>::Evaluate (const SurfaceInteraction& si) const 
 /*
 // ---------------------------------------------------------------------------
 */
+template <typename ReturnType>
+auto ConstantTexture <ReturnType>::ToString () const -> std::string
+{
+  return std::string ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 template class ConstantTexture<Spectrum>;
 template class ConstantTexture<Float>;
 /*

@@ -17,5 +17,9 @@ auto ImageMapTexture::Evaluate (const SurfaceInteraction &si) const -> Spectrum
   return map_ (si.texcoord);
 }
 
+auto ImageMapTexture::ToString () const -> std::string
+{
+  return std::string ();
+}
 
 }  // namespace niepce

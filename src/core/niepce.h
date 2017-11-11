@@ -73,6 +73,7 @@ class Integrator;
 class SampleIntegrator;
 class PathTracer;
 class Camera;
+class Object;
 
 typedef Point2<Float>       Point2f;
 typedef Point2<int>         Point2i;
