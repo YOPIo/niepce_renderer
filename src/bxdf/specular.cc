@@ -65,6 +65,13 @@ const -> Spectrum
 }
 /*
 // ---------------------------------------------------------------------------
+*/
+auto SpecularReflection::ToString () const -> std::string
+{
+  return std::string ("Specular Reflection");
+}
+/*
+// ---------------------------------------------------------------------------
 // Specular Transmission
 // ---------------------------------------------------------------------------
 */
@@ -138,6 +145,13 @@ const -> Spectrum
                    (Spectrum::One () - fresnel_.Evaluate(CosTheta (*incident))));
 
   return t / std::abs (CosTheta (*incident));
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SpecularTransmission::ToString () const -> std::string
+{
+  return std::string ("Specular Transmission");
 }
 /*
 // ---------------------------------------------------------------------------

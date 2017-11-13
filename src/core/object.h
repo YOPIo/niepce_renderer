@@ -35,6 +35,7 @@ public:
 
   /* Object public interface */
 public:
+  // For debugging and dumping
   virtual auto ToString () const -> std::string = 0;
 
 }; // class Object

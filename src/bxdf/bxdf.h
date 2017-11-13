@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
+#include "../core/object.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -29,7 +30,7 @@ enum BsdfType : uint64_t
 /*
 // ---------------------------------------------------------------------------
 */
-class Bxdf
+class Bxdf : public Object
 {
   /* Bxdf constructors */
  public:
@@ -94,6 +95,10 @@ class Bxdf
             BsdfType* type
   )
   const -> Spectrum = 0;
+
+
+  /* Bxdf override methods */
+  virtual auto ToString () const -> std::string override = 0;
 
 
   /* Bxdf protected data */

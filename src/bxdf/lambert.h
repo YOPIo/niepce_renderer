@@ -22,7 +22,7 @@ public:
 
   /* Lambert destructor */
 public:
-  virtual ~Lambert () = default;
+   ~Lambert () = default;
 
 
   /* Lambert public operators*/
@@ -36,21 +36,21 @@ public:
 
   /* Lambert override methods */
 public:
-  virtual auto Pdf
+  auto Pdf
   (
       const Vector3f& outgoing,
       const Vector3f& incident
   )
   const -> Float override final;
 
-  virtual auto Evaluate
+  auto Evaluate
   (
       const Vector3f& outgoing,
       const Vector3f& incident
   )
   const -> Spectrum override final;
 
-  virtual auto EvaluateAndSample
+  auto EvaluateAndSample
   (
       const Vector3f& outgoing,
             Vector3f* incident,
@@ -59,6 +59,8 @@ public:
             BsdfType* type
   )
   const -> Spectrum override final;
+
+  auto ToString () const -> std::string override final;
 
 
   /* Lambert private data */

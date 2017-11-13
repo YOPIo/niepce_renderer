@@ -75,6 +75,8 @@ public:
   )
   const -> Spectrum override final;
 
+  auto ToString () const -> std::string override final;
+
 
   /* SpecularReflection private data */
 private:
@@ -146,6 +148,8 @@ class SpecularTransmission : public Bxdf
             BsdfType* type
   )
   const -> Spectrum override final;
+
+  auto ToString () const -> std::string override final;
 
 
   /* Specular Transmission private data */

@@ -248,4 +248,11 @@ const -> Spectrum
 /*
 // ---------------------------------------------------------------------------
 */
+auto MicrofacetReflection::ToString () const -> std::string
+{
+  return std::string ("Microfacet Reflection");
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce

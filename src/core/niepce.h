@@ -98,6 +98,10 @@ typedef BoundingBox3<int>   Bounds3i;
 typedef Float    Sample1f;
 typedef Point2f  Sample2f;
 typedef Vector4f Spectrum;
+
+typedef std::shared_ptr<Shape>    ShapePtr;
+typedef std::shared_ptr<Material> MaterialPtr;
+template <class T> using TexturePtr = std::shared_ptr <Texture <T>>;
 /*
 // ---------------------------------------------------------------------------
 // Render settings
@@ -117,6 +121,7 @@ constexpr Float kInfinity = std::numeric_limits<Float>::infinity();
 constexpr Float kFloatMax = std::numeric_limits<Float>::max();
 constexpr Float kEpsilon  = std::numeric_limits<Float>::epsilon();
 constexpr Float kPi       = 3.14159265358979323846;
+constexpr Float kInvPi    = 0.31830988618379067153;
 constexpr Float kSqrtPi   = 1.77245385090551602729;
 
 

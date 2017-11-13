@@ -184,6 +184,8 @@ class MicrofacetReflection : public Bxdf
   )
   const -> Spectrum override final;
 
+  auto ToString () const -> std::string override final;
+
 
   /* MicrofacetReflection private data */
  private:
