@@ -1,4 +1,5 @@
 #include "triangle.h"
+#include "../sampler/sampler_utils.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -6,29 +7,151 @@ namespace niepce
 {
 /*
 // ---------------------------------------------------------------------------
+//
+// ---------------------------------------------------------------------------
 */
-Triangle::Triangle
+TriangleMesh::TriangleMesh
 (
- const std::shared_ptr<Vertex>& v0,
- const std::shared_ptr<Vertex>& v1,
- const std::shared_ptr<Vertex>& v2
+ size_t num_faces,
+ const std::vector <Point3f>&  positions,
+ const std::vector <Normal3f>& normals,
+ const std::vector <Point2f>&  texcoords
 ) :
-  Shape     (Transform ()),
-  vertices_ ( std::array<std::shared_ptr<Vertex>, 3> ({v0, v1, v2}) )
-{}
+  num_faces_     (num_faces),
+  num_positions_ (positions.size ()),
+  num_normals_   (normals.size ()),
+  num_texcoords_ (texcoords.size ())
+{
+  // Copy positions
+  if (num_positions_ > 0)
+  {
+    // Allocate memory
+    positions_.reset (new Point3f [num_positions_]);
+    for (size_t i = 0; i < num_positions_; ++i)
+    {
+      positions_[i] = positions[i];
+    }
+  }
+
+  // Copy normals
+  if (num_normals_ > 0)
+  {
+    // Allocate memory
+    normals_.reset (new Normal3f [num_normals_]);
+    for (size_t i = 0; i < num_normals_; ++i)
+    {
+      normals_[i] = normals[i];
+    }
+  }
+
+  // Copy texcoords
+  if (num_texcoords_ > 0)
+  {
+    // Allocate memory
+    texcoords_.reset (new Point2f [num_normals_]);
+    for (size_t i = 0; i < num_texcoords_; ++i)
+    {
+      texcoords_[i] = texcoords[i];
+    }
+  }
+}
 /*
 // ---------------------------------------------------------------------------
 */
-Triangle::~Triangle ()
+auto TriangleMesh::GetPosition (size_t idx) const -> Point3f
+{
+  if (idx < num_positions_)
+  {
+    return positions_[idx];
+  }
+  throw std::out_of_range ("Out of range.");
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto TriangleMesh::GetNormal (size_t idx) const -> Normal3f
+{
+  if (normals_)
+  {
+    return Normal3f (0, 1, 0);
+  }
+
+  if (idx < num_normals_)
+  {
+    return normals_[idx];
+  }
+  throw std::out_of_range ("Out of range.");
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto TriangleMesh::GetTexcoord (size_t idx) const -> Point2f
+{
+  if (texcoords_)
+  {
+    return Point2f::Zero ();
+  }
+
+  if (idx < num_texcoords_)
+  {
+    return texcoords_[idx];
+  }
+  throw std::out_of_range ("Out of range.");
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto TriangleMesh::NumPosition () const -> size_t
+{
+  return num_positions_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto TriangleMesh::NumNormal () const -> size_t
+{
+  return num_normals_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto TriangleMesh::NumTexcoord () const -> size_t
+{
+  return num_texcoords_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto TriangleMesh::NumFaces () const -> size_t
+{
+  return num_faces_;
+}
+/*
+// ---------------------------------------------------------------------------
+// Triangle
+// ---------------------------------------------------------------------------
+*/
+Triangle::Triangle
+(
+ const std::shared_ptr<TriangleMesh>& mesh,
+ const std::array <size_t, 3>& pos,
+ const std::array <size_t, 3>& nor,
+ const std::array <size_t, 3>& tex
+) :
+  mesh_    (mesh),
+  pos_idx_ (pos),
+  nor_idx_ (nor),
+  tex_idx_ (tex),
+  Shape    (Transform::Identity ())
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 auto Triangle::SurfaceArea() const -> Float
 {
-  const Point3f& p0 = *(vertices_[0]->position);
-  const Point3f& p1 = *(vertices_[1]->position);
-  const Point3f& p2 = *(vertices_[2]->position);
+  const Point3f& p0 (mesh_->GetPosition (pos_idx_[0]));
+  const Point3f& p1 (mesh_->GetPosition (pos_idx_[1]));
+  const Point3f& p2 (mesh_->GetPosition (pos_idx_[2]));
   return 0.5 * Cross(p1 - p0, p2 - p0).Length();
 }
 /*
@@ -45,9 +168,9 @@ auto Triangle::LocalBounds () const -> Bounds3f
 */
 auto Triangle::WorldBounds () const -> Bounds3f
 {
-  const Point3f& p0 = *(vertices_[0]->position);
-  const Point3f& p1 = *(vertices_[1]->position);
-  const Point3f& p2 = *(vertices_[2]->position);
+  const Point3f& p0 (mesh_->GetPosition (pos_idx_[0]));
+  const Point3f& p1 (mesh_->GetPosition (pos_idx_[1]));
+  const Point3f& p2 (mesh_->GetPosition (pos_idx_[2]));
   return Bounds3f ({p0, p1, p2});
 }
 /*
@@ -63,9 +186,9 @@ auto Triangle::IsIntersect
 const -> bool
 {
   // Get vertices which representing a triangle face
-  const Point3f& p0 = GetPosition (0);
-  const Point3f& p1 = GetPosition (1);
-  const Point3f& p2 = GetPosition (2);
+  const Point3f& p0 (mesh_->GetPosition (pos_idx_[0]));
+  const Point3f& p1 (mesh_->GetPosition (pos_idx_[1]));
+  const Point3f& p2 (mesh_->GetPosition (pos_idx_[2]));
 
 
   // Find vectors for two edges sharing vertex0
@@ -112,9 +235,9 @@ const -> bool
   const Vector3f outgoing = Normalize (-ray.direction);
 
   // Get UV coordinate, if present
-  const Point2f uv0 (GetTexcoord (0));
-  const Point2f uv1 (GetTexcoord (1));
-  const Point2f uv2 (GetTexcoord (2));
+  const Point2f uv0 (mesh_->GetTexcoord (tex_idx_[0]));
+  const Point2f uv1 (mesh_->GetTexcoord (tex_idx_[1]));
+  const Point2f uv2 (mesh_->GetTexcoord (tex_idx_[2]));
 
   // Compute the texcoord
   const Float   uv (1.0 - u - v);
@@ -160,9 +283,9 @@ auto Triangle::Sample (const Sample2f& sample) const -> Interaction
   const Point2f b (SampleUniformTriangle (sample));
 
   // Get triangle vertices
-  const Point3f& p0 = *(vertices_[0]->position);
-  const Point3f& p1 = *(vertices_[0]->position);
-  const Point3f& p2 = *(vertices_[0]->position);
+  const Point3f& p0 (mesh_->GetPosition (pos_idx_[0]));
+  const Point3f& p1 (mesh_->GetPosition (pos_idx_[1]));
+  const Point3f& p2 (mesh_->GetPosition (pos_idx_[2]));
 
   Interaction it;
   it.position = b[0] * p0 + b[1] * p1 + (1 - b[0] - b[1]) * p2;
@@ -199,54 +322,8 @@ auto Triangle::Pdf () const -> Float
 */
 auto Triangle::ToString () const -> std::string
 {
-  std::string str ("");
-  str += "Shape type: Triangle\n";
-  str += "Position : [" + GetPosition(0).ToString () + ", " +
-          GetPosition (1).ToString () + ", " +
-          GetPosition (2).ToString () + "]\n";
+  std::string str ("Triangle Shape");
   return str;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Triangle::GetPosition (size_t idx) const -> Point3f
-{
-  // TODO: Range check
-  if (vertices_[idx] && vertices_[idx]->position)
-  {
-    return *(vertices_[idx]->position);
-  }
-  // std::cerr << "Position does not exist." << std::endl;
-  return Point3f::Zero ();
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Triangle::GetNormal (size_t idx) const -> Normal3f
-{
-  // todo: Range check
-  if (vertices_[idx] && vertices_[idx]->normal)
-  {
-    return *(vertices_[idx]->normal);
-  }
-  // std::cerr << "Normal does not exist." << std::endl;
-  return Normal3f (0, 1, 0);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Triangle::GetTexcoord (size_t idx) const -> Point2f
-{
-  // todo: Range check
-  if (vertices_[idx]->texcoord != nullptr)
-  {
-    std::cout << "hogehoge" << std::endl;
-    return *(vertices_[idx]->texcoord);
-  }
-  if (idx == 0) { return Point2f (0, 0); }
-  if (idx == 1) { return Point2f (1, 0); }
-  if (idx == 2) { return Point2f (1, 1); }
-  return Point2f::Zero ();
 }
 /*
 // ---------------------------------------------------------------------------
