@@ -7,14 +7,9 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Scene::Scene ()
-{}
-/*
-// ---------------------------------------------------------------------------
-*/
 Scene::Scene
 (
- const PrimitivePtrs&   aggregate,
+ const std::vector <IndividualPtr>& aggregate,
  const AcceleratorType& type
 ) :
   accel_type_ (type)
@@ -35,15 +30,10 @@ Scene::Scene
 /*
 // ---------------------------------------------------------------------------
 */
-Scene::~Scene ()
-{}
-/*
-// ---------------------------------------------------------------------------
-*/
 auto Scene::Construct
 (
  const AcceleratorType& type,
- const PrimitivePtrs&   primitives
+ const std::vector <IndividualPtr>& primitives
 )
 -> void
 {

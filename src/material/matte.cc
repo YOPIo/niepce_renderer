@@ -34,4 +34,11 @@ const -> Bsdf*
 /*
 // ---------------------------------------------------------------------------
 */
+auto CreateMatte (const TexturePtr <Spectrum>& reflectance) -> MaterialPtr
+{
+  return std::make_shared <Matte> (reflectance);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce

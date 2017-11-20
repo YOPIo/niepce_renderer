@@ -15,6 +15,10 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
+auto CreateMatte (const TexturePtr <Spectrum>& reflectance) -> MaterialPtr;
+/*
+// ---------------------------------------------------------------------------
+*/
 class Matte : public Material
 {
   /* Matte constructors */
@@ -48,8 +52,7 @@ public:
 
   /* Matte private data */
 private:
-  std::shared_ptr<Texture<Spectrum>> reflectance_;
-
+  TexturePtr<Spectrum> reflectance_;
 }; // class Matte
 /*
 // ---------------------------------------------------------------------------

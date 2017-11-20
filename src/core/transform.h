@@ -12,6 +12,13 @@ namespace niepce
 {
 /*
 // ---------------------------------------------------------------------------
+// Forward decralations
+// ---------------------------------------------------------------------------
+*/
+class Transform;
+class Transformable;
+/*
+// ---------------------------------------------------------------------------
 */
 class Transform
 {
@@ -64,6 +71,11 @@ class Transform
 
   auto IsIdentity () const -> bool;
   auto ToIdentity ()       -> void;
+
+
+  /* Transform public static methods */
+public:
+  static auto Identity () -> Transform;
 
 
   /* Transform private data */

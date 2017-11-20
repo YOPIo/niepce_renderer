@@ -13,6 +13,10 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
+auto CreateRandomSampler () -> SamplerPtr;
+/*
+// ---------------------------------------------------------------------------
+*/
 class RandomSampler : public Sampler
 {
   /* RandomSampler public constructors */

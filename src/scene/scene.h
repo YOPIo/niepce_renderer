@@ -40,23 +40,18 @@ enum AcceleratorType
 */
 class Scene
 {
- private:
-  typedef std::vector<std::shared_ptr<Individual>> PrimitivePtrs;
-  typedef std::vector<std::shared_ptr<Light>>      LightPtrs;
-
-
   /* Scene constructors */
 public:
-  Scene ();
+  Scene () = default;
   Scene
   (
-   const PrimitivePtrs&   aggregate,
-   const AcceleratorType& type
+   const std::vector <IndividualPtr>& aggregate,
+   const AcceleratorType& type = AcceleratorType::kNone
   );
 
 
   /* Scene public destructor */
-  virtual ~Scene ();
+  virtual ~Scene () = default;
 
 
   /* Scene public operators*/
@@ -76,7 +71,7 @@ public:
   auto Construct
   (
    const AcceleratorType& type,
-   const PrimitivePtrs&   primitives = {nullptr}
+   const std::vector <IndividualPtr>& primitives
   )
   -> void;
 
@@ -100,13 +95,12 @@ private:
   std::shared_ptr<Primitive> root_;
 
   // Store point/area light sources
-  LightPtrs lights;
+  std::vector <LightPtr> lights_;
 
   // Store only infinite lights
   std::shared_ptr<Ibl> ibl_;
 
   AcceleratorType accel_type_;
-
 }; // class Scene
 /*
 // ---------------------------------------------------------------------------

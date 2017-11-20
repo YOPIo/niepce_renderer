@@ -23,9 +23,10 @@ class Triangle;
 */
 auto CreateTriangleMesh
 (
+ size_t num_faces,
  const std::vector <Point3f>&  positions,
- const std::vector <Normal3f>& normals,
- const std::vector <Point2f>&  texcoords
+ const std::vector <Normal3f>& normals   = {},
+ const std::vector <Point2f>&  texcoords = {}
 )
 -> std::shared_ptr<TriangleMesh>;
 /*
@@ -35,10 +36,10 @@ auto CreateTriangle
 (
  const std::shared_ptr <TriangleMesh>& mesh,
  const std::array <size_t, 3>& pos_idx,
- const std::array <size_t, 3>& nor_idx,
- const std::array <size_t, 3>& tex_idx
+ const std::array <size_t, 3>& nor_idx = {0, 0, 0},
+ const std::array <size_t, 3>& tex_idx = {0, 0, 0}
 )
--> ShapePtr;
+-> std::shared_ptr<Triangle>;
 /*
 // ---------------------------------------------------------------------------
 // TriangleMesh

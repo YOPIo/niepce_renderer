@@ -78,6 +78,16 @@ class Individual : public Primitive
 /*
 // ---------------------------------------------------------------------------
 */
+auto CreateIndividual
+(
+ const ShapePtr&    shape,
+ const MaterialPtr& material,
+ const LightPtr&    light
+)
+-> IndividualPtr;
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce
 /*
 // ---------------------------------------------------------------------------

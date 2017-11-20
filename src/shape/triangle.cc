@@ -328,4 +328,36 @@ auto Triangle::ToString () const -> std::string
 /*
 // ---------------------------------------------------------------------------
 */
+auto CreateTriangleMesh
+(
+ size_t num_faces,
+ const std::vector <Point3f>&  positions,
+ const std::vector <Normal3f>& normals,
+ const std::vector <Point2f>&  texcoords
+)
+-> std::shared_ptr <TriangleMesh>
+{
+  const std::shared_ptr <TriangleMesh> mesh
+    (std::make_shared <TriangleMesh> (num_faces, positions, normals, texcoords));
+  return std::move (mesh);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateTriangle
+(
+ const std::shared_ptr <TriangleMesh>& mesh,
+ const std::array <size_t, 3>& p_idx,
+ const std::array <size_t, 3>& n_idx,
+ const std::array <size_t, 3>& t_idx
+)
+-> std::shared_ptr<Triangle>
+{
+  const std::shared_ptr <Triangle> tri
+    (std::make_shared <Triangle> (mesh, p_idx, n_idx, t_idx));
+  return std::move (tri);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce

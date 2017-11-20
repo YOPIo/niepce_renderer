@@ -155,4 +155,28 @@ auto LoadHdrImage
 /*
 // ---------------------------------------------------------------------------
 */
+template <typename DataType>
+auto CreateBaseImage (uint32_t width, uint32_t height)
+  -> ImagePtr <Pixel <DataType>>
+{
+  ImagePtr <Pixel <DataType>> res
+    (new BaseImage <Pixel <DataType>> [width * height],
+     std::default_delete <BaseImage <Pixel <DataType>> []> ());
+  return std::move (res);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template
+auto CreateBaseImage (uint32_t width, uint32_t height)
+  -> ImagePtr <Pixel <Spectrum>>;
+/*
+// ---------------------------------------------------------------------------
+*/
+template
+auto CreateBaseImage (uint32_t width, uint32_t height)
+  -> ImagePtr <Pixel <Float>>;
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce

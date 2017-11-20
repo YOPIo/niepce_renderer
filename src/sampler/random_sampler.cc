@@ -27,4 +27,11 @@ auto RandomSampler::Get2D () -> Sample2f
 /*
 // ---------------------------------------------------------------------------
 */
+auto CreateRandomSampler () -> SamplerPtr
+{
+  return std::make_shared <RandomSampler> ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce

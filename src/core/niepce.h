@@ -74,9 +74,13 @@ class SampleIntegrator;
 class PathTracer;
 class Camera;
 class Object;
+template <typename DataType> class Pixel;
+template <typename DataType> class BaseImage;
+class Image;
 
 typedef Point2<Float>       Point2f;
 typedef Point2<int>         Point2i;
+typedef Point2<uint32_t>    Point2u32i;
 typedef Point3<Float>       Point3f;
 typedef Point3<int>         Point3i;
 typedef Point4<Float>       Point4f;
@@ -98,10 +102,15 @@ typedef BoundingBox3<int>   Bounds3i;
 typedef Float    Sample1f;
 typedef Point2f  Sample2f;
 typedef Vector4f Spectrum;
+typedef BaseImage <Spectrum> SpectrumImage;
 
-typedef std::shared_ptr<Shape>    ShapePtr;
-typedef std::shared_ptr<Material> MaterialPtr;
+typedef std::shared_ptr <Shape>    ShapePtr;
+typedef std::shared_ptr <Material> MaterialPtr;
+typedef std::shared_ptr <Light>    LightPtr;
 template <class T> using TexturePtr = std::shared_ptr <Texture <T>>;
+template <class T> using ImagePtr   = std::shared_ptr <BaseImage <T>>;
+typedef std::shared_ptr <Individual> IndividualPtr;
+typedef std::shared_ptr <Sampler>  SamplerPtr;
 /*
 // ---------------------------------------------------------------------------
 // Render settings

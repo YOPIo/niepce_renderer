@@ -12,6 +12,15 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
+template <typename DataType> class ConstantTexure;
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename DataType>
+auto CreateConstantTexture (const DataType& data) -> TexturePtr <DataType>;
+/*
+// ---------------------------------------------------------------------------
+*/
 template <typename ReturnType>
 class ConstantTexture : public Texture<ReturnType>
 {

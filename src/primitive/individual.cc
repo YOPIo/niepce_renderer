@@ -108,4 +108,17 @@ auto Individual::GetShape () const -> std::shared_ptr<Shape>
 /*
 // ---------------------------------------------------------------------------
 */
+auto CreateIndividual
+(
+ const ShapePtr&    shape,
+ const MaterialPtr& material,
+ const LightPtr&    light
+)
+-> IndividualPtr
+{
+  return std::make_shared <Individual> (shape, material, light);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce
