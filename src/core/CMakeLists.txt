@@ -4,6 +4,7 @@ add_library(
   Core STATIC
   object.cc
   image.cc
+  pixel.cc
   geometry.cc
   transform.cc
 )

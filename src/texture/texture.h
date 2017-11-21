@@ -4,8 +4,6 @@
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
-#include "../core/geometry.h"
-#include "../core/interaction.h"
 #include "../core/object.h"
 /*
 // ---------------------------------------------------------------------------
@@ -15,12 +13,12 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename ReturnType>
+template <typename ValueType>
 class Texture : public Object
 {
   /* Texture public constructors */
 public:
-  Texture ();
+  Texture () = default;
 
 
   /* Texture public destructor */
@@ -38,10 +36,8 @@ public:
 
   /* Texture public interface */
 public:
-  virtual auto Evaluate (const SurfaceInteraction& si) const -> ReturnType = 0;
-
-  virtual auto ToString () const -> std::string = 0;
-
+  virtual auto Evaluate (const SurfaceInteraction& si) const -> ValueType = 0;
+  virtual auto ToString () const -> std::string override = 0;
 }; // class Texture
 /*
 // ---------------------------------------------------------------------------

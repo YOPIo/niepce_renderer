@@ -1,23 +1,28 @@
 #ifndef _IBL_H_
 #define _IBL_H_
-
+/*
+// ---------------------------------------------------------------------------
+*/
 #include "light.h"
-#include "../core/image.h"
-
+/*
+// ---------------------------------------------------------------------------
+*/
 namespace niepce
 {
-
+/*
+// ---------------------------------------------------------------------------
+*/
 class Ibl : public Light
 {
   /* Ibl constructors */
 public:
-  Ibl ();
+  Ibl () = delete;
   Ibl (const std::string& filepath);
 
 
   /* Ibl destructor */
 public:
-  virtual ~Ibl ();
+  virtual ~Ibl () = default;
 
 
   /* Ibl public operators*/
@@ -42,11 +47,14 @@ public:
 
   /* Light private data */
 private:
-  Image image_;
+  ImagePtr image_;
 
 }; // class Ibl
-
-
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce
-
+/*
+// ---------------------------------------------------------------------------
+*/
 #endif // _IBL_H_

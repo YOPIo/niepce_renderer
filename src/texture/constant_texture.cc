@@ -1,4 +1,5 @@
 #include "constant_texture.h"
+#include "../core/geometry.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -6,54 +7,55 @@ namespace niepce
 {
 /*
 // ---------------------------------------------------------------------------
+// ConstantTexture
+// ---------------------------------------------------------------------------
 */
-template <typename ReturnType>
-ConstantTexture<ReturnType>::ConstantTexture ()
+template <typename ValueType>
+ConstantTexture <ValueType>::ConstantTexture (const ValueType& value) :
+  value_ (value),
+  Texture <ValueType> ()
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename ReturnType>
-ConstantTexture<ReturnType>::ConstantTexture (const ReturnType& value) :
-    value_ (value)
-{}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename ReturnType>
-auto ConstantTexture<ReturnType>::Evaluate (const SurfaceInteraction& si) const -> ReturnType
+template <typename ValueType>
+auto ConstantTexture <ValueType>::Evaluate (const SurfaceInteraction& si) const
+  -> ValueType
 {
   return value_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename ReturnType>
-auto ConstantTexture <ReturnType>::ToString () const -> std::string
+template <typename ValueType>
+auto ConstantTexture <ValueType>::ToString () const -> std::string
 {
-  return std::string ();
+  return std::string ("constant texture.");
 }
 /*
 // ---------------------------------------------------------------------------
 */
-template class ConstantTexture <Spectrum>;
 template class ConstantTexture <Float>;
+template class ConstantTexture <Spectrum>;
 /*
 // ---------------------------------------------------------------------------
+// Functions
+// ---------------------------------------------------------------------------
 */
-template <typename DataType>
-auto CreateConstantTexture (const DataType& data) -> TexturePtr <DataType>
+template <typename ValueType>
+auto CreateConstantTexture (const ValueType& data)
+  -> std::shared_ptr <ConstantTexture<ValueType>>
 {
-  TexturePtr <DataType> ptr (std::make_shared <ConstantTexture <DataType>> (data));
-  return std::move (ptr);
+  auto ret (std::make_shared <ConstantTexture <ValueType>> (data));
+  return std::move (ret);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-template
-auto CreateConstantTexture (const Spectrum& data) -> TexturePtr <Spectrum>;
-template
-auto CreateConstantTexture (const Float& data) -> TexturePtr <Float>;
+template auto CreateConstantTexture (const Float& data)
+  -> std::shared_ptr <ConstantTexture <Float>>;
+template auto CreateConstantTexture (const Spectrum& data)
+  -> std::shared_ptr <ConstantTexture <Spectrum>>;
 /*
 // ---------------------------------------------------------------------------
 */

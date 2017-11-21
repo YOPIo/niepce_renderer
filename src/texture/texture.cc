@@ -7,14 +7,8 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename ReturnType>
-Texture<ReturnType>::Texture ()
-{}
-/*
-// ---------------------------------------------------------------------------
-*/
-template class Texture<Spectrum>;
-template class Texture<Float>;
+template class Texture <Spectrum>;
+template class Texture <Float>;
 /*
 // ---------------------------------------------------------------------------
 */

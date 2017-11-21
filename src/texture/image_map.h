@@ -1,23 +1,29 @@
 #ifndef _IMAGE_MAP_TEXTURE_H_
 #define _IMAGE_MAP_TEXTURE_H_
-
+/*
+// ---------------------------------------------------------------------------
+*/
 #include "texture.h"
 #include "../core/image.h"
-
+/*
+// ---------------------------------------------------------------------------
+*/
 namespace niepce
 {
-
-class ImageMapTexture : public Texture<Vector4f>
+/*
+// ---------------------------------------------------------------------------
+*/
+class ImageMapTexture : public Texture <Spectrum>
 {
   /* ImageMapTexture constructors */
 public:
   ImageMapTexture () = delete;
-  ImageMapTexture (const std::string& filepath);
+  ImageMapTexture (const char* filename);
 
 
   /* ImageMapTexture destructor */
 public:
-  virtual ~ImageMapTexture ();
+  virtual ~ImageMapTexture () = default;
 
 
   /* ImageMapTexture public operators*/
@@ -28,25 +34,21 @@ public:
   auto operator = (const ImageMapTexture&  tex) -> ImageMapTexture& = default;
   auto operator = (      ImageMapTexture&& tex) -> ImageMapTexture& = default;
 
-  auto operator [] (std::size_t idx) -> Vector3f
-  {
-    return Vector3f(map_[idx].x, map_[idx].y, map_[idx].z);
-  }
-
 
   /* ImageMapTexture public data */
 public:
-  auto Evaluate (const SurfaceInteraction& si) const -> Vector4f override final;
-
+  auto Evaluate (const SurfaceInteraction& si) const -> Spectrum override final;
   auto ToString () const -> std::string override final;
 
 
   /* ImageMapTexture private data */
 private:
-  Image map_;
+  ImagePtr image_;
 
 }; // class ImageMapTexture
 
 }  // namespace niepce
-
+/*
+// ---------------------------------------------------------------------------
+*/
 #endif // _IMAGE_MAP_TEXTURE_H_

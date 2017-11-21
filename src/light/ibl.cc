@@ -1,21 +1,21 @@
 #include "ibl.h"
-
+#include "../core/image.h"
+/*
+// ---------------------------------------------------------------------------
+*/
 namespace niepce
 {
-
-Ibl::Ibl () :
-  Light (LightType::kImageBased)
-{}
-
+/*
+// ---------------------------------------------------------------------------
+*/
 Ibl::Ibl (const std::string& filepath) :
     Light (LightType::kImageBased)
 {
   Load (filepath);
 }
-
-Ibl::~Ibl ()
-{}
-
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Ibl::Emission
 (
  const Ray& ray
@@ -44,13 +44,22 @@ const -> Spectrum
 
   const Point2f st (phi / (2.0 * kPi), theta / kPi);
 
-  // return image_ (Point2f (u, v));
-  return image_ (st);
-}
+  const uint32_t width  (image_->GetWidth ());
+  const uint32_t height (image_->GetHeight ());
 
+  // return image_ (Point2f (u, v));
+  const Pixel p ((*image_) (st[0] * width, st[1] * height));
+
+  return Spectrum (p.r_, p.g_, p.b_, 0.0);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Ibl::Load (const std::string& filepath) -> void
 {
-  image_.Load (filepath);
+  image_ = LoadImage (filepath.c_str ());
 }
-
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce

@@ -9,25 +9,25 @@
 */
 namespace niepce
 {
+template <typename ValueType> class ConstantTexture;
+/*
+// ---------------------------------------------------------------------------
+// Function for ConstantTexture
+// ---------------------------------------------------------------------------
+*/
+template <typename ValueType>
+auto CreateConstantTexture (const ValueType& data)
+  -> std::shared_ptr <ConstantTexture<ValueType>>;
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename DataType> class ConstantTexure;
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename DataType>
-auto CreateConstantTexture (const DataType& data) -> TexturePtr <DataType>;
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename ReturnType>
-class ConstantTexture : public Texture<ReturnType>
+template <typename ValueType>
+class ConstantTexture : public Texture <ValueType>
 {
   /* ConstantTexture public Constructors */
  public:
-  ConstantTexture ();
-  ConstantTexture (const ReturnType& value);
+  ConstantTexture () = default;
+  ConstantTexture (const ValueType& value);
 
 
   /* ConstantTexture public destructor */
@@ -47,17 +47,16 @@ public:
 
 
   /* ConstantTexture public methods  */
- public:
+public:
   auto Evaluate (const SurfaceInteraction& si) const
-    -> ReturnType override final;
+    -> ValueType override final;
 
   auto ToString () const -> std::string override final;
 
 
   /* ConstantTexture private data */
- private:
-  ReturnType value_;
-
+private:
+  ValueType value_;
 }; // class ConstantTexture
 /*
 // ---------------------------------------------------------------------------

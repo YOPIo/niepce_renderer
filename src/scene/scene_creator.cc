@@ -60,11 +60,11 @@ auto CreateCornellBox ()
 
   // Texture construction
   const TexturePtr <Spectrum> white_t
-    (CreateConstantTexture (Spectrum (0.75, 0.75, 0.75, 1.0)));
+    (CreateConstantTexture <Spectrum> (Spectrum (0.75, 0.75, 0.75, 1.0)));
   const TexturePtr <Spectrum> red_t
-    (CreateConstantTexture (Spectrum (0.75, 0.3, 0.3, 1.0)));
+    (CreateConstantTexture <Spectrum> (Spectrum (0.75, 0.3, 0.3, 1.0)));
   const TexturePtr <Spectrum> green_t
-    (CreateConstantTexture (Spectrum (0.3, 0.75, 0.3, 1.0)));
+    (CreateConstantTexture <Spectrum> (Spectrum (0.3, 0.75, 0.3, 1.0)));
 
 
   // Shape construction
