@@ -15,40 +15,40 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
+template <typename T>
 auto NonLocalMeansFilter
 (
-       BaseImage* result,
- const BaseImage& src,
-       Float sigma,
-       Float h
+ const ImagePtr <T>& src,
+       Float        sigma,
+       Float         h
 )
--> void
+-> ImagePtr <T>
 {
   const int kKernelSize (5);
   const int kWindowSize (13);
 
-  const int width  (src.GetWidth ());
-  const int height (src.GetHeight ());
+  const int width  (src->GetWidth ());
+  const int height (src->GetHeight ());
 
   // Allocate memory to result image
-  *result = BaseImage (width, height);
+  ImagePtr <T> result = CreateImage3 <T> (width, height);
 
   // Kernels to compute the weight
-  BaseImage main_kernel (kKernelSize, kKernelSize);
-  BaseImage support_kernel (kKernelSize, kKernelSize);
+  ImagePtr <T> main_kernel    (CreateImage3 <T> (kKernelSize, kKernelSize));
+  ImagePtr <T> support_kernel (CreateImage3 <T> (kKernelSize, kKernelSize));
 
   // Lambda that creating a kernel from image
   auto create_kernel_from = [&src, &kKernelSize] (int tx, int ty)
-    -> BaseImage
+    -> ImagePtr <T>
   {
-    BaseImage res (kKernelSize, kKernelSize);
+    ImagePtr <T> res (CreateImage3 <T> (kKernelSize, kKernelSize));
     for (int y = 0; y < kKernelSize; ++y)
     {
       for (int x = 0; x < kKernelSize; ++x)
       {
         const int idx_x (std::max (0, tx - kKernelSize / 2 + x));
         const int idx_y (std::max (0, ty - kKernelSize / 2 + y));
-        res (x, y) = src (idx_x, idx_y);
+        (*res) (x, y) = (*src) (idx_x, idx_y);
       }
     }
     return res;
@@ -57,8 +57,8 @@ auto NonLocalMeansFilter
   // Compute the weight of two kernels
   auto weight_from_kernels = [&kKernelSize]
   (
-   const BaseImage& k0,
-   const BaseImage& k1
+   const ImagePtr <T>& k0,
+   const ImagePtr <T>& k1
   ) -> Float
   {
     Float weight (0);
@@ -66,9 +66,9 @@ auto NonLocalMeansFilter
     {
       for (int x = 0; x < kKernelSize; ++x)
       {
-        weight += std::pow (k0 (x, y).r_ - k1 (x, y).r_, 2);
-        weight += std::pow (k0 (x, y).g_ - k1 (x, y).g_, 2);
-        weight += std::pow (k0 (x, y).b_ - k1 (x, y).b_, 2);
+        weight += std::pow ((*k0) (x, y).r_ - (*k1) (x, y).r_, 2);
+        weight += std::pow ((*k0) (x, y).g_ - (*k1) (x, y).g_, 2);
+        weight += std::pow ((*k0) (x, y).b_ - (*k1) (x, y).b_, 2);
       }
     }
     return weight;
@@ -90,7 +90,7 @@ auto NonLocalMeansFilter
 
       // Loop for support window
       Float sum_weight (0);
-      Pixel sum_pixel;
+      Pixel <T> sum_pixel;
       for (int sy = first_y; sy < end_y; ++sy)
       {
         for (int sx = end_x; sx < end_x; ++sx)
@@ -104,12 +104,15 @@ auto NonLocalMeansFilter
           const Float w (std::exp (arg));
 
           sum_weight += w;
-          sum_pixel  += src (sx, sy) * weight;
+          sum_pixel  += (*src) (sx, sy) * weight;
         }
       }
-      (*result)(x, y) = sum_pixel / sum_weight;
+
+      (*result) (x, y) = sum_pixel / sum_weight;
     }
   }
+
+  return result;
 }
 /*
 // ---------------------------------------------------------------------------

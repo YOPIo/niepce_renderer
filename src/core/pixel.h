@@ -12,12 +12,13 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
+template <typename T>
 class Pixel
 {
   /* Pixel constructors */
 public:
   Pixel () = default;
-  Pixel (Float r, Float g, Float b);
+  Pixel (T r, T g, T b);
 
 
   /* Pixel destructor */
@@ -33,25 +34,25 @@ public:
   auto operator = (const Pixel&  pixel) -> Pixel& = default;
   auto operator = (      Pixel&& pixel) -> Pixel& = default;
 
-  auto operator [] (const size_t idx)       -> Float&;
-  auto operator [] (const size_t idx) const -> Float;
+  auto operator [] (const size_t idx)       -> T&;
+  auto operator [] (const size_t idx) const -> T;
 
   auto operator + (const Pixel& p) const -> Pixel;
   auto operator - (const Pixel& p) const -> Pixel;
-  auto operator * (Float t)        const -> Pixel;
-  auto operator / (Float t)        const -> Pixel;
+  auto operator * (T t)        const -> Pixel;
+  auto operator / (T t)        const -> Pixel;
 
   auto operator += (const Pixel& p) -> Pixel&;
   auto operator -= (const Pixel& p) -> Pixel&;
-  auto operator *= (Float t) -> Pixel&;
-  auto operator /= (Float t) -> Pixel&;
+  auto operator *= (T t) -> Pixel&;
+  auto operator /= (T t) -> Pixel&;
 
   /* Pixel public data */
 public:
   union
   {
-    struct { Float r_, g_, b_; };
-    std::array <Float, 3> rgb_;
+    struct { T r_, g_, b_; };
+    std::array <T, 3> rgb_;
   };
 
 }; // class Pixel

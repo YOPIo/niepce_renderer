@@ -47,7 +47,7 @@ public:
 
   /* Light private data */
 private:
-  ImagePtr image_;
+  ImagePtr <Float> image_;
 
 }; // class Ibl
 /*

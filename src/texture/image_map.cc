@@ -11,7 +11,7 @@ namespace niepce
 ImageMapTexture::ImageMapTexture (const char* filename) :
   Texture <Spectrum> ()
 {
-  image_ = LoadImage (filename);
+  image_ = LoadImage <Float> (filename);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -26,7 +26,7 @@ auto ImageMapTexture::Evaluate (const SurfaceInteraction &si) const -> Spectrum
   const size_t y (height * si.texcoord.t);
 
   // TODO: Create convertor
-  const Pixel p ((*image_) (x, y));
+  const Pixel <Float> p ((*image_) (x, y));
   return Spectrum (p.r_, p.g_, p.g_, 0.0);
 }
 /*

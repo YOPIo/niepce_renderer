@@ -48,7 +48,7 @@ const -> Spectrum
   const uint32_t height (image_->GetHeight ());
 
   // return image_ (Point2f (u, v));
-  const Pixel p ((*image_) (st[0] * width, st[1] * height));
+  const Pixel <Float> p ((*image_) (st[0] * width, st[1] * height));
 
   return Spectrum (p.r_, p.g_, p.b_, 0.0);
 }
@@ -57,7 +57,7 @@ const -> Spectrum
 */
 auto Ibl::Load (const std::string& filepath) -> void
 {
-  image_ = LoadImage (filepath.c_str ());
+  image_ = LoadImage <Float> (filepath.c_str ());
 }
 /*
 // ---------------------------------------------------------------------------

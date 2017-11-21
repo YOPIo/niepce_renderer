@@ -4,6 +4,8 @@
 */
 #define STB_IMAGE_IMPLEMENTATION
 #include "../ext/stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../ext/stb_image_write.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -11,83 +13,112 @@ namespace niepce
 {
 /*
 // ---------------------------------------------------------------------------
-// Image3f
+// Image3
 // ---------------------------------------------------------------------------
 */
-Image3f::Image3f (size_t width, size_t height) :
+template <typename T>
+Image3 <T>::Image3 (size_t width, size_t height) :
   resolution_ (width, height),
-  data_       (new Pixel [width * height])
+  data_       (new Pixel <T> [width * height])
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-auto Image3f::operator () (size_t x, size_t y) -> Pixel&
+template <typename T>
+auto Image3 <T>::operator () (size_t x, size_t y) -> Pixel <T>&
 {
   return data_ [y * resolution_.x + x];
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Image3f::operator () (size_t x, size_t y) const -> Pixel
+template <typename T>
+auto Image3 <T>::operator () (size_t x, size_t y) const -> Pixel <T>
 {
   return data_ [y * resolution_.x + x];
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Image3f::At (size_t x, size_t y) -> Pixel&
+template <typename T>
+auto Image3 <T>::At (size_t x, size_t y) -> Pixel <T>&
 {
   return data_ [y * resolution_.x + x];
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Image3f::At (size_t x, size_t y) const -> Pixel
+template <typename T>
+auto Image3 <T>::At (size_t x, size_t y) const -> Pixel <T>
 {
   return data_ [y * resolution_.x + x];
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Image3f::GetWidth () const -> uint32_t
+template <typename T>
+auto Image3 <T>::GetWidth () const -> uint32_t
 {
   return resolution_.x;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Image3f::GetHeight () const -> uint32_t
+template <typename T>
+auto Image3 <T>::GetHeight () const -> uint32_t
 {
   return resolution_.y;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreateImage3f (size_t width, size_t height) -> ImagePtr
+template class Image3 <Float>;
+template class Image3 <int>;
+/*
+// ---------------------------------------------------------------------------
+// Functions for Image3 <T>
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
+auto CreateImage3 (size_t width, size_t height) -> ImagePtr <T>
 {
-  return std::make_shared <Image3f> (width, height);
+  return std::make_shared <Image3 <T>> (width, height);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto LoadImage (const char* filename) -> ImagePtr
+template auto CreateImage3 <Float> (size_t width, size_t height)
+  -> ImagePtr <Float>;
+template auto CreateImage3 <int>   (size_t width, size_t height)
+  -> ImagePtr <int>;
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
+auto LoadImage (const char* filename) -> ImagePtr <T>
 {
   // Load width, height and image data as rgb (0 - 255)
   int width, height, n;
   unsigned char* data = stbi_load (filename, &width, &height, &n, 3);
+  if (data == NULL)
+  {
+    // File was not found
+    throw std::exception ();
+    return nullptr;
+  }
 
   // Allocate memory
-  ImagePtr ret (CreateImage3f (width, height));
+  ImagePtr <T> ret (CreateImage3 <T> (width, height));
 
   // Copy data
   for (size_t y = 0; y < height; ++y)
   {
     for (size_t x = 0; x < width; ++x)
     {
-      const Float r (data[y * width * 3 + x + 0]);
-      const Float g (data[y * width * 3 + x + 1]);
-      const Float b (data[y * width * 3 + x + 2]);
-      (*ret) (x, y) = Pixel (r, g, n);
+      const T r (data[y * width * n + 3 * x + 0] / 255.0);
+      const T g (data[y * width * n + 3 * x + 1] / 255.0);
+      const T b (data[y * width * n + 3 * x + 2] / 255.0);
+      (*ret) (x, y) = Pixel <T> (r, g, b);
     }
   }
 
@@ -99,7 +130,13 @@ auto LoadImage (const char* filename) -> ImagePtr
 /*
 // ---------------------------------------------------------------------------
 */
-auto LoadHdrImage (const char* filename) -> ImagePtr
+template auto LoadImage <Float> (const char* filename) -> ImagePtr <Float>;
+template auto LoadImage <int>   (const char* filename) -> ImagePtr <int>;
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename Float>
+auto LoadHdrImage (const char* filename) -> ImagePtr <Float>
 {
 
   stbi_hdr_to_ldr_gamma(2.2f);
@@ -109,17 +146,17 @@ auto LoadHdrImage (const char* filename) -> ImagePtr
   float* data = stbi_loadf (filename, &width, &height, &n, 4);
 
   // Allocate memory
-  ImagePtr ret (CreateImage3f (width, height));
+  ImagePtr <Float> ret (CreateImage3 <Float> (width, height));
 
   // Copy data
   for (size_t y = 0; y < height; ++y)
   {
     for (size_t x = 0; x < width; ++x)
     {
-      const Float r (data[y * width * 3 + x + 0]);
-      const Float g (data[y * width * 3 + x + 1]);
-      const Float b (data[y * width * 3 + x + 2]);
-      (*ret) (x, y) = Pixel (r, g, n);
+      const Float r (data[y * width * n + 3 * x + 0]);
+      const Float g (data[y * width * n + 3 * x + 1]);
+      const Float b (data[y * width * n + 3 * x + 2]);
+      (*ret) (x, y) = Pixel <Float> (r, g, n);
     }
   }
 
@@ -128,6 +165,54 @@ auto LoadHdrImage (const char* filename) -> ImagePtr
 
   return ret;
 }
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
+auto WriteImage
+(
+ const char*        filename,
+ const ImagePtr<T>& img
+)
+-> void
+{
+  const uint32_t width  (img->GetWidth  ());
+  const uint32_t height (img->GetHeight ());
+
+  unsigned char* data = new unsigned char [width * height * 3];
+
+  for (int y = 0; y < height; ++y)
+  {
+    for (int x = 0; x < width; ++x)
+    {
+      data[y * width * 3 + 3 * x + 0] = 255.0 * (*img) (x, y).r_;
+      data[y * width * 3 + 3 * x + 1] = 255.0 * (*img) (x, y).g_;
+      data[y * width * 3 + 3 * x + 2] = 255.0 * (*img) (x, y).b_;
+    }
+  }
+
+  stbi_write_png (filename, width, height, 3, (void*)data, width * 3);
+
+  delete [] data;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template
+auto WriteImage <Float>
+(
+ const char*            filename,
+ const ImagePtr<Float>& img
+)
+-> void;
+
+template
+auto WriteImage <int>
+(
+ const char*          filename,
+ const ImagePtr<int>& img
+)
+-> void;
 /*
 // ---------------------------------------------------------------------------
 */

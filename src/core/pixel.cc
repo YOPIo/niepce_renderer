@@ -7,55 +7,63 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Pixel::Pixel (Float r, Float g, Float b) :
+template <typename T>
+Pixel <T>::Pixel (T r, T g, T b) :
   r_ (r), g_ (g), b_ (b)
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::operator [] (const size_t idx) -> Float&
+template <typename T>
+auto Pixel <T>::operator [] (const size_t idx) -> T&
 {
   return rgb_[idx];
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::operator [] (const size_t idx) const -> Float
+template <typename T>
+auto Pixel <T>::operator [] (const size_t idx) const -> T
 {
   return rgb_[idx];
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::operator + (const Pixel &p) const -> Pixel
+template <typename T>
+auto Pixel <T>::operator + (const Pixel &p) const -> Pixel <T>
 {
   return Pixel (r_ + p.r_, g_ + p.g_, b_ + p.g_);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::operator - (const Pixel &p) const -> Pixel
+template <typename T>
+auto Pixel <T>::operator - (const Pixel &p) const -> Pixel <T>
 {
   return Pixel (r_ - p.r_, g_ - p.g_, b_ - p.g_);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::operator * (Float t) const -> Pixel
+template <typename T>
+auto Pixel <T>::operator * (T t) const -> Pixel <T>
 {
   return Pixel (r_ * t, g_ * t, b_ * t);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::operator / (Float t) const -> Pixel
+template <typename T>
+auto Pixel <T>::operator / (T t) const -> Pixel <T>
 {
   return Pixel (r_ / t, g_ / t, b_ / t);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::operator += (const Pixel& p) -> Pixel&
+template <typename T>
+auto Pixel <T>::operator += (const Pixel& p) -> Pixel <T>&
 {
   this->r_ += p.r_;
   this->g_ += p.g_;
@@ -65,7 +73,8 @@ auto Pixel::operator += (const Pixel& p) -> Pixel&
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::operator -= (const Pixel& p) -> Pixel&
+template <typename T>
+auto Pixel <T>::operator -= (const Pixel& p) -> Pixel <T>&
 {
   this->r_ -= p.r_;
   this->g_ -= p.g_;
@@ -75,7 +84,8 @@ auto Pixel::operator -= (const Pixel& p) -> Pixel&
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::operator *= (Float t) -> Pixel&
+template <typename T>
+auto Pixel <T>::operator *= (T t) -> Pixel <T>&
 {
   this->r_ *= t;
   this->g_ *= t;
@@ -85,13 +95,19 @@ auto Pixel::operator *= (Float t) -> Pixel&
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::operator /= (Float t) -> Pixel&
+template <typename T>
+auto Pixel <T>::operator /= (T t) -> Pixel <T>&
 {
   this->r_ /= t;
   this->g_ /= t;
   this->b_ /= t;
   return *this;
 }
+/*
+// ---------------------------------------------------------------------------
+*/
+template class Pixel <Float>;
+template class Pixel <int>;
 /*
 // ---------------------------------------------------------------------------
 */

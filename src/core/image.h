@@ -16,57 +16,63 @@ namespace niepce
 // Class forward declaration
 // ---------------------------------------------------------------------------
 */
-class Image3f;
+template <typename T> class Image3;
 /*
 // ---------------------------------------------------------------------------
-// Functions for Image3f
+// Functions for Image3
 // ---------------------------------------------------------------------------
 */
-auto CreateImage3f (size_t width, size_t height) -> ImagePtr;
-auto LoadImage     (const char* filename) -> ImagePtr;
-auto LoadHdrxImage (const char* filename) -> ImagePtr;
+template <typename T>
+auto CreateImage3  (size_t width, size_t height) -> ImagePtr <T>;
+template <typename T>
+auto LoadImage     (const char* filename) -> ImagePtr <T>;
+template <typename T>
+auto LoadHdrxImage (const char* filename) -> ImagePtr <T>;
+template <typename T>
+auto WriteImage    (const char* filename, const ImagePtr <T>& img) -> void;
 /*
 // ---------------------------------------------------------------------------
 */
-class Image3f
+template <typename T>
+class Image3
 {
-  /* Image3f constructors */
+  /* Image3 constructors */
 public:
-  Image3f () = default;
-  Image3f (size_t width, size_t height);
+  Image3 () = default;
+  Image3 (size_t width, size_t height);
 
 
-  /* Image3f destructor */
+  /* Image3 destructor */
 public:
-  virtual ~Image3f () = default;
+  virtual ~Image3 () = default;
 
 
-  /* Image3f public operators*/
+  /* Image3 public operators*/
 public:
-  Image3f (const Image3f&  img) = default;
-  Image3f (      Image3f&& img) = default;
+  Image3 (const Image3&  img) = default;
+  Image3 (      Image3&& img) = default;
 
-  auto operator = (const Image3f&  img) -> Image3f& = default;
-  auto operator = (      Image3f&& img) -> Image3f& = default;
+  auto operator = (const Image3&  img) -> Image3& = default;
+  auto operator = (      Image3&& img) -> Image3& = default;
 
-  auto operator () (size_t x, size_t y)       -> Pixel&;
-  auto operator () (size_t x, size_t y) const -> Pixel;
+  auto operator () (size_t x, size_t y)       -> Pixel <T>&;
+  auto operator () (size_t x, size_t y) const -> Pixel <T>;
 
 
-  /* Image3f public methods */
+  /* Image3 public methods */
 public:
-  auto At (size_t x, size_t y)       -> Pixel&;
-  auto At (size_t x, size_t y) const -> Pixel;
+  auto At (size_t x, size_t y)       -> Pixel <T>&;
+  auto At (size_t x, size_t y) const -> Pixel <T>;
 
   auto GetWidth  () const -> uint32_t;
   auto GetHeight () const -> uint32_t;
 
 
-  /* Image3f private data */
+  /* Image3 private data */
 private:
-  std::unique_ptr <Pixel []> data_;
+  std::unique_ptr <Pixel <T> []> data_;
   Point2u32i resolution_;
-}; // class Image3f
+}; // class Image3
 /*
 // ---------------------------------------------------------------------------
 */

@@ -43,7 +43,7 @@ public:
 
   /* ImageMapTexture private data */
 private:
-  ImagePtr image_;
+  ImagePtr <Float> image_;
 
 }; // class ImageMapTexture
 
