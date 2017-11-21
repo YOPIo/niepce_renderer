@@ -72,7 +72,7 @@ const -> bool
 /*
 // ---------------------------------------------------------------------------
 */
-auto Individual::GetAreaLight () const -> std::shared_ptr<Light>
+auto Individual::GetAreaLight () const -> LightPtr
 {
   if (ligth_ != nullptr)
   {
@@ -84,7 +84,7 @@ auto Individual::GetAreaLight () const -> std::shared_ptr<Light>
 /*
 // ---------------------------------------------------------------------------
 */
-auto Individual::GetMaterial () const -> std::shared_ptr<Material>
+auto Individual::GetMaterial () const -> MaterialPtr
 {
   if (material_ != nullptr)
   {

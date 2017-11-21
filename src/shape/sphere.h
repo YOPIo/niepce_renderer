@@ -87,6 +87,15 @@ auto operator << (std::ostream& os, const Sphere& sphere) -> std::ostream&;
 /*
 // ---------------------------------------------------------------------------
 */
+auto CreateSphere
+(
+ Float radius,
+ const Point3f& position
+)
+-> std::shared_ptr< Sphere>;
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce
 /*
 // ---------------------------------------------------------------------------

@@ -9,10 +9,12 @@ namespace niepce
 */
 Bsdf::Bsdf (const SurfaceInteraction& si, Float ior) :
   geometry_normal_ (si.normal),
+  /*
   shading_ (Shading (si.normal,
                      Normalize (si.dpdu),
                      Normalize (Cross (si.normal, si.dpdu)))),
-  //  shading_         (Shading (si.normal)),
+  */
+  shading_         (Shading (si.normal)),
   ior_             (ior),
   bxdfs_           ({nullptr}),
   num_bxdfs_       (0)

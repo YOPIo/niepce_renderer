@@ -139,7 +139,7 @@ const -> bool
   OrthoNormalBasis (normal, &tangent, &binormal);
 
   *si = SurfaceInteraction (position,
-                            -ray.direction,
+                            Normalize (-ray.direction),
                             normal,
                             t,
                             Point2f::Zero (),
@@ -204,6 +204,19 @@ auto operator << (std::ostream& os, const Sphere& sphere) -> std::ostream&
   os << "[Radius: " << sphere.Radius () << "]";
   os << "[World Position: " << sphere.WorldCenter ().ToString () + "]\n";
   return os;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateSphere
+(
+ Float radius,
+ const Point3f& position
+)
+-> std::shared_ptr <Sphere>
+{
+  const std::shared_ptr <Sphere> sphere (std::make_shared <Sphere> (position, radius));
+  return std::move (sphere);
 }
 /*
 // ---------------------------------------------------------------------------

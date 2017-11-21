@@ -22,6 +22,10 @@ TriangleMesh::TriangleMesh
   num_normals_   (normals.size ()),
   num_texcoords_ (texcoords.size ())
 {
+  positions_ = nullptr;
+  normals_   = nullptr;
+  texcoords_ = nullptr;
+
   // Copy positions
   if (num_positions_ > 0)
   {
@@ -71,7 +75,7 @@ auto TriangleMesh::GetPosition (size_t idx) const -> Point3f
 */
 auto TriangleMesh::GetNormal (size_t idx) const -> Normal3f
 {
-  if (normals_)
+  if (normals_ == nullptr)
   {
     return Normal3f (0, 1, 0);
   }
@@ -87,7 +91,7 @@ auto TriangleMesh::GetNormal (size_t idx) const -> Normal3f
 */
 auto TriangleMesh::GetTexcoord (size_t idx) const -> Point2f
 {
-  if (texcoords_)
+  if (texcoords_ == nullptr)
   {
     return Point2f::Zero ();
   }

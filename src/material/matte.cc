@@ -22,7 +22,7 @@ auto Matte::AllocateBsdf
 const -> Bsdf*
 {
   // Generate BSDF
-  Bsdf*    bsdf = mem->Allocate<Bsdf> (si);
+  Bsdf* bsdf = mem->Allocate <Bsdf> (si);
 
   // Create lambertian BRDF
   Spectrum reflectance (reflectance_->Evaluate (si));

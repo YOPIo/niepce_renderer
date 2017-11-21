@@ -128,13 +128,13 @@ const -> Spectrum
     }
 
     // Get BSDF or light
-    const std::shared_ptr<Material> material = si.primitive->GetMaterial ();
-    const std::shared_ptr<Light>    light    = si.primitive->GetAreaLight ();
+    const MaterialPtr material = si.primitive->GetMaterial ();
+    const LightPtr    light    = si.primitive->GetAreaLight ();
 
     // Intersection point has emission
     if (light != nullptr)
     {
-      // Contribution
+      // Add contribution
       l += f * light->Emission (ray);
       break;
     }
@@ -155,14 +155,15 @@ const -> Spectrum
                                                          &sampled_type);
 
     // Handle case
-    if (pdf == 0.0)
+    if (std::fabs (pdf) < kEpsilon)
     {
-      //std::cerr << "PDF: 0" << std::endl;
+      std::cerr << "PDF: 0" << std::endl;
       break;
     }
 
     // Update weight
-    f *= (bsdf_value * std::abs (Dot (si.outgoing, si.normal)) / pdf);
+    const Float cos_t (std::abs (Dot (si.outgoing, si.normal)));
+    f *= (bsdf_value *  cos_t / pdf);
 
     // Generate next ray
     ray = Ray (si.position, incident);
