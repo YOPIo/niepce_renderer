@@ -59,7 +59,8 @@ auto NonLocalMeansFilter
   (
    const ImagePtr <T>& k0,
    const ImagePtr <T>& k1
-  ) -> Float
+  )
+  -> Float
   {
     Float weight (0);
     for (int y = 0; y < kKernelSize; ++y)
@@ -85,8 +86,8 @@ auto NonLocalMeansFilter
       // Compute support window indices
       const int first_x (std::max (0, x - kWindowSize / 2));
       const int first_y (std::max (0, y - kWindowSize / 2));
-      const int end_x   (std::min (width  - 1, x + kWindowSize / 2));
-      const int end_y   (std::min (height - 1, y + kWindowSize / 2));
+      const int end_x   (std::min (width,  x + kWindowSize / 2));
+      const int end_y   (std::min (height, y + kWindowSize / 2));
 
       // Loop for support window
       Float sum_weight (0);
@@ -100,14 +101,13 @@ auto NonLocalMeansFilter
 
           // Compute weight
           const Float weight (weight_from_kernels (main_kernel, support_kernel));
-          const Float arg (std::fmax (weight - 2 * sigma * sigma, 0));
+          const Float arg (std::fmax (weight - 2.0 * sigma * sigma, 0));
           const Float w (std::exp (arg));
 
           sum_weight += w;
           sum_pixel  += (*src) (sx, sy) * weight;
         }
       }
-
       (*result) (x, y) = sum_pixel / sum_weight;
     }
   }
