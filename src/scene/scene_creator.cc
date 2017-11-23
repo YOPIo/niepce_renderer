@@ -180,7 +180,7 @@ auto CreateCornellBox ()
   const unsigned height (360);
 
   // Camera construction
-  const Point3f  position (Point3f  (0.0, 1.0, 4.0));
+  const Point3f  position (Point3f  (0.0, 1.0, 3.2));
   const Point3f  lookat   (Point3f  (0.0, 1.0, 0.0));
   const Vector3f up       (Vector3f (0.0, 1.0, 0.0));
   const Float    fov      (45.0);

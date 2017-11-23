@@ -19,7 +19,7 @@ template <typename T>
 auto NonLocalMeansFilter
 (
  const ImagePtr <T>& src,
-       Float        sigma,
+       Float         sigma,
        Float         h
 )
 -> ImagePtr <T>
@@ -30,49 +30,48 @@ auto NonLocalMeansFilter
   const int width  (src->GetWidth ());
   const int height (src->GetHeight ());
 
+  using Kernel = std::array <T, kKernelSize * kKernelSize * 3>;
+
   // Allocate memory to result image
   ImagePtr <T> result = CreateImage3 <T> (width, height);
 
-  // Kernels to compute the weight
-  ImagePtr <T> main_kernel    (CreateImage3 <T> (kKernelSize, kKernelSize));
-  ImagePtr <T> support_kernel (CreateImage3 <T> (kKernelSize, kKernelSize));
-
-  // Lambda that creating a kernel from image
-  auto create_kernel_from = [&src, &kKernelSize] (int tx, int ty)
-    -> ImagePtr <T>
+  // Creat a kernel from image indices x and y
+  auto create_kernel = [&src] (int tx, int ty) -> Kernel
   {
-    ImagePtr <T> res (CreateImage3 <T> (kKernelSize, kKernelSize));
-    for (int y = 0; y < kKernelSize; ++y)
+    const int w (src->GetWidth ());
+    const int h (src->GetHeight ());
+
+    int idx (0);
+    Kernel kernel;
+
+    for (int y = ty - kKernelSize / 2; y < ty + kKernelSize / 2; ++y)
     {
-      for (int x = 0; x < kKernelSize; ++x)
+      for (int x = tx - kKernelSize / 2; x < tx + kKernelSize / 2; ++x)
       {
-        const int idx_x (std::max (0, tx - kKernelSize / 2 + x));
-        const int idx_y (std::max (0, ty - kKernelSize / 2 + y));
-        (*res) (x, y) = (*src) (idx_x, idx_y);
+        int ix = std::max (0, x);
+            ix = std::min (ix, w - 1);
+        int iy = std::max (0, y);
+            iy = std::min (iy, h - 1);
+
+        Pixel <T> p = (*src) (ix, iy);
+        kernel [idx++] = p.r_;
+        kernel [idx++] = p.g_;
+        kernel [idx++] = p.b_;
       }
     }
-    return res;
   };
 
-  // Compute the weight of two kernels
-  auto weight_from_kernels = [&kKernelSize]
-  (
-   const ImagePtr <T>& k0,
-   const ImagePtr <T>& k1
-  )
-  -> Float
+  // Compute distance
+  auto compute_distance = [] (const Kernel& k0, const Kernel& k1) -> Float
   {
-    Float weight (0);
-    for (int y = 0; y < kKernelSize; ++y)
+    assert (k0.size () == k1.size ());
+
+    T acculated (0);
+    for (int i = 0; i < k0.size (); ++i)
     {
-      for (int x = 0; x < kKernelSize; ++x)
-      {
-        weight += std::pow ((*k0) (x, y).r_ - (*k1) (x, y).r_, 2);
-        weight += std::pow ((*k0) (x, y).g_ - (*k1) (x, y).g_, 2);
-        weight += std::pow ((*k0) (x, y).b_ - (*k1) (x, y).b_, 2);
-      }
+      acculated = (k0[i] - k1[i]) * (k0[i] - k1[i]);
     }
-    return weight;
+    return acculated;
   };
 
   // Loop for image
@@ -81,38 +80,37 @@ auto NonLocalMeansFilter
     for (int x = 0; x < width; ++x)
     {
       // Create kernel based on current pixel (x, y)
-      main_kernel = create_kernel_from (x, y);
+      const Kernel main_kernel = create_kernel (x, y);
 
-      // Compute support window indices
-      const int first_x (std::max (0, x - kWindowSize / 2));
-      const int first_y (std::max (0, y - kWindowSize / 2));
-      const int end_x   (std::min (width,  x + kWindowSize / 2));
-      const int end_y   (std::min (height, y + kWindowSize / 2));
-
+      Pixel <T> pixel (0, 0, 0);
+      T sum (0);
       // Loop for support window
-      Float sum_weight (0);
-      Pixel <T> sum_pixel;
-      for (int sy = first_y; sy < end_y; ++sy)
+      for (int sy = y - kWindowSize / 2; sy < y + kWindowSize / 2; ++sy)
       {
-        for (int sx = end_x; sx < end_x; ++sx)
+        for (int sx = x - kWindowSize / 2; sx < x + kWindowSize / 2; ++sx)
         {
-          // Create kernel based on support window pixel (sx, sy)
-          support_kernel = create_kernel_from (sx, sy);
+          int ix = std::max (0, sx);
+              ix = std::min (ix, width - 1);
+          int iy = std::max (0, sy);
+              iy = std::min (iy, height - 1);
 
-          // Compute weight
-          const Float weight (weight_from_kernels (main_kernel, support_kernel));
-          const Float arg (std::fmax (weight - 2.0 * sigma * sigma, 0));
-          const Float w (std::exp (arg));
+          // Create support window's kernel
+          Kernel support_kernel = create_kernel (ix, iy);
 
-          sum_weight += w;
-          sum_pixel  += (*src) (sx, sy) * weight;
+          const auto d   (compute_distance (main_kernel, support_kernel));
+          const auto arg
+            (-std::fmax (d - 2.0 * sigma * sigma, 0.0) * sigma / (h * h));
+          const auto weight (std::exp (arg));
+
+          sum   += weight;
+          pixel += (*src) (ix, iy) * weight;
         }
       }
-      (*result) (x, y) = sum_pixel / sum_weight;
+      (*result) (x, y) = pixel / sum;
     }
   }
 
-  return result;
+  return std::move (result);
 }
 /*
 // ---------------------------------------------------------------------------

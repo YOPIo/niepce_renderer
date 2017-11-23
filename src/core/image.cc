@@ -2,10 +2,15 @@
 /*
 // ---------------------------------------------------------------------------
 */
+#ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #include "../ext/stb_image.h"
+#endif // STB_IMAGE_IMPLEMENTATION
+
+#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../ext/stb_image_write.h"
+#endif // STB_IMAGE_WRITE_IMPLEMENTATION
 /*
 // ---------------------------------------------------------------------------
 */
@@ -115,6 +120,7 @@ auto LoadImage (const char* filename) -> ImagePtr <T>
   {
     for (size_t x = 0; x < width; ++x)
     {
+      // return std::pow (v, 1.0 / 2.2) * 255.0 + 0.5;
       const T r (data[y * width * n + 3 * x + 0] / 255.0);
       const T g (data[y * width * n + 3 * x + 1] / 255.0);
       const T b (data[y * width * n + 3 * x + 2] / 255.0);
@@ -213,6 +219,48 @@ auto WriteImage <int>
  const ImagePtr<int>& img
 )
 -> void;
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
+auto SaveAs (const char* filename, const Image3 <T>& img) -> void
+{
+  const uint32_t width  (img.GetWidth  ());
+  const uint32_t height (img.GetHeight ());
+
+  auto hdr_to_int = [](Float v) -> int
+  {
+    if (v < 0.0) { v = 0; }
+    if (v > 1.0) { v = 1; }
+    if (std::isnan(v))
+    {
+      std::cout << "NaN detected" << std::endl;
+      v = 0;
+    }
+    return std::pow (v, 1.0 / 2.2) * 255.0 + 0.5;
+  };
+
+  unsigned char* data = new unsigned char [width * height * 3];
+
+  for (int y = 0; y < height; ++y)
+  {
+    for (int x = 0; x < width; ++x)
+    {
+      data[y * width * 3 + 3 * x + 0] = hdr_to_int (img (x, y).r_);
+      data[y * width * 3 + 3 * x + 1] = hdr_to_int (img (x, y).g_);
+      data[y * width * 3 + 3 * x + 2] = hdr_to_int (img (x, y).b_);
+    }
+  }
+
+  stbi_write_png (filename, width, height, 3, (void*)data, width * 3);
+
+  delete [] data;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template auto SaveAs (const char* filename, const Image3 <Float>& img) -> void;
+template auto SaveAs (const char* filename, const Image3 <int>&   img) -> void;
 /*
 // ---------------------------------------------------------------------------
 */

@@ -1,9 +1,8 @@
 #include "path_tracer.h"
+#include "../filter/filter.h"
 /*
 // ---------------------------------------------------------------------------
 */
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../ext/stb_image_write.h"
 namespace niepce
 {
 /*
@@ -29,8 +28,7 @@ PathTracer::~PathTracer ()
 auto PathTracer::Render (const Scene& scene) const -> void
 {
   // Create image buffer
-  std::unique_ptr<Spectrum[]> image (new Spectrum[kWidth * kHeight]);
-  unsigned char* data = new unsigned char [kWidth * kHeight * 4];
+  ImagePtr <Float> image (CreateImage3 <Float> (kWidth, kHeight));
 
 #ifdef _OPENMP
   std::cout << "Avairable OpenMP num threads: " << omp_get_num_procs () << std::endl;
@@ -52,6 +50,7 @@ auto PathTracer::Render (const Scene& scene) const -> void
       {
         for (int sx = 0; sx < kSuperSamples; sx ++)
         {
+          Pixel <Float> p;
           Spectrum accumulated_radiance = Spectrum::Zero ();
           for (int s = 0; s < kSamples; s ++)
           {
@@ -64,36 +63,19 @@ auto PathTracer::Render (const Scene& scene) const -> void
 
             accumulated_radiance = accumulated_radiance +
                 Radiance(scene, ray, &mem) / (Float)kSamples / (Float)(kSuperSamples * kSuperSamples);
+            p = Pixel <Float> (accumulated_radiance.r, accumulated_radiance.g, accumulated_radiance.b);
           }
-          image[image_index] = image[image_index] + accumulated_radiance;
+          (*image) (x, kHeight - y - 1) = (*image) (x, kHeight - y - 1) + p;
         }
       }
     } // End openmp
   }
 
-  // Save a image as "image.png"
-  auto hdr_to_int = [](Float v) -> int
-  {
-    if (v < 0.0) { v = 0; }
-    if (v > 1.0) { v = 1; }
-    if (std::isnan(v))
-    {
-      std::cout << "NaN detected" << std::endl;
-      v = 0;
-    }
-    return std::pow (v, 1.0 / 2.2) * 255.0 + 0.5;
-  };
+  WriteImage("test.png", image);
+  SaveAs ("final_without_filter.png", *image);
+  auto filtered = NonLocalMeansFilter (image, 0.2, 0.2);
+  SaveAs ("final_with_filter.png", *filtered);
 
-  // Convert to stb image format
-  for (int i = 0; i < kWidth * kHeight; i++)
-  {
-    data[3 * i + 0] = hdr_to_int (image[i].x);
-    data[3 * i + 1] = hdr_to_int (image[i].y);
-    data[3 * i + 2] = hdr_to_int (image[i].z);
-  }
-  stbi_write_png("final.png", kWidth, kHeight, 3, (void*)data, kWidth * 3);
-
-  delete [] data;
   return ;
 }
 /*

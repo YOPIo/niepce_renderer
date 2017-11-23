@@ -12,23 +12,19 @@
 */
 auto main(int argc, char *argv[]) -> int
 {
-  /*
   std::pair <std::shared_ptr<niepce::Camera>, std::shared_ptr<niepce::Scene>> pair;
   niepce::SamplerPtr sampler (niepce::CreateRandomSampler ());
   pair = niepce::CreateCornellBox ();
   // pair = niepce::CreateSphereScene ();
 
-  std::cout << "Rendering begin. " << std::endl;
-  std::shared_ptr<niepce::PathTracer> path (new niepce::PathTracer (pair.first, sampler, 8));
-  std::shared_ptr<niepce::DebugIntegrator> debug (new niepce::DebugIntegrator (pair.first, sampler));
+  std::shared_ptr <niepce::PathTracer> path (new niepce::PathTracer (pair.first, sampler, 8));
+  // std::shared_ptr <niepce::DebugIntegrator> debug (new niepce::DebugIntegrator (pair.first, sampler));
   path->Render (*pair.second);
+  // debug->Render (*pair.second);
 
-  debug->Render (*pair.second);
-  */
-
-  niepce::ImagePtr <niepce::Float> img (niepce::LoadImage <niepce::Float> ("../../../../Desktop/final.png"));
-  niepce::ImagePtr <niepce::Float> res = niepce::NonLocalMeansFilter (img, 0.5, 0.5);
-  niepce::WriteImage ("filter.png", res);
+  niepce::ImagePtr <niepce::Float> img (niepce::LoadImage <niepce::Float> ("./cornell_box.png"));
+  niepce::ImagePtr <niepce::Float> res = niepce::NonLocalMeansFilter (img, 0.1, 0.1);
+  niepce::SaveAs ("after.png", *res);
 
   return 0;
 }

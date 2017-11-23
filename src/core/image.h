@@ -28,8 +28,13 @@ template <typename T>
 auto LoadImage     (const char* filename) -> ImagePtr <T>;
 template <typename T>
 auto LoadHdrxImage (const char* filename) -> ImagePtr <T>;
+
+// delete ?
 template <typename T>
 auto WriteImage    (const char* filename, const ImagePtr <T>& img) -> void;
+
+template <typename T>
+auto SaveAs (const char* filename, const Image3 <T>& img) -> void;
 /*
 // ---------------------------------------------------------------------------
 */
