@@ -1,5 +1,6 @@
 #include "path_tracer.h"
 #include "../filter/filter.h"
+#include "../sampler/sampler_utils.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -71,10 +72,9 @@ auto PathTracer::Render (const Scene& scene) const -> void
     } // End openmp
   }
 
-  WriteImage("test.png", image);
   SaveAs ("final_without_filter.png", *image);
   auto filtered = NonLocalMeansFilter (image, 0.2, 0.2);
-  SaveAs ("final_with_filter.png", *filtered);
+  // SaveAs ("final_with_filter.png", *filtered);
 
   return ;
 }
@@ -136,6 +136,44 @@ const -> Spectrum
                                                          BsdfType::kAll,
                                                          &sampled_type);
 
+      Normal3f n = si.normal;
+      Vector3f u, v;
+      OrthoNormalBasis(n, &u, &v);
+
+      Transform transform (u.x, v.x, n.x, 0.0,
+                           u.y, v.y, n.y, 0.0,
+                           u.z, v.z, n.z, 0.0,
+                           0.0, 0.0, 0.0, 1.0);
+
+      Vector3f in = SampleCosineHemisphere(sampler_->Get2D());
+      Vector3f dir = transform * in;
+
+      /*
+      Vector3f dir = Vector3f (in.x * u.x + in.y * v.x + in.z * n.x,
+                               in.x * u.y + in.y * v.y + in.z * n.y,
+                               in.x * u.z + in.y * v.z + in.z * n.z);
+      */
+
+
+    // start debug
+    /*
+        Vector3f w, u, v;
+    w = si.normal;
+    if (fabs(w.x) > kEpsilon)
+      u = Normalize(Cross(Vector3f(0.0, 1.0, 0.0), w));
+    else
+      u = Normalize(Cross(Vector3f(1.0, 0.0, 0.0), w));
+    v = Cross(w, u);
+
+    const double r1 = 2 * kPi * sampler_->Get1D();
+    const double r2 = sampler_->Get1D(), r2s = sqrt(r2);
+    Vector3f dir = Normalize((u * cos(r1) * r2s +
+                              v * sin(r1) * r2s +
+                              w * sqrt(1.0 - r2)));
+    */
+    // end debug
+
+
     // Handle case
     if (std::fabs (pdf) < kEpsilon)
     {
@@ -148,7 +186,7 @@ const -> Spectrum
     f *= (bsdf_value *  cos_t / pdf);
 
     // Generate next ray
-    ray = Ray (si.position, incident);
+    ray = Ray (si.position, dir);
 
     // Terminate with russian roulette
     Float q (std::max ({l.x, l.y, l.z}));

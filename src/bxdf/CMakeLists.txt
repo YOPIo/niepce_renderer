@@ -8,5 +8,6 @@ add_library(
   fresnel.cc
   microfacet.cc
   lambert.cc
+  oren_layar.cc
   specular.cc
 )

@@ -14,33 +14,33 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-class OrenLayer : public Bxdf
+class OrenLayar : public Bxdf
 {
-  /* OrenLayer constructors */
+  /* OrenLayar constructors */
 public:
-  OrenLayer () = delete;
-  OrenLayer
+  OrenLayar () = delete;
+  OrenLayar
   (
    const Spectrum& reflectance,
    Float sigma
   );
 
 
-  /* OrenLayer destructor */
+  /* OrenLayar destructor */
 public:
-  virtual ~OrenLayer () = default;
+  virtual ~OrenLayar () = default;
 
 
-  /* OrenLayer public operators*/
+  /* OrenLayar public operators*/
 public:
-  OrenLayer (const OrenLayer&  ol) = default;
-  OrenLayer (      OrenLayer&& ol) = default;
+  OrenLayar (const OrenLayar&  ol) = default;
+  OrenLayar (      OrenLayar&& ol) = default;
 
-  auto operator = (const OrenLayer&  ol) -> OrenLayer& = default;
-  auto operator = (      OrenLayer&& ol) -> OrenLayer& = default;
+  auto operator = (const OrenLayar&  ol) -> OrenLayar& = default;
+  auto operator = (      OrenLayar&& ol) -> OrenLayar& = default;
 
 
-  /* OrenLayer public override methods */
+  /* OrenLayar public override methods */
   auto Pdf
   (
       const Vector3f& outgoing, /* BSDF coordinate system */
@@ -68,12 +68,12 @@ public:
   auto ToString () const -> std::string override final;
 
 
-  /* OrenLayer private data */
+  /* OrenLayar private data */
 private:
   const Float a_;
   const Float b_;
   const Spectrum reflectance_;
-}; // class OrenLayer
+}; // class OrenLayar
 /*
 // ---------------------------------------------------------------------------
 */

@@ -1,5 +1,6 @@
 #include "matte.h"
 #include "../bxdf/lambert.h"
+#include "../bxdf/oren_layar.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -26,8 +27,11 @@ const -> Bsdf*
 
   // Create lambertian BRDF
   Spectrum reflectance (reflectance_->Evaluate (si));
-  Bxdf*    lambert = mem->Allocate<Lambert> (reflectance);
-  bsdf->Push (lambert);
+  // Bxdf* lambert    = mem->Allocate <Lambert> (reflectance);
+  // bsdf->Push (lambert);
+  Bxdf* oren_layar = mem->Allocate <OrenLayar> (reflectance, 0.3);
+  bsdf->Push (oren_layar);
+
 
   return bsdf;
 }

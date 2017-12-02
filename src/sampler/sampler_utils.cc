@@ -1,4 +1,5 @@
 #include "sampler_utils.h"
+#include "../core/geometry.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -7,7 +8,7 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-auto SampleUniforwDisk (const Sample2f& sample) -> Point2f
+auto SampleUniformDisk (const Sample2f& sample) -> Sample2f
 {
   const Float r     (std::sqrt (sample[0]));
   const Float theta (2.0 * kPi * sample[1]);

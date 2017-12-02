@@ -9,7 +9,7 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-OrenLayer::OrenLayer
+OrenLayar::OrenLayar
 (
  const Spectrum& reflectance,
  Float sigma
@@ -22,7 +22,7 @@ OrenLayer::OrenLayer
 /*
 // ---------------------------------------------------------------------------
 */
-auto OrenLayer::Pdf
+auto OrenLayar::Pdf
 (
  const Vector3f& outgoing,
  const Vector3f& incident
@@ -38,7 +38,7 @@ const -> Float
 /*
 // ---------------------------------------------------------------------------
 */
-auto OrenLayer::Evaluate
+auto OrenLayar::Evaluate
 (
  const Vector3f& outgoing,
  const Vector3f& incident
@@ -71,7 +71,7 @@ const -> Spectrum
 /*
 // ---------------------------------------------------------------------------
 */
-auto OrenLayer::EvaluateAndSample
+auto OrenLayar::EvaluateAndSample
 (
  const Vector3f& outgoing,
        Vector3f* incident,
@@ -93,6 +93,13 @@ const -> Spectrum
 
   // Evaluate Oren-Layar BRDF
   return Evaluate (outgoing, *incident);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto OrenLayar::ToString () const -> std::string
+{
+  return std::string ("oren layar");
 }
 /*
 // ---------------------------------------------------------------------------

@@ -117,8 +117,8 @@ typedef std::shared_ptr <Sampler>  SamplerPtr;
 // ---------------------------------------------------------------------------
 */
 // TODO: Create RenderSetting struct or class
-const unsigned int kWidth        = 960 / 4;
-const unsigned int kHeight       = 540 / 4;
+const unsigned int kWidth        = 960 / 2;
+const unsigned int kHeight       = 540 / 2;
 const unsigned int kSuperSamples = 8  / 2; // 8
 const unsigned int kSamples      = 64 / 2; // 64
 /*

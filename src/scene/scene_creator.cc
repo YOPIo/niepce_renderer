@@ -120,8 +120,8 @@ auto CreateCornellBox ()
     shapes[26] = CreateTriangle (mesh, {22, 26, 23});
     shapes[27] = CreateTriangle (mesh, {23, 26, 27});
     // Front
-    shapes[28] = CreateTriangle (mesh, {23, 27, 25});
-    shapes[29] = CreateTriangle (mesh, {23, 25, 21});
+    shapes[28] = CreateTriangle (mesh, {23, 21, 25});
+    shapes[29] = CreateTriangle (mesh, {23, 25, 27});
     // Back
     shapes[30] = CreateTriangle (mesh, {22, 24, 26});
     shapes[31] = CreateTriangle (mesh, {20, 24, 22});
@@ -135,7 +135,7 @@ auto CreateCornellBox ()
 
 
   // Light construction
-  const LightPtr light (CreateAreaLight (Spectrum (6.0)));
+  const LightPtr light (CreateAreaLight (Spectrum (8.0)));
 
 
   // Primitive construction

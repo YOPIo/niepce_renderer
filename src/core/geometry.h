@@ -2680,6 +2680,7 @@ auto OrthoNormalBasis
           Vector3<T>* binormal
 ) -> void
 {
+  /*
   if (std::abs (normal.x) > std::abs (normal.y))
   {
     *tangent = Vector3<T>(-normal.z, 0, normal.x) /
@@ -2695,16 +2696,17 @@ auto OrthoNormalBasis
 
   if (std::abs (normal.x) > kEpsilon)
   {
-    *tangent = Normalize (Cross (Vector3f (1.0, 0.0, 0.0), normal));
+    *tangent = Normalize (Cross (Vector3f (0.0, 1.0, 0.0), normal));
   }
   else
   {
-    *tangent = Normalize (Cross (Vector3f (0.0, 1.0, 0.0), normal));
+    *tangent = Normalize (Cross (Vector3f (1.0, 0.0, 0.0), normal));
   }
   *binormal = Normalize (Cross (normal, *tangent));
   *tangent  += Vector3f::Zero ();
   *binormal += Vector3f::Zero ();
   return ;
+  */
 
   /*
   // Building an Orthonormal Basis from a 3D Unit Vector Without Normalization
