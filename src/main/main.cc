@@ -42,7 +42,6 @@ auto main(int argc, char *argv[]) -> int
 
   // Debug check
   loader.LoadObj ("/home/yopio/workspace/niepce/assets/test.obj");
-  loader.DumpScene ();
 
   return 0;
 }
