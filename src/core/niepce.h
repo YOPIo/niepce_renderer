@@ -34,7 +34,7 @@
 #if defined (CLANG)
   #include <x86intrin.h>
 #else
-  #include <mmintrin.h>
+// #include <mmintrin.h>
 // #include <intrin.h> // MSVC
 #endif
 /*

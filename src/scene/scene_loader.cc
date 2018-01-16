@@ -3,6 +3,7 @@
 */
 #include "scene_loader.h"
 #include "../core/geometry.h"
+#include "../camera/camera.h"
 #include "../shape/triangle.h"
 /*
 // ---------------------------------------------------------------------------
@@ -19,7 +20,7 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-auto XmlLoader::LoadXml (const char* filename, Scene* scene) -> void
+auto XmlLoader::LoadXml (const char* filename, Scene* scene, Camera* camera) -> void
 {
   using tinyxml2::XMLDocument;
   using tinyxml2::XMLElement;
@@ -52,6 +53,7 @@ auto XmlLoader::LoadXml (const char* filename, Scene* scene) -> void
     // Element should be bsdf, shape, sensor or integrator
     if (name == "bsdf")
     {
+      ParseBsdf (node);
       continue;
     }
     if (name == "shape")
@@ -73,6 +75,44 @@ auto XmlLoader::LoadXml (const char* filename, Scene* scene) -> void
 /*
 // ---------------------------------------------------------------------------
 */
+auto XmlLoader::ParseBsdf (const tinyxml2::XMLNode* node) -> void
+{
+  // Get type of BSDF
+  const tinyxml2::XMLElement* root_element = node->ToElement ();
+  const std::string type = root_element->Attribute ("type");
+
+  MaterialAttributes mtl_attribs;
+  for (auto n = node->FirstChild (); n != NULL; n = n->NextSibling ())
+  {
+    // Get element of child and its name
+    const auto elem = n->ToElement ();
+    const std::string elem_name = elem->Name ();
+
+    if (elem_name == "rgb")
+    {
+      
+    }
+    if (elem_name == "srgb")
+    {
+      // Todo: support
+    }
+    if (elem_name == "spectrum")
+    {
+      // Todo: support
+    }
+
+  }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto XmlLoader::ParseSensor (const tinyxml2::XMLNode* node) -> void
+{
+  // Todo: implementation
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto XmlLoader::ParseShape (const tinyxml2::XMLNode* node) -> void
 {
   // Specify the type of shape
@@ -81,15 +121,26 @@ auto XmlLoader::ParseShape (const tinyxml2::XMLNode* node) -> void
   if (attrib == "obj")
   {
     // Loop over shape element
-    for (auto elem = node->FirstChildElement (); elem != NULL; elem = elem->NextSiblingElement ())
+    for (auto n = node->FirstChild (); n != NULL; n = n->NextSibling ())
     {
-      // element should has a string element at least
+      auto elem = n->ToElement ();
+
+      // nent should has a string nent at least
       if (std::strcmp (elem->Name (), "string") == 0)
       {
         // Load .obj file via tinyobj loader
         const char* obj_filename = elem->Attribute ("value");
         LoadObj ((base_path + std::string (obj_filename)).c_str ());
+        continue;
       }
+
+      // BSDF
+      if (std::strcmp (elem->Name (), "bsdf") == 0)
+      {
+        ParseBsdf (n);
+        continue;
+      }
+
     }
     return ;
   }
@@ -199,6 +250,55 @@ auto XmlLoader::LoadObj (const char* filename) -> void
       shapes_.push_back (std::move (triangle));
     }
   }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto XmlLoader::ParseRgb (const tinyxml2::XMLNode* node) -> void
+{
+  
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto XmlLoader::ParseSrgb (const tinyxml2::XMLNode* node) -> void
+{
+  
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto XmlLoader::ParseSpectrum (const tinyxml2::XMLNode* node) -> void
+{
+  
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto XmlLoader::ParseLambert (const tinyxml2::XMLNode* node) -> void
+{
+  
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto XmlLoader::ParseOrenNayar (const tinyxml2::XMLNode* node) -> void
+{
+  
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto XmlLoader::ParseMirror (const tinyxml2::XMLNode* node) -> void
+{
+  
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto XmlLoader::ParseGlass (const tinyxml2::XMLNode* node) -> void
+{
+  
 }
 /*
 // ---------------------------------------------------------------------------

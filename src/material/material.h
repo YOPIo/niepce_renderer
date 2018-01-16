@@ -14,6 +14,18 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
+enum struct MaterialType : uint32_t
+{
+  kLambert,
+  kOrenNayar,
+  kMatte,
+  kGlass,
+  kMirror,
+  kGgx
+};
+/*
+// ---------------------------------------------------------------------------
+*/
 class Material
 {
 public:

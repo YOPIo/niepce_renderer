@@ -36,12 +36,13 @@ auto main(int argc, char *argv[]) -> int
   niepce::SaveAs ("after.png", *res);
   */
 
-  Scene scene;
+  Scene  scene;
+  Camera* camera;
   XmlLoader loader;
-  // loader.LoadXml ("/home/yopio/workspace/niepce/assets/cbox/cbox.xml", &scene);
+  loader.LoadXml ("/home/yopio/workspace/niepce/assets/cbox/cbox.xml", &scene, camera);
 
   // Debug check
-  loader.LoadObj ("/home/yopio/workspace/niepce/assets/test.obj");
+  // loader.LoadObj ("/home/yopio/workspace/niepce/assets/test.obj");
 
   return 0;
 }

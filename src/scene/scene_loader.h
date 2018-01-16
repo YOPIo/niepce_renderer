@@ -1,6 +1,6 @@
 /*
 // ---------------------------------------------------------------------------
-// mitsuba renderer の xml に対応させる
+// mitsuba renderer xml
 // ---------------------------------------------------------------------------
 */
 #ifndef _SCENE_LOADER_H_
@@ -20,6 +20,26 @@ namespace niepce
 */
 class XmlLoader
 {
+ private:
+  struct MaterialAttributes
+  {
+    // TODO: Delete Rgb class
+    struct Rgb
+    {
+      union
+      {
+        struct {float r, g, b;};
+        float rgb[3];
+      };
+    };
+
+    Rgb   reflectance;
+    Rgb   transmittance;
+    Float ior; // Index of refraction
+    Float roughness_u;
+    Float roughness_v;
+  };
+
   /* XmlLoader constructors */
 public:
   XmlLoader () = default;
@@ -41,20 +61,30 @@ public:
 
   /* XmlLoader public static methods */
 public:
-  auto LoadXml (const char* filename, Scene* scene) -> void;
+  auto LoadXml (const char* filename, Scene* scene, Camera* camera) -> void;
 
 
   /* XmlLoader private static methods */
 public:
-  auto ParseShape  (const tinyxml2::XMLNode* node) -> void;
+  auto ParseBsdf   (const tinyxml2::XMLNode* node) -> void;
   auto ParseSensor (const tinyxml2::XMLNode* node) -> void;
+  auto ParseShape  (const tinyxml2::XMLNode* node) -> void;
+
+  auto ParseRgb      (const tinyxml2::XMLNode* node) -> void;
+  auto ParseSpectrum (const tinyxml2::XMLNode* node) -> void;
+  auto ParseSrgb     (const tinyxml2::XMLNode* node) -> void;
+
   auto LoadObj     (const char* filename)          -> void;
+
+  auto ParseLambert   (const tinyxml2::XMLNode* node) -> void;
+  auto ParseOrenNayar (const tinyxml2::XMLNode* node) -> void;
+  auto ParseMirror    (const tinyxml2::XMLNode* node) -> void;
+  auto ParseGlass     (const tinyxml2::XMLNode* node) -> void;
 
 
   /* XmlLoader private data */
 private:
   std::string base_path;
-
   std::vector <ShapePtr> shapes_;
 
 }; // class XmlLoader
