@@ -4,12 +4,12 @@
 */
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
-#include "../ext/stb_image.h"
+#include "../ext/stb/stb_image.h"
 #endif // STB_IMAGE_IMPLEMENTATION
 
 #ifndef STB_IMAGE_WRITE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../ext/stb_image_write.h"
+#include "../ext/stb/stb_image_write.h"
 #endif // STB_IMAGE_WRITE_IMPLEMENTATION
 /*
 // ---------------------------------------------------------------------------

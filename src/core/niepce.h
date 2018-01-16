@@ -2,15 +2,20 @@
 #define _NIEPCE_H_
 /*
 // ---------------------------------------------------------------------------
-// STD includes
+// C libs
 // ---------------------------------------------------------------------------
 */
-#include <algorithm>
-#include <array>
 #include <cassert>
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
+/*
+// ---------------------------------------------------------------------------
+// C++ libs
+// ---------------------------------------------------------------------------
+*/
+#include <algorithm>
+#include <array>
 #include <fstream>
 #include <iostream>
 #include <limits>
@@ -23,6 +28,24 @@
 #include <vector>
 /*
 // ---------------------------------------------------------------------------
+// SIMD
+// ---------------------------------------------------------------------------
+*/
+#if defined (CLANG)
+  #include <x86intrin.h>
+#else
+  #include <mmintrin.h>
+// #include <intrin.h> // MSVC
+#endif
+/*
+// ---------------------------------------------------------------------------
+*/
+#define ALIGN(n) alignas((n))
+#define ALIGN16  alignas(16)
+#define ALIGN32  alignas(32)
+#define ALIGN64  alignas(64)
+/*
+// ---------------------------------------------------------------------------
 */
 namespace niepce
 {
@@ -31,20 +54,27 @@ namespace niepce
 // Global typedefs
 // ---------------------------------------------------------------------------
 */
-typedef double       Float;
+#if defined (NI_FLOAT_IS_DOUBLE)
+typedef double Float;
+#define SIMD_ALIGN 32
+#else
+typedef float Float;
+#define SIMD_ALIGN 16
+#endif
+typedef unsigned Index;
 // ---------------------------------------------------------------------------
 // Class forward declarations
 // ---------------------------------------------------------------------------
-template <typename T> class Point2;
-template <typename T> class Point3;
-template <typename T> class Point4;
-template <typename T> class Vector2;
-template <typename T> class Vector3;
-template <typename T> class Vector4;
-template <typename T> class Normal3;
-template <typename T> class Matrix4x4;
-template <typename T> class BoundingBox2;
-template <typename T> class BoundingBox3;
+template<typename T> class Point2;
+template<typename T> class Point3;
+template<typename T> class Point4;
+template<typename T> class Vector2;
+template<typename T> class Vector3;
+template<typename T> class Vector4;
+template<typename T> class Normal3;
+template<typename T> class Matrix4x4;
+template<typename T> class BoundingBox2;
+template<typename T> class BoundingBox3;
 class Ray;
 class Interaction;
 class SurfaceInteraction;
@@ -76,7 +106,9 @@ class Camera;
 class Object;
 template <typename T> class Pixel;
 template <typename T> class Image3;
-
+/*
+// ---------------------------------------------------------------------------
+*/
 typedef Point2<Float>       Point2f;
 typedef Point2<int>         Point2i;
 typedef Point2<uint32_t>    Point2u32i;

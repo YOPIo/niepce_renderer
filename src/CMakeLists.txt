@@ -20,6 +20,8 @@ endif()
 # set (CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++") # ok
 
 add_subdirectory (random)
+add_subdirectory (ext)
+add_subdirectory (ext/tinyxml2)
 add_subdirectory (core)
 add_subdirectory (memory)
 add_subdirectory (camera)
@@ -34,6 +36,9 @@ add_subdirectory (accelerator)
 add_subdirectory (scene)
 add_subdirectory (integrator)
 
+
+find_package (tinyxml2)
+
 add_executable (
   niepce
   main/main.cc
@@ -41,6 +46,7 @@ add_executable (
 
 target_link_libraries (
   niepce
+  tinyxml2
   Integrator
   Scene
   Accelerator

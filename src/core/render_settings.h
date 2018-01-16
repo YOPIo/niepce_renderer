@@ -25,7 +25,13 @@ struct RenderSettings
   auto operator = (      RenderSettings&& settings) -> RenderSettings& = default;
 
   // RenderSettings data
+  // Size of rendering image
   std::pair <uint32_t, uint32_t> resolution;
+
+  // Samples per pixel
+  uint16_t samples;
+  // Super samples per pixel
+  uint16_t super_samples;
 };
 /*
 // ---------------------------------------------------------------------------

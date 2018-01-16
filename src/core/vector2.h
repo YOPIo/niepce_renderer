@@ -77,25 +77,18 @@ public:
   /* Data */
 public:
 #ifdef NI_USE_SIMD_IMPLEMENTATION
+  union
+  {
 #ifdef NI_FLOAT_IS_DOUBLE
-  union
-  {
     __m256d xy256;
-    struct { Float x, y, z, w; };
-    struct { Float u, v, s, t; };
-    struct { Float s, t, u, v; };
-    std::array <Float, 4> xy;
-  };
 #else
-  union
-  {
     __m128 xy128;
+#endif // NI_FLOAT_IS_DOUBLE
     struct { Float x, y, z, w; };
     struct { Float u, v, s, t; };
     struct { Float s, t, u, v; };
     std::array <Float, 4> xy;
   };
-#endif // NI_FLOAT_IS_DOUBLE
 #else
   union
   {

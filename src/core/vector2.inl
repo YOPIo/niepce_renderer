@@ -77,17 +77,17 @@ inline auto Vector2::Normalize () -> Vector2&
 #ifdef NI_FLOAT_IS_DOUBLE
   
 #else
-  const __m128 dp = _mm_dp_ps(xy_, xy_, 0x33);
-  const __m128 idp = _mm_rsqrt_ps_accurate(dp);
-  xy_ = _mm_mul_ps(xy_, idp);
+  const __m128 dp  = _mm_dp_ps (xy_, xy_, 0x33);
+  const __m128 idp = _mm_rsqrt_ps_accurate (dp);
+  xy_ = _mm_mul_ps (xy_, idp);
   return *this;
 #endif // NI_FLOAT_IS_DOUBLE
-#else // NI_USE_SIMD_IMPLEMENTATION
+#else
   const Float inv = 1.0 / Length ();
   x *= inv;
   y *= inv;
   return *this;
-#endif
+#endif // NI_USE_SIMD_IMPLEMENTATION
 }
 /*
 // ---------------------------------------------------------------------------
@@ -109,8 +109,8 @@ inline auto Vector2::Length () const -> Float
 #endif // NI_FLOAT_IS_DOUBLE
 #else
   return std::sqrt (LengthSquared ());
-#endif // NI_USE_SIMD_IMPLEMENTATION
 }
+#endif // NI_USE_SIMD_IMPLEMENTATION
 /*
 // ---------------------------------------------------------------------------
 */
@@ -124,8 +124,8 @@ inline auto Vector2::LengthSquared () const -> Float
 #endif // NI_FLOAT_IS_DOUBLE
 #else
   return x * x + y * y;
-#endif // NI_USE_SIMD_IMPLEMENTATION
 }
+#endif // NI_USE_SIMD_IMPLEMENTATION
 /*
 // ---------------------------------------------------------------------------
 */
@@ -140,23 +140,15 @@ inline auto Vector2::HasNaN () const -> bool
 #endif // NI_FLOAT_IS_DOUBLE
 #else
   return std::isnan (x) || std::isnan (y);
-#endif // NI_USE_SIMD_IMPLEMENTATION
 }
+#endif // NI_USE_SIMD_IMPLEMENTATION
 /*
 // ---------------------------------------------------------------------------
 */
 inline auto Vector2::IsNormalized () const -> bool
 {
   const Float eps = 1.0e-3;
-#ifdef NI_USE_SIMD_IMPLEMENTATION
-#ifdef NI_FLOAT_IS_DOUBLE
-  
-#else
-  return (std::fabs (Length () - 1.0) < eps);
-#endif // NI_FLOAT_IS_DOUBLE
-#else
-  return (std::fabs (Length () - 1.0) < eps);
-#endif // NI_USE_SIMD_IMPLEMENTATION
+  return (std::fabs (LengthSquared () - 1.0) < eps);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -187,14 +179,14 @@ inline auto Vector2::Dot (const Vector2& lv, const Vector2& rv) -> Float
 {
 #ifdef NI_USE_SIMD_IMPLEMENTATION
 #ifdef NI_FLOAT_IS_DOUBLE
-  
-#else
 
+#else
+  return _mm_dp_ps (lv.xyz_, r.xy, 0x7F);
 #endif // NI_FLOAT_IS_DOUBLE
 #else
   return lv.x * rv.x + lv.y * rv.y;
-#endif // NI_USE_SIMD_IMPLEMENTATION
 }
+#endif // NI_USE_SIMD_IMPLEMENTATION
 /*
 // ---------------------------------------------------------------------------
 */
@@ -208,8 +200,8 @@ inline auto Vector2::Cross (const Vector2& lv, const Vector2& rv) -> Float
 #endif // NI_FLOAT_IS_DOUBLE
 #else
   return lv.x * rv.y - lv.y * rv.x;
-#endif // NI_USE_SIMD_IMPLEMENTATION
 }
+#endif // NI_USE_SIMD_IMPLEMENTATION
 /*
 // ---------------------------------------------------------------------------
 */
