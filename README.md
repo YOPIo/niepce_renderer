@@ -4,7 +4,7 @@ Simple Monte Carlo Path Tracer
 
 # Features
 
- - Pure Pathtracing with Next Event Estimation
+ - Pure Path Tracing with Next Event Estimation
  - BVH (Surface Area Heuristic)
  - Shape
     - Triangle
