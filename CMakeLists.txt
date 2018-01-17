@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(niepce CXX)
 
-add_definitions("-std=c++11 -O2")
+add_definitions("-std=c++17 -O2")
 
 find_package( OpenMP )
 if (OPENMP_FOUND)

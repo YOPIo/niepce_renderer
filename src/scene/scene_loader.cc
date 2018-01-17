@@ -5,6 +5,11 @@
 #include "../core/geometry.h"
 #include "../camera/camera.h"
 #include "../shape/triangle.h"
+#include "../material/matte.h"
+#include "../material/glass.h"
+#include "../material/mirror.h"
+#include "../material/microfacet_test.h"
+#include "../light/area.h"
 /*
 // ---------------------------------------------------------------------------
 // Tinyobj loader include
@@ -56,10 +61,19 @@ auto XmlLoader::LoadXml (const char* filename, Scene* scene, Camera* camera) -> 
       ParseBsdf (node);
       continue;
     }
+    if (name == "texture")
+    {
+      ParseTexture (node);
+      continue;
+    }
     if (name == "shape")
     {
       ParseShape (node);
       continue;
+    }
+    if (name == "texture")
+    {
+      
     }
     if (name == "sensor")
     {
@@ -75,22 +89,26 @@ auto XmlLoader::LoadXml (const char* filename, Scene* scene, Camera* camera) -> 
 /*
 // ---------------------------------------------------------------------------
 */
-auto XmlLoader::ParseBsdf (const tinyxml2::XMLNode* node) -> void
+auto XmlLoader::ParseBsdf (const tinyxml2::XMLNode* node) -> MaterialPtr
 {
-  // Get type of BSDF
-  const tinyxml2::XMLElement* root_element = node->ToElement ();
-  const std::string type = root_element->Attribute ("type");
+  // HACKME:
+  std::map <std::string, Vector3f> properties;
 
-  MaterialAttributes mtl_attribs;
+  // Loop over children
   for (auto n = node->FirstChild (); n != NULL; n = n->NextSibling ())
   {
     // Get element of child and its name
     const auto elem = n->ToElement ();
     const std::string elem_name = elem->Name ();
 
+    if (elem_name == "float")
+    {
+      properties.insert (std::make_pair (elem_name, Vector3f (ParseFloat (n))));
+    }
     if (elem_name == "rgb")
     {
-      
+      Vector3f rgb = ParseRgb (n);
+      properties.insert (std::make_pair (elem_name, rgb));
     }
     if (elem_name == "srgb")
     {
@@ -102,6 +120,37 @@ auto XmlLoader::ParseBsdf (const tinyxml2::XMLNode* node) -> void
     }
 
   }
+
+  // Get type of BSDF to create a material
+  const tinyxml2::XMLElement* elem = node->ToElement ();
+  const std::string type = elem->Attribute ("type");
+
+  // Create material
+  MaterialPtr material (nullptr);
+  if (type == "diffuse" || type == "matte")
+  {
+    material = CreateMatte (properties["reflectance"]);
+  }
+  if (type == "mirror")
+  {
+    // TODO: implementation
+    std::cerr << "no implementation" << std::endl;
+  }
+  if (type == "glass")
+  {
+    // TODO: implementation
+    std::cerr << "no implementation" << std::endl;
+  }
+
+
+  // If "id" existing, store bsdf to bind with shape later
+  if (elem->Attribute ("id"))
+  {
+    const std::string id = elem->Attribute ("id");
+    materials_.insert (std::make_pair (id, material));
+  }
+
+  return material;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -116,7 +165,11 @@ auto XmlLoader::ParseSensor (const tinyxml2::XMLNode* node) -> void
 auto XmlLoader::ParseShape (const tinyxml2::XMLNode* node) -> void
 {
   // Specify the type of shape
-  const std::string attrib = node->ToElement () ->Attribute ("type");
+  const std::string attrib = node->ToElement ()->Attribute ("type");
+
+  std::vector <ShapePtr> shapes;
+  MaterialPtr material (nullptr);
+  LightPtr    light    (nullptr);
 
   if (attrib == "obj")
   {
@@ -130,19 +183,26 @@ auto XmlLoader::ParseShape (const tinyxml2::XMLNode* node) -> void
       {
         // Load .obj file via tinyobj loader
         const char* obj_filename = elem->Attribute ("value");
-        LoadObj ((base_path + std::string (obj_filename)).c_str ());
+        LoadObj ((base_path + std::string (obj_filename)).c_str (),
+                 &shapes);
         continue;
       }
 
       // BSDF
       if (std::strcmp (elem->Name (), "bsdf") == 0)
       {
-        ParseBsdf (n);
+        material = ParseBsdf (n);
         continue;
       }
 
+      // Reference to bsdf
+      if (std::strcmp (elem->Name (), "ref") == 0)
+      {
+        // Get reference id
+        const std::string id = elem->Attribute ("id");
+        material = materials_[id];
+      }
     }
-    return ;
   }
 
   if (attrib == "sphere")
@@ -150,14 +210,116 @@ auto XmlLoader::ParseShape (const tinyxml2::XMLNode* node) -> void
     // Todo: Support sphere type
     return ;
   }
-  return ;
+
+  // Bind shape and material
+  for (const auto& s : shapes)
+  {
+    // Store shape (unnecessary)
+    shapes_.push_back (s);
+
+    // Create primitive
+
+  }
+
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto XmlLoader::ParseEmitter (const tinyxml2::XMLNode* node) -> LightPtr
+{
+  // Return type
+  LightPtr light (nullptr);
+
+  // Get a element of this node
+  const auto elem = node->ToElement ();
+
+  // Get properties
+  // TODO & HACKME: RGB, SRGB, Spectrum に対応したクラスをつくる？
+  std::map <std::string, Vector3f> properties;
+
+  for (auto n = elem->FirstChildElement (); n != NULL;
+       n = n->NextSiblingElement ())
+  {
+    if (std::strcmp (n->Name (), "rgb"))
+    {
+      // Get property name
+      const std::string name = n->Attribute ("name");
+      // Read rgb value
+      const Vector3f rgb = ParseRgb (n);
+      // Insert property
+      properties.insert (std::make_pair (name, rgb));
+      continue;
+    }
+    if (std::strcmp (n->Name (), "srgb"))
+    {
+      // todo: implementation
+      continue;
+    }
+    if (std::strcmp (n->Name (), "spectrum"))
+    {
+      // todo: implementation
+      continue;
+    }
+  }
+
+  // Specify the type of emitter (light) to create a light
+  const std::string type = elem->Attribute ("type");
+  if (type == "area")
+  {
+    // hackme:
+    Vector3f v = properties["radiance"];
+    Spectrum emitter = Spectrum (v.r, v.g, v.b, 1.0);
+    light = CreateAreaLight (emitter);
+  }
+  if (type == "point")
+  {
+    // todo: implementation
+  }
+  if (type == "ibl")
+  {
+    // todo: implementation
+  }
+
+  // If "id" existing, store
+  if (elem->Attribute ("id"))
+  {
+    const std::string id = elem->Attribute ("id");
+    lights_.insert (std::make_pair (id, light));
+  }
+
+  return light;
+}
+/*
+// ---------------------------------------------------------------------------
+// Read float from value attribute
+// ---------------------------------------------------------------------------
+*/
+auto XmlLoader::ParseFloat (const tinyxml2::XMLNode* node) -> Float
+{
+  // Get element of this node
+  const auto elem = node->ToElement ();
+  return elem->FloatAttribute ("value");
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto XmlLoader::ParseInt (const tinyxml2::XMLNode* node) -> int
+{
+  // Get element of this node
+  const auto elem = node->ToElement ();
+  return elem->IntAttribute ("value");
 }
 /*
 // ---------------------------------------------------------------------------
 // XmlLoader::LoadObj ignore .mtl file if present
 // ---------------------------------------------------------------------------
 */
-auto XmlLoader::LoadObj (const char* filename) -> void
+auto XmlLoader::LoadObj
+(
+    const char* filename,
+    std::vector<ShapePtr>* triangles
+)
+-> void
 {
   // Load .obj file
   tinyobj::attrib_t attrib;
@@ -242,35 +404,68 @@ auto XmlLoader::LoadObj (const char* filename) -> void
       index_offset += fv;
 
       // Create triangle face
-      const ShapePtr triangle = CreateTriangle (mesh,
-                                                position_idx,
-                                                normal_idx,
-                                                texcoord_idx);
-      // hackme:
-      shapes_.push_back (std::move (triangle));
+      const ShapePtr t = CreateTriangle (mesh,
+                                         position_idx,
+                                         normal_idx,
+                                         texcoord_idx);
+      triangles->push_back (std::move (t));
     }
   }
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto XmlLoader::ParseRgb (const tinyxml2::XMLNode* node) -> void
+auto XmlLoader::ParseRgb (const tinyxml2::XMLNode* node) -> Vector3f
 {
-  
+  // Get element of this node
+  const auto elem = node->ToElement ();
+
+  // Convert string to float[3]
+  std::string value = elem->Attribute ("value");
+  // Replace ',' to ' ' in this string
+  std::replace (value.begin (), value.end (), ',', ' ');
+
+  // Read rgb value vai stringstream
+  std::stringstream ss (value);
+  Vector3f rgb;
+  for (int i = 0; i < 3; ++i)
+  {
+    ss >> rgb[i];
+  }
+  return rgb;
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto XmlLoader::ParseSrgb (const tinyxml2::XMLNode* node) -> void
-{
-  
-}
+{}
 /*
 // ---------------------------------------------------------------------------
 */
 auto XmlLoader::ParseSpectrum (const tinyxml2::XMLNode* node) -> void
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto XmlLoader::ParseTexture (const tinyxml2::XMLNode* node) -> void
 {
-  
+  // Get a element of this node
+  const auto elem = node->ToElement ();
+
+  // Specify the type of image
+  const std::string type = elem->Attribute ("type");
+  if (type == "bitmap")
+  {
+    // TODO: Load texture
+
+  }
+
+  // If "id" existing, store texture to bind with shape later
+  if (elem->Attribute ("id"))
+  {
+    const std::string id = elem->Attribute ("id");
+    // TODO: implementation
+  }
 }
 /*
 // ---------------------------------------------------------------------------

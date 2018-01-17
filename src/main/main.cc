@@ -42,7 +42,9 @@ auto main(int argc, char *argv[]) -> int
   loader.LoadXml ("/home/yopio/workspace/niepce/assets/cbox/cbox.xml", &scene, camera);
 
   // Debug check
-  // loader.LoadObj ("/home/yopio/workspace/niepce/assets/test.obj");
+  std::cout << loader.shapes_.size() << std::endl;
+  std::cout << loader.materials_.size() << std::endl;
+  std::cout << loader.textures_.size () << std::endl;
 
   return 0;
 }

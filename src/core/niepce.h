@@ -16,6 +16,7 @@
 */
 #include <algorithm>
 #include <array>
+// #include <any> // C++17
 #include <fstream>
 #include <iostream>
 #include <limits>
