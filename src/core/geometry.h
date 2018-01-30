@@ -180,6 +180,7 @@ auto operator << (std::ostream&     os, const  Normal3<T>& n) -> std::ostream&;
 // Maxrix4x4
 // ---------------------------------------------------------------------------
 */
+/*
 template <typename T>
 auto operator == (const Matrix4x4<T>& m0, const Matrix4x4<T>& m1) -> bool;
 template <typename T>
@@ -203,6 +204,7 @@ auto operator *  (const Matrix4x4<T>&  m,                    U t)
 template <typename T>
 auto operator *  (std::ostream&       os, const Matrix4x4<T>&  m)
 -> std::ostream&;
+  */
 /*
 // ---------------------------------------------------------------------------
 // Global operators
@@ -327,8 +329,10 @@ template <typename T> auto SphericalPhi   (const Vector3<T>& v) -> T;
 /*
 // ---------------------------------------------------------------------------
 */
+/*
 template <typename T>
 auto Inverse (const Matrix4x4<T>& m) -> Matrix4x4<T>;
+*/
 /*
 // ---------------------------------------------------------------------------
 // Class definitions
@@ -1786,10 +1790,11 @@ class BoundingBox3
 /*
 // ---------------------------------------------------------------------------
 */
+/*
 template <typename T>
 class Matrix4x4
 {
-  /* Matrix public constructor */
+
 public:
   Matrix4x4 ()
   {
@@ -1818,7 +1823,6 @@ public:
   {}
 
 
-  /* Matrix public destructor */
 public:
   virtual ~Matrix4x4 () = default;
 
@@ -1826,7 +1830,6 @@ public:
   Matrix4x4 (      Matrix4x4&& m) = default;
 
 
-  /* Matrix operators */
  public:
   auto operator = (const Matrix4x4&  m) -> Matrix4x4& = default;
   auto operator = (      Matrix4x4&& m) -> Matrix4x4& = default;
@@ -1893,7 +1896,6 @@ public:
     return *this;
   }
 
-  /* Matrix4x4 public methods */
  public:
   auto ToIdentity () -> void
   {
@@ -1920,7 +1922,6 @@ public:
   }
 
 
-  /* Matrix4x4 public data */
  public:
   union
   {
@@ -1950,8 +1951,9 @@ public:
       };
     };
   };
-
 }; // class Matrix4x4
+*/
+
 /*
 // ---------------------------------------------------------------------------
 // Point2
@@ -2519,6 +2521,7 @@ auto operator + (const Vector4<T>& v, const  Point4<T>& p) -> Point4<T>
 // Matrix4x4
 // ---------------------------------------------------------------------------
 */
+/*
 template <typename T>
 auto operator == (const Matrix4x4<T>& m0, const Matrix4x4<T>& m1) -> bool
 {
@@ -2534,17 +2537,13 @@ auto operator == (const Matrix4x4<T>& m0, const Matrix4x4<T>& m1) -> bool
   }
   return true;
 }
-/*
-// ---------------------------------------------------------------------------
-*/
+
 template <typename T>
 auto operator != (const Matrix4x4<T>& m0, const Matrix4x4<T>& m1) -> bool
 {
   return !(m0 == m1);
 }
-/*
-// ---------------------------------------------------------------------------
-*/
+
 template <typename T>
 auto operator + (const Matrix4x4<T>& m0, const Matrix4x4<T>& m1)
 -> Matrix4x4<T>
@@ -2558,9 +2557,7 @@ auto operator + (const Matrix4x4<T>& m0, const Matrix4x4<T>& m1)
                        m0 (3, 0) + m1 (3, 0), m0 (3, 1) + m1 (3, 1),
                        m0 (3, 2) + m1 (3, 2), m0 (3, 3) + m1 (3, 2));
 }
-/*
-// ---------------------------------------------------------------------------
-*/
+
 template <typename T>
 auto operator - (const Matrix4x4<T>& m0, const Matrix4x4<T>& m1)
 -> Matrix4x4<T>
@@ -2574,9 +2571,7 @@ auto operator - (const Matrix4x4<T>& m0, const Matrix4x4<T>& m1)
                        m0 (3, 0) - m1 (3, 0), m0 (3, 1) - m1 (3, 1),
                        m0 (3, 2) - m1 (3, 2), m0 (3, 3) - m1 (3, 2));
 }
-/*
-// ---------------------------------------------------------------------------
-*/
+
 template <typename T>
 auto operator * (const Matrix4x4<T>& m0, const Matrix4x4<T>& m1)
 -> Matrix4x4<T>
@@ -2594,9 +2589,7 @@ auto operator * (const Matrix4x4<T>& m0, const Matrix4x4<T>& m1)
   }
   return ret;
 }
-/*
-// ---------------------------------------------------------------------------
-*/
+
 template <typename T>
 auto operator * (const Matrix4x4<T>& m, const Point4<T>& p) -> Point4<T>
 {
@@ -2610,9 +2603,7 @@ auto operator * (const Matrix4x4<T>& m, const Point4<T>& p) -> Point4<T>
   }
   return ret;
 }
-/*
-// ---------------------------------------------------------------------------
-*/
+
 template <typename T>
 auto operator * (const Matrix4x4<T>& m, const Vector4<T>& v) -> Vector4<T>
 {
@@ -2626,9 +2617,7 @@ auto operator * (const Matrix4x4<T>& m, const Vector4<T>& v) -> Vector4<T>
   }
   return ret;
 }
-/*
-// ---------------------------------------------------------------------------
-*/
+
 template <typename T, typename U>
 auto operator * (const Matrix4x4<T>& m, U t) -> Matrix4x4<T>
 {
@@ -2643,9 +2632,7 @@ auto operator * (const Matrix4x4<T>& m, U t) -> Matrix4x4<T>
   }
   return ret;
 }
-/*
-// ---------------------------------------------------------------------------
-*/
+
 template <typename T>
 auto operator << (std::ostream& os, const Matrix4x4<T>& m) -> std::ostream&
 {
@@ -2655,6 +2642,7 @@ auto operator << (std::ostream& os, const Matrix4x4<T>& m) -> std::ostream&
   os << "[" << m (3, 0) << ", " << m (3, 1) << ", " << m (3, 2) << ", " << m (3, 3) << "]";
   return os;
 }
+*/
 /*
 // ---------------------------------------------------------------------------
 */
@@ -3178,6 +3166,7 @@ auto SphericalPhi   (const Vector3<T>& v) -> T
 /*
 // ---------------------------------------------------------------------------
 */
+/*
 template <typename T>
 auto operator * (const Matrix4x4<T>& m, const Vector3<T>& v) -> Vector3<T>
 {
@@ -3185,6 +3174,7 @@ auto operator * (const Matrix4x4<T>& m, const Vector3<T>& v) -> Vector3<T>
                    m.m10 * v.x + m.m11 * v.y + m.m12 * v.z,
                    m.m20 * v.x + m.m21 * v.y + m.m22 * v.z);
 }
+*/
 /*
 // ---------------------------------------------------------------------------
 */
@@ -3198,6 +3188,7 @@ inline auto SphericalToCartesian (Float sin_theta, Float cos_theta, Float phi)
 /*
 // ---------------------------------------------------------------------------
 */
+/*
 template <typename T>
 inline auto Inverse (const Matrix4x4<T>& m) -> Matrix4x4<T>
 {
@@ -3231,6 +3222,7 @@ inline auto Inverse (const Matrix4x4<T>& m) -> Matrix4x4<T>
   }
   return ret;
 }
+  */
 /*
 // ---------------------------------------------------------------------------
 */

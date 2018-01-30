@@ -5,6 +5,7 @@
 */
 #include "../core/niepce.h"
 #include "../core/geometry.h"
+#include "../core/matrix4x4.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -31,7 +32,7 @@ class Transform
              Float m20, Float m21, Float m22, Float m23,
              Float m30, Float m31, Float m32, Float m33);
 
-  Transform (const Matrix4x4f& m);
+  Transform (const Matrix4x4& m);
 
 
   /* Transform private destructor */
@@ -58,8 +59,8 @@ class Transform
   auto At (size_t row, size_t col) const -> Float;
   auto At (size_t row, size_t col)       -> Float&;
 
-  auto GetMatrix    () const -> Matrix4x4f;
-  auto GetInvMatrix () const -> Matrix4x4f;
+  auto GetMatrix    () const -> Matrix4x4;
+  auto GetInvMatrix () const -> Matrix4x4;
 
   auto Row     (size_t idx) const -> std::array<Float, 4>;
   auto SetRow  (size_t idx, std::array<Float, 4>& row) -> void;
@@ -80,8 +81,8 @@ public:
 
   /* Transform private data */
  private:
-  Matrix4x4f matrix_;
-  Matrix4x4f inv_matrix_;
+  Matrix4x4 matrix_;
+  Matrix4x4 inv_matrix_;
 };
 /*
 // ---------------------------------------------------------------------------

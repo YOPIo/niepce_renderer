@@ -73,9 +73,12 @@ template<typename T> class Vector2;
 template<typename T> class Vector3;
 template<typename T> class Vector4;
 template<typename T> class Normal3;
-template<typename T> class Matrix4x4;
+// template<typename T> class Matrix4x4;
 template<typename T> class BoundingBox2;
 template<typename T> class BoundingBox3;
+
+struct Matrix4x4;
+
 class Ray;
 class Interaction;
 class SurfaceInteraction;
@@ -125,8 +128,8 @@ typedef Vector4<Float>      Vector4f;
 typedef Vector4<int>        Vector4i;
 typedef Normal3<Float>      Normal3f;
 typedef Normal3<int>        Normal3i;
-typedef Matrix4x4<Float>    Matrix4x4f;
-typedef Matrix4x4<int>      Matrix4x4i;
+// typedef Matrix4x4<Float>    Matrix4x4f;
+// typedef Matrix4x4<int>      Matrix4x4i;
 typedef BoundingBox2<Float> Bounds2f;
 typedef BoundingBox2<int>   Bounds2i;
 typedef BoundingBox3<Float> Bounds3f;

@@ -35,6 +35,7 @@ add_subdirectory (primitive)
 add_subdirectory (accelerator)
 add_subdirectory (scene)
 add_subdirectory (integrator)
+add_subdirectory (test)
 
 
 find_package (tinyxml2)

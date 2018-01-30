@@ -6,5 +6,6 @@ add_library(
   image.cc
   pixel.cc
   geometry.cc
+  matrix4x4.cc
   transform.cc
 )
