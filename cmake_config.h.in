@@ -1,0 +1,2 @@
+#cmakedefine BUILD_MAYA_PLUGIN
+#cmakedefine BUILD_CUI_RENDERER
