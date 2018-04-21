@@ -1,67 +1,71 @@
+/*!
+ * @file film.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 2018/4/21
+ * @details 
+ */
 #ifndef _FILM_H_
 #define _FILM_H_
 /*
 // ---------------------------------------------------------------------------
 */
 #include "niepce.h"
+#include "image.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-*/
+//! ----------------------------------------------------------------------------
+//! @class Film
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
 class Film
 {
-  /* Film public data structure */
- public:
-  struct Pixel
-  {
-    std::array <Float, 3> rgb_;
-  };
+public:
+  //! The default class constructor.
+  Film () = default;
 
-  /* Film constructors */
- public:
-  Film () = delete;
-  Film (const std::string& filename, uint32_t width, uint32_t height);
+  //! The constructor of the class.
+  /*!
+   * Initialize size of film and image with arguments.
+   */
+  Film (uint32_t width, uint32_t height);
 
-  /* Film destructor */
- public:
+  //! The copy constructor of the class.
+  Film (const Film& film) = default;
+
+  //! The move constructor of the class.
+  Film (Film&& film) = default;
+
+  //! The default class destructor.
   virtual ~Film () = default;
 
+  //! The copy assignment operator of the class.
+  auto operator = (const Film& film) -> Film& = default;
 
-  /* Film public operators*/
- public:
-  Film (const Film&  film) = default;
-  Film (      Film&& film) = default;
+  //! The move assignment operator of the class.
+  auto operator = (Film&& film) -> Film& = default;
 
-  auto operator = (const Film&  film) -> Film& = default;
-  auto operator = (      Film&& film) -> Film& = default;
+public:
+  //! @fn void OverrideWithClippingFilm (const)
+  //! @brief 
+  //! @param[in] ClippingFilm
+  //! @return 
+  //! @exception none
+  //! @details 
+  auto OverrideWithClippingFilm (const ClippingFilm& film) -> void;
 
-  auto operator () (Index x, Index y) const -> Film::Pixel;
-  auto operator () (Index x, Index y)       -> Film::Pixel&;
-
-
-  /* Film public methods */
- public:
-  auto At (Index x, Index y) const -> Film::Pixel;
-  auto At (Index x, Index y)       -> Film::Pixel&;
-
-
-  /* Film private data */
- private:
-  std::string    fullpath_; // Default location to save images
-  const uint32_t width_;
-  const uint32_t height_;
-  const Float    diagonal_;
-
-  std::unique_ptr <Pixel []> pixels_;
+private:
+  const std::pair <uint32_t, uint32_t> resolution_;
+  Image film_;
 }; // class Film
 /*
 // ---------------------------------------------------------------------------
 */
-}  // namespace niepce
+} // namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */

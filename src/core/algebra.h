@@ -4,27 +4,7 @@
 // ---------------------------------------------------------------------------
 */
 #include <cmath>
-#include <string>
 #include <array>
-/*
-// ---------------------------------------------------------------------------
-// SIMD
-// ---------------------------------------------------------------------------
-*/
-#if defined (CLANG)
-  #include <x86intrin.h>
-#else
-  #include <mmintrin.h>
-  #include <xmmintrin.h>
-// #include <intrin.h> // MSVC
-#endif
-/*
-// ---------------------------------------------------------------------------
-*/
-#define ALIGN(n) alignas((n))
-#define ALIGN16  alignas(16)
-#define ALIGN32  alignas(32)
-#define ALIGN64  alignas(64)
 /*
 // ---------------------------------------------------------------------------
 */
@@ -32,27 +12,30 @@ namespace niepce
 {
 /*
 // ---------------------------------------------------------------------------
+// Data precision
+// ---------------------------------------------------------------------------
 */
-#if defined (NI_FLOAT_IS_DOUBLE)
-typedef double Float;
-#define SIMD_ALIGN 32
-#else
 typedef float Float;
-#define SIMD_ALIGN 16
-#endif
-typedef unsigned Index;
 /*
 // ---------------------------------------------------------------------------
-// Tiny obj loader option
+// Struct and Class forward declaration
 // ---------------------------------------------------------------------------
 */
-#if defined (NI_FLOAT_IS_DOUBLE)
-#define TINYOBJLOBJLOADER_USE_DOUBLE
-#endif
+// todo: SIMD化
+struct Vector2f;
+struct Vector3f;
+// 早く実装する
+// struct Point2f;  // No implementation, use Vector2f instead
+// struct Point3f;  // No implementation, use Vector3f instead
+// struct Normal3f; // No implementation, use Vector3f instead
+typedef Vector2f Point2f;
+typedef Vector3f Ponit3f;
+typedef Vector3f Normal3f;
+struct Matrix4x4f;
 /*
 // ---------------------------------------------------------------------------
 */
-}  // namespace niepce
+} // namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */

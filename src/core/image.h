@@ -1,83 +1,77 @@
+/*!
+ * @file image.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 2018/4/20
+ * @details 
+ */
 #ifndef _IMAGE_H_
 #define _IMAGE_H_
 /*
 // ---------------------------------------------------------------------------
 */
 #include "niepce.h"
-#include "geometry.h"
-#include "pixel.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-// Class forward declaration
-// ---------------------------------------------------------------------------
-*/
-template <typename T> class Image3;
-/*
-// ---------------------------------------------------------------------------
-// Functions for Image3
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto CreateImage3  (size_t width, size_t height) -> ImagePtr <T>;
-template <typename T>
-auto LoadImage     (const char* filename) -> ImagePtr <T>;
-template <typename T>
-auto LoadHdrxImage (const char* filename) -> ImagePtr <T>;
-
-// delete ?
-template <typename T>
-auto WriteImage    (const char* filename, const ImagePtr <T>& img) -> void;
-
-template <typename T>
-auto SaveAs (const char* filename, const Image3 <T>& img) -> void;
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-class Image3
+//! ----------------------------------------------------------------------------
+//! @class Image
+//! @brief 
+//! @details 
+//! ----------------------------------------------------------------------------
+class Image
 {
-  /* Image3 constructors */
 public:
-  Image3 () = default;
-  Image3 (size_t width, size_t height);
+  //! The default class constructor.
+  Image () = delete;
 
+  //! The Constructor
+  /*!
+   * Use this constructor with width and height
+   * Initialize with black
+   */
+  Image (uint32_t width, uint32_t height);
 
-  /* Image3 destructor */
-public:
-  virtual ~Image3 () = default;
+  //! The copy constructor of the class.
+  Image (const Image& img) = default;
 
+  //! The move constructor of the class.
+  Image (Image&& img) = default;
 
-  /* Image3 public operators*/
-public:
-  Image3 (const Image3&  img) = default;
-  Image3 (      Image3&& img) = default;
+  //! The default class destructor.
+  virtual ~Image () = default;
 
-  auto operator = (const Image3&  img) -> Image3& = default;
-  auto operator = (      Image3&& img) -> Image3& = default;
+  //! The copy assignment operator of the class.
+  auto operator = (const Image& img) -> Image& = default;
 
-  auto operator () (size_t x, size_t y)       -> Pixel <T>&;
-  auto operator () (size_t x, size_t y) const -> Pixel <T>;
+  //! The move assignment operator of the class.
+  auto operator = (Image&& img) -> Image& = default;
 
+  /*!
+   * @fn operator ()
+   * @brief Member access operator (read only)
+   * @details 
+   * @return Pixel
+   * @exception std::out_of_range
+   */
+  auto operator () (int32_t x, int32_t y) const -> Pixel;
 
-  /* Image3 public methods */
-public:
-  auto At (size_t x, size_t y)       -> Pixel <T>&;
-  auto At (size_t x, size_t y) const -> Pixel <T>;
+  /*!
+   * @fn operator ()
+   * @brief Member assignment operator (writable)
+   * @details 
+   * @return Pixel&
+   * @exception std::out_of_range
+   */
+  auto operator () (int32_t x, int32_t y) -> Pixel&;
 
-  auto GetWidth  () const -> uint32_t;
-  auto GetHeight () const -> uint32_t;
-
-
-  /* Image3 private data */
 private:
-  std::unique_ptr <Pixel <T> []> data_;
-  Point2u32i resolution_;
-}; // class Image3
+  uint32_t width_;
+  uint32_t height_;
+  std::shared_ptr <Pixel []> pixels_;
+}; // class Image
 /*
 // ---------------------------------------------------------------------------
 */
@@ -86,3 +80,4 @@ private:
 // ---------------------------------------------------------------------------
 */
 #endif // _IMAGE_H_
+
