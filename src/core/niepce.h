@@ -34,7 +34,9 @@ class Image;
 class Pixel;
 // class Point2;
 // class Point3;
-// class Status; 
+// class Status;
+class Status;
+class String;
 class Vector2f;
 class Vector3f;
 /*

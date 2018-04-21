@@ -1,58 +1,37 @@
-/*!
- * @file pixel.cc
- * @brief 
- * @author Masashi Yoshida
- * @date 2018/4/20
- * @details 
- */
-#include "pixel.h"
+#include "../../cmake_config.h"
 /*
 // ---------------------------------------------------------------------------
-*/namespace niepce
+*/
+#ifdef BUILD_MAYA_PLUGIN
+/*
+// ---------------------------------------------------------------------------
+*/
+#include <maya/MGlobal.h>
+#include <maya/MFnPlugin.h>
+/*
+// ---------------------------------------------------------------------------
+*/
+namespace maya
 {
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::GetR () const -> Float
+MStatus initializePlugin (MObject obj)
 {
-  return r_;
+    return MStatus::kSuccess;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::GetG () const -> Float
+MStatus uninitializePlugin (MObject obj)
 {
-  return r_;
+    return MStatus::kSuccess;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::GetB () const -> Float
-{
-  return r_;
-}
+} // namespace maya
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::SetR (Float red) -> void
-{
-  r_ = red;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Pixel::SetG (Float green) -> void
-{
-  g_ = green;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Pixel::SetB (Float blue) -> void
-{
-  b_ = blue;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-} // namespace niepce
+#endif // BUILD_MAYA_PLUGIN

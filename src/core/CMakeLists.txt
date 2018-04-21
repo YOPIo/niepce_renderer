@@ -6,4 +6,6 @@ add_library (Core STATIC
   clipping_film.cc
   film.cc
   image.cc
-  pixel.cc)
+  pixel.cc
+  string.cc
+  status.cc)

@@ -14,15 +14,18 @@ set (CMAKE_CXX_FLAGS "-std=c++11")
 option (BUILD_MAYA_PLUGIN  "Build a plugin for autodesk maya." OFF)
 option (BUILD_CUI_RENDERER "Build a CUI renderer." ON)
 
-
+# Generating a config file as "cmake_conifig.h"
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in
                 ${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h)
 
 
 if (BUILD_MAYA_PLUGIN)
   message (STATUS "Building a plugin for autodesk maya.")
+  set (BUILD_CUI_RENDERER OFF)
   # Use FindMaya.cmake
   set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
+  # Find the autodesk maya
+  find_package (Maya REQUIRED)
 else ()
   message (STATUS "Building a CUI renderer.")
 endif ()
@@ -38,10 +41,9 @@ if (BUILD_MAYA_PLUGIN)
 endif ()
 
 
-if (!BUILD_MAYA_PLUGIN)
+if (BUILD_CUI_RENDERER)
   add_executable (${PROJECT_NAME} src/main.cc)
+  target_link_libraries (${PROJECT_NAME} Core)
 else()
 
 endif ()
-
-target_link_libraries (${PROJECT_NAME} Core)
