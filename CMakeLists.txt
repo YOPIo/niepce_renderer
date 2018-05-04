@@ -1,18 +1,17 @@
-cmake_minimum_required (VERSION 3.5)
-
+cmake_minimum_required (VERSION 3.0)
 
 # Project name
 project (niepce)
 
-
-# Use c++11 global options
-set (CMAKE_CXX_FLAGS "-std=c++11")
-
+# Use c++17 global options
+set (CMAKE_CXX_FLAGS "-std=c++11 -pthread")
 
 # Build options
 # To building a plugin for autodesk maya, use "-DBUILD_MAYA_PLUGIN=on" option.
-option (BUILD_MAYA_PLUGIN  "Build a plugin for autodesk maya." OFF)
-option (BUILD_CUI_RENDERER "Build a CUI renderer." ON)
+option (BUILD_CUI_RENDERER     "Build a CUI renderer." ON)
+option (BUILD_MAYA_PLUGIN      "Build a plugin for autodesk maya." OFF)
+option (NIEPCE_FLOAT_IS_DOUBLE "" OFF)
+option (NIEPCE_USE_SIMD        "" OFF)
 
 # Generating a config file as "cmake_conifig.h"
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in
@@ -30,20 +29,16 @@ else ()
   message (STATUS "Building a CUI renderer.")
 endif ()
 
-
 # Build static libraries
 add_subdirectory (src/core)
-
+add_subdirectory (src/renderer)
 
 # Add subdirectory to build the maya plugin
 if (BUILD_MAYA_PLUGIN)
   add_subdirectory (src/maya)
-endif ()
 
-
-if (BUILD_CUI_RENDERER)
-  add_executable (${PROJECT_NAME} src/main.cc)
-  target_link_libraries (${PROJECT_NAME} Core)
-else()
+elseif (BUILD_CUI_RENDERER)
+  add_executable (${PROJECT_NAME} src/main/main.cc)
+  target_link_libraries (${PROJECT_NAME} Core Renderer)
 
 endif ()

@@ -1,11 +1,9 @@
-cmake_minimum_required (VERSION 3.5)
+cmake_minimum_required (VERSION 3.0)
 
-# Create static library6
+# Create static library
 add_library (Core STATIC
-  bounds2.cc
-  clipping_film.cc
-  film.cc
+  assembled_tiles.cc
+  tile.cc
   image.cc
   pixel.cc
-  string.cc
-  status.cc)
+)

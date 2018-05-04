@@ -30,7 +30,7 @@ public:
   //! The copy constructor of the class.
   Pixel (const Pixel& pixel) = default;
 
-  //! The move constructor of the class.
+  //! The move constructor of the class.o
   Pixel (Pixel&& pixel) = default;
 
   //! The default class destructor.

@@ -1,9 +1,9 @@
 /*!
  * @file image.h
- * @brief 
+ * @brief The fundamental class for image.
  * @author Masashi Yoshida
  * @date 2018/4/20
- * @details 
+ * @details
  */
 #include "image.h"
 #include "pixel.h"
@@ -15,7 +15,15 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Image::Image (uint32_t width, uint32_t height) :
+Image::Image () :
+  width_  (0),
+  height_ (0),
+  pixels_ (nullptr)
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+Image::Image (unsigned int width, unsigned int height) :
   width_  (width),
   height_ (height),
   pixels_ (new Pixel[width * height])
@@ -28,7 +36,7 @@ Image::Image (uint32_t width, uint32_t height) :
 /*
 // ---------------------------------------------------------------------------
 */
-auto Image::operator () (int32_t x, int32_t y) const -> Pixel
+auto Image::operator () (unsigned int x, unsigned int y) const -> Pixel
 {
   if (width_ <= x || height_ <= y)
   {
@@ -39,13 +47,33 @@ auto Image::operator () (int32_t x, int32_t y) const -> Pixel
 /*
 // ---------------------------------------------------------------------------
 */
-auto Image::operator () (int32_t x, int32_t y) -> Pixel&
+inline auto Image::Height () const noexcept -> unsigned int
+{
+  return height_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto Image::SetPixel
+(
+ unsigned int x,
+ unsigned int y,
+ const Pixel& p
+)
+  -> void
 {
   if (width_ <= x || height_ <= y)
   {
     throw std::out_of_range ("");
   }
-  return pixels_[x * width_ + y];
+  pixels_[x * width_ + y] = p;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto Image::Width () const noexcept -> unsigned int
+{
+  return width_;
 }
 /*
 // ---------------------------------------------------------------------------

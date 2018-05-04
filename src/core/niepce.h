@@ -14,9 +14,18 @@
 */
 #include <array>
 #include <cmath>
+#include <condition_variable>
 #include <cstdint>
+#include <functional>
+#include <future>
+#include <iostream>
+#include <map>
 #include <memory>
+#include <queue>
+#include <stdexcept>
 #include <string>
+#include <thread>
+#include <type_traits>
 /*!
  * @namespace niepce
  */
@@ -27,17 +36,22 @@ namespace niepce
 // Forward class, struct and enum declaration
 // ---------------------------------------------------------------------------
 */
-template <typename T> class Bounds2;
-class ClippingFilm;
-class Film;
+class AssembledTiles;
+class Bounds2f;
 class Image;
+class Intersection;
+class Material;
+class Shape;
+class Sphere;
+class Tile;
+class ThreadPool;
+class PathTracer;
 class Pixel;
-// class Point2;
-// class Point3;
-// class Status;
-class Status;
-class String;
-class Vector2f;
+class Point3f;
+class Primitive;
+class Ray;
+class Renderer;
+class RenderSettings;
 class Vector3f;
 /*
 // ---------------------------------------------------------------------------
@@ -49,11 +63,23 @@ class Vector3f;
  * @brief Choose float or double
  */
 typedef float Float;
-/*!
- * @typedef Bounds2i
- * @brief 
- */
-typedef Bounds2<uint32_t> Bounds2ui;
+/*
+// ---------------------------------------------------------------------------
+// Niepce renderer constant values
+// ---------------------------------------------------------------------------
+*/
+constexpr Float kInfinity = std::numeric_limits <Float>::infinity ();
+/*
+// ---------------------------------------------------------------------------
+// Niepce renderer global function
+// ---------------------------------------------------------------------------
+*/
+inline auto Clamp (Float x) -> Float
+{
+  if (x < 0) { return 0; }
+  if (x > 1) { return 1; }
+  return x;
+}
 /*
 // ---------------------------------------------------------------------------
 */

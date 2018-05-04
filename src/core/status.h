@@ -19,12 +19,11 @@ namespace niepce
 {
 //! ----------------------------------------------------------------------------
 //! @class Status
-//! @brief
-//! @details
+//! @brief Niepce renderer status codes.
+//! @details x
 //! ----------------------------------------------------------------------------
 class Status
 {
-
 public:
   /*!
    * @enum StatusCode
