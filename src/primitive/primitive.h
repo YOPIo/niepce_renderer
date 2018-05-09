@@ -75,6 +75,17 @@ private:
 }; // class Primitive
 /*
 // ---------------------------------------------------------------------------
+// Helper function for primitive
+// ---------------------------------------------------------------------------
+*/
+auto CreatePrimitive
+(
+ const std::shared_ptr <Shape>&    shape,
+ const std::shared_ptr <Material>& material
+)
+  -> std::shared_ptr <Primitive>;
+/*
+// ---------------------------------------------------------------------------
 */
 }  // namespace niepce
 /*

@@ -3,7 +3,7 @@
  * @brief 
  * @author Masashi Yoshida
  * @date 2018/4/23
- * @details 
+ * @details
  */
 #ifndef _PATH_TRACER_H_
 #define _PATH_TRACER_H_
@@ -14,6 +14,9 @@
 #include "../core/render_settings.h"
 #include "../core/thread_pool.h"
 #include "../math/vector3f.h" // TODO: Delete
+#include "../random/xorshift.h"
+#include "../scene/scene.h"
+#include "../sampler/random_sampler.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -56,7 +59,7 @@ public:
   //! @return 
   //! @exception none
   //! @details 
-  auto Render (const Bounds2f& tile) const -> void;
+  auto Render (const Scene& scene) -> void;
 
 private:
   /*!
@@ -67,12 +70,31 @@ private:
    * @exception none
    * @details
    */
-  auto Contribution (const Ray& ray) -> Vector3f;
+  auto Contribution (const Ray& ray, unsigned int depth) -> Vector3f;
 
+  /*!
+   * @fn void TraceRay (RandomSampler*)
+   * @brief 
+   * @param[in] 
+   * @param[out] 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto TraceRay
+  (
+   const Bounds2f& tile,
+   RandomSampler* tile_sampler
+  )
+  noexcept -> void;
 
 private:
   RenderSettings settings_;
   ThreadPool     pool_;
+  Scene          scene_;
+  XorShift       rng_;
+
+  std::unique_ptr <RandomSampler> sampler_;
 
   // TODO: delete
   std::unique_ptr<Vector3f []> image_;

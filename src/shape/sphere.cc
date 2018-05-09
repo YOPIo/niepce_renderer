@@ -55,6 +55,21 @@ auto Sphere::IsIntersect
 }
 /*
 // ---------------------------------------------------------------------------
+// Helper function for sphere
+// ---------------------------------------------------------------------------
+*/
+auto CreateSphere
+(
+ const Point3f& position,
+ Float radius
+)
+  -> std::shared_ptr <Shape>
+{
+  std::shared_ptr <Shape> sphere (new Sphere (radius, position));
+  return std::move (sphere);
+}
+/*
+// ---------------------------------------------------------------------------
 */
 }  // namespace niepce
 /*

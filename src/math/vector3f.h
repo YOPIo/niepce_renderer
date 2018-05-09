@@ -3,8 +3,8 @@
 /*
 // ---------------------------------------------------------------------------
 */
-#include "point3f.h"
 #include "../core/niepce.h"
+#include "point3f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -13,7 +13,7 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-struct alignas (16) Vector3f final
+class Vector3f
 {
 public:
   /* Constructors */
@@ -34,14 +34,14 @@ public:
   auto operator [] (unsigned idx)       -> Float&;
 
   /* Getter */
-  auto X () const -> Float;
-  auto Y () const -> Float;
-  auto Z () const -> Float;
+  auto X () const noexcept -> Float;
+  auto Y () const noexcept -> Float;
+  auto Z () const noexcept -> Float;
 
   /* Setter */
-  auto SetX (Float x) -> void;
-  auto SetY (Float y) -> void;
-  auto SetZ (Float z) -> void;
+  auto SetX (Float x) noexcept -> void;
+  auto SetY (Float y) noexcept -> void;
+  auto SetZ (Float z) noexcept -> void;
 
   /* Methods */
   auto At (unsigned idx) const -> Float;
@@ -60,13 +60,12 @@ public:
   auto ToString () const -> std::string;
 
   /* Constant values */
-  static constexpr auto Max      () -> Vector3f;
-  static constexpr auto Min      () -> Vector3f;
-  static constexpr auto Infinity () -> Vector3f;
-  static constexpr auto Lowest   () -> Vector3f;
-  static constexpr auto One      () -> Vector3f;
-  static constexpr auto Zero     () -> Vector3f;
-
+  static auto Max      () noexcept -> Vector3f;
+  static auto Min      () noexcept -> Vector3f;
+  static auto Infinity () noexcept -> Vector3f;
+  static auto Lowest   () noexcept -> Vector3f;
+  static auto One      () noexcept -> Vector3f;
+  static auto Zero     () noexcept -> Vector3f;
 
   /* Vector3f private data */
 private:
@@ -78,7 +77,7 @@ private:
     struct { Float r_, g_, b_; };
   };
 
-}; // struct Vector3f
+}; // class Vector3f
 /*
 // ---------------------------------------------------------------------------
 // Global operators for Vector3f
@@ -108,10 +107,6 @@ auto Multiply (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f;
 // ---------------------------------------------------------------------------
 */
 }  // namespace niepce
-/*
-// ---------------------------------------------------------------------------
-*/
-#include "vector3f.inl"
 /*
 // ---------------------------------------------------------------------------
 */

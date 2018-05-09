@@ -142,6 +142,16 @@ public:
   auto SetNormal (const Vector3f& normal) noexcept -> void;
 
   /*!
+   * @fn Return SetShape (const)
+   * @brief Set the shape pointer to internal data.
+   * @param[in] std::shared_ptr <Shape>
+   * @return void
+   * @exception none
+   * @details
+   */
+  auto SetShape (const std::shared_ptr <Shape>& shape) noexcept -> void;
+
+  /*!
    * @fn void SetPosition (const Point3f& position)
    * @brief Set the argument position to internal data as intersection position in world coordinate.
    * @param[in] position The intersection position. The position should be in world coordinate.
@@ -163,6 +173,9 @@ private:
 
   //! The material which intersected shape has.
   std::shared_ptr <niepce::Material> material_ptr_;
+
+  //! The shape what ray intersected.
+  std::shared_ptr <Shape> shape_ptr_;
 
 }; // class Intersection
 /*

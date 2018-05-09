@@ -53,16 +53,21 @@ public:
    * @exception none
    * @details
    */
-  auto Intersect
+  auto IsIntersect
   (
    const Ray& ray, // outgoing
    Intersection* intersection
   )
   const noexcept -> bool;
 
-private:
-  std::vector <Primitive> primitives_;
+  // TODO: Delete
+  auto AddPrimitive (const std::shared_ptr <Primitive>& primitive) -> void
+  {
+    primitives_.push_back (primitive);
+  }
 
+private:
+  std::vector <std::shared_ptr <Primitive>> primitives_;
 }; // class Scene
 /*
 // ---------------------------------------------------------------------------

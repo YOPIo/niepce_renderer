@@ -6,7 +6,6 @@
  * @details 
  */
 #include "render_settings.h"
-#include "status.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -15,33 +14,16 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-auto RenderSettings::AddItem (Item item, unsigned int val) -> Status
+auto RenderSettings::AddItem (Item item, unsigned int val) noexcept -> void
 {
-  try
-  {
-    parameters_.insert (std::make_pair (item, val));
-    return Status::kSuccess;
-  }
-  catch (const std::exception& e)
-  {
-    
-  }
-  return Status::kFailure;
+  parameters_.insert (std::make_pair (item, val));
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto RenderSettings::GetInt (Item item) -> unsigned int
+auto RenderSettings::GetItem (Item item) const noexcept -> unsigned int
 {
-  try
-  {
-    return parameters_.at (item);
-  }
-  catch (const std::exception& e)
-  {
-    // Fix: return non-zero
-    return 0;
-  }
+  return parameters_.at (item);
 }
 /*
 // ---------------------------------------------------------------------------

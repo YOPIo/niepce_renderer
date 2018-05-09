@@ -14,28 +14,28 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-auto Scene::Intersect
+auto Scene::IsIntersect
 (
  const Ray& ray,
  Intersection* intersection
 )
-const noexcept -> bool
+  const noexcept -> bool
 {
-  Float distance = kInfinity;
+  intersection->SetDistance (kInfinity);
+
   for (const auto& primitive : primitives_)
   {
     // Intersection test.
     Intersection temp;
-    if (primitive.IsIntersect (ray, &temp))
+    if (primitive->IsIntersect (ray, &temp))
     {
-      if (temp.Distance () < distance)
+      if (temp.Distance () < intersection->Distance ())
       {
         *intersection = temp;
-        distance = temp.Distance ();
       }
     }
   }
-  return distance != kInfinity;
+  return static_cast <bool> (*intersection);
 }
 /*
 // ---------------------------------------------------------------------------

@@ -7,7 +7,7 @@
  */
 #include "assembled_tiles.h"
 #include "tile.h"
-#include "point2.h"
+#include "../math/point2f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -62,9 +62,9 @@ noexcept -> void
       // Todo: Support any tile size.
 
       // Compute the position for tile.
-      const Point2ui  min (x, y);
-      const Point2ui  max (x + tile_width - 1, y + tile_height - 1);
-      const Bounds2ui area (min, max);
+      const Point2f  min (x, y);
+      const Point2f  max (x + tile_width - 1, y + tile_height - 1);
+      const Bounds2f area (min, max);
 
       // Generate a tile and store it to internal data.
       tiles_.push_back (Tile (area));

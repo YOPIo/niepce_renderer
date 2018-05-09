@@ -47,11 +47,14 @@ class Tile;
 class ThreadPool;
 class PathTracer;
 class Pixel;
+class Point2f;
 class Point3f;
 class Primitive;
+class RamdomSampler;
 class Ray;
 class Renderer;
 class RenderSettings;
+class Vector2f;
 class Vector3f;
 /*
 // ---------------------------------------------------------------------------
@@ -68,6 +71,7 @@ typedef float Float;
 // Niepce renderer constant values
 // ---------------------------------------------------------------------------
 */
+constexpr Float kPi       = 3.141592653589793238462643383279502884197169399375105820974;
 constexpr Float kInfinity = std::numeric_limits <Float>::infinity ();
 /*
 // ---------------------------------------------------------------------------
@@ -76,8 +80,8 @@ constexpr Float kInfinity = std::numeric_limits <Float>::infinity ();
 */
 inline auto Clamp (Float x) -> Float
 {
-  if (x < 0) { return 0; }
-  if (x > 1) { return 1; }
+  if (x < 0) { return 0.0; }
+  if (x > 1) { return 1.0; }
   return x;
 }
 /*

@@ -31,6 +31,9 @@ public:
   //! The default class constructor.
   Bounds2f () = default;
 
+  //! The constructor takes two points.
+  Bounds2f (const Point2f& p0, const Point2f& p1);
+
   //! The copy constructor of the class.
   Bounds2f (const Bounds2f& bounds) = default;
 
@@ -92,10 +95,6 @@ public:
 // ---------------------------------------------------------------------------
 */
 }  // namespace niepce
-/*
-// ---------------------------------------------------------------------------
-*/
-#include "bounds2f.h"
 /*
 // ---------------------------------------------------------------------------
 */

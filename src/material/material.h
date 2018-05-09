@@ -53,6 +53,7 @@ public:
 
 public:
   Vector3f emittion, color;
+  Type     type_;
 }; // class Material
 /*
 // ---------------------------------------------------------------------------

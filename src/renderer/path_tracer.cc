@@ -8,6 +8,7 @@
 #include "path_tracer.h"
 #include "../core/bounds2f.h"
 #include "../core/ray.h"
+#include "../core/intersection.h"
 #include "../math/point3f.h"
 #include "../math/vector3f.h"
 /*
@@ -20,15 +21,22 @@ namespace niepce
 */
 PathTracer::PathTracer (const RenderSettings& settings) :
   settings_ (settings),
-  pool_     (std::thread::hardware_concurrency ())
+  pool_     (settings.GetItem (RenderSettings::Item::kNumThread)),
+  // pool_     (1),
+  sampler_  (new RandomSampler ())
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-auto PathTracer::Render (const Bounds2f& tile) const -> void
+auto PathTracer::Render (const Scene& scene) -> void
 {
-  const Point2f min = tile.Min ();
-  const Point2f max = tile.Max ();
+  scene_ = scene;
+
+  // Generate the tiles
+  const unsigned int tile_width
+    = settings_.GetItem (RenderSettings::Item::kTileWidth);
+  const unsigned int tile_height
+    = settings_.GetItem (RenderSettings::Item::kTileHeight);
 
   const unsigned int resolution_width
     = settings_.GetItem (RenderSettings::Item::kWidth);
@@ -37,74 +45,254 @@ auto PathTracer::Render (const Bounds2f& tile) const -> void
   const unsigned int num_sample
     = settings_.GetItem (RenderSettings::Item::kNumSamples);
 
-  Ray cam(Point3f(50,52,295.6), Vector3f(0,-0.042612,-1).Normalize ());
-  Vector3f cx = Vector3f (resolution_width*.5135/resolution_height);
-  Vector3f cy = Cross (cx, cam.Direction ()).Normalize () * 0.5135;
+  // Todo: Delete
+  image_.reset (new Vector3f [resolution_width * resolution_height]);
 
-  for (unsigned int y = min.Y (); y <= max.Y (); ++y)
+  // Divide tile
+  std::vector <Bounds2f> tile_bounds;
+  for (unsigned int y = 0; y < resolution_height; y += tile_height)
   {
-    // TODO: Delete
-    // Magic numbers for random numbers.
-    unsigned short Xi[3] = {0, 0, static_cast<unsigned short> (y * y * y)};
-    for (unsigned int x = min.X (); x <= max.X (); ++x)
+    for (unsigned int x = 0; x < resolution_width; x += tile_width)
     {
-      const unsigned int idx = y * resolution_width + x;
-      for (unsigned sy = 0; sy < 2; ++sy)
-      {
-        // i=(h-y-1)*w+x
-        for (unsigned int sx = 0; sx < 2; ++sx)
-        {
-          Vector3f r;
-          for (unsigned int s = 0; s < 4; ++s)
-          {
-            const Float r1 = 2 * erand48(Xi);
-            const Float r2 = 2 * erand48(Xi);
-            const Float dx = r1 < 1 ? std::sqrt (r1) - 1 : 1 - std::sqrt (2 - r1);
-            const Float dy = r2 < 1 ? std::sqrt (r2) - 1 : 1 - std::sqrt (2 - r2);
-            const Vector3f d = cx * (((sx+.5 + dx) / 2 + x) / resolution_width  - 0.5)
-                             + cy * (((sy+.5 + dy) / 2 + y) / resolution_height - 0.5)
-                             + cam.Direction ();
-            const Ray ray (cam.Origin () + d * 140,
-                           d.Normalized ());
-            r = r + radiance(ray,0,Xi)*(1./num_sample);
-          }
-          image_[idx] = r;
-        }
-      }
+      const Point2f  min  (x, y);
+      const Point2f  max  (x + tile_width  - 1, y + tile_height - 1);
+      const Bounds2f tile (min, max);
+      tile_bounds.push_back (tile);
     }
+  }
+
+  // Generate sampler for each tile.
+  std::vector <std::unique_ptr <RandomSampler>> samplers;
+  for (const auto& tile : tile_bounds)
+  {
+    const auto x = tile.Max ().X ();
+    const auto y = tile.Min ().Y ();
+    samplers.push_back (sampler_->Clone (y * tile_width + x));
+  }
+
+  // The number of tiles and samplers should be same.
+  if (samplers.size () != tile_bounds.size ())
+  {
+    return ;
+  }
+
+  // Register the tasks
+  std::vector <std::future <void>> futures;
+  for (unsigned int i = 0; i < tile_bounds.size (); ++i)
+  {
+    std::function <void (const Bounds2f&, RandomSampler*)> func
+      = std::bind (&PathTracer::TraceRay,
+                   this,
+                   std::placeholders::_1,
+                   std::placeholders::_2);
+    futures.emplace_back (pool_.Enqueue (func, tile_bounds[i], samplers[i].get ()));
+
+    /*
+    auto task = [&] () { this->TraceRay (tile_bounds[i], samplers[i].get ()); };
+    futures.emplace_back (pool_.Enqueue (task));
+    */
+  }
+  // Wait for all task done.
+  for (auto& future : futures)
+  {
+    future.wait ();
+  }
+
+  // Save the result.
+  auto to_int = [] (Float x) -> int
+  {
+    return static_cast <int> (std::pow (Clamp (x), 1.0 / 2.2) * 255 + 0.5);
+  };
+  FILE *f = fopen ("pt.ppm", "w");
+  fprintf (f, "P3\n%d %d\n%d\n", resolution_width, resolution_height, 255);
+  for (int i = 0; i < resolution_width * resolution_height; ++i)
+  {
+    fprintf (f, "%d %d %d\n", to_int(image_[i].X ()),
+                              to_int(image_[i].Y ()),
+                              to_int(image_[i].Z ()));
   }
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto PathTracer::Contribution (const Ray& ray) -> Vector3f
+auto PathTracer::TraceRay
+(
+ const Bounds2f& tile,
+ RandomSampler* tile_sampler
+)
+  noexcept -> void
 {
-  
-  double t;                               // distance to intersection
-  int id=0;                               // id of intersected object
-  if (!intersect(r, t, id)) return Vec(); // if miss, return black
-  const Sphere &obj = spheres[id];        // the hit object
-  Vec x=r.o+r.d*t, n=(x-obj.p).norm(), nl=n.dot(r.d)<0?n:n*-1, f=obj.c;
-  double p = f.x>f.y && f.x>f.z ? f.x : f.y>f.z ? f.y : f.z; // max refl
-  if (++depth>5) if (erand48(Xi)<p) f=f*(1/p); else return obj.e; //R.R.
-  if (obj.refl == DIFF){                  // Ideal DIFFUSE reflection
-    double r1=2*M_PI*erand48(Xi), r2=erand48(Xi), r2s=sqrt(r2);
-    Vec w=nl, u=((fabs(w.x)>.1?Vec(0,1):Vec(1))%w).norm(), v=w%u;
-    Vec d = (u*cos(r1)*r2s + v*sin(r1)*r2s + w*sqrt(1-r2)).norm();
-    return obj.e + f.mult(radiance(Ray(x,d),depth,Xi));
-  } else if (obj.refl == SPEC)            // Ideal SPECULAR reflection
-    return obj.e + f.mult(radiance(Ray(x,r.d-n*2*n.dot(r.d)),depth,Xi));
-  Ray reflRay(x, r.d-n*2*n.dot(r.d));     // Ideal dielectric REFRACTION
-  bool into = n.dot(nl)>0;                // Ray from outside going in?
-  double nc=1, nt=1.5, nnt=into?nc/nt:nt/nc, ddn=r.d.dot(nl), cos2t;
-  if ((cos2t=1-nnt*nnt*(1-ddn*ddn))<0)    // Total internal reflection
-    return obj.e + f.mult(radiance(reflRay,depth,Xi));
-  Vec tdir = (r.d*nnt - n*((into?1:-1)*(ddn*nnt+sqrt(cos2t)))).norm();
-  double a=nt-nc, b=nt+nc, R0=a*a/(b*b), c = 1-(into?-ddn:tdir.dot(n));
-  double Re=R0+(1-R0)*c*c*c*c*c,Tr=1-Re,P=.25+.5*Re,RP=Re/P,TP=Tr/(1-P);
-  return obj.e + f.mult(depth>2 ? (erand48(Xi)<P ?   // Russian roulette
-    radiance(reflRay,depth,Xi)*RP:radiance(Ray(x,tdir),depth,Xi)*TP) :
-    radiance(reflRay,depth,Xi)*Re+radiance(Ray(x,tdir),depth,Xi)*Tr);
+  const Point2f min = tile.Min ();
+  const Point2f max = tile.Max ();
+
+  const unsigned int tile_width
+    = settings_.GetItem (RenderSettings::Item::kTileWidth);
+  const unsigned int tile_height
+    = settings_.GetItem (RenderSettings::Item::kTileHeight);
+
+  const unsigned int resolution_width
+    = settings_.GetItem (RenderSettings::Item::kWidth);
+  const unsigned int resolution_height
+    = settings_.GetItem (RenderSettings::Item::kHeight);
+  const unsigned int num_sample
+    = settings_.GetItem (RenderSettings::Item::kNumSamples);
+
+  // Camera
+  Ray cam (Point3f(50,52,295.6), Vector3f(0,-0.042612,-1).Normalize ());
+  Vector3f cx = Vector3f (resolution_width*.5135/resolution_height, 0, 0);
+  Vector3f cy = Cross (cx, cam.Direction ()).Normalize () * .5135;
+
+  for (unsigned int y = min.Y (); y <= max.Y (); ++y)
+  {
+    for (unsigned int x = min.X (); x <= max.X (); ++x)
+    {
+      const unsigned int idx = (resolution_height - y - 1) * resolution_width + x;
+      for (unsigned sy = 0; sy < 2; ++sy)
+      {
+        for (unsigned int sx = 0; sx < 2; ++sx)
+        {
+          Vector3f r (0);
+          for (unsigned int s = 0; s < num_sample; ++s)
+          {
+            // Generate ray.
+            const Float r1 = 2.0 * tile_sampler->SampleFloat ();
+            const Float r2 = 2.0 * tile_sampler->SampleFloat ();
+            const Float dx = r1 < 1 ? std::sqrt (r1) - 1 : 1 - std::sqrt (2 - r1);
+            const Float dy = r2 < 1 ? std::sqrt (r2) - 1 : 1 - std::sqrt (2 - r2);
+            const Vector3f d = cx * (((sx +.5 + dx) / 2 + x) / resolution_width  - 0.5)
+                             + cy * (((sy +.5 + dy) / 2 + y) / resolution_height - 0.5)
+                             + cam.Direction ();
+            const Ray ray (cam.Origin () + d * 140, d.Normalized ());
+            r = r + Contribution (ray, 0) * (1.0 / (Float)num_sample);
+          }
+          image_[idx] = image_[idx]
+                      + Vector3f (Clamp(r.X ()), Clamp(r.Y ()), Clamp(r.Z ()))
+                      * 0.25;
+        }
+      }
+    }
+  }
+
+  /*
+  for (unsigned int y = 0; y < resolution_height; ++y)
+  {
+    for (unsigned int x = 0; x < resolution_width; ++x)
+    {
+      Vector3f r;
+      const unsigned int idx = (resolution_height - y - 1) * resolution_width + x;
+
+      // Generate ray.
+      const Float r1 = 2.0 * tile_sampler->SampleFloat ();
+      const Float r2 = 2.0 * tile_sampler->SampleFloat ();
+      const Float dx = r1 < 1 ? std::sqrt (r1) - 1 : 1 - std::sqrt (2 - r1);
+      const Float dy = r2 < 1 ? std::sqrt (r2) - 1 : 1 - std::sqrt (2 - r2);
+      const Vector3f d = cx * (((dx) / 2.0 + x) / resolution_width  - 0.5)
+                            + cy * (((dy) / 2.0 + y) / resolution_height - 0.5)
+                            + cam.Direction ();
+      const Ray ray (cam.Origin () + d * 140,
+                     d.Normalized ());
+      r = r + Contribution (ray, 0) * (1.0 / (Float)num_sample);
+      image_[idx] = image_[idx]
+                  + Vector3f (Clamp(r.X ()), Clamp(r.Y ()), Clamp(r.Z ()))
+                  * 0.25;
+    }
+  }
+  */
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto PathTracer::Contribution (const Ray& ray, unsigned int depth) -> Vector3f
+{
+  // Intersect test.
+  Intersection intersection;
+  if (!scene_.IsIntersect (ray, &intersection))
+  {
+    // No intersection found.
+    return Vector3f::Zero ();
+  }
+
+  // return Vector3f (0.75, 0.25, 0.25);
+  // x -> position
+  // n -> normal
+  // nl -> Dot (normal, ray.direction) < 0 ? n : -n;
+  // f -> obj.color
+  // max refl
+  const std::shared_ptr <Material> material = intersection.Material ();
+  Vector3f f = material->color;
+  Float p = std::max (intersection.Material ()->color.X (),
+                      std::max (intersection.Material ()->color.Y (),
+                                intersection.Material ()->color.Z ()) );
+  if (++depth > 5)
+  {
+    if (rng_.Next01 () < p)
+    {
+      f = f * (1.0 / p);
+    }
+    else
+    {
+      return intersection.Material ()->emittion;
+    }
+  }
+
+  if (material->type_ == Material::kDiffuse)
+  {
+    Float r1 = 2.0 * kPi * rng_.Next01 ();
+    Float r2 = rng_.Next01 ();
+    Float r2s = std::sqrt (r2);
+
+    Vector3f w = Dot (intersection.Normal (), ray.Direction ()) < 0
+                 ? intersection.Normal () : -intersection.Normal ();
+    Vector3f u = ((std::fabs (w.X () > 0.1) ? Vector3f (0, 1, 0) : Vector3f (1, 0, 0))).Normalize ();
+    Vector3f v = Cross (w, u);
+
+    Vector3f d = (u * std::cos (r1) * r2s + v * std::sin (r1) * r2s
+                  + w * std::sqrt (1 - r2)).Normalize ();
+    return material->emittion
+           + Multiply (f, Contribution(Ray (intersection.Position (), d), depth));
+  }
+  else if (material->type_ == Material::kSpecular)
+  {
+    Vector3f d = ray.Direction() - intersection.Normal() * 2.0
+               * Dot (intersection.Normal(), ray.Direction());
+    return material->emittion
+           + Multiply (f, Contribution(Ray (intersection.Position(), d), depth));
+  }
+  else
+  {
+    Ray reflect (intersection.Position (),
+                 ray.Direction() - intersection.Normal() * 2.0 * Dot (intersection.Normal(), ray.Direction()));
+    Vector3f nl = Dot (intersection.Normal (), ray.Direction ()) < 0
+                ? intersection.Normal() : -intersection.Normal ();
+    bool is_into = Dot (intersection.Normal (), nl) > 0;
+    Float nc = 1.0;
+    Float nt = 1.5;
+    Float nnt = is_into ? nc / nt : nt / nc;
+    Float ddn = Dot (ray.Direction (), nl);
+    Float cos2t = 1 - nnt * nnt * (1.0 - ddn * ddn);
+    if (cos2t < 0)
+    {
+      return material->emittion + Multiply(f, Contribution(reflect, depth));
+    }
+    Vector3f tdir = (ray.Direction() * nnt - intersection.Normal ()
+                     * ((is_into ? 1 : -1) * (ddn * nnt + std::sqrt (cos2t)))).Normalize ();
+    Float a  = nt - nc;
+    Float b  = nt + nc;
+    Float R0 = a * a / (b * b);
+    Float c  = 1 - (is_into ? -ddn : Dot (tdir, intersection.Normal ()));
+    Float Re = R0 + (1 - R0) * c * c * c * c * c;
+    Float Tr = 1 - Re;
+    Float P  = 0.25 + 0.5 * Re;
+    Float RP = Re / P;
+    Float TP = Tr / (1 - P);
+    return material->emittion + Multiply(f, depth > 2 ?
+           (rng_.Next01 () < P ?
+            Contribution(reflect, depth) * RP
+            : Contribution(Ray (intersection.Position (), tdir),depth) * TP)
+            :
+            Contribution(reflect, depth) * Re
+            + Contribution(Ray (intersection.Position (), tdir),depth) * Tr);
+  }
 }
 /*
 // ---------------------------------------------------------------------------

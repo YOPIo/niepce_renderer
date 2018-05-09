@@ -31,7 +31,7 @@ public:
   /*!
    * Create the number of threads given in argument if possible. Otherwise, it set the number of thread to one.
    */
-  ThreadPool (uint32_t num_thread = 1);
+  ThreadPool (unsigned int num_thread = 1);
 
   //! Copy constructor
   ThreadPool (const ThreadPool& pool) = default;
@@ -103,10 +103,6 @@ auto ThreadPool::Enqueue(F&& func, Args&& ... args)
 // ---------------------------------------------------------------------------x
 */
 }  // namespace niepce
-/*
-// ---------------------------------------------------------------------------
-*/
-#include "thread_pool.inl"
 /*
 // ---------------------------------------------------------------------------
 */

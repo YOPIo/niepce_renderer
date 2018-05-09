@@ -32,12 +32,28 @@ auto Primitive::IsIntersect
 )
   const noexcept -> bool
 {
-  if (shape_prt_->IsIntersect(ray, intersection))
+  if (shape_prt_->IsIntersect (ray, intersection))
   {
+    intersection->SetShape (shape_prt_);
     intersection->SetMaterial (material_ptr_);
     return true;
   }
   return false;
+}
+/*
+// ---------------------------------------------------------------------------
+// Helper function for primitive
+// ---------------------------------------------------------------------------
+*/
+auto CreatePrimitive
+(
+ const std::shared_ptr <Shape>&    shape,
+ const std::shared_ptr <Material>& material
+)
+  -> std::shared_ptr <Primitive>
+{
+  auto primitive = std::make_shared <Primitive> (shape, material);
+  return std::move (primitive);
 }
 /*
 // ---------------------------------------------------------------------------
