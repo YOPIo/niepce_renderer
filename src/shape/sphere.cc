@@ -29,7 +29,7 @@ auto Sphere::IsIntersect
 )
   const noexcept -> bool
 {
-  const Float kSphereEpsilon = 1e-5;
+  const Float kSphereEpsilon = 1e-4;
 
   const Vector3f op = center_ - ray.Origin ();
   const Float    b  = Dot (op, ray.Direction ());
@@ -45,7 +45,7 @@ auto Sphere::IsIntersect
 
   const Float    distance = t1 > kSphereEpsilon ? t1 : t2;
   const Point3f  position = ray.IntersectAt (distance);
-  const Vector3f normal   = (position - center_).Normalize ();
+  const Vector3f normal   = Normalize (position - center_);
 
   intersection->SetDistance (distance);
   intersection->SetNormal   (normal);

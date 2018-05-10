@@ -100,9 +100,17 @@ auto operator / (const Vector3f& v, Float t) -> Vector3f;
 // Global functions for Vector3f
 // ---------------------------------------------------------------------------
 */
-auto Dot      (const Vector3f& lhs, const Vector3f& rhs) -> Float;
-auto Cross    (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f;
-auto Multiply (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f;
+auto Dot       (const Vector3f& lhs, const Vector3f& rhs) -> Float;
+auto Cross     (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f;
+auto Multiply  (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f;
+auto Normalize (const Vector3f& vec) -> Vector3f;
+auto BuildOrthonormalBasis
+(
+ const Vector3f& normal,
+ Vector3f* binormal,
+ Vector3f* tangent
+)
+  -> void;
 /*
 // ---------------------------------------------------------------------------
 */

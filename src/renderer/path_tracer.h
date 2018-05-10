@@ -70,7 +70,13 @@ private:
    * @exception none
    * @details
    */
-  auto Contribution (const Ray& ray, unsigned int depth) -> Vector3f;
+  auto Contribution
+  (
+   const Ray& ray,
+   RandomSampler* sampler,
+   unsigned int depth
+  )
+    -> Vector3f;
 
   /*!
    * @fn void TraceRay (RandomSampler*)
@@ -81,6 +87,7 @@ private:
    * @exception none
    * @details
    */
+public:
   auto TraceRay
   (
    const Bounds2f& tile,

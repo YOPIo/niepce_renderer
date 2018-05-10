@@ -65,7 +65,7 @@ class Vector3f;
  * @typedef
  * @brief Choose float or double
  */
-typedef float Float;
+typedef double Float;
 /*
 // ---------------------------------------------------------------------------
 // Niepce renderer constant values
@@ -84,6 +84,10 @@ inline auto Clamp (Float x) -> Float
   if (x > 1) { return 1.0; }
   return x;
 }
+/*
+// ---------------------------------------------------------------------------
+*/
+
 /*
 // ---------------------------------------------------------------------------
 */

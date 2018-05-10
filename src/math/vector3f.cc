@@ -271,14 +271,18 @@ auto operator - (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
 */
 auto operator * (const Vector3f& v, Float t) -> Vector3f
 {
-  return Vector3f (v.X () * t, v.Y () * t, v.Z () * t);
+  return Vector3f (v.X () * t,
+                   v.Y () * t,
+                   v.Z () * t);
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator * (Float t, const Vector3f& v) -> Vector3f
 {
-  return Vector3f (v.X () * t, v.Y () * t, v.Z () * t);
+  return Vector3f (v.X () * t,
+                   v.Y () * t,
+                   v.Z () * t);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -309,11 +313,37 @@ auto Cross (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
 /*
 // ---------------------------------------------------------------------------
 */
+auto Normalize (const Vector3f& vec) -> Vector3f
+{
+  return vec / vec.Length ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Multiply (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
 {
   return Vector3f (lhs.X () * rhs.X (),
                    lhs.Y () * rhs.Y (),
                    lhs.Z () * rhs.Z ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto BuildOrthonormalBasis
+(
+ const Vector3f& normal,
+ Vector3f* binormal,
+ Vector3f* tangent
+)
+  -> void
+{
+  const Float sign = std::copysign (1.0f, normal.Z ()); // 1 or -1
+  const Float a = -1.0f / (sign + normal.Z ());
+  const Float b = normal.X () * normal.Y () * a;
+  *binormal = Vector3f (1.0f + sign * normal.X () * normal.X () * a,
+                        sign * b,
+                        -sign * normal.X ());
+  *tangent = Vector3f (b, sign + normal.Y () * normal.Y () * a, -normal.Y ());
 }
 /*
 // ---------------------------------------------------------------------------

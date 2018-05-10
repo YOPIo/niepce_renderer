@@ -111,11 +111,11 @@ auto Point3f::SetZ (Float z) noexcept -> void
 // Global operator difinition
 // ---------------------------------------------------------------------------
 */
-auto operator - (const Point3f& rhs, const Point3f& lhs) -> Vector3f
+auto operator - (const Point3f& lhs, const Point3f& rhs) -> Vector3f
 {
-  return Vector3f (rhs.X () - lhs.X (),
-                   rhs.Y () - lhs.Y (),
-                   rhs.Z () - lhs.Z ());
+  return Vector3f (lhs.X () - rhs.X (),
+                   lhs.Y () - rhs.Y (),
+                   lhs.Z () - rhs.Z ());
 }
 /*
 // ---------------------------------------------------------------------------

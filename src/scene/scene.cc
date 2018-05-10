@@ -22,11 +22,16 @@ auto Scene::IsIntersect
   const noexcept -> bool
 {
   intersection->SetDistance (kInfinity);
+  intersection->SetShape (nullptr);
+  intersection->SetMaterial (nullptr);
 
   for (const auto& primitive : primitives_)
   {
     // Intersection test.
     Intersection temp;
+    // temp.SetDistance (kInfinity);
+    // temp.SetShape (nullptr);
+    // temp.SetMaterial (nullptr);
     if (primitive->IsIntersect (ray, &temp))
     {
       if (temp.Distance () < intersection->Distance ())

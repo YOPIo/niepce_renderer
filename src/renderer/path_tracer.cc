@@ -31,6 +31,7 @@ PathTracer::PathTracer (const RenderSettings& settings) :
 auto PathTracer::Render (const Scene& scene) -> void
 {
   scene_ = scene;
+  // return ;
 
   // Generate the tiles
   const unsigned int tile_width
@@ -55,12 +56,18 @@ auto PathTracer::Render (const Scene& scene) -> void
     for (unsigned int x = 0; x < resolution_width; x += tile_width)
     {
       const Point2f  min  (x, y);
-      const Point2f  max  (x + tile_width  - 1, y + tile_height - 1);
+      const Point2f  max  (x + tile_width - 1, y + tile_height - 1);
       const Bounds2f tile (min, max);
+
+      std::cout << "[" << x << " " << y << "] "
+                << "[" << x + tile_width << " " << y + tile_height << "]"
+                << std::endl;;
+
       tile_bounds.push_back (tile);
     }
   }
 
+  std::cout<< "The number of tiles " << tile_bounds.size() << std::endl;
   // Generate sampler for each tile.
   std::vector <std::unique_ptr <RandomSampler>> samplers;
   for (const auto& tile : tile_bounds)
@@ -88,10 +95,12 @@ auto PathTracer::Render (const Scene& scene) -> void
     futures.emplace_back (pool_.Enqueue (func, tile_bounds[i], samplers[i].get ()));
 
     /*
+    This is bug codes.
     auto task = [&] () { this->TraceRay (tile_bounds[i], samplers[i].get ()); };
     futures.emplace_back (pool_.Enqueue (task));
     */
   }
+  std::cout << "The number of tasks " << futures.size() << std::endl;
   // Wait for all task done.
   for (auto& future : futures)
   {
@@ -138,7 +147,7 @@ auto PathTracer::TraceRay
     = settings_.GetItem (RenderSettings::Item::kNumSamples);
 
   // Camera
-  Ray cam (Point3f(50,52,295.6), Vector3f(0,-0.042612,-1).Normalize ());
+  Ray cam (Point3f(50,52,295.6), Normalize (Vector3f(0,-0.042612,-1)));
   Vector3f cx = Vector3f (resolution_width*.5135/resolution_height, 0, 0);
   Vector3f cy = Cross (cx, cam.Direction ()).Normalize () * .5135;
 
@@ -163,7 +172,7 @@ auto PathTracer::TraceRay
                              + cy * (((sy +.5 + dy) / 2 + y) / resolution_height - 0.5)
                              + cam.Direction ();
             const Ray ray (cam.Origin () + d * 140, d.Normalized ());
-            r = r + Contribution (ray, 0) * (1.0 / (Float)num_sample);
+            r =  r + Contribution (ray, tile_sampler, 0) * (1.0 / (Float)num_sample);
           }
           image_[idx] = image_[idx]
                       + Vector3f (Clamp(r.X ()), Clamp(r.Y ()), Clamp(r.Z ()))
@@ -172,37 +181,17 @@ auto PathTracer::TraceRay
       }
     }
   }
-
-  /*
-  for (unsigned int y = 0; y < resolution_height; ++y)
-  {
-    for (unsigned int x = 0; x < resolution_width; ++x)
-    {
-      Vector3f r;
-      const unsigned int idx = (resolution_height - y - 1) * resolution_width + x;
-
-      // Generate ray.
-      const Float r1 = 2.0 * tile_sampler->SampleFloat ();
-      const Float r2 = 2.0 * tile_sampler->SampleFloat ();
-      const Float dx = r1 < 1 ? std::sqrt (r1) - 1 : 1 - std::sqrt (2 - r1);
-      const Float dy = r2 < 1 ? std::sqrt (r2) - 1 : 1 - std::sqrt (2 - r2);
-      const Vector3f d = cx * (((dx) / 2.0 + x) / resolution_width  - 0.5)
-                            + cy * (((dy) / 2.0 + y) / resolution_height - 0.5)
-                            + cam.Direction ();
-      const Ray ray (cam.Origin () + d * 140,
-                     d.Normalized ());
-      r = r + Contribution (ray, 0) * (1.0 / (Float)num_sample);
-      image_[idx] = image_[idx]
-                  + Vector3f (Clamp(r.X ()), Clamp(r.Y ()), Clamp(r.Z ()))
-                  * 0.25;
-    }
-  }
-  */
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto PathTracer::Contribution (const Ray& ray, unsigned int depth) -> Vector3f
+auto PathTracer::Contribution
+(
+ const Ray& ray,
+ RandomSampler* tile_sampler,
+ unsigned int depth
+)
+  -> Vector3f
 {
   // Intersect test.
   Intersection intersection;
@@ -212,20 +201,17 @@ auto PathTracer::Contribution (const Ray& ray, unsigned int depth) -> Vector3f
     return Vector3f::Zero ();
   }
 
-  // return Vector3f (0.75, 0.25, 0.25);
-  // x -> position
-  // n -> normal
-  // nl -> Dot (normal, ray.direction) < 0 ? n : -n;
-  // f -> obj.color
-  // max refl
   const std::shared_ptr <Material> material = intersection.Material ();
   Vector3f f = material->color;
-  Float p = std::max (intersection.Material ()->color.X (),
-                      std::max (intersection.Material ()->color.Y (),
-                                intersection.Material ()->color.Z ()) );
+
+  // return f;
+
+  const Float p = std::max (intersection.Material ()->color.X (),
+                            std::max (intersection.Material ()->color.Y (),
+                                      intersection.Material ()->color.Z ()) );
   if (++depth > 5)
   {
-    if (rng_.Next01 () < p)
+    if (tile_sampler->SampleFloat () < p)
     {
       f = f * (1.0 / p);
     }
@@ -235,29 +221,46 @@ auto PathTracer::Contribution (const Ray& ray, unsigned int depth) -> Vector3f
     }
   }
 
+  const Vector3f normal = Dot (intersection.Normal (), ray.Direction ()) < 0 ? intersection.Normal() : -intersection.Normal();
+  // const Vector3f normal = -intersection.Normal ();
+
   if (material->type_ == Material::kDiffuse)
   {
-    Float r1 = 2.0 * kPi * rng_.Next01 ();
-    Float r2 = rng_.Next01 ();
-    Float r2s = std::sqrt (r2);
+    const Float r1  = 2.0 * kPi * tile_sampler->SampleFloat ();
+    const Float r2  = tile_sampler->SampleFloat ();
+    const Float r2s = std::sqrt (r2);
 
-    Vector3f w = Dot (intersection.Normal (), ray.Direction ()) < 0
-                 ? intersection.Normal () : -intersection.Normal ();
-    Vector3f u = ((std::fabs (w.X () > 0.1) ? Vector3f (0, 1, 0) : Vector3f (1, 0, 0))).Normalize ();
-    Vector3f v = Cross (w, u);
+    const Float tx = r2s * std::cos (r1);
+    const Float ty = r2s * std::sin (r1);
+    const Float tz = std::sqrt (1 - r2);
 
-    Vector3f d = (u * std::cos (r1) * r2s + v * std::sin (r1) * r2s
-                  + w * std::sqrt (1 - r2)).Normalize ();
+    /*
+    const Float tz     = sampler.SampleFloat();
+    const Float phi    = sampler.SampleFloat() * 2.0 * kPi;
+    const Float k      = sqrt(1.0 - tz * tz);
+    const Float tx     = k * cos(phi);
+    const Float ty     = k * sin(phi);
+    */
+
+    Vector3f tangent, binormal;
+    BuildOrthonormalBasis (normal, &tangent, &binormal);
+
+    const Vector3f d = tangent * tx + binormal * ty + normal * tz;
+
     return material->emittion
-           + Multiply (f, Contribution(Ray (intersection.Position (), d), depth));
+      + Multiply (f, Contribution(Ray (intersection.Position (), Normalize (d)),
+                                  tile_sampler,
+                                  depth));
   }
   else if (material->type_ == Material::kSpecular)
   {
-    Vector3f d = ray.Direction() - intersection.Normal() * 2.0
-               * Dot (intersection.Normal(), ray.Direction());
+    Vector3f d = ray.Direction() - normal * 2.0 * Dot (normal, ray.Direction());
     return material->emittion
-           + Multiply (f, Contribution(Ray (intersection.Position(), d), depth));
+      + Multiply (f, Contribution(Ray (intersection.Position(), Normalize (d)),
+                                  tile_sampler,
+                                  depth));
   }
+  /*
   else
   {
     Ray reflect (intersection.Position (),
@@ -272,7 +275,7 @@ auto PathTracer::Contribution (const Ray& ray, unsigned int depth) -> Vector3f
     Float cos2t = 1 - nnt * nnt * (1.0 - ddn * ddn);
     if (cos2t < 0)
     {
-      return material->emittion + Multiply(f, Contribution(reflect, depth));
+      return material->emittion + Multiply(f, Contribution(reflect, tile_sampler, depth));
     }
     Vector3f tdir = (ray.Direction() * nnt - intersection.Normal ()
                      * ((is_into ? 1 : -1) * (ddn * nnt + std::sqrt (cos2t)))).Normalize ();
@@ -287,12 +290,12 @@ auto PathTracer::Contribution (const Ray& ray, unsigned int depth) -> Vector3f
     Float TP = Tr / (1 - P);
     return material->emittion + Multiply(f, depth > 2 ?
            (rng_.Next01 () < P ?
-            Contribution(reflect, depth) * RP
-            : Contribution(Ray (intersection.Position (), tdir),depth) * TP)
-            :
-            Contribution(reflect, depth) * Re
-            + Contribution(Ray (intersection.Position (), tdir),depth) * Tr);
+            Contribution(reflect, tile_sampler, depth) * RP
+            : Contribution(Ray (intersection.Position (), tdir), tile_sampler, depth) * TP)
+            : Contribution(reflect, tile_sampler, depth) * Re
+              + Contribution(Ray (intersection.Position (), tdir), tile_sampler, depth) * Tr);
   }
+  */
 }
 /*
 // ---------------------------------------------------------------------------
