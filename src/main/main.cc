@@ -113,12 +113,6 @@ int main (int argc, char* argv[])
   niepce::BuildScene ();
   niepce::RenderScene ();
 
-  /*
-  XorShift rng;
-  for (int i = 0; i < 100000; ++i)
-  {
-    printf ("%8lf\n", rng.Next01());;
-  }
-  */
+
   return 0;
 }

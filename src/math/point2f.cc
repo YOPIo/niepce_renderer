@@ -42,6 +42,20 @@ auto Point2f::Y () const noexcept -> Float
 /*
 // ---------------------------------------------------------------------------
 */
+auto Point2f::U () const noexcept -> Float
+{
+  return x_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Point2f::V () const noexcept -> Float
+{
+  return y_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Point2f::SetX(Float x) noexcept -> void
 {
   x_ = x;
@@ -52,6 +66,20 @@ auto Point2f::SetX(Float x) noexcept -> void
 auto Point2f::SetY (Float y) noexcept -> void
 {
   y_ = y;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Point2f::SetU (Float u) noexcept -> void
+{
+  this->x_ = u;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Point2f::SetV (Float v) noexcept -> void
+{
+  this->y_ = v;
 }
 /*
 // ---------------------------------------------------------------------------

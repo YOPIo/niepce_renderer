@@ -29,8 +29,6 @@ auto Sphere::IsIntersect
 )
   const noexcept -> bool
 {
-  const Float kSphereEpsilon = 1e-4;
-
   const Vector3f op = center_ - ray.Origin ();
   const Float    b  = Dot (op, ray.Direction ());
   const Float    c  = b * b - Dot (op, op) + radius_ * radius_;
@@ -41,9 +39,9 @@ auto Sphere::IsIntersect
   const Float t1 = b - sqrt_c;
   const Float t2 = b + sqrt_c;
 
-  if (t1 < kSphereEpsilon && t2 < kSphereEpsilon) { return false; }
+  if (t1 < kIntersectionEpsilon && t2 < kIntersectionEpsilon) { return false; }
 
-  const Float    distance = t1 > kSphereEpsilon ? t1 : t2;
+  const Float    distance = t1 > kIntersectionEpsilon ? t1 : t2;
   const Point3f  position = ray.IntersectAt (distance);
   const Vector3f normal   = Normalize (position - center_);
 

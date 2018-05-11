@@ -61,6 +61,8 @@ public:
   )
   const noexcept -> bool = 0;
 
+protected:
+  const Float kIntersectionEpsilon = 1e-4;
 }; // class Shape
 /*
 // ---------------------------------------------------------------------------

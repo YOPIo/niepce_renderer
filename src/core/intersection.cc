@@ -59,7 +59,7 @@ auto Intersection::IsIntersect () const noexcept -> bool
 // ---------------------------------------------------------------------------
 */
 auto Intersection::Material ()
-  const noexcept -> std::shared_ptr <niepce::Material>
+  const noexcept -> const std::shared_ptr <niepce::Material>
 {
   return material_ptr_;
 }
@@ -69,6 +69,21 @@ auto Intersection::Material ()
 auto Intersection::Normal () const noexcept -> Vector3f
 {
   return normal_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::Shape ()
+  const noexcept -> const std::shared_ptr <niepce::Shape>
+{
+  return shape_ptr_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::Texcoord () const noexcept -> Point2f
+{
+  return texcoord_;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -102,9 +117,18 @@ auto Intersection::SetNormal (const Vector3f& normal) noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
-auto Intersection::SetShape (const std::shared_ptr<Shape>& shape) noexcept -> void
+auto Intersection::SetShape
+(const std::shared_ptr <niepce::Shape>& shape)
+noexcept -> void
 {
   this->shape_ptr_ = shape;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::SetTexcoord (const Point2f& texcoord) noexcept -> void
+{
+  this->texcoord_ = texcoord;
 }
 /*
 // ---------------------------------------------------------------------------

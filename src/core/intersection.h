@@ -11,6 +11,8 @@
 // ---------------------------------------------------------------------------
 */
 #include "niepce.h"
+#include "../shape/shape.h"
+#include "../math/point2f.h"
 #include "../math/point3f.h"
 #include "../math/vector3f.h"
 /*
@@ -89,7 +91,7 @@ public:
    * @exception none
    * @details If ray does not intersect with any shape, it will return nullptr.
    */
-  auto Material () const noexcept -> std::shared_ptr <niepce::Material>;
+  auto Material () const noexcept -> const std::shared_ptr <niepce::Material>;
 
   /*!
    * @fn Vector3f Normal ()
@@ -99,6 +101,24 @@ public:
    * @details
    */
   auto Normal () const noexcept -> Vector3f;
+
+  /*!
+   * @fn const std::shared_ptr <Shape> Shape ()
+   * @brief Return the shape pointer.
+   * @return The shape pointer which intersected.
+   * @exception none
+   * @details
+   */
+  auto Shape () const noexcept -> const std::shared_ptr <Shape>;
+
+  /*!
+   * @fn Point2f Texcoord ()
+   * @brief Return the texture coordinate.
+   * @return Point2f
+   * @exception none
+   * @details
+   */
+  auto Texcoord () const noexcept -> Point2f;
 
   /*!
    * @fn Point3f Position ()
@@ -128,7 +148,8 @@ public:
    * @details
    */
   auto SetMaterial
-  (const std::shared_ptr <niepce::Material>& material_ptr) noexcept -> void;
+  (const std::shared_ptr <niepce::Material>& material_ptr)
+  noexcept -> void;
 
 
   /*!
@@ -149,7 +170,17 @@ public:
    * @exception none
    * @details
    */
-  auto SetShape (const std::shared_ptr <Shape>& shape) noexcept -> void;
+  auto SetShape (const std::shared_ptr <niepce::Shape>& shape) noexcept -> void;
+
+  /*!
+   * @fn void SetTexcoord (const)
+   * @brief Set the texture coordinate to internal data.
+   * @param[in] texcoord The texture coordinate.
+   * @return void
+   * @exception none
+   * @details
+   */
+  auto SetTexcoord (const Point2f& texcoord) noexcept -> void;
 
   /*!
    * @fn void SetPosition (const Point3f& position)
@@ -165,17 +196,20 @@ private:
   //! The Distance parameter 't' from ray origin to intersection.
   Float distance_;
 
-  //! The Position of intersection.
+  //! The position of intersection.
   Point3f position_;
 
-  //! The Normal vector at the intersection.
+  //! The normal vector at the intersection.
   Vector3f normal_;
+
+  //! The texture coordinate at the intersection.
+  Point2f texcoord_;
 
   //! The material which intersected shape has.
   std::shared_ptr <niepce::Material> material_ptr_;
 
   //! The shape what ray intersected.
-  std::shared_ptr <Shape> shape_ptr_;
+  std::shared_ptr <niepce::Shape> shape_ptr_;
 
 }; // class Intersection
 /*

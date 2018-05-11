@@ -91,6 +91,22 @@ public:
   //! @exception none
   auto Y () const noexcept -> Float;
 
+  /*!
+   * @fn Float U ()
+   * @brief Return x component of the point.
+   * @return U component as float.
+   * @exception none
+   */
+  auto U () const noexcept -> Float;
+
+  /*!
+   * @fn Float V ()
+   * @brief Return x component of the point.
+   * @return V component as float.
+   * @exception none
+   */
+  auto V () const noexcept -> Float;
+
   //! @fn void SetX ()
   //! @brief Set the argument to the x component of the point
   //! @param[in] Value that to be x component of the point.
@@ -104,6 +120,20 @@ public:
   //! @return none
   //! @exception none
   auto SetY (Float y) noexcept -> void;
+
+  //! @fn void SetU ()
+  //! @brief Set the argument to the x component of the point
+  //! @param[in] Value that to be x component of the point.
+  //! @return none
+  //! @exception none
+  auto SetU (Float x) noexcept -> void;
+
+  //! @fn void SetX ()
+  //! @brief Set the argument to the y component of the point
+  //! @param[in] Value that to be y component of the point.
+  //! @return none
+  //! @exception none
+  auto SetV (Float y) noexcept -> void;
 
 private:
   Float x_, y_;
