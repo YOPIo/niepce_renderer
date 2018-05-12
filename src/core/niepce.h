@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <functional>
 #include <future>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <memory>

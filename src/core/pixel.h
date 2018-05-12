@@ -27,6 +27,9 @@ public:
   //! The default class constructor.
   Pixel () = default;
 
+  //! The constructor initialize the pixel by RGB format.
+  Pixel (Float r, Float g, Float b);
+
   //! The copy constructor of the class.
   Pixel (const Pixel& pixel) = default;
 
@@ -43,23 +46,23 @@ public:
   auto operator = (Pixel&& pixel) -> Pixel& = default;
 
 public:
-  //! @fn Float GetR ()
+  //! @fn Float R ()
   //! @brief Return red component
   //! @return Float [0,1]
   //! @exception none
-  auto GetR () const -> Float;
+  auto R () const -> Float;
 
-  //! @fn Float GetG ()
+  //! @fn Float G ()
   //! @brief Return green component
   //! @return Float [0,1]
   //! @exception none
-  auto GetG () const -> Float;
+  auto G () const -> Float;
 
-  //! @fn Float GetB ()
+  //! @fn Float B ()
   //! @brief Return blue component
   //! @return Float [0,1]
   //! @exception none
-  auto GetB () const -> Float;
+  auto B () const -> Float;
 
 
   //! @fn void SetR (Float)
@@ -86,8 +89,8 @@ public:
 private:
   union
   {
-    std::array <Float, 3> rgb_;
-    struct { Float r_, g_, b_; };
+    std::array <Float, 4> rgba_;
+    struct { Float r_, g_, b_, a_; };
   };
 }; // class Pixel
 /*

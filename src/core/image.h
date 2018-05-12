@@ -27,11 +27,7 @@ public:
   //! The default class constructor.
   Image ();
 
-  //! The Constructor
-  /*!
-   * Use this constructor with width and height
-   * Initialize with black
-   */
+  //! The Constructor allocate memory.
   Image (unsigned int width, unsigned int height);
 
   //! The copy constructor of the class.
@@ -69,24 +65,6 @@ public:
   auto Height () const noexcept -> unsigned int;
 
   /*!
-   * @fn void SetPixel ()
-   * @brief Set the pixel data to the specified coordinates in the internal image data.
-   * @param[in] x coordinate
-   * @param[in] y coordinate
-   * @param[in] Pixel
-   * @return void
-   * @exception Throw the std::out_of_range exception if index over the range of size.
-   * @details
-   */
-  auto SetPixel
-  (
-   unsigned int x, // X coordinate
-   unsigned int y, // Y coordinate
-   const Pixel& p  // Pixel
-  )
-  -> void;
-
-  /*!
    * @fn unsigned Width ()
    * @brief Return the width of image size.
    * @return The width of image as unsigned integer.
@@ -95,7 +73,7 @@ public:
    */
   auto Width () const noexcept -> unsigned int;
 
-private:
+protected:
   unsigned int width_;
   unsigned int height_;
   std::shared_ptr <Pixel []> pixels_;

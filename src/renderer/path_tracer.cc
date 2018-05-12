@@ -106,20 +106,6 @@ auto PathTracer::Render (const Scene& scene) -> void
   {
     future.wait ();
   }
-
-  // Save the result.
-  auto to_int = [] (Float x) -> int
-  {
-    return static_cast <int> (std::pow (Clamp (x), 1.0 / 2.2) * 255 + 0.5);
-  };
-  FILE *f = fopen ("pt.ppm", "w");
-  fprintf (f, "P3\n%d %d\n%d\n", resolution_width, resolution_height, 255);
-  for (int i = 0; i < resolution_width * resolution_height; ++i)
-  {
-    fprintf (f, "%d %d %d\n", to_int(image_[i].X ()),
-                              to_int(image_[i].Y ()),
-                              to_int(image_[i].Z ()));
-  }
 }
 /*
 // ---------------------------------------------------------------------------

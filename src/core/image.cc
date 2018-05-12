@@ -54,23 +54,6 @@ inline auto Image::Height () const noexcept -> unsigned int
 /*
 // ---------------------------------------------------------------------------
 */
-inline auto Image::SetPixel
-(
- unsigned int x,
- unsigned int y,
- const Pixel& p
-)
-  -> void
-{
-  if (width_ <= x || height_ <= y)
-  {
-    throw std::out_of_range ("");
-  }
-  pixels_[x * width_ + y] = p;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
 inline auto Image::Width () const noexcept -> unsigned int
 {
   return width_;

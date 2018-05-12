@@ -13,21 +13,30 @@
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::GetR () const -> Float
+Pixel::Pixel (Float r, Float g, Float b) :
+  r_ (Clamp (r)),
+  g_ (Clamp (g)),
+  b_ (Clamp (b)),
+  a_ (0)
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Pixel::R () const -> Float
 {
   return r_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::GetG () const -> Float
+auto Pixel::G () const -> Float
 {
   return r_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Pixel::GetB () const -> Float
+auto Pixel::B () const -> Float
 {
   return r_;
 }

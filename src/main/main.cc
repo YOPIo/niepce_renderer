@@ -8,6 +8,8 @@
 #include "../core/bounds2f.h"
 #include "../math/point2f.h"
 #include "../math/vector3f.h"
+#include "../core/image.h"
+#include "../core/ioimage.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -110,6 +112,7 @@ using namespace niepce;
 */
 int main (int argc, char* argv[])
 {
+
   niepce::BuildScene ();
   niepce::RenderScene ();
 

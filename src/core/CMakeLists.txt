@@ -6,10 +6,12 @@ add_library (Core STATIC
   bounds2f.cc
   tile.cc
   image.cc
+  ioimage.cc
   intersection.cc
   pixel.cc
   ray.cc
   render_settings.cc
+  stop_watch.cc
   thread_pool.cc
   tile.cc
 )
