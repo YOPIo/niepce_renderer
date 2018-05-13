@@ -28,6 +28,23 @@ Point2f::Point2f (Float x, Float y) :
 /*
 // ---------------------------------------------------------------------------
 */
+auto Point2f::operator [] (unsigned int idx) const noexcept -> Float
+{
+  if (idx == 0) { return x_; }
+  return y_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Point2f::At (unsigned int idx) const -> Float
+{
+  if (idx == 0) { return x_; }
+  if (idx == 1) { return y_; }
+  throw std::out_of_range ("");
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Point2f::X () const noexcept -> Float
 {
   return x_;

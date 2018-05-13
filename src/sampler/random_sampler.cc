@@ -6,7 +6,7 @@
  * @details 
  */
 #include "random_sampler.h"
-#include "../math/point2f.h"
+#include "../core/point2f.h"
 /*
 // ---------------------------------------------------------------------------
 */

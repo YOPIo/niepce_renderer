@@ -11,7 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
-#include "../primitive/primitive.h"
+#include "../accelerator/aggregation.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -27,6 +27,9 @@ class Scene
 public:
   //! The default class constructor.
   Scene () = default;
+
+  //! The constructor takes aggregation.
+  Scene (std::unique_ptr <Aggregation>&& aggregation);
 
   //! The copy constructor of the class.
   Scene (const Scene& scene) = default;
@@ -60,14 +63,20 @@ public:
   )
   const noexcept -> bool;
 
+  /*!
+   * @fn void Load ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Load () -> void;
+
   // TODO: Delete
-  auto AddPrimitive (const std::shared_ptr <Primitive>& primitive) -> void
-  {
-    primitives_.push_back (primitive);
-  }
+  auto ReadyCornellBox () -> void;
 
 private:
-  std::vector <std::shared_ptr <Primitive>> primitives_;
+  std::vector <std::shared_ptr<Primitive>> primitives_;
 }; // class Scene
 /*
 // ---------------------------------------------------------------------------

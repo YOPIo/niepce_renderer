@@ -31,14 +31,15 @@ endif ()
 
 # Build static libraries
 add_subdirectory (src/random)
+add_subdirectory (src/bsdf)
 add_subdirectory (src/renderer)
 add_subdirectory (src/sampler)
 add_subdirectory (src/shape)
 add_subdirectory (src/scene)
 add_subdirectory (src/primitive)
-add_subdirectory (src/math)
+add_subdirectory (src/texture)
 add_subdirectory (src/core)
-# add_subdirectory (src/material)
+add_subdirectory (src/material)
 
 # Add subdirectory to build the maya plugin
 if (BUILD_MAYA_PLUGIN)
@@ -52,8 +53,10 @@ else () # if (BUILD_CUI_RENDERER)
     Scene
     Sampler
     Shape
+    Material
     Primitive
-    Math
+    Bsdf
+    Texture
     Core
     )
 

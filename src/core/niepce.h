@@ -12,6 +12,7 @@
 // Niepce renderer std includes
 // ---------------------------------------------------------------------------
 */
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <condition_variable>
@@ -83,6 +84,16 @@ inline auto Clamp (Float x) -> Float
 {
   if (x < 0) { return 0.0; }
   if (x > 1) { return 1.0; }
+  return x;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
+inline auto Clamp (T x, T min, T max) -> T
+{
+  if (x < min) { return min; }
+  if (x > max) { return max; }
   return x;
 }
 /*

@@ -7,7 +7,7 @@
  */
 #include "assembled_tiles.h"
 #include "tile.h"
-#include "../math/point2f.h"
+#include "point2f.h"
 /*
 // ---------------------------------------------------------------------------
 */

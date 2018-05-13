@@ -1,12 +1,12 @@
 /*!
- * @file texture.h
+ * @file bsdf.h
  * @brief 
  * @author Masashi Yoshida
  * @date 
  * @details 
  */
-#ifndef _TEXTURE_H_
-#define _TEXTURE_H_
+#ifndef _BSDF_H_
+#define _BSDF_H_
 /*
 // ---------------------------------------------------------------------------
 */
@@ -16,45 +16,38 @@
 */
 namespace niepce
 {
+/*
+// ---------------------------------------------------------------------------
+*/
 //! ----------------------------------------------------------------------------
-//! @class Texture
+//! @class Bsdf
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class Texture
+class Bsdf
 {
 public:
   //! The default class constructor.
-  Texture () = default;
+  Bsdf () = default;
 
   //! The copy constructor of the class.
-  Texture (const Texture& texture) = default;
+  Bsdf (const Bsdf& bsdf) = default;
 
   //! The move constructor of the class.
-  Texture (Texture&& texture) = default;
+  Bsdf (Bsdf&& bsdf) = default;
 
   //! The default class destructor.
-  virtual ~Texture () = default;
+  virtual ~Bsdf () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const Texture& texture) -> Texture& = default;
+  auto operator = (const Bsdf& bsdf) -> Bsdf& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (Texture&& texture) -> Texture& = default;
+  auto operator = (Bsdf&& bsdf) -> Bsdf& = default;
 
-public:
-  /*!
-   * @fn Pixel Sample (Float)
-   * @brief Sample the pixel.
-   * @param[in] uv
-   *    UV-parameter [0, 1]
-   * @return Pixel
-   * @exception none
-   * @details
-   */
-  virtual auto Sample (const Point2f& uv) const noexcept -> Vector3f = 0;
+private:
 
-}; // class Texture
+}; // class Bsdf
 /*
 // ---------------------------------------------------------------------------
 */
@@ -62,4 +55,4 @@ public:
 /*
 // ---------------------------------------------------------------------------
 */
-#endif // _TEXTURE_H_
+#endif // _BSDF_H_

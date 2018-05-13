@@ -13,7 +13,7 @@
 #include "../core/niepce.h"
 #include "../core/render_settings.h"
 #include "../core/thread_pool.h"
-#include "../math/vector3f.h" // TODO: Delete
+#include "../core/vector3f.h" // TODO: Delete
 #include "../random/xorshift.h"
 #include "../scene/scene.h"
 #include "../sampler/random_sampler.h"
@@ -34,7 +34,11 @@ public:
   PathTracer () = delete;
 
   //! The constructor takes render settings.
-  PathTracer (const RenderSettings& settings);
+  PathTracer
+  (
+   const Scene& scene,
+   const RenderSettings& settings
+  );
 
   //! Copy constructor
   PathTracer (const PathTracer& pt) = default;
@@ -59,25 +63,9 @@ public:
   //! @return 
   //! @exception none
   //! @details 
-  auto Render (const Scene& scene) -> void;
+  auto Render () -> void;
 
 private:
-  /*!
-   * @fn Vector3f Contribution (const)
-   * @brief 
-   * @param[in] ray
-   * @return 
-   * @exception none
-   * @details
-   */
-  auto Contribution
-  (
-   const Ray& ray,
-   RandomSampler* sampler,
-   unsigned int depth
-  )
-    -> Vector3f;
-
   /*!
    * @fn void TraceRay (RandomSampler*)
    * @brief 
@@ -87,7 +75,6 @@ private:
    * @exception none
    * @details
    */
-public:
   auto TraceRay
   (
    const Bounds2f& tile,
@@ -95,17 +82,28 @@ public:
   )
   noexcept -> void;
 
+  /*!
+   * @fn Vector3f Contribution (const)
+   * @brief 
+   * @param[in] ray
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Radiance
+  (
+   const Ray& ray,
+   RandomSampler* sampler
+  )
+    -> Vector3f;
+
 private:
+  Scene scene_;
   RenderSettings settings_;
   ThreadPool     pool_;
-  Scene          scene_;
-  XorShift       rng_;
-
-  std::unique_ptr <RandomSampler> sampler_;
 
   // TODO: delete
   std::unique_ptr<Vector3f []> image_;
-
 }; // class PathTracer
 /*
 // ---------------------------------------------------------------------------

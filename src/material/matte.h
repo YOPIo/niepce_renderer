@@ -1,54 +1,51 @@
 /*!
- * @file material.h
+ * @file matte.h
  * @brief 
  * @author Masashi Yoshida
- * @date 2018/5/5
+ * @date 
  * @details 
  */
-#ifndef _MATERIAL_H_
-#define _MATERIAL_H_
+#ifndef _MATTE_H_
+#define _MATTE_H_
 /*
 // ---------------------------------------------------------------------------
 */
-#include "../core/niepce.h"
+#include "material.h"
 #include "../texture/texture.h"
-#include "../bsdf/bsdf_record.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
 //! ----------------------------------------------------------------------------
-//! @class Material
+//! @class Matte
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class Material
+class Matte : public Material
 {
 public:
   //! The default class constructor.
-  Material ();
+  Matte () = delete;
 
-  //! The constructor takes emission texture.
-  Material (const std::shared_ptr <Texture>& emission);
-
-  //! The constructor takes underlying surface intersection.
-  Material (const Intersection& intersection);
-
-  //! The copy constructor of the class.
-  Material (const Material& mat) = default;
+  //! The constructor takes reflectance texture.
+  Matte
+  (
+   const std::shared_ptr <Texture>& reflectance,
+   const std::shared_ptr <Texture>& emission
+  );
 
   //! The move constructor of the class.
-  Material (Material&& mat) = default;
+  Matte (Matte&& matte) = default;
 
   //! The default class destructor.
-  virtual ~Material () = default;
+  virtual ~Matte () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const Material& mat) -> Material& = default;
+  auto operator = (const Matte& matte) -> Matte& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (Material&& mat) -> Material& = default;
+  auto operator = (Matte&& matte) -> Matte& = default;
 
 public:
   /*!
@@ -65,38 +62,22 @@ public:
    * @exception none
    * @details
    */
-  virtual auto Sample
+  auto Sample
   (
    const Intersection& intersection,
    const Point2f& sample,
    BsdfRecord*    bsdf_record
   )
-  const -> void = 0;
+  const -> void override final;
 
-  /*!
-   * @fn bool HasEmission ()
-   * @brief Return the surface has emission or not.
-   * @return bool
-   * @exception none
-   * @details
-   */
-  virtual auto HasEmission () const noexcept -> bool;
 
-  /*!
-   * @fn Vector3f Emission ()
-   * @brief Return the emission at the surface intersection.
-   * @param[in] uv
-   *    
-   * @return 
-   *    Vector3f
-   * @exception none
-   * @details
-   */
-  virtual auto Emission (const Point2f& uv) const noexcept -> Vector3f;
+private:
+  //! @brief The reflectance of matte surface.
+  std::shared_ptr <Texture> reflectance_;
 
-protected:
+  //! @brief The emission of matte surface.
   std::shared_ptr <Texture> emission_;
-}; // class Material
+}; // class Matte
 /*
 // ---------------------------------------------------------------------------
 */
@@ -104,4 +85,5 @@ protected:
 /*
 // ---------------------------------------------------------------------------
 */
-#endif // _MATERIAL_H_
+#endif // _MATTE_H_
+

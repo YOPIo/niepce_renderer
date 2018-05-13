@@ -11,8 +11,8 @@
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
-#include "../math/point2f.h"
-#include "../math/point3f.h"
+#include "../core/point2f.h"
+#include "../core/point3f.h"
 #include "../shape/shape.h"
 /*
 // ---------------------------------------------------------------------------
@@ -107,6 +107,7 @@ public:
   //! The constructor takes bool which enable to backface culling.
   Triangle
   (
+   const std::shared_ptr <TriangleMesh>& mesh,
    const std::array <unsigned int, 3>& position_indices,
    const std::array <unsigned int, 3>& normal_indices,
    const std::array <unsigned int, 3>& texcoord_indices,

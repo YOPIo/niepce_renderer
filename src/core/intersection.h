@@ -12,9 +12,9 @@
 */
 #include "niepce.h"
 #include "../shape/shape.h"
-#include "../math/point2f.h"
-#include "../math/point3f.h"
-#include "../math/vector3f.h"
+#include "point2f.h"
+#include "point3f.h"
+#include "vector3f.h"
 /*
 // ---------------------------------------------------------------------------
 */

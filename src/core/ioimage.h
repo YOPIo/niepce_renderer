@@ -164,7 +164,6 @@ private:
    */
   auto AllocateMemory (unsigned int width, unsigned int height) -> void;
 
-
 private:
   std::string name_;
 

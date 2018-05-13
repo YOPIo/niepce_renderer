@@ -57,11 +57,13 @@ auto TriangleMesh::Texcoord (unsigned int idx) const -> const Point2f&
 */
 Triangle::Triangle
 (
+ const std::shared_ptr <TriangleMesh>& mesh,
  const std::array <unsigned int, 3>& position_indices,
  const std::array <unsigned int, 3>& normal_indices,
  const std::array <unsigned int, 3>& texcoord_indices,
  bool backface_culling
 ) :
+  mesh_ (mesh),
   position_indices_ (position_indices),
   normal_indices_   (normal_indices),
   texcoord_indices_ (texcoord_indices),
@@ -171,24 +173,34 @@ auto Triangle::IsIntersect
 */
 auto Triangle::Normal (unsigned int idx) const -> const Vector3f&
 {
-  try { return mesh_->Normal (normal_indices_.at (idx)); }
-  catch (const std::exception& e) { throw e; }
+  if (mesh_)
+  {
+    try { return mesh_->Normal (normal_indices_.at (idx)); }
+    catch (const std::exception& e) { throw e; }
+  }
+  // TODO: throw exception
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Triangle::Position (unsigned int idx) const -> const Point3f&
 {
-  try { return mesh_->Position (normal_indices_.at (idx)); }
-  catch (const std::exception& e) { throw e; }
+  if (mesh_)
+  {
+    try { return mesh_->Position (position_indices_.at (idx)); }
+    catch (const std::exception& e) { throw e; }
+  }
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Triangle::Texcoord (unsigned int idx) const -> const Point2f&
 {
-  try { return mesh_->Texcoord (texcoord_indices_.at (idx)); }
-  catch (const std::exception& e) { throw e; }
+  if (mesh_)
+  {
+    try { return mesh_->Texcoord (texcoord_indices_.at (idx)); }
+    catch (const std::exception& e) { throw e; }
+  }
 }
 /*
 // ---------------------------------------------------------------------------

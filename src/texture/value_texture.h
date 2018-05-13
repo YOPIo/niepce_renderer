@@ -1,84 +1,75 @@
 /*!
- * @file sphere.h
+ * @file value_texture.h
  * @brief 
  * @author Masashi Yoshida
- * @date 2018/5/5
+ * @date 
  * @details 
  */
-#ifndef _SPHERE_H_
-#define _SPHERE_H_
+#ifndef _VALUE_TEXTURE_H_
+#define _VALUE_TEXTURE_H_
 /*
 // ---------------------------------------------------------------------------
 */
-#include "shape.h"
-#include "../core/niepce.h"
-#include "../core/point3f.h"
+#include "texture.h"
+#include "../core/vector3f.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
+/*
+// ---------------------------------------------------------------------------
+*/
 //! ----------------------------------------------------------------------------
-//! @class Sphere
+//! @class ValueTexture
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class Sphere final : public Shape
+class ValueTexture : public Texture
 {
 public:
   //! The default class constructor.
-  Sphere () = delete;
+  ValueTexture () = default;
 
-  //! The constructor takes radius and position.
-  Sphere (Float radius, const Point3f& p);
+  //! The constructor takes filename.
+  ValueTexture (const Vector3f& value);
 
   //! The copy constructor of the class.
-  Sphere (const Sphere& sphere) = default;
+  ValueTexture (const ValueTexture& texture) = default;
 
   //! The move constructor of the class.
-  Sphere (Sphere&& sphere) = default;
+  ValueTexture (ValueTexture&& texture) = default;
 
   //! The default class destructor.
-  virtual ~Sphere () = default;
+  virtual ~ValueTexture () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const Sphere& sphere) -> Sphere& = default;
+  auto operator = (const ValueTexture& texture) -> ValueTexture& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (Sphere&& sphere) -> Sphere& = default;
+  auto operator = (ValueTexture&& texture) -> ValueTexture& = default;
 
 public:
   /*!
-   * @fn void Intersect (const Ray& ray, Intersection* intersection)
-   * @brief 
-   * @param[in] ray 
-   * @param[out] intersection Ray intersected with a shape or not.
-   * @return void
+   * @fn Pixel Sample (Float)
+   * @brief Sample the pixel.
+   * @param[in] uv
+   *    UV-parameter [0, 1]
+   * @return Pixel
    * @exception none
    * @details
    */
-  auto IsIntersect
-  (
-   const Ray& ray, // outgoing
-   Intersection* intersection
-  )
-  const noexcept -> bool override;
+  auto Sample (const Point2f& uv) const noexcept -> Vector3f override final;
 
 private:
-  Float   radius_;
-  Point3f center_;
-}; // class Sphere
+  Vector3f value_;
+}; // class ValueTexture
 /*
 // ---------------------------------------------------------------------------
-// Helper function for sphere.
+// Function for the value texture.
 // ---------------------------------------------------------------------------
 */
-auto CreateSphere
-(
- const Point3f& position,
- Float radius
-)
--> std::shared_ptr <Shape>;
+auto CreateValueTexture (const Vector3f& value) -> std::shared_ptr <Texture>;
 /*
 // ---------------------------------------------------------------------------
 */
@@ -86,4 +77,5 @@ auto CreateSphere
 /*
 // ---------------------------------------------------------------------------
 */
-#endif // _SPHERE_H_
+#endif // _VALUE_TEXTURE_H_
+

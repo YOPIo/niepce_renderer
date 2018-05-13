@@ -10,7 +10,7 @@
 /*
 // ---------------------------------------------------------------------------
 */
-#include "../core/niepce.h"
+#include "niepce.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -57,16 +57,6 @@ public:
    * @details If its argument is 0, this operator return x component. Otherwise it will return y component.
    */
   auto operator [] (unsigned int idx) const noexcept -> Float;
-
-  /*!
-   * @fn operator (unsigned int)
-   * @brief Index operator
-   * @param idx Index indicating which component to return as unsigned integer.
-   * @return X, or y component as float.
-   * @exception none
-   * @details If its argument is 0, this operator return x component. Otherwise it will return y component.
-   */
-  auto operator () (unsigned int) const noexcept -> Float;
 
 public:
   /*!

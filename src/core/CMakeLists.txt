@@ -14,4 +14,8 @@ add_library (Core STATIC
   stop_watch.cc
   thread_pool.cc
   tile.cc
+  point2f.cc
+  point3f.cc
+  vector2f.cc
+  vector3f.cc
 )
