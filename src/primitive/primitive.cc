@@ -36,6 +36,7 @@ auto Primitive::IsIntersect
   {
     intersection->SetShape (shape_prt_);
     intersection->SetMaterial (material_ptr_);
+    intersection->SetOutgoing (ray);
     return true;
   }
   return false;

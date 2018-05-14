@@ -21,13 +21,13 @@ namespace niepce
 auto RenderScene () -> void
 {
   RenderSettings settings;
-  settings.AddItem (RenderSettings::Item::kWidth,  1024 / 4);
-  settings.AddItem (RenderSettings::Item::kHeight, 768 / 4);
-  settings.AddItem (RenderSettings::Item::kTileWidth,  1024 / 8);
-  settings.AddItem (RenderSettings::Item::kTileHeight, 768 / 8);
+  settings.AddItem (RenderSettings::Item::kWidth,  960 / 2);
+  settings.AddItem (RenderSettings::Item::kHeight, 540 / 2);
+  settings.AddItem (RenderSettings::Item::kTileWidth,  64);
+  settings.AddItem (RenderSettings::Item::kTileHeight, 45);
   settings.AddItem (RenderSettings::Item::kNumThread,
                     std::thread::hardware_concurrency ());
-  settings.AddItem (RenderSettings::Item::kNumSamples, 4);
+  settings.AddItem (RenderSettings::Item::kNumSamples, 32);
   settings.AddItem (RenderSettings::Item::kPTMaxDepth, 5);
 
   niepce::Scene scene;
@@ -49,6 +49,5 @@ int main (int argc, char* argv[])
   stopwatch.Start ();
   niepce::RenderScene ();
   stopwatch.Stop ();
-
   return 0;
 }

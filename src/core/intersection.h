@@ -103,6 +103,16 @@ public:
   auto Normal () const noexcept -> Vector3f;
 
   /*!
+   * @fn Ray Outgoing ()
+   * @brief Return the outgoing ray
+   * @return The ray to the intersection.
+   * @exception none
+   * @details
+   */
+  auto Outgoing () const noexcept -> Ray;
+
+
+  /*!
    * @fn const std::shared_ptr <Shape> Shape ()
    * @brief Return the shape pointer.
    * @return The shape pointer which intersected.
@@ -163,6 +173,18 @@ public:
   auto SetNormal (const Vector3f& normal) noexcept -> void;
 
   /*!
+   * @fn void SetOutgoing (const)
+   * @brief Set the outgoing ray to the internal data.
+   * @param[in] ray
+   *    The outgoing ray to the intersection.
+   * @return void
+   * @exception none
+   * @details
+   */
+  auto SetOutgoing (const Ray& ray) noexcept -> void;
+
+
+  /*!
    * @fn Return SetShape (const)
    * @brief Set the shape pointer to internal data.
    * @param[in] std::shared_ptr <Shape>
@@ -210,6 +232,9 @@ private:
 
   //! The shape what ray intersected.
   std::shared_ptr <niepce::Shape> shape_ptr_;
+
+  //! The ray to the intersection in world coordinates.
+  Ray outgoing_;
 
 }; // class Intersection
 /*

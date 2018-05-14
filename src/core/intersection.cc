@@ -73,6 +73,13 @@ auto Intersection::Normal () const noexcept -> Vector3f
 /*
 // ---------------------------------------------------------------------------
 */
+auto Intersection::Outgoing () const noexcept -> Ray
+{
+  return outgoing_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Intersection::Shape ()
   const noexcept -> const std::shared_ptr <niepce::Shape>
 {
@@ -113,6 +120,13 @@ auto Intersection::SetMaterial
 auto Intersection::SetNormal (const Vector3f& normal) noexcept -> void
 {
   this->normal_ = normal;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::SetOutgoing (const Ray &ray) noexcept -> void
+{
+  this->outgoing_ = ray;
 }
 /*
 // ---------------------------------------------------------------------------

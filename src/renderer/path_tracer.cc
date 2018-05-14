@@ -104,18 +104,21 @@ auto PathTracer::Render () -> void
     future.wait ();
   }
 
-  auto to_int = [] (Float x) -> unsigned char
+  auto to_int = [] (Float x) -> int
   {
-    return static_cast <unsigned char> (x * 255 - 1.0 + 0.5);
+    int res = static_cast <unsigned char> (x * 255 - 1.0 + 0.5);
+    if (res > 255) { std::cerr << res << "\n"; return 255; }
+    if (res < 0)   { std::cerr << res << "\n"; return 0; }
+    return res;
   };
 
   std::ofstream os ("pt.ppm");
   os << "P3\n" << resolution_width << " " << resolution_height << " 255\n";
   for (int i = 0; i < resolution_width * resolution_height; ++i)
   {
-    const int red   = to_int (image_[i].X ());
-    const int green = to_int (image_[i].Y ());
-    const int blue  = to_int (image_[i].Z ());
+    const int red   = Clamp (to_int (image_[i].X ()), 0, 255);
+    const int green = Clamp (to_int (image_[i].Y ()), 0, 255);
+    const int blue  = Clamp (to_int (image_[i].Z ()), 0, 255);
     os << red << " " << green << " " << blue << " ";
   }
   os.close ();
@@ -173,10 +176,9 @@ auto PathTracer::TraceRay
             const Ray ray (cam.Origin () + d * 140, d.Normalized ());
 
             r = r + Radiance (ray, tile_sampler)
-              / (static_cast <Float> (num_sample) * static_cast <Float> (4));
+              / ((static_cast <Float> (num_sample) * static_cast <Float> (4)));
           }
-          image_[idx] = image_[idx]
-                      + Vector3f (Clamp(r.X ()), Clamp(r.Y ()), Clamp(r.Z ()));
+          image_[idx] = image_[idx] + r;
         }
       }
     }
@@ -203,23 +205,23 @@ auto PathTracer::Radiance
     Intersection intersection;
     if (!scene_.IsIntersect (ray, &intersection))
     {
-      // No intersection found.
+      return l;
       break;
     }
-
-    // Russian roulette
-    Float q = std::max ({l[0], l[1], l[2]});
-    if (depth > 5)
-    {
-      if (tile_sampler->SampleFloat () > q) { return l; }
-    }
-    else { q = 1.0; }
 
     // Ready to sample.
     const std::shared_ptr <Material> material = intersection.Material ();
 
     // Add contribution
     l = l + Multiply (f, material->Emission (intersection.Texcoord ()));
+
+    // Russian roulette
+    Float q = std::max ({l[0], l[1], l[2]});
+    if (depth > 5)
+    {
+      if (tile_sampler->SampleFloat () >= q) { return l; }
+    }
+    else { q = 1.0; }
 
     // Sample incident direction.
     BsdfRecord bsdf_record (intersection);
