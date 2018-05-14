@@ -38,8 +38,9 @@ add_subdirectory (src/shape)
 add_subdirectory (src/scene)
 add_subdirectory (src/primitive)
 add_subdirectory (src/texture)
-add_subdirectory (src/core)
 add_subdirectory (src/material)
+add_subdirectory (src/core)
+
 
 # Add subdirectory to build the maya plugin
 if (BUILD_MAYA_PLUGIN)
@@ -48,15 +49,15 @@ if (BUILD_MAYA_PLUGIN)
 else () # if (BUILD_CUI_RENDERER)
   add_executable (${PROJECT_NAME} src/main/main.cc)
   target_link_libraries (${PROJECT_NAME}
-    Renderer
-    Random
     Scene
+    Renderer
     Sampler
+    Random
+    Bsdf
+    Texture
     Shape
     Material
     Primitive
-    Bsdf
-    Texture
     Core
     )
 

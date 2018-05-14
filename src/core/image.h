@@ -62,7 +62,7 @@ public:
    * @exception none
    * @details
    */
-  auto Height () const noexcept -> unsigned int;
+  virtual auto Height () const noexcept -> unsigned int;
 
   /*!
    * @fn unsigned Width ()
@@ -71,7 +71,7 @@ public:
    * @exception none
    * @details
    */
-  auto Width () const noexcept -> unsigned int;
+  virtual auto Width () const noexcept -> unsigned int;
 
 protected:
   unsigned int width_;

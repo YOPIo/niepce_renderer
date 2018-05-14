@@ -41,6 +41,7 @@ namespace niepce
 class AssembledTiles;
 class Bounds2f;
 class Image;
+class IOImage;
 class Intersection;
 class Material;
 class Shape;

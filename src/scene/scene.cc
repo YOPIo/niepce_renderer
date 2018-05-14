@@ -55,12 +55,14 @@ auto Scene::ReadyCornellBox () -> void
   std::shared_ptr <Texture> black
     = CreateValueTexture (Vector3f::Zero ());
   std::shared_ptr <Texture> light = CreateValueTexture (Vector3f (12));
+  std::shared_ptr <Texture> tex = CreateImageTexture ("/home/yopio/workspace/niepce/asset/test.png");
 
   // Generate materials.
   std::shared_ptr <Material> matte_white (new Matte (white, black));
   std::shared_ptr <Material> matte_red   (new Matte (red,   black));
   std::shared_ptr <Material> matte_green (new Matte (green, black));
   std::shared_ptr <Material> matte_light (new Matte (black, light));
+  std::shared_ptr <Material> matte_tex   (new Matte (tex,   black));
 
   // Vertex positions
   std::vector <Point3f> positions = { Point3f (  0.0f,   0.0f,   0.0f),
@@ -160,8 +162,8 @@ auto Scene::ReadyCornellBox () -> void
   primitives_.push_back (CreatePrimitive (triangles[6], matte_green));
   primitives_.push_back (CreatePrimitive (triangles[7], matte_green));
   // Front
-  primitives_.push_back (CreatePrimitive (triangles[8], matte_white));
-  primitives_.push_back (CreatePrimitive (triangles[9], matte_white));
+  primitives_.push_back (CreatePrimitive (triangles[8], matte_tex));
+  primitives_.push_back (CreatePrimitive (triangles[9], matte_tex));
   // Light
   primitives_.push_back (CreatePrimitive (triangles[10], matte_light));
   primitives_.push_back (CreatePrimitive (triangles[11], matte_light));

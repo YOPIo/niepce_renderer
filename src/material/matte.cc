@@ -23,8 +23,8 @@ Matte::Matte
  const std::shared_ptr <Texture>& reflectance,
  const std::shared_ptr <Texture>& emission
 ) :
-  reflectance_ (reflectance),
-  emission_    (emission)
+  Material     (emission),
+  reflectance_ (reflectance)
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -53,10 +53,8 @@ auto Matte::Sample
 
     const Vector3f incident = normal * tz + tangent * tx + binormal * ty;
 
-
     // Lambert PDF is constant value $ \cos(theta) / \pi $
     const Float pdf = Dot (incident, normal);
-
 
     // Calculate BSDF
     Vector3f bsdf = reflectance_->Sample (intersection.Texcoord ());

@@ -8,6 +8,8 @@
 #include "../core/bounds2f.h"
 #include "../core/image.h"
 #include "../core/ioimage.h"
+#include "../core/stop_watch.h"
+#include "../texture/image_texture.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -25,7 +27,7 @@ auto RenderScene () -> void
   settings.AddItem (RenderSettings::Item::kTileHeight, 768 / 8);
   settings.AddItem (RenderSettings::Item::kNumThread,
                     std::thread::hardware_concurrency ());
-  settings.AddItem (RenderSettings::Item::kNumSamples, 32);
+  settings.AddItem (RenderSettings::Item::kNumSamples, 4);
   settings.AddItem (RenderSettings::Item::kPTMaxDepth, 5);
 
   niepce::Scene scene;
@@ -43,7 +45,10 @@ auto RenderScene () -> void
 */
 int main (int argc, char* argv[])
 {
+  niepce::StopWatch stopwatch;
+  stopwatch.Start ();
   niepce::RenderScene ();
+  stopwatch.Stop ();
 
   return 0;
 }

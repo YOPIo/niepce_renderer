@@ -130,6 +130,19 @@ private:
 }; // class Point2f
 /*
 // ---------------------------------------------------------------------------
+// Function for the Point2f
+// ---------------------------------------------------------------------------
+*/
+auto operator == (const Point2f& lhs, const Point2f& rhs) -> bool;
+auto operator != (const Point2f& lhs, const Point2f& rhs) -> bool;
+
+auto operator + (const Point2f& lhs, const Point2f& rhs) -> Point2f;
+auto operator - (const Point2f& lhs, const Point2f& rhs) -> Vector2f;
+
+auto operator * (const Point2f& p, Float t) -> Point2f;
+auto operator * (Float t, const Point2f& p) -> Point2f;
+/*
+// ---------------------------------------------------------------------------
 */
 }  // namespace niepce
 /*

@@ -25,6 +25,7 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 IOImage::IOImage (const char* filename) :
+  Image (),
   name_ (filename)
 {
   Load (filename);
@@ -67,21 +68,21 @@ auto IOImage::Load (const char *filename) -> void
 
   auto to_float = [] (unsigned char c) -> Float
   {
-    return static_cast <Float> (c) / 255.0;
+    Float x = int (c) / 255.0;
+    return Clamp (x);
   };
 
-  // Reallocate the memory.
+  // Reallocate the memory and copy image.
   AllocateMemory (width, height);
-
-  for (int y = 0; y < height_; ++y)
+  for (int y = 0; y < height; ++y)
   {
-    for (int x = 0; x < width_; ++x)
+    for (int x = 0; x < width; ++x)
     {
-      const unsigned int idx = (y * width_ + x) * 4;
-      const Float r = to_float (data[idx + 0]);
-      const Float g = to_float (data[idx + 1]);
-      const Float b = to_float (data[idx + 2]);
-      pixels_[y * width_ + x] = Pixel (r, g, b);
+      const unsigned int idx = y * width + x;
+      const Float r = to_float (data[idx * 4 + 0]);
+      const Float g = to_float (data[idx * 4 + 1]);
+      const Float b = to_float (data[idx * 4 + 2]);
+      pixels_[idx] = Pixel (r, g, b);
     }
   }
 }

@@ -219,11 +219,7 @@ auto PathTracer::Radiance
     const std::shared_ptr <Material> material = intersection.Material ();
 
     // Add contribution
-    if (material->HasEmission ())
-    {
-      l = l + Multiply (f, material->Emission (intersection.Texcoord ()));
-      return l;
-    }
+    l = l + Multiply (f, material->Emission (intersection.Texcoord ()));
 
     // Sample incident direction.
     BsdfRecord bsdf_record (intersection);

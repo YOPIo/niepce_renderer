@@ -8,6 +8,11 @@
 #include "stop_watch.h"
 /*
 // ---------------------------------------------------------------------------
+*/
+namespace niepce
+{
+/*
+// ---------------------------------------------------------------------------
 // Definition of ElapsedTime
 // ---------------------------------------------------------------------------
 */
@@ -79,9 +84,9 @@ auto StopWatch::Stop () const
   unsigned int milliseconds
     = std::chrono::duration_cast <std::chrono::milliseconds> (diff).count ();
 
-  std::cout << "hours        : " << hours
-            << "minutes      : " << minutes
-            << "second       : " << seconds
+  std::cout << "hours        : " << hours   << "\n"
+            << "minutes      : " << minutes << "\n"
+            << "second       : " << seconds << "\n"
             << "milliseconds : " << milliseconds
             << std::endl;
   return ElapsedTime (1, 1, 1, 1);
@@ -89,3 +94,4 @@ auto StopWatch::Stop () const
 /*
 // ---------------------------------------------------------------------------
 */
+}  // namespace niepce

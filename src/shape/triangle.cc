@@ -6,6 +6,8 @@
  * @details 
  */
 #include "triangle.h"
+#include "../core/vector2f.h"
+#include "../core/point2f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -128,11 +130,17 @@ auto Triangle::IsIntersect
     // Calculate the normal.
     const Vector3f normal = Normalize (Cross (edge1, edge2));
 
+    // calculate the texture coordinates.
+    const Point2f tex0 = Texcoord (0);
+    const Point2f tex1 = Texcoord (1);
+    const Point2f tex2 = Texcoord (2);
+    const Point2f uv = (1.0 - u - v) * tex0 + u * tex1 + v * tex2;
+
     // Store intersection info.
     intersection->SetDistance (t);
     intersection->SetPosition (ray.IntersectAt (t));
     intersection->SetNormal (normal);
-    intersection->SetTexcoord (Point2f (u, v));
+    intersection->SetTexcoord (uv);
     return true;
   }
   {
@@ -159,11 +167,17 @@ auto Triangle::IsIntersect
     // Calculate the normal
     const Vector3f normal = Normalize (Cross (edge1, edge2));
 
+    // calculate the texture coordinates.
+    const Point2f tex0 = Texcoord (0);
+    const Point2f tex1 = Texcoord (1);
+    const Point2f tex2 = Texcoord (2);
+    const Point2f uv = (1.0 - u - v) * tex0 + u * tex1 + v * tex2;
+
     // Store intersection info.
     intersection->SetDistance (t);
     intersection->SetPosition (ray.IntersectAt (t));
     intersection->SetNormal (normal);
-    intersection->SetTexcoord (Point2f (u, v));
+    intersection->SetTexcoord (uv);
   }
 
   return true;

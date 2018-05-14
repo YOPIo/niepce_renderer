@@ -6,6 +6,7 @@
  * @details 
  */
 #include "point2f.h"
+#include "vector2f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -97,6 +98,55 @@ auto Point2f::SetU (Float u) noexcept -> void
 auto Point2f::SetV (Float v) noexcept -> void
 {
   this->y_ = v;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto operator == (const Point2f& lhs, const Point2f& rhs) -> bool
+{
+  if (lhs.X () == rhs.X () &&
+      lhs.Y () == rhs.Y ())
+  {
+    return true;
+  }
+  return false;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto operator != (const Point2f& lhs, const Point2f& rhs) -> bool
+{
+  return !(lhs == rhs);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto operator + (const Point2f& lhs, const Point2f& rhs) -> Point2f
+{
+  return Point2f (lhs.X () + rhs.X (),
+                  lhs.Y () + rhs.Y ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto operator - (const Point2f& lhs, const Point2f& rhs) -> Vector2f
+{
+  return Vector2f (lhs.X () - rhs.X (),
+                   lhs.Y () - rhs.Y ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto operator * (const Point2f& p, Float t) -> Point2f
+{
+  return Point2f (p.X () * t, p.Y () * t);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto operator * (Float t, const Point2f& p) -> Point2f
+{
+  return Point2f (p.X () * t, p.Y () * t);
 }
 /*
 // ---------------------------------------------------------------------------

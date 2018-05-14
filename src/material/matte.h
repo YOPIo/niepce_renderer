@@ -74,9 +74,6 @@ public:
 private:
   //! @brief The reflectance of matte surface.
   std::shared_ptr <Texture> reflectance_;
-
-  //! @brief The emission of matte surface.
-  std::shared_ptr <Texture> emission_;
 }; // class Matte
 /*
 // ---------------------------------------------------------------------------

@@ -5,8 +5,6 @@ add_library (Core STATIC
   assembled_tiles.cc
   bounds2f.cc
   tile.cc
-  image.cc
-  ioimage.cc
   intersection.cc
   pixel.cc
   ray.cc
@@ -18,4 +16,6 @@ add_library (Core STATIC
   point3f.cc
   vector2f.cc
   vector3f.cc
+  ioimage.cc
+  image.cc
 )
