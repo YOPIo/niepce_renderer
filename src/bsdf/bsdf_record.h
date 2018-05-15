@@ -52,7 +52,7 @@ public:
 public:
   /*!
    * @fn Vector3f Outgoing ()
-   * @brief The outgoing direction in world coordinate at the underlying surface
+   * @brief The outgoing direction in BSDF coordinate at the underlying surface
    *        intersection.
    * @return Vector3f
    * @exception none
@@ -62,7 +62,7 @@ public:
 
   /*!
    * @fn Vector3f Incident ()
-   * @brief The incident direction in world coordinate at the underlying surface
+   * @brief The incident direction in BSDF coordinate at the underlying surface
    *        intersection.
    * @return Vector3f
    * @exception none
@@ -92,7 +92,7 @@ public:
    * @fn void SetOutgoing ()
    * @brief Set the outgoing direction to internal data.
    * @param[in] outgoing
-   *     The outgoing direction in world coordinates.
+   *     The outgoing direction in BSDF coordinates.
    * @return void
    * @exception none
    * @details
@@ -103,7 +103,7 @@ public:
    * @fn void SetIncident (const)
    * @brief Set the incident direction to internal data.
    * @param[in] incident
-   *    The incident direction in world coordinates.
+   *    The incident direction in BSDF coordinates.
    * @return void
    * @exception none
    * @details
@@ -136,19 +136,19 @@ private:
   /*!
    * @brief The reference to the underlying surface intersection.
    */
-  const Intersection intersection_;
+  const Intersection& intersection_;
 
   /*!
    * @brief
-   *   The normalized outgoint direction in world coordinates.
+   *   The normalized outgoint direction in BSDF coordinates.
    */
-  Vector3f world_outgoing_;
+  Vector3f outgoing_;
 
   /*!
    * @brief
-   *   The normalized incident direction in world coordinates.
+   *   The normalized incident direction in BSDF coordinates.
    */
-  Vector3f world_incident_;
+  Vector3f incident_;
 
   /*!
    * @brief

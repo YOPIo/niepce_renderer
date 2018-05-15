@@ -73,7 +73,21 @@ auto Intersection::Normal () const noexcept -> Vector3f
 /*
 // ---------------------------------------------------------------------------
 */
-auto Intersection::Outgoing () const noexcept -> Ray
+auto Intersection::Binormal () const noexcept -> Vector3f
+{
+  return binormal_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::Tangent () const noexcept -> Vector3f
+{
+  return tangent_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::Outgoing () const noexcept -> Vector3f
 {
   return outgoing_;
 }
@@ -120,13 +134,16 @@ auto Intersection::SetMaterial
 auto Intersection::SetNormal (const Vector3f& normal) noexcept -> void
 {
   this->normal_ = normal;
+
+  // Calculate the tangent vector and binormal vector from new normal.
+  BuildOrthonormalBasis (normal_, &tangent_, &binormal_);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Intersection::SetOutgoing (const Ray &ray) noexcept -> void
+auto Intersection::SetOutgoing (const Vector3f& outgoing) noexcept -> void
 {
-  this->outgoing_ = ray;
+  this->outgoing_ = outgoing;
 }
 /*
 // ---------------------------------------------------------------------------

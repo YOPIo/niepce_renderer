@@ -11,6 +11,8 @@
 // ---------------------------------------------------------------------------
 */
 #include "material.h"
+#include "../bsdf/bsdf.h"
+#include "../bsdf/lambert.h"
 #include "../texture/texture.h"
 /*
 // ---------------------------------------------------------------------------
@@ -49,27 +51,22 @@ public:
 
 public:
   /*!
-   * @fn void Return Sample (const)
-   * @brief 
-   *
+   * @fn Return Function (Param)
+   * @brief Allocate the BSDF for representing the matte surface.
    * @param[in] intersection
-   *    Underlying surface intersection.
-   * @param[out] bsdf_record
-   *    Sampled data will be stored.
-   * @param[in] sample
-   *    2-dimensional sampled values.
-   * @return void
-   * @exception none
+   *    The intersection
+   * @param[in] memory
+   *    Used to allocate the BSDF.
+   * @return The pointer of BSDF.
+   * @exception 
    * @details
    */
-  auto Sample
+  virtual auto AllocateBsdf
   (
    const Intersection& intersection,
-   const Point2f& sample,
-   BsdfRecord*    bsdf_record
+         MemoryArena*  memory
   )
-  const -> void override final;
-
+  const -> Bsdf* override final;
 
 private:
   //! @brief The reflectance of matte surface.

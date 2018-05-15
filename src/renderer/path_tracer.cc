@@ -88,6 +88,7 @@ auto PathTracer::Render () -> void
                    this,
                    std::placeholders::_1,
                    std::placeholders::_2);
+
     futures.emplace_back (pool_.Enqueue (func,
                                          tile_bounds[i],
                                          samplers[i].get ()));
@@ -205,7 +206,6 @@ auto PathTracer::Radiance
     Intersection intersection;
     if (!scene_.IsIntersect (ray, &intersection))
     {
-      return l;
       break;
     }
 
@@ -219,7 +219,7 @@ auto PathTracer::Radiance
     Float q = std::max ({l[0], l[1], l[2]});
     if (depth > 5)
     {
-      if (tile_sampler->SampleFloat () >= q) { return l; }
+      if (tile_sampler->SampleFloat () >= q) { break; }
     }
     else { q = 1.0; }
 

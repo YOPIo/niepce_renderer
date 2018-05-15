@@ -103,14 +103,31 @@ public:
   auto Normal () const noexcept -> Vector3f;
 
   /*!
+   * @fn Vector3f Tangent ()
+   * @brief Return the tangent vector at the intersection.
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Tangent () const noexcept -> Vector3f;
+
+  /*!
+   * @fn Vector3f Binormal ()
+   * @brief Return the binormal vector at the intersection.
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Binormal () const noexcept -> Vector3f;
+
+  /*!
    * @fn Ray Outgoing ()
    * @brief Return the outgoing ray
    * @return The ray to the intersection.
    * @exception none
    * @details
    */
-  auto Outgoing () const noexcept -> Ray;
-
+  auto Outgoing () const noexcept -> Vector3f;
 
   /*!
    * @fn const std::shared_ptr <Shape> Shape ()
@@ -164,7 +181,9 @@ public:
 
   /*!
    * @fn void SetNormal (const Vector3f& normal)
-   * @brief Set the normal vector to internal data as normal vector in world coordinate.
+   * @brief Set the normal vector to internal data as normal vector in world
+            coordinate. If normal vector sets, tangent vector and binormal
+            vector will be calculated automatically.
    * @param[in] normal The normal vector at the shape.
    * @return void
    * @exception none
@@ -181,7 +200,7 @@ public:
    * @exception none
    * @details
    */
-  auto SetOutgoing (const Ray& ray) noexcept -> void;
+  auto SetOutgoing (const Vector3f& outgoing) noexcept -> void;
 
 
   /*!
@@ -224,6 +243,12 @@ private:
   //! The normal vector at the intersection.
   Vector3f normal_;
 
+  //! The tangent vector at the intersection.
+  Vector3f tangent_;
+
+  //! The binormal vector at the intersection.
+  Vector3f binormal_;
+
   //! The texture coordinate at the intersection.
   Point2f texcoord_;
 
@@ -234,7 +259,7 @@ private:
   std::shared_ptr <niepce::Shape> shape_ptr_;
 
   //! The ray to the intersection in world coordinates.
-  Ray outgoing_;
+  Vector3f outgoing_;
 
 }; // class Intersection
 /*

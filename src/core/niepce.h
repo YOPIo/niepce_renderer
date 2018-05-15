@@ -40,10 +40,12 @@ namespace niepce
 */
 class AssembledTiles;
 class Bounds2f;
+class Bsdf;
 class Image;
 class IOImage;
 class Intersection;
 class Material;
+class MemoryArena;
 class Shape;
 class Sphere;
 class Tile;

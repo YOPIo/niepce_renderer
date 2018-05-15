@@ -16,7 +16,19 @@ namespace niepce
 */
 BsdfRecord::BsdfRecord (const Intersection& intersection) :
   intersection_ (intersection)
-{}
+{
+  // Ready to transform outgoing direction to BSDF coordinates.
+  const Vector3f n = intersection.Normal ();
+  const Vector3f s = intersection.Tangent ();
+  const Vector3f t = intersection.Binormal ();
+  const Vector3f outgoing = Normalize (intersection.Outgoing ());
+
+  // From normal, tangent and binormal vectors, transform ray outgoing direction
+  // to BSDF coordinates.
+  this->outgoing_ = Vector3f (Dot (outgoing, t),
+                              Dot (outgoing, n),
+                              Dot (outgoing, s));
+}
 /*
 // ---------------------------------------------------------------------------
 */
@@ -29,14 +41,14 @@ auto BsdfRecord::Bsdf () const noexcept -> Vector3f
 */
 auto BsdfRecord::Incident () const noexcept -> Vector3f
 {
-  return world_incident_;
+  return incident_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto BsdfRecord::Outgoing () const noexcept -> Vector3f
 {
-  return world_outgoing_;
+  return outgoing_;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -57,14 +69,14 @@ auto BsdfRecord::SetBsdfValue (const Vector3f& basf_value) noexcept -> void
 */
 auto BsdfRecord::SetIncident (const Vector3f& incident) noexcept -> void
 {
-  this->world_incident_ = incident;
+  this->incident_ = incident;
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto BsdfRecord::SetOutgoing (const Vector3f& outgoing) noexcept -> void
 {
-  this->world_outgoing_ = outgoing;
+  this->outgoing_ = outgoing;
 }
 /*
 // ---------------------------------------------------------------------------

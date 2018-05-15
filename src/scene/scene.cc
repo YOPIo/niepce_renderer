@@ -54,7 +54,7 @@ auto Scene::ReadyCornellBox () -> void
     = CreateValueTexture (Vector3f (0.25, 0.75, 0.25));
   std::shared_ptr <Texture> black
     = CreateValueTexture (Vector3f::Zero ());
-  std::shared_ptr <Texture> light = CreateValueTexture (Vector3f (5));
+  std::shared_ptr <Texture> light = CreateValueTexture (Vector3f (10));
   std::shared_ptr <Texture> tex = CreateImageTexture ("/home/yopio/workspace/niepce/asset/test.png");
 
   // Generate materials.
@@ -156,17 +156,21 @@ auto Scene::ReadyCornellBox () -> void
   primitives_.push_back (CreatePrimitive (triangles[2], matte_white));
   primitives_.push_back (CreatePrimitive (triangles[3], matte_white));
   // Right
-  primitives_.push_back (CreatePrimitive (triangles[4], matte_red));
-  primitives_.push_back (CreatePrimitive (triangles[5], matte_red));
+  primitives_.push_back (CreatePrimitive (triangles[4], matte_green));
+  primitives_.push_back (CreatePrimitive (triangles[5], matte_green));
   // Left
-  primitives_.push_back (CreatePrimitive (triangles[6], matte_green));
-  primitives_.push_back (CreatePrimitive (triangles[7], matte_green));
+  primitives_.push_back (CreatePrimitive (triangles[6], matte_red));
+  primitives_.push_back (CreatePrimitive (triangles[7], matte_red));
   // Front
   primitives_.push_back (CreatePrimitive (triangles[8], matte_tex));
   primitives_.push_back (CreatePrimitive (triangles[9], matte_tex));
   // Light
   primitives_.push_back (CreatePrimitive (triangles[10], matte_light));
   primitives_.push_back (CreatePrimitive (triangles[11], matte_light));
+
+  // Sphere
+  const std::shared_ptr <Shape> sphere = CreateSphere (Point3f (50, 15, 50), 15);
+  primitives_.push_back (CreatePrimitive (sphere, matte_white));
 }
 /*
 // ---------------------------------------------------------------------------

@@ -136,6 +136,10 @@ public:
    */
   auto SetZ (Float z) noexcept -> void;
 
+public:
+  static auto One  () noexcept -> Point3f { return Point3f (0); }
+  static auto Zero () noexcept -> Point3f { return Point3f (1); }
+
 private:
   Float x_, y_, z_;
 }; // class Point3f

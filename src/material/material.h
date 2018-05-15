@@ -12,7 +12,6 @@
 */
 #include "../core/niepce.h"
 #include "../texture/texture.h"
-#include "../bsdf/bsdf_record.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -52,26 +51,22 @@ public:
 
 public:
   /*!
-   * @fn void Return Sample (const)
-   * @brief 
-   *
+   * @fn Bsdf* AllocateBsdf (const Intersection&, MemoryArena*)
+   * @brief Allocate the BSDF
    * @param[in] intersection
-   *    Underlying surface intersection.
-   * @param[out] bsdf_record
-   *    Sampled data will be stored.
-   * @param[in] sample
-   *    2-dimensional sampled values.
-   * @return void
+   *    
+   * @param[out] memory
+   *    
+   * @return 
    * @exception none
    * @details
    */
-  virtual auto Sample
+  virtual auto AllocateBsdf
   (
    const Intersection& intersection,
-   const Point2f& sample,
-   BsdfRecord*    bsdf_record
+         MemoryArena*  memory
   )
-  const -> void = 0;
+    const -> Bsdf* = 0;
 
   /*!
    * @fn bool HasEmission ()
@@ -86,7 +81,7 @@ public:
    * @fn Vector3f Emission ()
    * @brief Return the emission at the surface intersection.
    * @param[in] uv
-   *    
+   *
    * @return 
    *    Vector3f
    * @exception none
