@@ -5,8 +5,8 @@
  * @date 
  * @details 
  */
-#ifndef _BSDF_RECORD_H_
-#define _BSDF_RECORD_H_
+#ifndef _BXDF_RECORD_H_
+#define _BXDF_RECORD_H_
 /*
 // ---------------------------------------------------------------------------
 */
@@ -21,33 +21,33 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 //! ----------------------------------------------------------------------------
-//! @class BsdfRecord
+//! @class BxdfRecord
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class BsdfRecord
+class BxdfRecord
 {
 public:
   //! The default class constructor.
-  BsdfRecord () = delete;
+  BxdfRecord () = delete;
 
   //! The constructor takes reference to the underlying surface intersection.
-  BsdfRecord (const Intersection& intersection);
+  BxdfRecord (const Intersection& intersection);
 
   //! The copy constructor of the class.
-  BsdfRecord (const BsdfRecord& record) = default;
+  BxdfRecord (const BxdfRecord& record) = default;
 
   //! The move constructor of the class.
-  BsdfRecord (BsdfRecord&& record) = default;
+  BxdfRecord (BxdfRecord&& record) = default;
 
   //! The default class destructor.
-  virtual ~BsdfRecord () = default;
+  virtual ~BxdfRecord () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const BsdfRecord& record) -> BsdfRecord& = default;
+  auto operator = (const BxdfRecord& record) -> BxdfRecord& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (BsdfRecord&& record) -> BsdfRecord& = default;
+  auto operator = (BxdfRecord&& record) -> BxdfRecord& = default;
 
 public:
   /*!
@@ -71,13 +71,13 @@ public:
   auto Incident () const noexcept -> Vector3f;
 
   /*!
-   * @fn Vector3f Bsdf ()
+   * @fn Vector3f Bxdf ()
    * @brief Return the evaluated bsdf value.
    * @return Vector3f
    * @exception none
    * @details
    */
-  auto Bsdf () const noexcept -> Vector3f;
+  auto Bxdf () const noexcept -> Vector3f;
 
   /*!
    * @fn Float Pdf ()
@@ -111,7 +111,7 @@ public:
   auto SetIncident (const Vector3f& incident) noexcept -> void;
 
   /*!
-   * @fn void SetBsdfValue (const)
+   * @fn void SetBxdfValue (const)
    * @brief Set the calculated bsdf value to internal data.
    * @param[in] bsdf_value
    *    The bsdf value.
@@ -119,7 +119,7 @@ public:
    * @exception none
    * @details
    */
-  auto SetBsdfValue (const Vector3f& basf_value) noexcept -> void;
+  auto SetBxdfValue (const Vector3f& basf_value) noexcept -> void;
 
   /*!
    * @fn void SetPdf (Float)
@@ -161,7 +161,7 @@ private:
    *   The probability density function.
    */
   Float pdf_;
-}; // class BsdfRecord
+}; // class BxdfRecord
 /*
 // ---------------------------------------------------------------------------
 */

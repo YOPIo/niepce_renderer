@@ -5,7 +5,7 @@
  * @date 
  * @details 
  */
-#include "bsdf_record.h"
+#include "bxdf_record.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -14,7 +14,7 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-BsdfRecord::BsdfRecord (const Intersection& intersection) :
+BxdfRecord::BxdfRecord (const Intersection& intersection) :
   intersection_ (intersection)
 {
   // Ready to transform outgoing direction to BSDF coordinates.
@@ -32,56 +32,56 @@ BsdfRecord::BsdfRecord (const Intersection& intersection) :
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::Bsdf () const noexcept -> Vector3f
+auto BxdfRecord::Bxdf () const noexcept -> Vector3f
 {
   return bsdf_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::Incident () const noexcept -> Vector3f
+auto BxdfRecord::Incident () const noexcept -> Vector3f
 {
   return incident_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::Outgoing () const noexcept -> Vector3f
+auto BxdfRecord::Outgoing () const noexcept -> Vector3f
 {
   return outgoing_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::Pdf () const noexcept -> Float
+auto BxdfRecord::Pdf () const noexcept -> Float
 {
   return pdf_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::SetBsdfValue (const Vector3f& basf_value) noexcept -> void
+auto BxdfRecord::SetBxdfValue (const Vector3f& basf_value) noexcept -> void
 {
   this->bsdf_ = basf_value;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::SetIncident (const Vector3f& incident) noexcept -> void
+auto BxdfRecord::SetIncident (const Vector3f& incident) noexcept -> void
 {
   this->incident_ = incident;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::SetOutgoing (const Vector3f& outgoing) noexcept -> void
+auto BxdfRecord::SetOutgoing (const Vector3f& outgoing) noexcept -> void
 {
   this->outgoing_ = outgoing;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::SetPdf (Float pdf) noexcept -> void
+auto BxdfRecord::SetPdf (Float pdf) noexcept -> void
 {
   this->pdf_ = pdf;
 }
