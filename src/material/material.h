@@ -61,12 +61,12 @@ public:
    * @exception none
    * @details
    */
-  virtual auto AllocateBsdf
+  virtual auto AllocateBsdfs
   (
    const Intersection& intersection,
          MemoryArena*  memory
   )
-    const -> Bsdf* = 0;
+    const -> Bsdf* const = 0;
 
   /*!
    * @fn bool HasEmission ()
@@ -87,7 +87,7 @@ public:
    * @exception none
    * @details
    */
-  virtual auto Emission (const Point2f& uv) const noexcept -> Vector3f;
+  virtual auto Emission (const Point2f& uv) const noexcept -> Spectrum;
 
 protected:
   std::shared_ptr <Texture> emission_;

@@ -49,16 +49,15 @@ if (BUILD_MAYA_PLUGIN)
 else () # if (BUILD_CUI_RENDERER)
   add_executable (${PROJECT_NAME} src/main/main.cc)
   target_link_libraries (${PROJECT_NAME}
-    Scene
     Renderer
-    Sampler
+    Scene
     Random
-    Bsdf
     Texture
-    Shape
     Material
+    Bsdf
+    Shape
     Primitive
-    Core
-    )
+    Sampler
+    Core)
 
 endif ()

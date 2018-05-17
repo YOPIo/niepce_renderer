@@ -171,4 +171,23 @@ auto Intersection::SetPosition (const Point3f& position) noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
+auto Intersection::ToLocal (const Vector3f& v) const noexcept -> Vector3f
+{
+  return Vector3f (Dot (v, binormal_),
+                   Dot (v, normal_),
+                   Dot (v, tangent_));
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::ToWorld (const Vector3f& v) const noexcept -> Vector3f
+{
+  return Vector3f
+    (v.X () * binormal_.X () + v.Y () * normal_.X () + v.Z () * tangent_.X (),
+     v.X () * binormal_.Y () + v.Y () * normal_.Y () + v.Z () * tangent_.Y (),
+     v.X () * binormal_.Z () + v.Y () * normal_.Z () + v.Z () * tangent_.Z ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 } // namespace niepce

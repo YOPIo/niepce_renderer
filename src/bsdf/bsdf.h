@@ -5,12 +5,12 @@
  * @date 
  * @details 
  */
-#ifndef _BXDF_H_
-#define _BXDF_H_
+#ifndef _BSDF_H_
+#define _BSDF_H_
 /*
 // ---------------------------------------------------------------------------
 */
-#include "bxdf_record.h"
+#include "bsdf_record.h"
 #include "../core/niepce.h"
 #include "../core/vector3f.h"
 /*
@@ -19,33 +19,30 @@
 namespace niepce
 {
 //! ----------------------------------------------------------------------------
-//! @class Bxdf
+//! @class Bsdf
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class Bxdf
+class Bsdf
 {
 public:
   //! The default class constructor.
-  Bxdf () = delete;
-
-  //! The constructor takes intersection.
-  Bxdf (const Intersection& intersection);
+  Bsdf () = default;
 
   //! The copy constructor of the class.
-  Bxdf (const Bxdf& bsdf) = default;
+  Bsdf (const Bsdf& bsdf) = default;
 
   //! The move constructor of the class.
-  Bxdf (Bxdf&& bsdf) = default;
+  Bsdf (Bsdf&& bsdf) = default;
 
   //! The default class destructor.
-  virtual ~Bxdf () = default;
+  virtual ~Bsdf () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const Bxdf& bsdf) -> Bxdf& = default;
+  auto operator = (const Bsdf& bsdf) -> Bsdf& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (Bxdf&& bsdf) -> Bxdf& = default;
+  auto operator = (Bsdf&& bsdf) -> Bsdf& = default;
 
   /*!
    * @brief Compute the pdf.
@@ -57,7 +54,7 @@ public:
    * @exception none
    * @details
    */
-  virtual auto Pdf (const BxdfRecord& record)
+  virtual auto Pdf (const BsdfRecord& record)
     const noexcept -> Float = 0;
 
   /*!
@@ -73,14 +70,14 @@ public:
    * @exception none
    * @details
    */
-  virtual auto Evaluate (const BxdfRecord& record)
+  virtual auto Evaluate (const BsdfRecord& record)
     const noexcept -> Vector3f = 0;
 
   /*!
    * @brief Sample the BSDF.
    *
    * @param[out] record
-   *    Bxdfrecord 
+   *    Bsdfrecord 
    * @param[in] sample
    *    The uniform distributed sample on [0, 1]^2.
    *
@@ -88,7 +85,7 @@ public:
    * @exception none
    * @details
    */
-  virtual auto Sample (BxdfRecord* record, const Point2f& sample)
+  virtual auto Sample (BsdfRecord* record, const Point2f& sample)
     const noexcept -> Vector3f = 0;
 
 
@@ -113,11 +110,11 @@ protected:
    */
   Vector3f binormal_;
 
-}; // class Bxdf
+}; // class Bsdf
 /*
 // ---------------------------------------------------------------------------
 */
-namespace bxdf
+namespace bsdf
 {
 /*
 // ---------------------------------------------------------------------------

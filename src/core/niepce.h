@@ -44,6 +44,7 @@ class Bsdf;
 class Image;
 class IOImage;
 class Intersection;
+class Lambert;
 class Material;
 class MemoryArena;
 class Shape;
@@ -71,6 +72,7 @@ class Vector3f;
  * @brief Choose float or double
  */
 typedef double Float;
+typedef Vector3f Spectrum;
 /*
 // ---------------------------------------------------------------------------
 // Niepce renderer constant values

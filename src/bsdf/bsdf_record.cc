@@ -5,7 +5,7 @@
  * @date 
  * @details 
  */
-#include "bxdf_record.h"
+#include "bsdf_record.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -14,7 +14,7 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-BxdfRecord::BxdfRecord (const Intersection& intersection) :
+BsdfRecord::BsdfRecord (const Intersection& intersection) :
   intersection_ (intersection)
 {
   // Ready to transform outgoing direction to BSDF coordinates.
@@ -25,63 +25,73 @@ BxdfRecord::BxdfRecord (const Intersection& intersection) :
 
   // From normal, tangent and binormal vectors, transform ray outgoing direction
   // to BSDF coordinates.
-  this->outgoing_ = Vector3f (Dot (outgoing, t),
-                              Dot (outgoing, n),
-                              Dot (outgoing, s));
+  this->outgoing_ = intersection_.ToLocal (outgoing);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BxdfRecord::Bxdf () const noexcept -> Vector3f
+auto BsdfRecord::Bsdf () const noexcept -> Vector3f
 {
   return bsdf_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BxdfRecord::Incident () const noexcept -> Vector3f
+auto BsdfRecord::Incident (CoordinateSystem cs) const noexcept -> Vector3f
 {
+  if (cs == kWorld)
+  {
+    // Return the outgoing direction in world coordinates.
+    return intersection_.ToWorld (incident_);
+  }
+  // Return the incident direction in BSDF coordinates.
   return incident_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BxdfRecord::Outgoing () const noexcept -> Vector3f
+auto BsdfRecord::Outgoing (CoordinateSystem cs) const noexcept -> Vector3f
 {
+  if (cs == kWorld)
+  {
+    // Return the outgoing direction in world coordinates.
+    return intersection_.ToWorld (outgoing_);
+  }
+  // Return the outgoing direction in BSDF coordinates.
   return outgoing_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BxdfRecord::Pdf () const noexcept -> Float
+auto BsdfRecord::Pdf () const noexcept -> Float
 {
   return pdf_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BxdfRecord::SetBxdfValue (const Vector3f& basf_value) noexcept -> void
+auto BsdfRecord::SetBsdf (const Spectrum& basf_value) noexcept -> void
 {
   this->bsdf_ = basf_value;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BxdfRecord::SetIncident (const Vector3f& incident) noexcept -> void
+auto BsdfRecord::SetIncident (const Vector3f& incident) noexcept -> void
 {
   this->incident_ = incident;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BxdfRecord::SetOutgoing (const Vector3f& outgoing) noexcept -> void
+auto BsdfRecord::SetOutgoing (const Vector3f& outgoing) noexcept -> void
 {
   this->outgoing_ = outgoing;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BxdfRecord::SetPdf (Float pdf) noexcept -> void
+auto BsdfRecord::SetPdf (Float pdf) noexcept -> void
 {
   this->pdf_ = pdf;
 }

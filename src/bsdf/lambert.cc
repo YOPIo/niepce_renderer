@@ -6,6 +6,7 @@
  * @details 
  */
 #include "lambert.h"
+#include "bsdf.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -14,19 +15,49 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-auto Lambert::Pdf (const BxdfRecord& record)
+Lambert::Lambert (const Spectrum& reflectance) :
+  Bsdf (),
+  reflectance_ (reflectance)
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Lambert::Pdf (const BsdfRecord& record)
   const noexcept -> Float
 {
   //! Lambert PDF : $ cos\theta / \pi $
-  return bxdf::Dot (record.Incident ()) / kPi;
+  const Vector3f incident
+    = record.Incident (BsdfRecord::CoordinateSystem::kBsdf);
+  const Float pdf = bsdf::Dot (incident) / kPi;
+  return pdf;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Lambert::Evaluate (const BxdfRecord& record) const noexcept -> Vector3f
+auto Lambert::Evaluate (const BsdfRecord& record) const noexcept -> Spectrum
 {
   //! Lambert BRDF : $ \rho / \pi $
-  return 
+  return reflectance_ / kPi;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Lambert::Sample (BsdfRecord *record, const Point2f &sample)
+  const noexcept -> Spectrum
+{
+  // Sample the incident direction in BRDF coordinates.
+  const Vector3f incident = SampleCosineHemisphere (sample);
+  record->SetIncident (incident);
+
+  // Compute the PDF.
+  const Float pdf = Pdf (*record);
+  record->SetPdf (pdf);
+
+  // Compute the BRDF.
+  const Spectrum brdf = Evaluate (*record);
+  record->SetBsdf (brdf);
+
+  return brdf;
 }
 /*
 // ---------------------------------------------------------------------------

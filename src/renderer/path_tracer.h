@@ -78,7 +78,7 @@ private:
   auto TraceRay
   (
    const Bounds2f& tile,
-   RandomSampler* tile_sampler
+   RandomSampler*  tile_sampler
   )
   noexcept -> void;
 

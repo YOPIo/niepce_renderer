@@ -225,13 +225,38 @@ public:
 
   /*!
    * @fn void SetPosition (const Point3f& position)
-   * @brief Set the argument position to internal data as intersection position in world coordinate.
-   * @param[in] position The intersection position. The position should be in world coordinate.
+   * @brief Set the argument position to internal data as intersection position
+   *        in world coordinate.
+   * @param[in] position The intersection position. The position should be in
+   *            world coordinate.
    * @return 
    * @exception none
    * @details
    */
   auto SetPosition (const Point3f& position) noexcept -> void;
+
+public:
+  /*!
+   * @fn Vector3f ToWorld (const Vector3f& v)
+   * @brief Transform the vector in BSDF coordinate to world coordinates.
+   * @param[in] v
+   *    The vector in BSDF coordinates.
+   * @return The vector in world coordinates.
+   * @exception none
+   * @details
+   */
+  auto ToWorld (const Vector3f& v) const noexcept -> Vector3f;
+
+  /*!
+   * @fn Vector3f ToLocal (const)
+   * @brief Transform the vector in world coordinates to BSDF coordiantes.
+   * @param[in] v
+   *     The vector in world coordinates.
+   * @return The vector in BSDF coordinates.
+   * @exception none
+   * @details
+   */
+  auto ToLocal (const Vector3f& v) const noexcept -> Vector3f;
 
 private:
   //! The Distance parameter 't' from ray origin to intersection.

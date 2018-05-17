@@ -27,7 +27,7 @@ auto RenderScene () -> void
   settings.AddItem (RenderSettings::Item::kTileHeight, 45);
   settings.AddItem (RenderSettings::Item::kNumThread,
                     std::thread::hardware_concurrency ());
-  settings.AddItem (RenderSettings::Item::kNumSamples, 32);
+  settings.AddItem (RenderSettings::Item::kNumSamples, 8);
   settings.AddItem (RenderSettings::Item::kPTMaxDepth, 5);
 
   niepce::Scene scene;
@@ -47,8 +47,10 @@ int main (int argc, char* argv[])
 {
   niepce::StopWatch stopwatch;
   stopwatch.Start ();
-  // niepce::RenderScene ();
+  niepce::RenderScene ();
   stopwatch.Stop ();
+
+  return 0;
 
   niepce::Vector3f n, s, t;
   n = niepce::Vector3f (1, 1, 0);

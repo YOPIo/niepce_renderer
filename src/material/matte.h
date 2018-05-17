@@ -11,8 +11,6 @@
 // ---------------------------------------------------------------------------
 */
 #include "material.h"
-#include "../bsdf/bsdf.h"
-#include "../bsdf/lambert.h"
 #include "../texture/texture.h"
 /*
 // ---------------------------------------------------------------------------
@@ -61,12 +59,12 @@ public:
    * @exception 
    * @details
    */
-  virtual auto AllocateBsdf
+  virtual auto AllocateBsdfs
   (
    const Intersection& intersection,
          MemoryArena*  memory
   )
-  const -> Bsdf* override final;
+    const -> Bsdf* const override final;
 
 private:
   //! @brief The reflectance of matte surface.

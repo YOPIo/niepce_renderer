@@ -54,7 +54,7 @@ auto Scene::ReadyCornellBox () -> void
     = CreateValueTexture (Vector3f (0.25, 0.75, 0.25));
   std::shared_ptr <Texture> black
     = CreateValueTexture (Vector3f::Zero ());
-  std::shared_ptr <Texture> light = CreateValueTexture (Vector3f (10));
+  std::shared_ptr <Texture> light = CreateValueTexture (Vector3f (5));
   std::shared_ptr <Texture> tex = CreateImageTexture ("/home/yopio/workspace/niepce/asset/test.png");
 
   // Generate materials.

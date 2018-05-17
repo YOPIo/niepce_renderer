@@ -5,8 +5,8 @@
  * @date 
  * @details 
  */
-#ifndef _BXDF_RECORD_H_
-#define _BXDF_RECORD_H_
+#ifndef _BSDF_RECORD_H_
+#define _BSDF_RECORD_H_
 /*
 // ---------------------------------------------------------------------------
 */
@@ -21,33 +21,40 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 //! ----------------------------------------------------------------------------
-//! @class BxdfRecord
+//! @class BsdfRecord
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class BxdfRecord
+class BsdfRecord
 {
 public:
+  enum CoordinateSystem
+  {
+    kWorld,
+    kBsdf
+  };
+
+public:
   //! The default class constructor.
-  BxdfRecord () = delete;
+  BsdfRecord () = delete;
 
   //! The constructor takes reference to the underlying surface intersection.
-  BxdfRecord (const Intersection& intersection);
+  BsdfRecord (const Intersection& intersection);
 
   //! The copy constructor of the class.
-  BxdfRecord (const BxdfRecord& record) = default;
+  BsdfRecord (const BsdfRecord& record) = default;
 
   //! The move constructor of the class.
-  BxdfRecord (BxdfRecord&& record) = default;
+  BsdfRecord (BsdfRecord&& record) = default;
 
   //! The default class destructor.
-  virtual ~BxdfRecord () = default;
+  virtual ~BsdfRecord () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const BxdfRecord& record) -> BxdfRecord& = default;
+  auto operator = (const BsdfRecord& record) -> BsdfRecord& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (BxdfRecord&& record) -> BxdfRecord& = default;
+  auto operator = (BsdfRecord&& record) -> BsdfRecord& = default;
 
 public:
   /*!
@@ -58,7 +65,7 @@ public:
    * @exception none
    * @details
    */
-  auto Outgoing () const noexcept -> Vector3f;
+  auto Outgoing (CoordinateSystem cs) const noexcept -> Vector3f;
 
   /*!
    * @fn Vector3f Incident ()
@@ -68,16 +75,16 @@ public:
    * @exception none
    * @details
    */
-  auto Incident () const noexcept -> Vector3f;
+  auto Incident (CoordinateSystem cs) const noexcept -> Vector3f;
 
   /*!
-   * @fn Vector3f Bxdf ()
+   * @fn Vector3f Bsdf ()
    * @brief Return the evaluated bsdf value.
    * @return Vector3f
    * @exception none
    * @details
    */
-  auto Bxdf () const noexcept -> Vector3f;
+  auto Bsdf () const noexcept -> Vector3f;
 
   /*!
    * @fn Float Pdf ()
@@ -111,7 +118,7 @@ public:
   auto SetIncident (const Vector3f& incident) noexcept -> void;
 
   /*!
-   * @fn void SetBxdfValue (const)
+   * @fn void SetBsdfValue (const)
    * @brief Set the calculated bsdf value to internal data.
    * @param[in] bsdf_value
    *    The bsdf value.
@@ -119,7 +126,7 @@ public:
    * @exception none
    * @details
    */
-  auto SetBxdfValue (const Vector3f& basf_value) noexcept -> void;
+  auto SetBsdf (const Spectrum& basf_value) noexcept -> void;
 
   /*!
    * @fn void SetPdf (Float)
@@ -154,14 +161,14 @@ private:
    * @brief
    *   The evaluated value of BSDF.
    */
-  Vector3f bsdf_;
+  Spectrum bsdf_;
 
   /*!
    * @brief
    *   The probability density function.
    */
   Float pdf_;
-}; // class BxdfRecord
+}; // class BsdfRecord
 /*
 // ---------------------------------------------------------------------------
 */

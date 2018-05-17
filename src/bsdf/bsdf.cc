@@ -5,7 +5,7 @@
  * @date 
  * @details 
  */
-#include "bxdf.h"
+#include "bsdf.h"
 #include "../core/intersection.h"
 #include "../core/vector3f.h"
 /*
@@ -16,20 +16,6 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Bxdf::Bxdf (const Intersection& intersection) :
-  normal_ (intersection.Normal ())
-{
-  // Build orthonormal basis.
-  BuildOrthonormalBasis (normal_, &tangent_, &binormal_);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-/*!
- * @namespace bsdf
- * @brief 
- * @details 
- */
 namespace bsdf
 {
 /*

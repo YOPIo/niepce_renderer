@@ -6,11 +6,9 @@
  * @details 
  */
 #include "matte.h"
-#include "material_parameters.h"
-#include "../bsdf/bsdf_record.h"
-#include "../texture/value_texture.h"
-#include "../texture/image_texture.h"
-#include "../core/pixel.h"
+#include "../core/intersection.h"
+#include "../core/memory.h"
+#include "../bsdf/lambert.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -30,14 +28,18 @@ Matte::Matte
 /*
 // ---------------------------------------------------------------------------
 */
-auto Matte::AllocateBsdf 
+auto Matte::AllocateBsdfs
 (
  const Intersection& intersection,
        MemoryArena*  memory
 )
-const -> Bsdf*
+const -> Bsdf* const
 {
-  
+  const Spectrum reflectance = reflectance_->Sample (intersection.Texcoord ());
+
+  Bsdf* const bsdf_ptr = memory->Allocate <Lambert> (reflectance);
+
+  return bsdf_ptr;
 }
 /*
 // ---------------------------------------------------------------------------

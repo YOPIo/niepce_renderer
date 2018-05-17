@@ -8,9 +8,12 @@
 #include "path_tracer.h"
 #include "../core/bounds2f.h"
 #include "../core/ray.h"
+#include "../core/memory.h"
 #include "../core/intersection.h"
 #include "../core/point3f.h"
 #include "../core/vector3f.h"
+#include "../bsdf/bsdf.h"
+#include "../bsdf/bsdf_record.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -80,7 +83,7 @@ auto PathTracer::Render () -> void
   }
 
   // Register the tasks
-  std::vector <std::future <void>> futures;
+  std::vector <std::future <void>> futures (tile_bounds.size ());
   for (unsigned int i = 0; i < tile_bounds.size (); ++i)
   {
     std::function <void (const Bounds2f&, RandomSampler*)> func
@@ -88,10 +91,9 @@ auto PathTracer::Render () -> void
                    this,
                    std::placeholders::_1,
                    std::placeholders::_2);
-
-    futures.emplace_back (pool_.Enqueue (func,
-                                         tile_bounds[i],
-                                         samplers[i].get ()));
+    futures[i] = pool_.Enqueue (func,
+                                tile_bounds[i],
+                                samplers[i].get ());
     /*
     // This is bug codes.
     auto task = [&] () { this->TraceRay (tile_bounds[i], samplers[i].get ()); };
@@ -107,7 +109,7 @@ auto PathTracer::Render () -> void
 
   auto to_int = [] (Float x) -> int
   {
-    int res = static_cast <unsigned char> (x * 255 - 1.0 + 0.5);
+    const int res = static_cast <unsigned char> (x * 255 - 1.0 + 0.5);
     if (res > 255) { std::cerr << res << "\n"; return 255; }
     if (res < 0)   { std::cerr << res << "\n"; return 0; }
     return res;
@@ -117,9 +119,9 @@ auto PathTracer::Render () -> void
   os << "P3\n" << resolution_width << " " << resolution_height << " 255\n";
   for (int i = 0; i < resolution_width * resolution_height; ++i)
   {
-    const int red   = Clamp (to_int (image_[i].X ()), 0, 255);
-    const int green = Clamp (to_int (image_[i].Y ()), 0, 255);
-    const int blue  = Clamp (to_int (image_[i].Z ()), 0, 255);
+    const int red   = to_int (image_[i].X ());
+    const int green = to_int (image_[i].Y ());
+    const int blue  = to_int (image_[i].Z ());
     os << red << " " << green << " " << blue << " ";
   }
   os.close ();
@@ -130,7 +132,7 @@ auto PathTracer::Render () -> void
 auto PathTracer::TraceRay
 (
  const Bounds2f& tile,
- RandomSampler* tile_sampler
+ RandomSampler*  tile_sampler
 )
   noexcept -> void
 {
@@ -177,7 +179,7 @@ auto PathTracer::TraceRay
             const Ray ray (cam.Origin () + d * 140, d.Normalized ());
 
             r = r + Radiance (ray, tile_sampler)
-              / ((static_cast <Float> (num_sample) * static_cast <Float> (4)));
+                                  / ((static_cast <Float> (num_sample)));
           }
           image_[idx] = image_[idx] + r;
         }
@@ -199,21 +201,32 @@ auto PathTracer::Radiance
   Vector3f f = Vector3f::One ();
   Ray ray (first_ray);
 
+  MemoryArena memory;
+
   // Render the tile.
-  for (unsigned int depth = 0; ; ++depth)
+  for (unsigned int depth = 0; depth < 10; ++depth)
   {
+    // -------------------------------------------------------------------------
+    // Intersection test
+    // -------------------------------------------------------------------------
+
     // Intersect test.
     Intersection intersection;
     if (!scene_.IsIntersect (ray, &intersection))
     {
+      // No intersection found.
       break;
     }
 
-    // Ready to sample.
+    // Ready to generate the BSDF.
     const std::shared_ptr <Material> material = intersection.Material ();
 
     // Add contribution
-    l = l + Multiply (f, material->Emission (intersection.Texcoord ()));
+    if (material->HasEmission ())
+    {
+      l = l + Multiply (f, material->Emission (intersection.Texcoord ()));
+      // break;
+    }
 
     // Russian roulette
     Float q = std::max ({l[0], l[1], l[2]});
@@ -223,17 +236,35 @@ auto PathTracer::Radiance
     }
     else { q = 1.0; }
 
+    // -------------------------------------------------------------------------
+    // BSDF sampling 
+    // -------------------------------------------------------------------------
+
+    // HACK
+    const double r1 = 2 * kPi * tile_sampler->SampleFloat ();
+    const double r2 = tile_sampler->SampleFloat (), r2s = std::sqrt(r2);
+    const Vector3f w = intersection.Normal ();
+    const Vector3f u = intersection.Tangent ();
+    const Vector3f v = intersection.Binormal ();
+    const Vector3f dir = Normalize((
+                                    u * std::cos(r1) * r2s +
+                                    v * std::sin(r1) * r2s +
+                                    w * std::sqrt(1.0 - r2)));
+
     // Sample incident direction.
     BsdfRecord bsdf_record (intersection);
-    material->Sample (intersection, tile_sampler->SamplePoint2f (), &bsdf_record);
+    Bsdf* bsdf = material->AllocateBsdfs (intersection, &memory);
+
+    bsdf->Sample (&bsdf_record, tile_sampler->SamplePoint2f ());
 
     // Calculate the weight.
-    const Float cos_t = std::abs (Dot (bsdf_record.Incident (),
-                                       intersection.Normal ()));
-    f = Multiply (f, bsdf_record.Bsdf ()) * cos_t / bsdf_record.Pdf () / q;
+    const Vector3f incident
+      = bsdf_record.Incident(BsdfRecord::CoordinateSystem::kWorld);
+    const Float cos_t = std::abs (Dot (incident, intersection.Normal ()));
+    f = Multiply (f, bsdf_record.Bsdf ()) / q;// * cos_t / bsdf_record.Pdf ();
 
     // Ready to trace the incident direction.
-    ray = Ray (intersection.Position (), bsdf_record.Incident ());
+    ray = Ray (intersection.Position (), incident);
   }
   return l;
 }

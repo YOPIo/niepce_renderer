@@ -6,6 +6,7 @@
  * @details 
  */
 #include "material.h"
+#include "../core/vector3f.h"
 #include "../core/pixel.h"
 /*
 // ---------------------------------------------------------------------------
@@ -34,13 +35,13 @@ auto Material::HasEmission () const noexcept -> bool
 /*
 // ---------------------------------------------------------------------------
 */
-auto Material::Emission (const Point2f& uv) const noexcept -> Vector3f
+auto Material::Emission (const Point2f& uv) const noexcept -> Spectrum
 {
   if (emission_)
   {
     return emission_->Sample (uv);
   }
-  return Vector3f::Zero ();
+  return Vector3f (0);
 }
 /*
 // ---------------------------------------------------------------------------

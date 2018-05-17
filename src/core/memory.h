@@ -18,11 +18,6 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-// Memory Declarations
-#define ARENA_ALLOC(arena, Type) new ((arena).Allocate (sizeof (Type))) Type
-/*
-// ---------------------------------------------------------------------------
-*/
 void *AllocAligned(size_t size);
 /*
 // ---------------------------------------------------------------------------
@@ -76,8 +71,23 @@ class alignas(64) MemoryArena
   */
   auto Allocate (size_t num_bytes) -> void*;
 
+  /*!
+   * @fn T* const Allcate ()
+   * @brief 
+   * @param[in] 
+   * @param[out] 
+   * @return 
+   * @exception none
+   * @details
+   */
   template <typename T, typename ... ArgTypes>
-  auto Allocate (ArgTypes&& ... arguments) -> T*;
+  auto Allocate (ArgTypes&& ... arguments) -> T* const
+  {
+    T* res = reinterpret_cast <T*> (Allocate (sizeof (T)));
+    // Call constructor of the T.
+    new (res) T (std::forward <ArgTypes> (arguments) ... );
+    return res;
+  }
 
   /*!
    * @fn void Reset ()
@@ -112,14 +122,10 @@ class alignas(64) MemoryArena
 /*
 // ---------------------------------------------------------------------------
 */
+/*
 template <typename T, typename ... ArgTypes>
-auto MemoryArena::Allocate (ArgTypes&& ... arguments) -> T*
-{
-  T* res = reinterpret_cast <T*> (Allocate (sizeof (T)));
-  // Call constructor of the T.
-  new (res) T (std::forward <ArgTypes> (arguments) ... );
-  return res;
-}
+auto MemoryArena::Allocate (ArgTypes&& ... arguments) -> T* const;
+*/
 /*
 // ---------------------------------------------------------------------------
 */

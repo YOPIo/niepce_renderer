@@ -10,8 +10,8 @@
 /*
 // ---------------------------------------------------------------------------
 */
-#include "bxdf.h"
-#include "bxdf_record.h"
+#include "bsdf.h"
+#include "bsdf_record.h"
 #include "../sampler/sampler.h"
 #include "../core/vector3f.h"
 /*
@@ -24,11 +24,14 @@ namespace niepce
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class Lambert : public Bxdf
+class Lambert : public Bsdf
 {
 public:
   //! The default class constructor.
-  Lambert () = default;
+  Lambert () = delete;
+
+  //! The constructor takes reflectance.
+  Lambert (const Spectrum& reflectance);
 
   //! The copy constructor of the class.
   Lambert (const Lambert& lambert) = default;
@@ -57,7 +60,7 @@ public:
    * @exception none
    * @details
    */
-  auto Pdf (const BxdfRecord& record)
+  auto Pdf (const BsdfRecord& record)
     const noexcept -> Float override final;
 
   /*!
@@ -74,11 +77,11 @@ public:
    * @exception none
    * @details
    */
-  auto Evaluate (const BxdfRecord& record)
-    const noexcept -> Vector3f override final;
+  auto Evaluate (const BsdfRecord& record)
+    const noexcept -> Spectrum override final;
 
   /*!
-   * @fn Return Sample (BxdfRecord*)
+   * @fn Return Sample (BsdfRecord*)
    * @brief 
    * @param[in] 
    * @param[out] record
@@ -87,9 +90,11 @@ public:
    * @exception none
    * @details
    */
-  auto Sample (BxdfRecord* record, const Point2f& sample)
-    const noexcept -> Vector3f override final;
+  auto Sample (BsdfRecord* record, const Point2f& sample)
+    const noexcept -> Spectrum override final;
 
+private:
+  const Spectrum reflectance_;
 }; // class Lambert
 /*
 // ---------------------------------------------------------------------------
