@@ -139,7 +139,8 @@ auto Vector3f::LengthSquared () const -> Float
 */
 auto Vector3f::HasNaN () const -> bool
 {
-  return static_cast <bool> (std::isnan (x_) | std::isnan (y_) |
+  return static_cast <bool> (std::isnan (x_) |
+                             std::isnan (y_) |
                              std::isnan (z_));
 }
 /*

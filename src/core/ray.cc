@@ -16,7 +16,7 @@ namespace niepce
 */
 Ray::Ray (const Point3f& o, const Vector3f& d) :
   origin_    (o),
-  direction_ (d)
+  direction_ (Normalize (d))
 {}
 /*
 // ---------------------------------------------------------------------------

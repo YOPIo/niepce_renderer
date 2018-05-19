@@ -54,15 +54,15 @@ auto Scene::ReadyCornellBox () -> void
     = CreateValueTexture (Vector3f (0.25, 0.75, 0.25));
   std::shared_ptr <Texture> black
     = CreateValueTexture (Vector3f::Zero ());
-  std::shared_ptr <Texture> light = CreateValueTexture (Vector3f (5));
+  std::shared_ptr <Texture> light = CreateValueTexture (Vector3f (12, 12, 12));
   std::shared_ptr <Texture> tex = CreateImageTexture ("/home/yopio/workspace/niepce/asset/test.png");
 
   // Generate materials.
-  std::shared_ptr <Material> matte_white (new Matte (white, black));
-  std::shared_ptr <Material> matte_red   (new Matte (red,   black));
-  std::shared_ptr <Material> matte_green (new Matte (green, black));
+  std::shared_ptr <Material> matte_white (new Matte (white, nullptr));
+  std::shared_ptr <Material> matte_red   (new Matte (red,   nullptr));
+  std::shared_ptr <Material> matte_green (new Matte (green, nullptr));
   std::shared_ptr <Material> matte_light (new Matte (black, light));
-  std::shared_ptr <Material> matte_tex   (new Matte (tex,   black));
+  std::shared_ptr <Material> matte_tex   (new Matte (tex,   nullptr));
 
   // Vertex positions
   std::vector <Point3f> positions = { Point3f (  0.0f,   0.0f,   0.0f),
@@ -162,15 +162,18 @@ auto Scene::ReadyCornellBox () -> void
   primitives_.push_back (CreatePrimitive (triangles[6], matte_red));
   primitives_.push_back (CreatePrimitive (triangles[7], matte_red));
   // Front
-  primitives_.push_back (CreatePrimitive (triangles[8], matte_tex));
-  primitives_.push_back (CreatePrimitive (triangles[9], matte_tex));
+  primitives_.push_back (CreatePrimitive (triangles[8], matte_white));
+  primitives_.push_back (CreatePrimitive (triangles[9], matte_white));
   // Light
   primitives_.push_back (CreatePrimitive (triangles[10], matte_light));
   primitives_.push_back (CreatePrimitive (triangles[11], matte_light));
 
   // Sphere
-  const std::shared_ptr <Shape> sphere = CreateSphere (Point3f (50, 15, 50), 15);
-  primitives_.push_back (CreatePrimitive (sphere, matte_white));
+  const std::shared_ptr <Shape> sphere
+    = CreateSphere (Point3f (50, 85, 50), 14.5);
+
+  // primitives_.push_back (CreatePrimitive (sphere, matte_light));
+
 }
 /*
 // ---------------------------------------------------------------------------

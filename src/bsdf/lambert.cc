@@ -27,7 +27,7 @@ auto Lambert::Pdf (const BsdfRecord& record)
 {
   //! Lambert PDF : $ cos\theta / \pi $
   const Vector3f incident
-    = record.Incident (BsdfRecord::CoordinateSystem::kBsdf);
+    = record.Outgoing (BsdfRecord::CoordinateSystem::kBsdf);
   const Float pdf = bsdf::Dot (incident) / kPi;
   return pdf;
 }
@@ -37,7 +37,7 @@ auto Lambert::Pdf (const BsdfRecord& record)
 auto Lambert::Evaluate (const BsdfRecord& record) const noexcept -> Spectrum
 {
   //! Lambert BRDF : $ \rho / \pi $
-  return reflectance_ / kPi;
+  return reflectance_;
 }
 /*
 // ---------------------------------------------------------------------------

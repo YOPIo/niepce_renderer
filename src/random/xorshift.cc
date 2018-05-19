@@ -42,8 +42,9 @@ auto XorShift::SetSeed (int seed) noexcept -> void
 */
 auto XorShift::Next01 () noexcept -> Float
 {
-  return
+  const Float res =
     static_cast <float> (Next ()) / std::numeric_limits<uint_fast32_t>::max ();
+  return Clamp (res);
 }
 /*
 // ---------------------------------------------------------------------------
