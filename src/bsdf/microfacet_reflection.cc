@@ -1,19 +1,11 @@
 /*!
- * @file microfacet.h
+ * @file microfacet_reflection.cc
  * @brief 
- * @author Masashi Yoshdia
+ * @author Masashi Yoshida
  * @date 
  * @details 
  */
-#ifndef _MICROFACET_H_
-#define _MICROFACET_H_
-/*
-// ---------------------------------------------------------------------------
-*/
-#include "bsdf.h"
-#include "fresnel.h"
-#include "../core/niepce.h"
-#include "../core/vector3f.h"
+#include "microfacet_reflection.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -22,21 +14,17 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-/*
-// ---------------------------------------------------------------------------
-*/
 MicrofacetReflection::MicrofacetReflection
 (
  const Intersection& intersection,
  const Spectrum& reflectance,
- Float roughness,
- Float outgoing_ior,
- Float incident_ior
+ const BeckmannDistribution* microfacet,
+ const FresnelDielectric* fresnel
 ) :
   Bsdf (intersection),
   reflectance_ (reflectance),
-  microfacet_  (BeckmannDistribution (roughness, roughness, false)),
-  fresnel_     (FresnelDielectric (outgoing_ior, incident_ior))
+  microfacet_  (microfacet),
+  fresnel_     (fresnel)
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -44,6 +32,16 @@ MicrofacetReflection::MicrofacetReflection
 auto MicrofacetReflection::Pdf (const BsdfRecord &record)
   const noexcept -> Float
 {
+  const Vector3f& outgoing = record.Outgoing ();
+  const Vector3f& incident = record.Incident ();
+
+  if (!bsdf::HasSameHemisphere (outgoing, incident))
+  {
+    // Sampled incident refracted.
+    return 0.0;
+  }
+
+  return microfacet_->Pdf (outgoing, incident) / (4.0 * Dot (outgoing, incident));
 }
 /*
 // ---------------------------------------------------------------------------
@@ -68,9 +66,9 @@ auto MicrofacetReflection::Evaluate (const BsdfRecord &record)
     return Spectrum (0);
   }
 
-  const Float fresnel    = fresnel_.Evaluate (Dot (wh, incident));
-  const Float distribute = microfacet_.Distribution (wh);
-  const Float gaf        = microfacet_.GeometryAttenuation (outgoing, wh);
+  const Float fresnel    = fresnel_->Evaluate (Dot (wh, incident));
+  const Float distribute = microfacet_->Distribution (wh);
+  const Float gaf        = microfacet_->GeometryAttenuation (outgoing, wh);
 
   return (reflectance_ * distribute * fresnel)
          / (4.0 * bsdf::AbsCosTheta (outgoing) * bsdf::AbsSinTheta (incident));
@@ -90,7 +88,7 @@ auto MicrofacetReflection::Sample
 
   // Sample the microfacet normal and reflected direction (incident direction).
   const Vector3f microfacet_normal
-    = microfacet_.SampleMicrofacetNormal (outgoing, sample);
+    = microfacet_->SampleMicrofacetNormal (outgoing, sample);
   const Vector3f incident = bsdf::Reflect (outgoing, microfacet_normal);
 
   record->SetIncident (incident);
@@ -99,7 +97,7 @@ auto MicrofacetReflection::Sample
   if (!bsdf::HasSameHemisphere (outgoing, incident)) { return Spectrum (0); }
 
   // Compute the pdf
-  const Float pdf = microfacet_.Pdf (outgoing, microfacet_normal);
+  const Float pdf = microfacet_->Pdf (outgoing, microfacet_normal);
 
   // Evaluate the BSDF
   const Spectrum bsdf = Evaluate (*record);
@@ -109,7 +107,3 @@ auto MicrofacetReflection::Sample
 // ---------------------------------------------------------------------------
 */
 } // namespace niepce
-/*
-// ---------------------------------------------------------------------------
-*/
-#endif // _MICROFACET_H_
