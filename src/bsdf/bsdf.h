@@ -27,7 +27,10 @@ class Bsdf
 {
 public:
   //! The default class constructor.
-  Bsdf () = default;
+  Bsdf () = delete;
+
+  //! Tha constructor takes intersection.
+  Bsdf (const Intersection& intersection);
 
   //! The copy constructor of the class.
   Bsdf (const Bsdf& bsdf) = default;
@@ -88,6 +91,26 @@ public:
   virtual auto Sample (BsdfRecord* record, const Point2f& sample)
     const noexcept -> Vector3f = 0;
 
+protected:
+  /*! @fn Vector3f ToLocal (const Vector3f&)
+   * @brief Transform vector in world coordiantes to BSDF coordiantes.
+   * @param[in] w
+   *    The vector in world coordinates.
+   * @return Vector in BSDF coordinates.
+   * @exception none
+   * @details 
+   */
+  auto ToLocal (const Vector3f& w) const noexcept -> Vector3f;
+
+  /*! @fn Vector3f ToWorld (const Vector3f&)
+   * @brief Transform vector in BSDF coordiantes to world coordinates.
+   * @param[in] w
+   *    The vector in BSDF coordinates.
+   * @return 
+   * @exception none
+   * @details 
+  */
+  auto ToWorld (const Vector3f& w) const noexcept -> Vector3f;
 
 protected:
   /*!
@@ -150,6 +173,7 @@ auto AbsTanPhi (const Vector3f& w) -> Float;
 auto Dot   (const Vector3f& v) -> Float;
 auto Cross (const Vector3f& v) -> Vector3f;
 auto HasSameHemisphere (const Vector3f& lhs, const Vector3f& rhs) -> bool;
+auto Reflect (const Vector3f& vector, const Vector3f& normal) -> Vector3f;
 /*
 // ---------------------------------------------------------------------------
 */

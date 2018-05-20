@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "bsdf.h"
+#include "fresnel.h"
 #include "../core/niepce.h"
 #include "../core/vector3f.h"
 /*
@@ -42,10 +43,12 @@ public:
   virtual ~BeckmannDistribution () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const BeckmannDistribution& beckmann) -> BeckmannDistribution& = default;
+  auto operator = (const BeckmannDistribution& beckmann)
+    -> BeckmannDistribution& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (BeckmannDistribution&& beckmann) -> BeckmannDistribution& = default;
+  auto operator = (BeckmannDistribution&& beckmann)
+    -> BeckmannDistribution& = default;
 
 public:
   /*!
@@ -60,6 +63,32 @@ public:
    * @details
    */
   auto Distribution (const Vector3f& microfacet_normal) const noexcept -> Float;
+
+  //! @fn Float GeometryAttenuation (const Vector3f&, const Vector3f&)
+  //! @brief 
+  //! @param[in] outgoing
+  //!    
+  //! @param[in] microfacet_normal
+  //!    
+  //! @return 
+  //! @exception none
+  //! @details 
+  auto GeometryAttenuation
+  (
+   const Vector3f& outgoing,
+   const Vector3f& microfacet_normal
+  )
+  const noexcept -> Float;
+
+  //! @fn Float; Lambda (const Vector3f&)
+  //! @brief 
+  //! @param[in] w
+  //!    
+  //! @return 
+  //! @exception none
+  //! @details 
+  auto Lambda (const Vector3f& w) const noexcept -> Float;
+
 
   /*! @fn Vector3f SampleMicrofacetNormal (const Vector3f)
    * @brief Sample the microfacet normal.
@@ -145,10 +174,18 @@ public:
   MicrofacetReflection () = default;
 
   //! The constructor takes reflectance and roughness.
-  MicrofacetReflection (const Spectrum& reflectance, Float roughness);
+  MicrofacetReflection
+  (
+   const Intersection& intersection,
+   const Spectrum& reflectance,
+   Float roughness,
+   Float outgoing_ior,
+   Float incident_ior
+  );
 
   //! The copy constructor of the class.
-  MicrofacetReflection (const MicrofacetReflection& microfacet_reflection) = default;
+  MicrofacetReflection (const MicrofacetReflection& microfacet_reflection)
+  = default;
 
   //! The move constructor of the class.
   MicrofacetReflection (MicrofacetReflection&& microfacet_reflection) = default;
@@ -157,10 +194,12 @@ public:
   virtual ~MicrofacetReflection () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const MicrofacetReflection& microfacet_reflection) -> MicrofacetReflection& = default;
+  auto operator = (const MicrofacetReflection& microfacet_reflection)
+    -> MicrofacetReflection& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (MicrofacetReflection&& microfacet_reflection) -> MicrofacetReflection& = default;
+  auto operator = (MicrofacetReflection&& microfacet_reflection)
+    -> MicrofacetReflection& = default;
 
 public:
   /*!
@@ -209,7 +248,9 @@ public:
 
 private:
   const BeckmannDistribution microfacet_;
+  const FresnelDielectric    fresnel_;
   const Spectrum reflectance_;
+
 }; // class MicrofacetReflection
 /*
 // ---------------------------------------------------------------------------

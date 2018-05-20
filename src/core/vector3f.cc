@@ -295,6 +295,24 @@ auto operator / (const Vector3f& v, Float t) -> Vector3f
 }
 /*
 // ---------------------------------------------------------------------------
+*/
+auto operator * (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
+{
+  return Vector3f (lhs.X () * rhs.X (),
+                   lhs.Y () * rhs.Y (),
+                   lhs.Z () * rhs.Z ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto operator / (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
+{
+  return Vector3f (lhs.X () / rhs.X (),
+                   lhs.Y () / rhs.Y (),
+                   lhs.Z () / rhs.Z ());
+}
+/*
+// ---------------------------------------------------------------------------
 // Global functions for Vector3f
 // ---------------------------------------------------------------------------
 */

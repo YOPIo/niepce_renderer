@@ -243,15 +243,10 @@ auto PathTracer::Radiance
     BsdfRecord bsdf_record (intersection);
     Bsdf* bsdf = material->AllocateBsdfs (intersection, &memory);
 
-    bsdf->Sample (&bsdf_record, tile_sampler->SamplePoint2f ());
-
-    // Calculate the weight.
     const Vector3f incident
-      = bsdf_record.Incident (BsdfRecord::CoordinateSystem::kWorld);
+      = bsdf->Sample (&bsdf_record, tile_sampler->SamplePoint2f ());
 
-    const Float cos_t = std::fabs (Dot (incident, intersection.Normal ()));
-
-    f = Multiply (f, bsdf_record.Bsdf ()) * cos_t / bsdf_record.Pdf ();
+    f = f * bsdf_record.Bsdf () * bsdf_record.CosTheta () / bsdf_record.Pdf ();
 
     // Ready to trace the incident direction.
     ray = Ray (intersection.Position (), incident);

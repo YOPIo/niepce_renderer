@@ -95,6 +95,10 @@ auto operator - (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f;
 auto operator * (Float t, const Vector3f& v) -> Vector3f;
 auto operator * (const Vector3f& v, Float t) -> Vector3f;
 auto operator / (const Vector3f& v, Float t) -> Vector3f;
+
+auto operator * (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f;
+auto operator / (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f;
+
 /*
 // ---------------------------------------------------------------------------
 // Global functions for Vector3f

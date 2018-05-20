@@ -27,7 +27,7 @@ auto RenderScene () -> void
   settings.AddItem (RenderSettings::Item::kTileHeight, 90);
   settings.AddItem (RenderSettings::Item::kNumThread,
                     std::thread::hardware_concurrency ());
-  settings.AddItem (RenderSettings::Item::kNumSamples, 256);
+  settings.AddItem (RenderSettings::Item::kNumSamples, 8);
   settings.AddItem (RenderSettings::Item::kPTMaxDepth, 5);
 
   niepce::Scene scene;

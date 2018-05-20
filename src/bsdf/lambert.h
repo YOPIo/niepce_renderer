@@ -31,7 +31,11 @@ public:
   Lambert () = delete;
 
   //! The constructor takes reflectance.
-  Lambert (const Spectrum& reflectance);
+  Lambert
+  (
+   const Intersection& intersection,
+   const Spectrum& reflectance
+  );
 
   //! The copy constructor of the class.
   Lambert (const Lambert& lambert) = default;

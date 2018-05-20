@@ -37,7 +37,7 @@ const -> Bsdf* const
 {
   const Spectrum reflectance = reflectance_->Sample (intersection.Texcoord ());
 
-  Bsdf* const bsdf_ptr = memory->Allocate <Lambert> (reflectance);
+  Bsdf* const bsdf_ptr = memory->Allocate <Lambert> (intersection, reflectance);
 
   return bsdf_ptr;
 }

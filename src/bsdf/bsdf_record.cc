@@ -37,27 +37,23 @@ auto BsdfRecord::Bsdf () const noexcept -> Vector3f
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::Incident (CoordinateSystem cs) const noexcept -> Vector3f
+auto BsdfRecord::CosTheta () const noexcept -> Float
 {
-  if (cs == kWorld)
-  {
-    // Return the outgoing direction in world coordinates.
-    return intersection_.ToWorld (incident_);
-  }
+  return cos_t_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto BsdfRecord::Incident () const noexcept -> Vector3f
+{
   // Return the incident direction in BSDF coordinates.
   return incident_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::Outgoing (CoordinateSystem cs) const noexcept -> Vector3f
+auto BsdfRecord::Outgoing () const noexcept -> Vector3f
 {
-  if (cs == kWorld)
-  {
-    // Return the outgoing direction in world coordinates.
-    return intersection_.ToWorld (outgoing_);
-  }
-  // Return the outgoing direction in BSDF coordinates.
   return outgoing_;
 }
 /*
@@ -73,6 +69,13 @@ auto BsdfRecord::Pdf () const noexcept -> Float
 auto BsdfRecord::SetBsdf (const Spectrum& basf_value) noexcept -> void
 {
   this->bsdf_ = basf_value;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto BsdfRecord::SetCosTheta (Float cos_theta) noexcept -> void
+{
+  this->cos_t_ = cos_theta;
 }
 /*
 // ---------------------------------------------------------------------------

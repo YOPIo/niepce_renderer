@@ -28,13 +28,6 @@ namespace niepce
 class BsdfRecord
 {
 public:
-  enum CoordinateSystem
-  {
-    kWorld,
-    kBsdf
-  };
-
-public:
   //! The default class constructor.
   BsdfRecord () = delete;
 
@@ -57,6 +50,14 @@ public:
   auto operator = (BsdfRecord&& record) -> BsdfRecord& = default;
 
 public:
+  /*! @fn Float CosTheta ()
+   * @brief The $ cos(\theta) $
+   * @return Float
+   * @exception none
+   * @details
+   */
+  auto CosTheta () const noexcept -> Float;
+
   /*!
    * @fn Vector3f Outgoing ()
    * @brief The outgoing direction in BSDF coordinate at the underlying surface
@@ -65,7 +66,7 @@ public:
    * @exception none
    * @details
    */
-  auto Outgoing (CoordinateSystem cs) const noexcept -> Vector3f;
+  auto Outgoing () const noexcept -> Vector3f;
 
   /*!
    * @fn Vector3f Incident ()
@@ -75,7 +76,7 @@ public:
    * @exception none
    * @details
    */
-  auto Incident (CoordinateSystem cs) const noexcept -> Vector3f;
+  auto Incident () const noexcept -> Vector3f;
 
   /*!
    * @fn Vector3f Bsdf ()
@@ -139,6 +140,16 @@ public:
    */
   auto SetPdf (Float pdf) noexcept -> void;
 
+  /*! @fn void SetCosTheta (Float)
+   * @brief 
+   * @param[in] cos_theta
+   *    The $ cos(\theta) $
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto SetCosTheta (Float cos_theta) noexcept -> void;
+
 private:
   /*!
    * @brief The reference to the underlying surface intersection.
@@ -168,6 +179,13 @@ private:
    *   The probability density function.
    */
   Float pdf_;
+
+  /*!
+   * @brief
+   *    The $ cos(\theta) $
+   */
+  Float cos_t_;
+
 }; // class BsdfRecord
 /*
 // ---------------------------------------------------------------------------
