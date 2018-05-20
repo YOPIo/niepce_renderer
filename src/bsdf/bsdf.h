@@ -119,8 +119,37 @@ namespace bsdf
 /*
 // ---------------------------------------------------------------------------
 */
+auto CosTheta    (const Vector3f& w) -> Float;
+auto Cos2theta   (const Vector3f& w) -> Float;
+auto AbsCosTheta (const Vector3f& w) -> Float;
+
+auto SinTheta    (const Vector3f& w) -> Float;
+auto Sin2Theta   (const Vector3f& w) -> Float;
+auto AbsSinTheta (const Vector3f& w) -> Float;
+
+auto TanTheta    (const Vector3f& w) -> Float;
+auto Tan2Theta   (const Vector3f& w) -> Float;
+auto AbsTanTheta (const Vector3f& w) -> Float;
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CosPhi    (const Vector3f& w) -> Float;
+auto Cos2Phi   (const Vector3f& w) -> Float;
+auto AbsCosPhi (const Vector3f& w) -> Float;
+
+auto SinPhi    (const Vector3f& w) -> Float;
+auto Sin2Phi   (const Vector3f& w) -> Float;
+auto AbsSinPhi (const Vector3f& w) -> Float;
+
+auto TanPhi    (const Vector3f& w) -> Float;
+auto Tan2Phi   (const Vector3f& w) -> Float;
+auto AbsTanPhi (const Vector3f& w) -> Float;
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Dot   (const Vector3f& v) -> Float;
 auto Cross (const Vector3f& v) -> Vector3f;
+auto HasSameHemisphere (const Vector3f& lhs, const Vector3f& rhs) -> bool;
 /*
 // ---------------------------------------------------------------------------
 */

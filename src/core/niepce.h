@@ -39,6 +39,7 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 class AssembledTiles;
+class BeckmannDistribution;
 class Bounds2f;
 class Bsdf;
 class Image;
@@ -101,10 +102,6 @@ inline auto Clamp (T x, T min, T max) -> T
   if (x > max) { return max; }
   return x;
 }
-/*
-// ---------------------------------------------------------------------------
-*/
-
 /*
 // ---------------------------------------------------------------------------
 */

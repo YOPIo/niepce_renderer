@@ -224,6 +224,7 @@ auto PathTracer::Radiance
     const std::shared_ptr <Material> material = intersection.Material ();
 
     l = l + Multiply (f, material->Emission (intersection.Texcoord ()));
+
     if (material->HasEmission ()) return l;
 
     // Russian roulette
@@ -248,7 +249,9 @@ auto PathTracer::Radiance
     const Vector3f incident
       = bsdf_record.Incident (BsdfRecord::CoordinateSystem::kWorld);
 
-    f = Multiply (f, bsdf_record.Bsdf ()) / q; // * cos_t / bsdf_record.Pdf ();
+    const Float cos_t = std::fabs (Dot (incident, intersection.Normal ()));
+
+    f = Multiply (f, bsdf_record.Bsdf ()) * cos_t / bsdf_record.Pdf ();
 
     // Ready to trace the incident direction.
     ray = Ray (intersection.Position (), incident);

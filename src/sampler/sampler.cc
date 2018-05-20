@@ -53,10 +53,10 @@ auto SampleCosineHemisphere (const Point2f& sample) -> Vector3f
   // std::cout << res.X () << ", " << res.Y () << ", "<< res.Z () << std::endl;
 
   const Point2f d = SampleConcentricDisk (sample);
-  const Float   y
+  const Float   z
     = std::sqrt (std::fmax (0.0, 1.0 - d.X () * d.X () - d.Y () * d.Y ()));
 
-  return Vector3f (d.X (), y, d.Y ());
+  return Vector3f (d.X (), d.Y (), z);
 }
 /*
 // ---------------------------------------------------------------------------

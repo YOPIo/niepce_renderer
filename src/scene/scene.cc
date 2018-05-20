@@ -55,14 +55,14 @@ auto Scene::ReadyCornellBox () -> void
   std::shared_ptr <Texture> black
     = CreateValueTexture (Vector3f::Zero ());
   std::shared_ptr <Texture> light = CreateValueTexture (Vector3f (12, 12, 12));
-  std::shared_ptr <Texture> tex = CreateImageTexture ("/home/yopio/workspace/niepce/asset/test.png");
+  // std::shared_ptr <Texture> tex = CreateImageTexture ("/home/yopio/workspace/niepce/asset/test.png");
 
   // Generate materials.
   std::shared_ptr <Material> matte_white (new Matte (white, nullptr));
   std::shared_ptr <Material> matte_red   (new Matte (red,   nullptr));
   std::shared_ptr <Material> matte_green (new Matte (green, nullptr));
   std::shared_ptr <Material> matte_light (new Matte (black, light));
-  std::shared_ptr <Material> matte_tex   (new Matte (tex,   nullptr));
+  // std::shared_ptr <Material> matte_tex   (new Matte (tex,   nullptr));
 
   // Vertex positions
   std::vector <Point3f> positions = { Point3f (  0.0f,   0.0f,   0.0f),

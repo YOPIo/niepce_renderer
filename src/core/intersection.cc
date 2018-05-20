@@ -173,9 +173,9 @@ auto Intersection::SetPosition (const Point3f& position) noexcept -> void
 */
 auto Intersection::ToLocal (const Vector3f& v) const noexcept -> Vector3f
 {
-  return Vector3f (Dot (v, binormal_),
-                   Dot (v, normal_),
-                   Dot (v, tangent_));
+  return Vector3f (Dot (v, tangent_),
+                   Dot (v, binormal_),
+                   Dot (v, normal_));
 }
 /*
 // ---------------------------------------------------------------------------
@@ -183,9 +183,9 @@ auto Intersection::ToLocal (const Vector3f& v) const noexcept -> Vector3f
 auto Intersection::ToWorld (const Vector3f& v) const noexcept -> Vector3f
 {
   return Vector3f
-    (v.X () * binormal_.X () + v.Y () * normal_.X () + v.Z () * tangent_.X (),
-     v.X () * binormal_.Y () + v.Y () * normal_.Y () + v.Z () * tangent_.Y (),
-     v.X () * binormal_.Z () + v.Y () * normal_.Z () + v.Z () * tangent_.Z ());
+    (v.X () * tangent_.X () + v.Y () * binormal_.X () + v.Z () * normal_.X (),
+     v.X () * tangent_.Y () + v.Y () * binormal_.Y () + v.Z () * normal_.Y (),
+     v.X () * tangent_.Z () + v.Y () * binormal_.Z () + v.Z () * normal_.Z ());
 }
 /*
 // ---------------------------------------------------------------------------

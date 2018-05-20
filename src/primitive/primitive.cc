@@ -36,7 +36,7 @@ auto Primitive::IsIntersect
   {
     intersection->SetShape (shape_prt_);
     intersection->SetMaterial (material_ptr_);
-    intersection->SetOutgoing (ray.Direction ());
+    intersection->SetOutgoing (-Normalize (ray.Direction ()));
     return true;
   }
   return false;
