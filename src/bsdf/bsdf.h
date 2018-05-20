@@ -143,7 +143,7 @@ namespace bsdf
 // ---------------------------------------------------------------------------
 */
 auto CosTheta    (const Vector3f& w) -> Float;
-auto Cos2theta   (const Vector3f& w) -> Float;
+auto Cos2Theta   (const Vector3f& w) -> Float;
 auto AbsCosTheta (const Vector3f& w) -> Float;
 
 auto SinTheta    (const Vector3f& w) -> Float;

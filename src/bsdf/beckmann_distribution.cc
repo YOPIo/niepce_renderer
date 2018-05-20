@@ -28,23 +28,23 @@ BeckmannDistribution::BeckmannDistribution
 /*
 // ---------------------------------------------------------------------------
 */
-auto BeckmannDistribution::Distribution (const Vector3f& m_normal)
+auto BeckmannDistribution::Distribution (const Vector3f& wh)
   const noexcept -> Float
 {
-  const Float tan2_theta = bsdf::Tan2Theta (m_normal);
+  const Float tan2_theta = bsdf::Tan2Theta (wh);
 
   /* Handle case */
   if (std::isinf (tan2_theta)) { return 0; }
 
-  const Float cos4_theta = bsdf::Cos2theta (m_normal)
-                         * bsdf::Cos2theta (m_normal);
+  const Float cos4_theta = bsdf::Cos2Theta (wh)
+                         * bsdf::Cos2Theta (wh);
   const Float alphax2 = alpha_x_ * alpha_x_;
   const Float alphay2 = alpha_y_ * alpha_y_;
   const Float alphaxy = alpha_x_ * alpha_y_;
-  return std::exp (-tan2_theta * (bsdf::Cos2Phi (m_normal) / alphax2) +
-                   (bsdf::Sin2Phi (m_normal) / alphay2))
-         / (kPi * alphaxy * cos4_theta);
 
+  return std::exp (-tan2_theta * (bsdf::Cos2Phi (wh) / alphax2) +
+                   (bsdf::Sin2Phi (wh) / alphay2))
+         / (kPi * alphaxy * cos4_theta);
 }
 /*
 // ---------------------------------------------------------------------------

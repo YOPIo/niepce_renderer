@@ -81,10 +81,9 @@ auto MicrofacetReflection::Sample
  BsdfRecord*    record,
  const Point2f& sample
 )
-  const noexcept -> Spectrum
+  const noexcept -> Vector3f
 {
   const Vector3f outgoing = record->Outgoing ();
-  if (outgoing.Z () == 0) { return Spectrum (0); }
 
   // Sample the microfacet normal and reflected direction (incident direction).
   const Vector3f microfacet_normal
@@ -98,10 +97,16 @@ auto MicrofacetReflection::Sample
 
   // Compute the pdf
   const Float pdf = microfacet_->Pdf (outgoing, microfacet_normal);
+  record->SetPdf (pdf);
 
   // Evaluate the BSDF
   const Spectrum bsdf = Evaluate (*record);
-  return bsdf;
+  record->SetBsdf (bsdf);
+
+  // Compute $ cos(\theta) $
+  const Float cos_t = Dot (microfacet_normal, incident);
+
+  return this->ToWorld (incident);
 }
 /*
 // ---------------------------------------------------------------------------

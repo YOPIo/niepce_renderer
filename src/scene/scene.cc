@@ -7,6 +7,7 @@
  */
 #include "scene.h"
 #include "../material/matte.h"
+#include "../material/metal.h"
 #include "../shape/triangle.h"
 #include "../texture/image_texture.h"
 #include "../texture/value_texture.h"
@@ -168,11 +169,17 @@ auto Scene::ReadyCornellBox () -> void
   primitives_.push_back (CreatePrimitive (triangles[10], matte_light));
   primitives_.push_back (CreatePrimitive (triangles[11], matte_light));
 
+  std::shared_ptr <Texture> roughness (new ValueTexture (Spectrum (0.5)));
+  std::shared_ptr <Texture> ior (new ValueTexture (Spectrum (1.35)));
+  std::shared_ptr <Metal> metal (new Metal (white,
+                                            roughness,
+                                            roughness,
+                                            ior,
+                                            black));
   // Sphere
   const std::shared_ptr <Shape> sphere
-    = CreateSphere (Point3f (50, 85, 50), 14.5);
-
-  // primitives_.push_back (CreatePrimitive (sphere, matte_light));
+    = CreateSphere (Point3f (40, 20, 40), 20);
+  primitives_.push_back (CreatePrimitive (sphere, metal));
 
 }
 /*
