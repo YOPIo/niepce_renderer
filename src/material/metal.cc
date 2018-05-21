@@ -57,7 +57,7 @@ const -> Bsdf* const
   const Float ior = RgbToMonochrome (ior_->Sample (uv));
   FresnelDielectric* fresnel = memory->Allocate <FresnelDielectric> (1.0, ior);
 
-  // Allocate microfacet reflection model
+  // Allocate microfacet BRDF
   Bsdf* const metal
     = memory->Allocate <MicrofacetReflection> (intersection,
                                                reflectance_->Sample(uv),

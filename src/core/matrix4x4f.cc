@@ -103,10 +103,39 @@ auto operator * (const Matrix4x4f& lhs, const Matrix4x4f& rhs) -> Matrix4x4f
   {
     for (unsigned int j = 0; j < 4; ++j)
     {
-      const Float value
-        = lhs (i, 0) * rhs (0, j) + lhs (i, 1) * rhs (1, j)
-        + lhs (i, 2) * rhs (2, j) + lhs (i, 3) * rhs (3, j);
+      const Float value = lhs (i, 0) * rhs (0, j) + lhs (i, 1) * rhs (1, j)
+                        + lhs (i, 2) * rhs (2, j) + lhs (i, 3) * rhs (3, j);
       res.SetFloat (i, j, value);
+    }
+  }
+  return res;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto operator * (const Matrix4x4f& mat, Float s) -> Matrix4x4f
+{
+  Matrix4x4f res;
+  for (int i = 0; i < 4; ++i)
+  {
+    for (int j = 0; j < 4; ++j)
+    {
+      res.SetFloat (i, j, mat (i, j));
+    }
+  }
+  return res;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto operator * (Float s, const Matrix4x4f& mat) -> Matrix4x4f
+{
+  Matrix4x4f res;
+  for (int i = 0; i < 4; ++i)
+  {
+    for (int j = 0; j < 4; ++j)
+    {
+      res.SetFloat (i, j, mat (i, j));
     }
   }
   return res;

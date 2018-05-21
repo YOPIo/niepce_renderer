@@ -110,6 +110,8 @@ auto operator == (const Matrix4x4f& lhs, const Matrix4x4f& rhs) -> bool;
 auto operator != (const Matrix4x4f& lhs, const Matrix4x4f& rhs) -> bool;
 
 auto operator * (const Matrix4x4f& lhs, const Matrix4x4f& rhs) -> Matrix4x4f;
+auto operator * (const Matrix4x4f& mat, Float s) -> Matrix4x4f;
+auto operator * (Float s, const Matrix4x4f& mat) -> Matrix4x4f;
 /*
 // ---------------------------------------------------------------------------
 // Matrix4x4f functions

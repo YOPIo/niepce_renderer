@@ -175,10 +175,10 @@ auto Scene::ReadyCornellBox () -> void
                                             roughness,
                                             roughness,
                                             ior,
-                                            black));
+                                            nullptr));
   // Sphere
   const std::shared_ptr <Shape> sphere
-    = CreateSphere (Point3f (40, 20, 40), 20);
+    = CreateSphere (Point3f (40, 15, 40), 15);
   primitives_.push_back (CreatePrimitive (sphere, metal));
 
 }

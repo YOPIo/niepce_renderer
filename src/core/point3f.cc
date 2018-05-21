@@ -120,4 +120,13 @@ auto operator - (const Point3f& lhs, const Point3f& rhs) -> Vector3f
 /*
 // ---------------------------------------------------------------------------
 */
+auto operator * (const Point3f& p, Float s) -> Point3f
+{
+  return Point3f (p.X () * s,
+                  p.Y () * s,
+                  p.Z () * s);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 } // namespace niepce
