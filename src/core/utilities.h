@@ -28,6 +28,38 @@ inline auto RgbToMonochrome (const Spectrum& rgb) -> Float
 /*
 // ---------------------------------------------------------------------------
 */
+inline auto SolveQuadratic
+(
+ Float a,
+ Float b,
+ Float c,
+ Float* t1,
+ Float* t2
+)
+  -> bool
+{
+  // Find quadratic discriminant
+  const Float discrim = b * b - 4 * a * c;
+
+  if (discrim < 0) { return false; }
+
+  const Float sqrt_discrim = std::sqrt (discrim);
+
+  // Compute quadratic t1, t2 values
+  Float q;
+  if (b < 0) { q = -.5 * (b - sqrt_discrim); }
+  else { q = -.5 * (b + sqrt_discrim); }
+
+  *t1 = q / a;
+  *t2 = c / q;
+
+  if (*t1 > *t2) { std::swap(*t1, *t2); }
+
+  return true;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce
 /*
 // ---------------------------------------------------------------------------

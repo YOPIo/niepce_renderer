@@ -6,6 +6,7 @@
  * @details 
  */
 #include "transform.h"
+#include "ray.h"
 #include "point3f.h"
 #include "vector3f.h"
 /*
@@ -135,6 +136,13 @@ auto operator * (const Transform& t, const Vector3f& v) -> Vector3f
 }
 /*
 // ---------------------------------------------------------------------------
+*/
+auto operator * (const Transform& t, const Ray& ray) -> Ray
+{
+  return Ray (t * ray.Origin (), t * ray.Direction ());
+}
+/*
+// ---------------------------------------------------------------------------
 // Transform functions
 // ---------------------------------------------------------------------------
 */
@@ -148,6 +156,21 @@ auto Transpose (const Transform& t) -> Transform
 auto Inverse (const Transform& t) -> Transform
 {
   return Transform (t.InverseMatrix (), t.Matrix ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Scale (Float x, Float y, Float z) -> Transform
+{
+  const Matrix4x4f mat (x, 0, 0, 0,
+                        0, y, 0, 0,
+                        0, 0, z, 0,
+                        0, 0, 0, 1);
+  const Matrix4x4f inv (1.0 / x, 0, 0, 0,
+                        0, 1.0 / y, 0, 0,
+                        0, 0, 1.0 / z, 0,
+                        0, 0, 0, 1);
+  return Transform (mat, inv);
 }
 /*
 // ---------------------------------------------------------------------------

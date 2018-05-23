@@ -116,6 +116,7 @@ auto operator * (Float s, const Transform& t) -> Transform;
 */
 auto operator * (const Transform& t, const Point3f&  p) -> Point3f;
 auto operator * (const Transform& t, const Vector3f& v) -> Vector3f;
+auto operator * (const Transform& t, const Ray&      r) -> Ray;
 /*
 // ---------------------------------------------------------------------------
 // Transform functions
@@ -123,6 +124,10 @@ auto operator * (const Transform& t, const Vector3f& v) -> Vector3f;
 */
 auto Transpose (const Transform& t) -> Transform;
 auto Inverse   (const Transform& t) -> Transform;
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Scale (Float x, Float y, Float z) -> Transform;
 /*
 // ---------------------------------------------------------------------------
 */

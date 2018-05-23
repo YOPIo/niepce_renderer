@@ -50,7 +50,7 @@ int main (int argc, char* argv[])
 {
   niepce::StopWatch stopwatch;
   stopwatch.Start ();
-  // niepce::RenderScene ();
+  niepce::RenderScene ();
   stopwatch.Stop ();
   std::cout << std::endl;
   niepce::Normalize (niepce::Vector3f (-1, -1, -1));
@@ -79,8 +79,7 @@ int main (int argc, char* argv[])
   std::cerr << "Sampled direction." << std::endl;
   std::cerr << incident.X () << ", "
             << incident.Y () << ", "
-            s<
-    < incident.Z () << std::endl;
+            << incident.Z () << std::endl;
 
   return 0;
 }
