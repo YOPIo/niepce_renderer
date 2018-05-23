@@ -174,6 +174,15 @@ auto Dot   (const Vector3f& v) -> Float;
 auto Cross (const Vector3f& v) -> Vector3f;
 auto HasSameHemisphere (const Vector3f& lhs, const Vector3f& rhs) -> bool;
 auto Reflect (const Vector3f& vector, const Vector3f& normal) -> Vector3f;
+auto Refract
+(
+ const Vector3f& vector,
+ const Vector3f& normal,
+ Float ior1,
+ Float ior2,
+ Vector3f* refract
+)
+  -> bool;
 /*
 // ---------------------------------------------------------------------------
 */

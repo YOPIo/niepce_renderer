@@ -197,6 +197,38 @@ auto Reflect (const Vector3f& v, const Vector3f& normal) -> Vector3f
 /*
 // ---------------------------------------------------------------------------
 */
+auto Refract
+(
+ const Vector3f& in,
+ const Vector3f& normal,
+ Float ior1,
+ Float ior2,
+ Vector3f* refract
+)
+  -> bool
+{
+  const Float ior = ior1 / ior2;
+
+  // Compute $ cos(\theta) $ using Snells's law.
+  const Float cos_theta1  = Dot (normal, in);
+  const Float sin2_theta1 = std::fmax (0.0, (1.0 - cos_theta1 * cos_theta1));
+  const Float sin2_theta2 = ior * ior * sin2_theta2;
+
+  if (sin2_theta2 >= 1)
+  {
+    // Total reflection
+    return false;
+      // return Reflect (in, normal);
+  }
+
+  const Float cos_theta2 = std::sqrt (1.0 - sin2_theta2);
+
+  *refract = Vector3f (ior * -in + (ior * cos_theta1 - cos_theta1) * normal);
+  return true;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace bsdf
 /*
 // ---------------------------------------------------------------------------

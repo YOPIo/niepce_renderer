@@ -26,13 +26,7 @@ Intersection::Intersection () :
 */
 Intersection::operator bool () const noexcept
 {
-  if (material_ptr_ != nullptr &&
-      shape_ptr_    != nullptr &&
-      distance_     <  kInfinity)
-  {
-    return true;
-  }
-  return false;
+  return is_hit_;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -167,6 +161,20 @@ auto Intersection::SetTexcoord (const Point2f& texcoord) noexcept -> void
 auto Intersection::SetPosition (const Point3f& position) noexcept -> void
 {
   this->position_ = position;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::MakeHitFlagFalse () noexcept -> void
+{
+  is_hit_ = false;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::MakeHitFlagTrue () noexcept -> void
+{
+  is_hit_ = true;
 }
 /*
 // ---------------------------------------------------------------------------

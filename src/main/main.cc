@@ -13,6 +13,8 @@
 #include "../core/utilities.h"
 #include "../bsdf/microfacet_reflection.h"
 #include "../material/metal.h"
+#include "../core/transform.h"
+#include "../camera/realistic_camera.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -50,36 +52,12 @@ int main (int argc, char* argv[])
 {
   niepce::StopWatch stopwatch;
   stopwatch.Start ();
-  niepce::RenderScene ();
+  // niepce::RenderScene ();
   stopwatch.Stop ();
   std::cout << std::endl;
-  niepce::Normalize (niepce::Vector3f (-1, -1, -1));
-  niepce::Intersection intersection;
-  intersection.SetPosition (niepce::Point3f (0, 0, 0));
-  intersection.SetNormal   (niepce::Vector3f (0, 1, 0));
 
-  niepce::BeckmannDistribution distribution (0.5, 0.5, false);
-  niepce::FresnelDielectric    fresnel (1.0, 1.35);
-  niepce::MicrofacetReflection microfacet (intersection,
-                                           niepce::Spectrum (0.7),
-                                           &distribution,
-                                           &fresnel);
-
-  const niepce::Vector3f outgoing (-1, -1, -1);
-
-  const niepce::Vector3f wh =
-    distribution.SampleMicrofacetNormal(outgoing,
-                                        niepce::Point2f (0.1411, 0.009825));
-
-  std::cerr << "Microfacet normal" << std::endl;
-  std::cerr << wh.X () << ", " << wh.Y () << ", " << wh.Z () << std::endl;
-
-  const niepce::Vector3f incident = niepce::bsdf::Reflect (outgoing, wh);
-
-  std::cerr << "Sampled direction." << std::endl;
-  std::cerr << incident.X () << ", "
-            << incident.Y () << ", "
-            << incident.Z () << std::endl;
+  niepce::Transform t;
+  niepce::RealisticCamera camera (t, "");
 
   return 0;
 }

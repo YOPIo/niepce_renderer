@@ -21,10 +21,12 @@
 #include <future>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <queue>
 #include <stdexcept>
+#include <sstream>
 #include <string>
 #include <thread>
 #include <type_traits>

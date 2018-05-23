@@ -223,6 +223,22 @@ public:
    */
   auto SetTexcoord (const Point2f& texcoord) noexcept -> void;
 
+  //! @fn vodi MakeHitFlagTrue ()
+  //! @brief 
+  //! @return 
+  //! @exception none
+  //! @details 
+  auto MakeHitFlagTrue () noexcept -> void;
+
+  //! @fn void MakeHitFlagFalse ()
+  //! @brief 
+  //! @param[in] 
+  //! @param[out] 
+  //! @return 
+  //! @exception none
+  //! @details 
+  auto MakeHitFlagFalse () noexcept -> void;
+
   /*!
    * @fn void SetPosition (const Point3f& position)
    * @brief Set the argument position to internal data as intersection position
@@ -285,6 +301,9 @@ private:
 
   //! The ray to the intersection in world coordinates.
   Vector3f outgoing_;
+
+  //! Status
+  bool is_hit_;
 
 }; // class Intersection
 /*
