@@ -16,4 +16,6 @@ add_library (Core STATIC
   vector3f.cc
   ioimage.cc
   image.cc
+  matrix4x4f.cc
+  transform.cc
 )

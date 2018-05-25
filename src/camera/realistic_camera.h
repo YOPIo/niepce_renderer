@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "camera.h"
+#include "../core/ray.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -32,7 +33,8 @@ public:
     Float thickness_;        // (m)
     Float ior_;
     Float aperture_radius_;  // (m)
-    Float z_position_;       // Position of z-component
+
+    Float center_z_;         // (m)
   };
 
 public:
@@ -45,6 +47,7 @@ public:
    const Transform& camera_to_world,
    const char* lens_file_path,
    Float focus_distance,
+   Float aperture_diameter,
    bool  simple_weighting
   );
 
@@ -64,14 +67,28 @@ public:
   auto operator = (RealisticCamera&& camera) -> RealisticCamera& = default;
 
 public:
+  /*!
+   * @fn Ray GenerateRay ()
+   * @brief Generate the ray from camera.
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto GenerateRay () const -> Ray override final
+  {}
+
+public:
   // Return the distance from film to rear/front
-  auto LensRear  () const -> Float { return lens_.back ().thickness_; }
+  auto LensRear  () const -> Float
+  {
+    // Distance to surface of rear lens.
+    return lens_.back ().thickness_;
+  }
   auto LensFront () const -> Float
   {
     Float sum = 0;
     for (const auto& element : lens_) { sum += element.thickness_; }
     return sum;
-    return -lens_.front ().z_position_;
   }
 
   // Return the aperture radius
@@ -79,6 +96,25 @@ public:
   {
     return lens_.back ().aperture_radius_;
   }
+
+  // Compute the z-component of focus point and principal plane.
+  auto ComputeCardinalPoints
+  (
+   const Ray& in,
+   const Ray& out,
+   Float* focus_point,
+   Float* principal_plane
+  )
+  const -> void;
+
+  // First  : Film to scene
+  // Second : Scene to film
+  auto ComputeThickLensApproximation
+  (
+   std::pair <Float, Float>* fz, // Focus points
+   std::pair <Float, Float>* pz  // Principal plane
+  )
+  const -> void;
 
   // Load lens file
   auto AttachLens (const char* filename) noexcept -> void;
@@ -89,6 +125,25 @@ public:
          Ray* out  // Camera coordinates
   )
   const -> bool;
+
+  auto TraceLensesFromScene
+  (
+   const Ray& ray, // Camera coordinate
+         Ray* out  // Camera coordinate
+  )
+  const -> bool;
+
+  auto Dump () const -> void
+  {
+    // Dump left to right
+    for (int i = lens_.size () - 1; i >= 0; --i)
+    {
+      std::cout << "Center of z      : " << lens_[i].center_z_ << "\n"
+                << "Curvature radius : " << lens_[i].curvature_radius_ << "\n"
+                << "Aperture radius  : " << lens_[i].aperture_radius_ << "\n"
+                << std::endl;
+    }
+  }
 
 private:
   auto CanRayThroughSphericalElement
@@ -106,6 +161,7 @@ private:
   const -> bool;
 
 private:
+  const Float aperture_diameter_;
   const Transform camera_to_world_;
   const bool simple_weighting_;
   std::vector <LensElement> lens_;

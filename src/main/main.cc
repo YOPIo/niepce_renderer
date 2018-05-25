@@ -57,7 +57,12 @@ int main (int argc, char* argv[])
   std::cout << std::endl;
 
   niepce::Transform t;
-  niepce::RealisticCamera camera (t, "");
+  niepce::RealisticCamera camera (t,
+                                  "../assets/lenses/wide.22mm.dat",
+                                  1.0,
+                                  true);
+  std::cout << "dump" << std::endl;
+  camera.Dump();
 
   return 0;
 }
