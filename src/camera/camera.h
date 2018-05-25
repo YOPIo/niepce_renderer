@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
+#include "../core/film.h"
 #include "../core/transform.h"
 /*
 // ---------------------------------------------------------------------------
@@ -26,7 +27,7 @@ class Camera
 {
 public:
   //! The default class constructor.
-  Camera () = default;
+  Camera () = delete;
 
   //! The constructor takes transform matrix.
   Camera (const Transform& t);
@@ -56,11 +57,12 @@ public:
    */
   virtual auto GenerateRay () const -> Ray = 0;
 
-private:
+protected:
   /*!
    * @brief Matrix that transform camera coordinate to world coordinates.
    */
   Transform camera_to_world_;
+  Film      film_;
 }; // class Camera
 /*
 // ---------------------------------------------------------------------------

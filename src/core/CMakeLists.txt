@@ -18,4 +18,5 @@ add_library (Core STATIC
   image.cc
   matrix4x4f.cc
   transform.cc
+  film.cc
 )

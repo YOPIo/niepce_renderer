@@ -28,7 +28,7 @@ RealisticCamera::RealisticCamera
  Float aperture_diameter,
  bool  simple_weighting
 ) :
-  camera_to_world_   (camera_to_world),
+  Camera (camera_to_world),
   simple_weighting_  (simple_weighting),
   aperture_diameter_ (aperture_diameter)
 {
@@ -37,48 +37,45 @@ RealisticCamera::RealisticCamera
 /*
 // ---------------------------------------------------------------------------
 */
-auto RealisticCamera::TraceLensesFromFilm
+auto RealisticCamera::CanRayThroughLensSystemFromFilm
 (
- const Ray& ray, // Camera coordinates
-       Ray* out  // Camera coordinates
+ const Ray &ray,
+       Ray *out
 )
-  const -> bool
+  const noexcept -> bool
 {
-  Float element_z = 0;
+  Float z = 0;
 
   // Transform $ray$ in camera coordinate to lens coordinate.
   static const Transform camera_to_lens (Scale (1, 1, -1));
   Ray lens_ray (camera_to_lens * ray);
 
-  for (unsigned int i = lens_.size () - 1; i > 0; --i)
+  for (std::size_t i = lens_.size () - 1; i >= 0; --i)
   {
     // Get a i'th lens element.
     const LensElement& element = lens_[i];
 
-    // Update ray
-    element_z -= element.thickness_;
+    // Compute z-component of position of lens surface.
+    z -= element.thickness_;
 
-    // Intersection test (ray and lens element).
+    // Intersection test. (Sphere)
     Intersection intersection;
     const bool is_aperture_stop = (element.curvature_radius_ == 0);
     if (is_aperture_stop)
     {
-      // Next element is aperture stop.
-      const Float t = (element_z - lens_ray.Origin ().Z ())
-                    / lens_ray.Direction ().Z ();
+      // The refracted ray computed in the previous lens element
+      // should be pointed toward -z direction.
+      const Float t = (z - lens_ray.Origin ().Z ()) / lens_ray.Direction ().Z ();
       intersection.SetDistance (t);
     }
     else
     {
       // Next element is convex or concave lens.
-      intersection =  CanRayThroughSphericalElement (lens_ray, element);
-      if (!intersection)
-      {
-        // Ray cannot pass through a lens.
-        return false;
-      }
+      intersection = CanRayThroughSphericalElement (lens_ray, element);
+      if (!intersection) { return false; /* Ray cannot through. */ }
     }
 
+    // Intersection test again. (Aperture)
     if (!CanRayThroughApertureElement (intersection.Position (), element))
     {
       // Ray cannot intersect at the outside of aperture.
@@ -99,8 +96,9 @@ auto RealisticCamera::TraceLensesFromFilm
                           &w))
       {
         // Total reflection has occurred.
-        lens_ray = Ray (intersection.Position (), w);
+        return false;
       }
+      lens_ray = Ray (intersection.Position (), w);
     }
   }
 
@@ -116,45 +114,42 @@ auto RealisticCamera::TraceLensesFromFilm
 /*
 // ---------------------------------------------------------------------------
 */
-auto RealisticCamera::TraceLensesFromScene
+auto RealisticCamera::CanRayThroughLensSystemFromScene
 (
  const Ray& ray,
        Ray* out
 )
-  const -> bool
+  const noexcept -> bool
 {
-  Float element_z = -LensFront ();
+  Float z = -LensFront ();
 
   // Transform $ray$ in camera coordinate to lens coordinate.
   static const Transform camera_to_lens (Scale (1, 1, -1));
   Ray lens_ray (camera_to_lens * ray);
 
-  for (unsigned int i = 0; i < lens_.size () ; ++i)
+  // Loop rigthmost element to leftmost element in lens coordinate.
+  for (int i = 0; i < lens_.size (); ++i)
   {
     // Get a i'th lens element.
     const LensElement& element = lens_[i];
 
-    // Intersection test (ray and lens element).
+    // Intersection test (Sphere).
     Intersection intersection;
     const bool is_aperture_stop = (element.curvature_radius_ == 0);
     if (is_aperture_stop)
     {
       // Next element is aperture stop.
-      const Float t = (element_z - lens_ray.Origin ().Z ())
-                    / lens_ray.Direction ().Z ();
+      const Float t = (z - lens_ray.Origin ().Z ()) / lens_ray.Direction ().Z ();
       intersection.SetDistance (t);
     }
     else
     {
       // Next element is convex or concave lens.
       intersection =  CanRayThroughSphericalElement (lens_ray, element);
-      if (!intersection)
-      {
-        // Ray cannot pass through a lens.
-        return false;
-      }
+      if (!intersection) { return false; /* Ray cannot pass through a lens.*/ }
     }
 
+    // Intersection test again. (Aperture)
     if (!CanRayThroughApertureElement (intersection.Position (), element))
     {
       // Ray cannot intersect at the outside of aperture.
@@ -165,9 +160,9 @@ auto RealisticCamera::TraceLensesFromScene
     if (!is_aperture_stop)
     {
       Vector3f w;
-      const Float ior1 = element.ior_;
-      const Float ior2 = (i > 0 && lens_[i - 1].ior_ != 0)
-                       ? lens_[i - 1].ior_ : 1.0;
+      const Float ior1 = (i == 0 || lens_[i - 1].ior_ == 0)
+                       ? 1 : lens_[i - 1].ior_;
+      const Float ior2 = lens_[i].ior_ != 0 ? lens_[i].ior_ : 1;
       if (!bsdf::Refract (Normalize (-lens_ray.Direction ()),
                           intersection.Normal (),
                           ior1,
@@ -175,9 +170,13 @@ auto RealisticCamera::TraceLensesFromScene
                           &w))
       {
         // Total reflection has occurred.
-        lens_ray = Ray (intersection.Position (), w);
+        return false;
       }
+      lens_ray = Ray (intersection.Position (), w);
     }
+
+    // Compute the position of i'th lens surface along the z-axis.
+    z += element.thickness_;
   }
 
   // Transform $ ray $ in lens coordinate to camera coordinate
@@ -197,12 +196,15 @@ auto RealisticCamera::CanRayThroughSphericalElement
  const Ray& ray, // Lens coordinate
  const LensElement& lens_element
 )
-  const -> Intersection
+  const noexcept -> Intersection
 {
   Intersection intersection;
 
   const Vector3f& d = ray.Direction ();
   const Point3f&  o = ray.Origin ();
+
+  std::cout << "o: " << o.X () << ", " << o.Y () << ", " << o.Z () << std::endl;
+  std::cout << "d: " << d.X () << ", " << d.Y () << ", " << d.Z () << std::endl << std::endl;;
 
   const Float& curvature_radius = lens_element.curvature_radius_;
   const Float& aperture_radius  = lens_element.aperture_radius_;
@@ -266,35 +268,58 @@ auto RealisticCamera::CanRayThroughApertureElement
 */
 auto RealisticCamera::ComputeThickLensApproximation
 (
- std::pair<Float, Float>* fz,
- std::pair<Float, Float>* pz
+ // focus point, rincipal plane.
+ std::array <Float, 2>* fz,
+ std::array <Float, 2>* pz
 )
-  const -> void
+  const noexcept -> void
 {
   // Find height x from optical axis for parallel rays
+  // これでいいの??
+  const Float x = film_.Diagonal ();
 
-  // Compute cardinal points for film side fo lens system
+  // Compute the cardinal points (focus point and principal plane) for film
+  // side of lens system.
+  Ray ray (Point3f  (x, 0, LensFront () + 1),
+                      Vector3f (0, 0, -1));
+  Ray through_ray;
+  if (!CanRayThroughLensSystemFromScene (ray, &through_ray))
+  {
+    // TODO: Error processing
+    std::cout << "Error! ComputeThickLensApproximation () 1" << std::endl;
+  }
+  ComputeCardinalPoints (ray, through_ray, &fz->at (0) , &pz->at (0));
+
+  // Compute the cardinal points (focus point and principal plane) for scene
+  // side of lens system.
+  ray = Ray (Point3f (x, 0, LensRear () - 1), Vector3f (0, 0, 1));
+  if (!CanRayThroughLensSystemFromFilm (ray, &through_ray))
+  {
+    // TODO: Error processing
+    std::cout << "Error! ComputeThickLensApproximation () 2" << std::endl;
+  }
+  ComputeCardinalPoints (ray, through_ray, &fz->at (1) , &pz->at (1));
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto RealisticCamera::ComputeCardinalPoints
 (
- const Ray& in,
- const Ray& out,
- Float* focus_point,     // Z-component of focus point
- Float* principal_plane  // Z-component of principal plane
+ const Ray& in,  // First ray.
+ const Ray& out, // Refracted ray through lens system.
+ Float* fz,      // Z-component of focus point.
+ Float* pz       // Z-component of principal plane.
 )
-  const -> void
+  const noexcept -> void
 {
   // $ t_f = -\frac{o_x}{d_x} $
   const Float tf = -out.Origin ().X () / out.Direction ().X ();
-  *focus_point = out.IntersectAt (tf).Z ();
+  *fz = out.IntersectAt (tf).Z ();
 
   // $ t_p = \frac{x - o_x}{d_x} $
   const Float tp = (in.Origin ().X () - out.Origin (). X ())
                  / out.Direction ().X ();
-  *principal_plane = out.IntersectAt (tp).Z ();
+  *pz = out.IntersectAt (tp).Z ();
 }
 /*
 // ---------------------------------------------------------------------------

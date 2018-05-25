@@ -118,8 +118,8 @@ auto operator * (const Transform& t, const Point3f& p) -> Point3f
   const Float zp = t (2, 0) * x + t (2, 1) * y + t (2, 2) * z + t (2, 3);
   const Float wp = t (3, 0) * x + t (3, 1) * y + t (3, 2) * z + t (3, 3);
 
-  if (wp == 1) { return Point3f (x, y, z); }
-  return Point3f (x, y, z) * (1.0 / wp);
+  if (wp == 1) { return Point3f (xp, yp, zp); }
+  return Point3f (xp, yp, zp) * (1.0 / wp);
 }
 /*
 // ---------------------------------------------------------------------------

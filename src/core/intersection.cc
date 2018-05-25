@@ -19,7 +19,8 @@ Intersection::Intersection () :
   normal_       (),
   material_ptr_ (nullptr),
   shape_ptr_    (nullptr),
-  position_     ()
+  position_     (),
+  is_hit_       (false)
 {}
 /*
 // ---------------------------------------------------------------------------
