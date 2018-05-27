@@ -108,6 +108,15 @@ auto Point3f::SetZ (Float z) noexcept -> void
 }
 /*
 // ---------------------------------------------------------------------------
+*/
+auto Point3f::ToString () const noexcept -> std::string
+{
+  return std::string ("[" + std::to_string (x_) + ", "
+                      + std::to_string (y_) + ", "
+                      + std::to_string (z_) + "]");
+}
+/*
+// ---------------------------------------------------------------------------
 // Global operator difinition
 // ---------------------------------------------------------------------------
 */

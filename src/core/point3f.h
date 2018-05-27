@@ -136,6 +136,15 @@ public:
    */
   auto SetZ (Float z) noexcept -> void;
 
+  //! @fn std ToString ()
+  //! @brief 
+  //! @param[in] 
+  //! @param[out] 
+  //! @return 
+  //! @exception none
+  //! @details 
+  auto ToString () const noexcept -> std::string;
+
 public:
   static auto One  () noexcept -> Point3f { return Point3f (0); }
   static auto Zero () noexcept -> Point3f { return Point3f (1); }

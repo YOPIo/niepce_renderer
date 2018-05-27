@@ -152,6 +152,16 @@ public:
   )
   const noexcept -> void;
 
+  /*!
+   * @fn void DrawLensSystem (const char*)
+   * @brief 
+   * @param[in] filename 
+   *    Save gnuplot command as file.
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto DrawLensSystem (const char* filename) const noexcept -> void;
 
 private:
   /*!
@@ -174,7 +184,7 @@ private:
 
   // ---------------------------------------------------------------------------
 
-
+public:
   // Return the distance from film to rear/front
   auto LensRear  () const -> Float
   {

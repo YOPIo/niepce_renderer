@@ -50,10 +50,13 @@ auto RealisticCamera::CanRayThroughLensSystemFromFilm
   static const Transform camera_to_lens (Scale (1, 1, -1));
   Ray lens_ray (camera_to_lens * ray);
 
-  for (std::size_t i = lens_.size () - 1; i >= 0; --i)
+  for (int i = lens_.size () - 1; i >= 0; --i)
   {
     // Get a i'th lens element.
     const LensElement& element = lens_[i];
+
+      std::printf ("%lf, %lf\n", lens_ray.Origin().Z (), lens_ray.Origin().X ());
+      std::printf ("%lf, %lf\n", lens_ray.Direction().Z (), lens_ray.Direction().X ());
 
     // Compute z-component of position of lens surface.
     z -= element.thickness_;
@@ -101,7 +104,6 @@ auto RealisticCamera::CanRayThroughLensSystemFromFilm
       lens_ray = Ray (intersection.Position (), w);
     }
   }
-
   // Transform $ ray $ in lens coordinate to camera coordinate
   if (out != nullptr)
   {
@@ -200,20 +202,21 @@ auto RealisticCamera::CanRayThroughSphericalElement
 {
   Intersection intersection;
 
-  const Vector3f& d = ray.Direction ();
-  const Point3f&  o = ray.Origin ();
+  const Vector3f& dir = ray.Direction ();
+  const Point3f&  ori = ray.Origin ();
 
-  std::cout << "o: " << o.X () << ", " << o.Y () << ", " << o.Z () << std::endl;
-  std::cout << "d: " << d.X () << ", " << d.Y () << ", " << d.Z () << std::endl << std::endl;;
+  const Float& curvature_radius = std::fabs (lens_element.curvature_radius_);
+  const Float& aperture_radius  = std::fabs (lens_element.aperture_radius_);
 
-  const Float& curvature_radius = lens_element.curvature_radius_;
-  const Float& aperture_radius  = lens_element.aperture_radius_;
+  const Vector3f o = ori - Point3f (0, 0, lens_element.center_z_);
+  const Float a
+    = dir.X () * dir.X () + dir.Y () * dir.Y () + dir.Z () * dir.Z ();
+  const Float b
+    = 2.0 * (dir.X () * o.X () + dir.Y () * o.Y () + dir.Z () * o.Z ());
+  const Float c
+    = o.X () * o.X () + o.Y () * o.Y () + o.Z () * o.Z ()
+    - curvature_radius * curvature_radius;
 
-  const Vector3f op = o - Point3f (0, 0, lens_element.center_z_);
-  const Float a = d.X () * d.X () + d.Y () * d.Y () + d.Z () * d.Z ();
-  const Float b = 2 * (d.X () * op.X () + d.Y () * op.Y () + d.Z () * op.Z ());
-  const Float c = op.X () * op.X () + op.Y () * op.Y () + op.Z () * op.Z ()
-                - curvature_radius * curvature_radius;
   // Solve quadratic equation
   Float t, t1, t2;
   if (!SolveQuadratic (a, b, c, &t1, &t2))
@@ -223,22 +226,26 @@ auto RealisticCamera::CanRayThroughSphericalElement
   }
 
   // Select a $t$ based on lens element and ray direction.
-  const bool use_closer = (d.Z () > 0) ^ (curvature_radius < 0);
+  const bool use_closer = (dir.Z () > 0) ^ (curvature_radius < 0);
   t = use_closer ? std::min (t1, t2) : std::max (t1, t2);
   if (t < 0)
   {
     return intersection;
   }
 
+  // Compute the intersect position.
+  const Point3f position = ray.IntersectAt (t);
+
   // Compute surface normal of element at ray intersection position.
-  Vector3f normal = Normalize (op + t * d);
-  normal = (Dot (normal, -d) < 0.f) ? -normal : normal;
+  const Vector3f normal = Normalize (position - Point3f (0, 0, lens_element.center_z_));
 
   // Store intersection info.
   intersection.SetDistance (t);
-  intersection.SetPosition (ray.IntersectAt (t));
+  intersection.SetPosition (position);
   intersection.SetNormal (normal);
   intersection.MakeHitFlagTrue ();
+
+  std::cout << intersection.Position().ToString() << std::endl;
 
   return intersection;
 }
@@ -276,7 +283,7 @@ auto RealisticCamera::ComputeThickLensApproximation
 {
   // Find height x from optical axis for parallel rays
   // これでいいの??
-  const Float x = film_.Diagonal ();
+  const Float x = film_.Diagonal () * 0.001;
 
   // Compute the cardinal points (focus point and principal plane) for film
   // side of lens system.
@@ -370,7 +377,7 @@ auto RealisticCamera::AttachLens (const char* filename) noexcept -> void
     element.curvature_radius_ = float_token[0] * 0.001;
     element.thickness_        = float_token[1] * 0.001;
     element.ior_              = float_token[2];
-    element.aperture_radius_  = float_token[3] * 0.001 / 2.0;
+    element.aperture_radius_  = float_token[3] / 2.0 * 0.001;
 
     if (element.curvature_radius_ == 0)
     {
@@ -387,6 +394,78 @@ auto RealisticCamera::AttachLens (const char* filename) noexcept -> void
     z -= lens_[i].thickness_;
     lens_[i].center_z_ = z + lens_[i].curvature_radius_;
   }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto RealisticCamera::DrawLensSystem (const char *filename)
+  const noexcept-> void
+{
+  std::ofstream ofs (filename);
+  if (!ofs)
+  {
+    std::cout << "Could not open " << filename << std::endl;
+  }
+
+  // Loop for lens element rightmost to leftmost.
+  for (const auto& element : lens_)
+  {
+    // const LensElement& element = lens_[i];
+
+    const bool is_aperture_stop = (element.curvature_radius_ == 0);
+    if (is_aperture_stop)
+    {
+      // Draw aperture stop by lines.
+      continue;
+      const Float z  = element.center_z_;
+      const Float x1 = element.aperture_radius_;
+      const Float x2 = -element.aperture_radius_ + 0.01;
+      const Float x3 = element.aperture_radius_;
+      const Float x4 = -element.aperture_radius_ - 0.01;
+      ofs << "l," << z << "," << x1 << "," << z << "," << x2 << '\n';
+      ofs << "l," << z << "," << x3 << "," << z << "," << x4 << '\n';
+      continue;
+    }
+
+    // Compute the $\theta$.
+    const Float theta = std::fabs (std::asin (element.aperture_radius_
+                                              / element.curvature_radius_));
+
+    // Draw i'th lens element.
+    const bool is_concave = (element.curvature_radius_ < 0);
+    if (is_concave)
+    {
+      const Float min = -element.aperture_radius_;
+      const Float max =  element.aperture_radius_;
+
+      // Draw concave lens element.
+      const Float z  = element.center_z_;
+      const Float r  = std::fabs (element.curvature_radius_);
+      const Float t1 = -theta;
+      const Float t2 = theta;
+      std::printf ("%.8lf,%.8lf,%.8lf,%.8lf\n", element.center_z_,
+                                                element.curvature_radius_,
+                                                min,
+                                                max);
+    }
+    else
+    {
+      const Float min = -element.aperture_radius_;
+      const Float max =  element.aperture_radius_;
+
+      // Draw convex lens element
+      const Float z  = element.center_z_;
+      const Float r  = std::fabs (element.curvature_radius_);
+      const Float t1 = kPi - theta;
+      const Float t2 = kPi + theta;
+      std::printf ("%.8lf,%.8lf,%.8lf,%.8lf\n", element.center_z_,
+                                                element.curvature_radius_,
+                                                min,
+                                                max);
+    }
+  }
+
+  ofs.close ();
 }
 /*
 // ---------------------------------------------------------------------------

@@ -57,20 +57,31 @@ int main (int argc, char* argv[])
   std::cout << std::endl;
 
   niepce::Transform t;
+  /*
   niepce::RealisticCamera camera (t,
                                   "../assets/lenses/wide.22mm.dat",
                                   1.0,
                                   16.0,
                                   true);
+  */
+  niepce::RealisticCamera camera (t,
+                                  "../assets/lenses/dgauss.50mm.dat",
+                                  1.0,
+                                  16.0,
+                                  true);
 
-  niepce::Ray in = niepce::Ray (niepce::Point3f  (0, 0, -1),
+  // camera.DrawLensSystem ("../tools/test.plt");
+
+  niepce::Ray in = niepce::Ray (niepce::Point3f  (0.005, 0, -1),
                                 niepce::Vector3f (0, 0, 1));
   niepce::Ray out;
   if (camera.CanRayThroughLensSystemFromFilm (in, &out))
   {
     std::cout << "throught" << std::endl;
   }
+
   return 0;
+
   std::array <niepce::Float, 2> fz, pz;
   camera.ComputeThickLensApproximation (&fz, &pz);
 

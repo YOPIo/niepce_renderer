@@ -223,7 +223,8 @@ auto Refract
 
   const Float cos_theta2 = std::sqrt (1.0 - sin2_theta2);
 
-  *refract = Vector3f (ior * -in + (ior * cos_theta1 - cos_theta1) * normal);
+  *refract = ior * -in + (ior * cos_theta1 - cos_theta2) * normal;
+
   return true;
 }
 /*
