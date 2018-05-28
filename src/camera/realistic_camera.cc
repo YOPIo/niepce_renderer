@@ -55,9 +55,6 @@ auto RealisticCamera::CanRayThroughLensSystemFromFilm
     // Get a i'th lens element.
     const LensElement& element = lens_[i];
 
-      std::printf ("%lf, %lf\n", lens_ray.Origin().Z (), lens_ray.Origin().X ());
-      std::printf ("%lf, %lf\n", lens_ray.Direction().Z (), lens_ray.Direction().X ());
-
     // Compute z-component of position of lens surface.
     z -= element.thickness_;
 
@@ -200,6 +197,9 @@ auto RealisticCamera::CanRayThroughSphericalElement
 )
   const noexcept -> Intersection
 {
+  std::cout << ray.Origin().Z () << ", " << ray.Origin().X () << std::endl;
+
+
   Intersection intersection;
 
   const Vector3f& dir = ray.Direction ();
@@ -226,8 +226,7 @@ auto RealisticCamera::CanRayThroughSphericalElement
   }
 
   // Select a $t$ based on lens element and ray direction.
-  const bool use_closer = (dir.Z () > 0) ^ (curvature_radius < 0);
-  t = use_closer ? std::min (t1, t2) : std::max (t1, t2);
+  t = t1 < 0 ? t2 : t1;
   if (t < 0)
   {
     return intersection;
@@ -237,15 +236,14 @@ auto RealisticCamera::CanRayThroughSphericalElement
   const Point3f position = ray.IntersectAt (t);
 
   // Compute surface normal of element at ray intersection position.
-  const Vector3f normal = Normalize (position - Point3f (0, 0, lens_element.center_z_));
+  const Vector3f normal
+    = Normalize (position - Point3f (0, 0, lens_element.center_z_));
 
   // Store intersection info.
   intersection.SetDistance (t);
   intersection.SetPosition (position);
   intersection.SetNormal (normal);
   intersection.MakeHitFlagTrue ();
-
-  std::cout << intersection.Position().ToString() << std::endl;
 
   return intersection;
 }

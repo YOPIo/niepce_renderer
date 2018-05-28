@@ -59,13 +59,13 @@ int main (int argc, char* argv[])
   niepce::Transform t;
   /*
   niepce::RealisticCamera camera (t,
-                                  "../assets/lenses/wide.22mm.dat",
+                                  "../assets/lenses/dgauss.50mm.dat",
                                   1.0,
                                   16.0,
                                   true);
   */
   niepce::RealisticCamera camera (t,
-                                  "../assets/lenses/dgauss.50mm.dat",
+                                  "../assets/lenses/wide.22mm.dat",
                                   1.0,
                                   16.0,
                                   true);
