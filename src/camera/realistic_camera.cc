@@ -67,20 +67,25 @@ auto RealisticCamera::CanRayThroughLensSystemFromFilm
       // should be pointed toward -z direction.
       const Float t = (z - lens_ray.Origin ().Z ()) / lens_ray.Direction ().Z ();
       intersection.SetDistance (t);
+      intersection.SetPosition (lens_ray.IntersectAt (t));
     }
     else
     {
       // Next element is convex or concave lens.
       intersection = CanRayThroughSphericalElement (lens_ray, element);
-      if (!intersection) { return false; /* Ray cannot through. */ }
+      if (!intersection) { std::cout << "elem" << std::endl;  return false; /* Ray cannot through. */ }
     }
 
     // Intersection test again. (Aperture)
     if (!CanRayThroughApertureElement (intersection.Position (), element))
     {
       // Ray cannot intersect at the outside of aperture.
+      std::cout << intersection.Position().ToString() << std::endl;
+      std::cout << "aperture" << std::endl;
       return false;
     }
+
+    // std::cout << intersection.Position().Z () << ", " << intersection.Position().X () << std::endl;
 
     // Update ray path.
     if (!is_aperture_stop)
@@ -96,11 +101,13 @@ auto RealisticCamera::CanRayThroughLensSystemFromFilm
                           &w))
       {
         // Total reflection has occurred.
+        std::cout << "total" << std::endl;
         return false;
       }
       lens_ray = Ray (intersection.Position (), w);
     }
   }
+
   // Transform $ ray $ in lens coordinate to camera coordinate
   if (out != nullptr)
   {
@@ -197,38 +204,26 @@ auto RealisticCamera::CanRayThroughSphericalElement
 )
   const noexcept -> Intersection
 {
-  std::cout << ray.Origin().Z () << ", " << ray.Origin().X () << std::endl;
-
-
   Intersection intersection;
 
-  const Vector3f& dir = ray.Direction ();
-  const Point3f&  ori = ray.Origin ();
+  const Float& z      = lens_element.center_z_;
+  const Float& radius = lens_element.curvature_radius_;
 
-  const Float& curvature_radius = std::fabs (lens_element.curvature_radius_);
-  const Float& aperture_radius  = std::fabs (lens_element.aperture_radius_);
+  const Vector3f op = Point3f (0, 0, z) - ray.Origin ();
+  const Float    b  = Dot (op, ray.Direction ());
+  const Float    c  = b * b - Dot (op, op) + radius * radius;
 
-  const Vector3f o = ori - Point3f (0, 0, lens_element.center_z_);
-  const Float a
-    = dir.X () * dir.X () + dir.Y () * dir.Y () + dir.Z () * dir.Z ();
-  const Float b
-    = 2.0 * (dir.X () * o.X () + dir.Y () * o.Y () + dir.Z () * o.Z ());
-  const Float c
-    = o.X () * o.X () + o.Y () * o.Y () + o.Z () * o.Z ()
-    - curvature_radius * curvature_radius;
+  if (c < 0.0) { return intersection; }
 
-  // Solve quadratic equation
-  Float t, t1, t2;
-  if (!SolveQuadratic (a, b, c, &t1, &t2))
-  {
-    // Ray does not intersect with i'th lens.
-    return intersection;
-  }
+  const Float sqrt_c = std::sqrt (c);
+  const Float t1 = b - sqrt_c;
+  const Float t2 = b + sqrt_c;
 
-  // Select a $t$ based on lens element and ray direction.
-  t = t1 < 0 ? t2 : t1;
+  const Float t = ((radius < 0) ^ (ray.Direction ().Z () > 0))
+                ? std::fmin (t1, t2) : std::fmax (t1, t2);
   if (t < 0)
   {
+    std::cout << t1 << ", " << t2 << std::endl;
     return intersection;
   }
 
@@ -236,8 +231,10 @@ auto RealisticCamera::CanRayThroughSphericalElement
   const Point3f position = ray.IntersectAt (t);
 
   // Compute surface normal of element at ray intersection position.
-  const Vector3f normal
+  Vector3f normal
     = Normalize (position - Point3f (0, 0, lens_element.center_z_));
+  // Normal vector should be always minus ray direction.
+  normal = Dot (ray.Direction(), normal) > 0 ? -normal : normal;
 
   // Store intersection info.
   intersection.SetDistance (t);
@@ -259,7 +256,7 @@ auto RealisticCamera::CanRayThroughApertureElement
 {
   const Float& aperture_radius = lens_element.aperture_radius_;
 
-  // Compute the position of intersection.
+  // ompute the position of intersection.
   const Float r2 = position.X () * position.X () + position.Y () * position.Y ();
   if (r2 > aperture_radius * aperture_radius)
   {

@@ -72,7 +72,7 @@ int main (int argc, char* argv[])
 
   // camera.DrawLensSystem ("../tools/test.plt");
 
-  niepce::Ray in = niepce::Ray (niepce::Point3f  (0.005, 0, -1),
+  niepce::Ray in = niepce::Ray (niepce::Point3f  (0.0025, 0, -1),
                                 niepce::Vector3f (0, 0, 1));
   niepce::Ray out;
   if (camera.CanRayThroughLensSystemFromFilm (in, &out))
