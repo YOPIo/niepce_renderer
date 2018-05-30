@@ -29,7 +29,7 @@ class Bounds2f
 {
 public:
   //! The default class constructor.
-  Bounds2f () = default;
+  Bounds2f ();
 
   //! The constructor takes two points.
   Bounds2f (const Point2f& p0, const Point2f& p1);
@@ -87,6 +87,26 @@ public:
    * @details
    */
   auto SetMin (const Point2f& min) noexcept -> void;
+
+  /*!
+   * @fn std ToString ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto ToString () const noexcept -> std::string;
+
+  /*!
+   * @fn bool IsInside (const Point2f&)
+   * @brief 
+   * @param[in] p
+   *    2-dimensional point
+   * @return Return true if point inside of bounding box, otherwise return false.
+   * @exception none
+   * @details
+   */
+  auto IsInside (const Point2f& p) const noexcept -> bool;
 
 public:
   Point2f min_, max_;

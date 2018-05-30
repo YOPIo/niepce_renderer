@@ -14,6 +14,13 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
+Bounds2f::Bounds2f () :
+  min_ (kFloatMax, kFloatMax),
+  max_ (kFloatMin, kFloatMin)
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
 Bounds2f::Bounds2f (const Point2f& p0, const Point2f& p1)
 {
   const Float min_x = std::fmin (p0.X (), p1.X ());
@@ -51,6 +58,22 @@ auto Bounds2f::SetMax (const Point2f& max) noexcept -> void
 auto Bounds2f::SetMin (const Point2f& min) noexcept -> void
 {
   min_ = min;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bounds2f::ToString () const noexcept -> std::string
+{
+  return "min: " + min_.ToString () + "\n" +
+         "max: " + max_.ToString ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bounds2f::IsInside (const Point2f &p) const noexcept -> bool
+{
+  return (min_.X () <= p.X ()) && (p.X () <= max_.X ()) &&
+         (min_.Y () <= p.Y ()) && (p.Y () <= max_.Y ());
 }
 /*
 // ---------------------------------------------------------------------------

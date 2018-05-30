@@ -125,6 +125,16 @@ public:
   //! @exception none
   auto SetV (Float y) noexcept -> void;
 
+  /*!
+   * @fn std ToString ()
+   * @brief 
+   * @return std::string
+   *    
+   * @exception none
+   * @details
+   */
+  auto ToString () const noexcept -> std::string;
+
 private:
   Float x_, y_;
 }; // class Point2f

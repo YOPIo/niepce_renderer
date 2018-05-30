@@ -134,34 +134,29 @@ public:
   const noexcept -> void;
 
   /*!
-   * @fn void ComputeThickLensApproximation (std::pair <Float, Float>*, std::pair <Float, Float>*)
+   * @fn void ComputeExitPupilBounds ()
    * @brief 
-   * @param[in] in
-   *    Pair of focus point and principal plane.
-   * @param[in] out
-   *    Pair of focus point and principal plane.
+   * @param[in] begin_x
+   *    
+   * @param[in] last_x
+   *    
    * @return 
    * @exception none
-   * @details 
+   * @details
    */
-  auto ComputeThickLensApproximation
-  (
-   // focus point, principal plane.
-   std::array <Float, 2>* in,
-   std::array <Float, 2>* out
-  )
-  const noexcept -> void;
+  auto ComputeExitPupilBounds (Float begin_x, Float last_x) -> void;
+
 
   /*!
-   * @fn void DrawLensSystem (const char*)
+   * @fn Float FocusOn ()
    * @brief 
-   * @param[in] filename 
-   *    Save gnuplot command as file.
+   * @param[in] 
+   * @param[out] 
    * @return 
    * @exception none
-   * @details 
+   * @details
    */
-  auto DrawLensSystem (const char* filename) const noexcept -> void;
+  auto FocusOn (Float focus_distance) -> Float;
 
 private:
   /*!
@@ -181,6 +176,24 @@ private:
    const LensElement& element
   )
   const noexcept -> Intersection;
+
+  /*!
+   * @fn bool CanRayThroughApertureelement (const Point3f&, const LensElement&)
+   * @brief 
+   * @param[in] position
+   *
+   * @param[in] lens_element
+   *
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto CanRayThroughApertureElement
+  (
+   const Point3f&     position,
+   const LensElement& lens_element
+  )
+  const noexcept -> bool;
 
   // ---------------------------------------------------------------------------
 
@@ -207,31 +220,12 @@ public:
   // Load lens file
   auto AttachLens (const char* filename) noexcept -> void;
 
-  auto TraceLensesFromFilm
-  (
-   const Ray& ray, // Camera coordinates
-         Ray* out  // Camera coordinates
-  )
-  const -> bool;
-
-  auto TraceLensesFromScene
-  (
-   const Ray& ray, // Camera coordinate
-         Ray* out  // Camera coordinate
-  )
-  const -> bool;
-
-  auto CanRayThroughApertureElement
-  (
-   const Point3f&     position,
-   const LensElement& lens_element
-  )
-  const -> bool;
-
 private:
   const Float aperture_diameter_;
   const bool simple_weighting_;
   std::vector <LensElement> lens_;
+
+  std::vector <Bounds2f> exit_pupil_bounds_;
 
 }; // class RealisticCamera
 /*

@@ -83,6 +83,9 @@ typedef Vector3f Spectrum;
 */
 constexpr Float kPi       = 3.141592653589793238462643383279502884197169399375105820974;
 constexpr Float kInfinity = std::numeric_limits <Float>::infinity ();
+constexpr Float kEpsilon  = std::numeric_limits <Float>::epsilon ();
+constexpr Float kFloatMax = std::numeric_limits <Float>::max ();
+constexpr Float kFloatMin = std::numeric_limits <Float>::lowest ();
 /*
 // ---------------------------------------------------------------------------
 // Niepce renderer global function
@@ -103,6 +106,34 @@ inline auto Clamp (T x, T min, T max) -> T
   if (x < min) { return min; }
   if (x > max) { return max; }
   return x;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto Lerp (Float t, Float v1, Float v2) -> Float
+{
+  return (1 - t) * v1 + t * v2;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto ReverseBits32 (uint32_t n) -> uint32_t
+{
+  n = (n << 16) | (n >> 16);
+  n = ((n & 0x00ff00ff) << 8) | ((n & 0xff00ff00) >> 8);
+  n = ((n & 0x0f0f0f0f) << 4) | ((n & 0xf0f0f0f0) >> 4);
+  n = ((n & 0x33333333) << 2) | ((n & 0xcccccccc) >> 2);
+  n = ((n & 0x55555555) << 1) | ((n & 0xaaaaaaaa) >> 1);
+  return n;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto ReverseBits64 (uint64_t n) -> uint64_t
+{
+  uint64_t n1 = ReverseBits32 (static_cast <uint32_t> (n));
+  uint64_t n2 = ReverseBits32 (static_cast <uint32_t> (n >> 32));
+  return (n1 << 32) | n2;
 }
 /*
 // ---------------------------------------------------------------------------

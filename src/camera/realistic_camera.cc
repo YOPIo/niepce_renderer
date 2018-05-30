@@ -9,9 +9,10 @@
 #include "../bsdf/bsdf.h"
 #include "../core/utilities.h"
 #include "../core/ray.h"
-
 #include "../core/transform.h"
 #include "../core/intersection.h"
+#include "../core/bounds2f.h"
+#include "../sampler/low_discrepancy_sequence.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -252,7 +253,7 @@ auto RealisticCamera::CanRayThroughApertureElement
  const Point3f&     position,
  const LensElement& lens_element
 )
-  const -> bool
+  const noexcept -> bool
 {
   const Float& aperture_radius = lens_element.aperture_radius_;
 
@@ -264,43 +265,6 @@ auto RealisticCamera::CanRayThroughApertureElement
     return false;
   }
   return true;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto RealisticCamera::ComputeThickLensApproximation
-(
- // focus point, rincipal plane.
- std::array <Float, 2>* fz,
- std::array <Float, 2>* pz
-)
-  const noexcept -> void
-{
-  // Find height x from optical axis for parallel rays
-  // これでいいの??
-  const Float x = film_.Diagonal () * 0.001;
-
-  // Compute the cardinal points (focus point and principal plane) for film
-  // side of lens system.
-  Ray ray (Point3f  (x, 0, LensFront () + 1),
-                      Vector3f (0, 0, -1));
-  Ray through_ray;
-  if (!CanRayThroughLensSystemFromScene (ray, &through_ray))
-  {
-    // TODO: Error processing
-    std::cout << "Error! ComputeThickLensApproximation () 1" << std::endl;
-  }
-  ComputeCardinalPoints (ray, through_ray, &fz->at (0) , &pz->at (0));
-
-  // Compute the cardinal points (focus point and principal plane) for scene
-  // side of lens system.
-  ray = Ray (Point3f (x, 0, LensRear () - 1), Vector3f (0, 0, 1));
-  if (!CanRayThroughLensSystemFromFilm (ray, &through_ray))
-  {
-    // TODO: Error processing
-    std::cout << "Error! ComputeThickLensApproximation () 2" << std::endl;
-  }
-  ComputeCardinalPoints (ray, through_ray, &fz->at (1) , &pz->at (1));
 }
 /*
 // ---------------------------------------------------------------------------
@@ -322,6 +286,41 @@ auto RealisticCamera::ComputeCardinalPoints
   const Float tp = (in.Origin ().X () - out.Origin (). X ())
                  / out.Direction ().X ();
   *pz = out.IntersectAt (tp).Z ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto RealisticCamera::ComputeExitPupilBounds (Float begin_x, Float last_x) -> void
+{
+  Bounds2f exit_pupil_bounds;
+
+  // Sample the points to find the exit pupil at the segment.
+  static constexpr int num_samples = 1024 * 1024;
+
+  // The number of rays that exiting a lens system.
+  int exiting_rays = 0;
+
+  // The bounds of exit pupil prefer to bigger than perpendicular projection.
+  const Float rear_radius = RearElementRadius ();
+  const Bounds2f rear_bounds (Point2f (-1.5 * rear_radius, -1.5 * rear_radius),
+                              Point2f ( 1.5 * rear_radius,  1.5 * rear_radius));
+
+  for (int i = 0; i < num_samples; ++i)
+  {
+    // Find positions of sample points on x segment and rear lens element.
+    const Float tx = Lerp (RadicalInverse (2, i),
+                           rear_bounds.Min ().X (),
+                           rear_bounds.Max ().X ());
+    const Float ty = Lerp (RadicalInverse (3, i),
+                           rear_bounds.Min ().Y (),
+                           rear_bounds.Max ().Y ());
+
+    const Point3f origin (Lerp ((i + 0.5) / num_samples, begin_x, last_x), 0, 0);
+    const Point3f target (tx, ty, LensRear ());
+
+    
+  }
+
 }
 /*
 // ---------------------------------------------------------------------------
@@ -393,74 +392,49 @@ auto RealisticCamera::AttachLens (const char* filename) noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
-auto RealisticCamera::DrawLensSystem (const char *filename)
-  const noexcept-> void
+auto RealisticCamera::FocusOn (Float focus_distance) -> Float
 {
-  std::ofstream ofs (filename);
-  if (!ofs)
+  Float f1, f2;
+  Float p1, p2;
+
+  // Find the height x from optical axis for parallel rays.
+  // Works well. (May be)
+  const Float x = film_.Diagonal () * 0.001;
+
+  // Compute the focus point and principal plane. (film to scene)
+  // Ray should be camera coordinate.
+  Ray ray1 (Point3f  (x, 0, LensRear () - 1), // Origin
+            Vector3f (0, 0, 1));              // Direction
+  Ray out1;
+  if (!CanRayThroughLensSystemFromFilm (ray1, &out1))
   {
-    std::cout << "Could not open " << filename << std::endl;
+    // TODO: Fix
+    std::cout << "Error" << std::endl;
+    return -1;
   }
+  ComputeCardinalPoints (ray1, out1, &f1, &p1);
 
-  // Loop for lens element rightmost to leftmost.
-  for (const auto& element : lens_)
+  // Compute the focus and principal plane. (scene to film)
+  // Ray should be camera coordinate.
+  Ray ray2 (Point3f  (-x, 0, LensFront () + 1), // Origin
+            Vector3f (0, 0, -1));               // Direction
+  Ray out2;
+  if (!CanRayThroughLensSystemFromScene (ray2, &out2))
   {
-    // const LensElement& element = lens_[i];
-
-    const bool is_aperture_stop = (element.curvature_radius_ == 0);
-    if (is_aperture_stop)
-    {
-      // Draw aperture stop by lines.
-      continue;
-      const Float z  = element.center_z_;
-      const Float x1 = element.aperture_radius_;
-      const Float x2 = -element.aperture_radius_ + 0.01;
-      const Float x3 = element.aperture_radius_;
-      const Float x4 = -element.aperture_radius_ - 0.01;
-      ofs << "l," << z << "," << x1 << "," << z << "," << x2 << '\n';
-      ofs << "l," << z << "," << x3 << "," << z << "," << x4 << '\n';
-      continue;
-    }
-
-    // Compute the $\theta$.
-    const Float theta = std::fabs (std::asin (element.aperture_radius_
-                                              / element.curvature_radius_));
-
-    // Draw i'th lens element.
-    const bool is_concave = (element.curvature_radius_ < 0);
-    if (is_concave)
-    {
-      const Float min = -element.aperture_radius_;
-      const Float max =  element.aperture_radius_;
-
-      // Draw concave lens element.
-      const Float z  = element.center_z_;
-      const Float r  = std::fabs (element.curvature_radius_);
-      const Float t1 = -theta;
-      const Float t2 = theta;
-      std::printf ("%.8lf,%.8lf,%.8lf,%.8lf\n", element.center_z_,
-                                                element.curvature_radius_,
-                                                min,
-                                                max);
-    }
-    else
-    {
-      const Float min = -element.aperture_radius_;
-      const Float max =  element.aperture_radius_;
-
-      // Draw convex lens element
-      const Float z  = element.center_z_;
-      const Float r  = std::fabs (element.curvature_radius_);
-      const Float t1 = kPi - theta;
-      const Float t2 = kPi + theta;
-      std::printf ("%.8lf,%.8lf,%.8lf,%.8lf\n", element.center_z_,
-                                                element.curvature_radius_,
-                                                min,
-                                                max);
-    }
+    // TODO: Fix
+    std::cout << "Error" << std::endl;
+    return -1;
   }
+  ComputeCardinalPoints (ray2, out2, &f2, &p2);
 
-  ofs.close ();
+  // Compute translation of lens to fucus on.
+  const Float f = f1 - p1;
+  const Float z = -focus_distance;
+
+  const Float translation
+    = 0.5 * (p2 - z + p1 - std::sqrt ((p1 - z - p1) * (p1 - z - 4 * f - p1)));
+
+  return lens_.back ().thickness_ + translation;
 }
 /*
 // ---------------------------------------------------------------------------

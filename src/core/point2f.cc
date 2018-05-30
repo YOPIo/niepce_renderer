@@ -102,6 +102,13 @@ auto Point2f::SetV (Float v) noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
+auto Point2f::ToString () const noexcept -> std::string
+{
+  return "[" + std::to_string (x_) + ", " + std::to_string(y_) + "]";
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto operator == (const Point2f& lhs, const Point2f& rhs) -> bool
 {
   if (lhs.X () == rhs.X () &&

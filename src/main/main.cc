@@ -15,6 +15,7 @@
 #include "../material/metal.h"
 #include "../core/transform.h"
 #include "../camera/realistic_camera.h"
+#include "../sampler/low_discrepancy_sequence.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -50,48 +51,15 @@ auto RenderScene () -> void
 */
 int main (int argc, char* argv[])
 {
-  niepce::StopWatch stopwatch;
-  stopwatch.Start ();
+  niepce::Bounds2f b;
+  std::cout << b.ToString () << std::endl;
+
+
+  // niepce::StopWatch stopwatch;
+  // stopwatch.Start ();
   // niepce::RenderScene ();
-  stopwatch.Stop ();
-  std::cout << std::endl;
-
-  niepce::Transform t;
-  /*
-  niepce::RealisticCamera camera (t,
-                                  "../assets/lenses/dgauss.50mm.dat",
-                                  1.0,
-                                  16.0,
-                                  true);
-  */
-  niepce::RealisticCamera camera (t,
-                                  "../assets/lenses/wide.22mm.dat",
-                                  1.0,
-                                  16.0,
-                                  true);
-
-  // camera.DrawLensSystem ("../tools/test.plt");
-
-  niepce::Ray in = niepce::Ray (niepce::Point3f  (0.0025, 0, -1),
-                                niepce::Vector3f (0, 0, 1));
-  niepce::Ray out;
-  if (camera.CanRayThroughLensSystemFromFilm (in, &out))
-  {
-    std::cout << "throught" << std::endl;
-  }
-
-  return 0;
-
-  std::array <niepce::Float, 2> fz, pz;
-  camera.ComputeThickLensApproximation (&fz, &pz);
-
-  std::cout << "\nFrom Scene side tracing :\n";
-  std::cout << "Focus point     : " << fz[0] << std::endl;
-  std::cout << "Principal plame : " << pz[0] << std::endl;
-
-  std::cout << "\nFrom Film side tracing :\n";
-  std::cout << "Focus point     : " << fz[1] << std::endl;
-  std::cout << "Principal plame : " << pz[1] << std::endl;
+  // stopwatch.Stop ();
+  // std::cout << std::endl;
 
   return 0;
 }
