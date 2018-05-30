@@ -51,15 +51,10 @@ auto RenderScene () -> void
 */
 int main (int argc, char* argv[])
 {
-  niepce::Bounds2f b;
-  std::cout << b.ToString () << std::endl;
-
-
   // niepce::StopWatch stopwatch;
   // stopwatch.Start ();
   // niepce::RenderScene ();
   // stopwatch.Stop ();
   // std::cout << std::endl;
-
   return 0;
 }

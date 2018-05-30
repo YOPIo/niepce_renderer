@@ -76,7 +76,18 @@ public:
   auto GenerateRay () const -> Ray override final
   {}
 
-public:
+  /*!
+   * @fn Float FocusOn ()
+   * @brief 
+   * @param[in] focus_distance
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto FocusOn (Float focus_distance) -> Float;
+
+private:
   /*!
    * @fn bool CanRayThroughLensSystemFromFilm (const Ray&, Ray*) const noexcept
    * @brief 
@@ -144,19 +155,25 @@ public:
    * @exception none
    * @details
    */
-  auto ComputeExitPupilBounds (Float begin_x, Float last_x) -> void;
-
+  auto ComputeExitPupilBounds (Float begin_x, Float last_x)
+    const noexcept -> Bounds2f;
 
   /*!
-   * @fn Float FocusOn ()
+   * @fn Float SampleExitPupil ()
    * @brief 
    * @param[in] 
-   * @param[out] 
+   *    
    * @return 
    * @exception none
    * @details
    */
-  auto FocusOn (Float focus_distance) -> Float;
+  auto SampleExitPupil
+  (
+   const Point2f& pfilm,
+   const Point2f& plens,
+   Float* bounds_area
+  )
+  const noexcept -> Point3f;
 
 private:
   /*!
@@ -219,6 +236,13 @@ public:
 
   // Load lens file
   auto AttachLens (const char* filename) noexcept -> void;
+
+  auto RenderExitPupil
+  (
+   const Point2f& film, // Camera coordinate
+   const char* filename
+  )
+  const noexcept -> void;
 
 private:
   const Float aperture_diameter_;

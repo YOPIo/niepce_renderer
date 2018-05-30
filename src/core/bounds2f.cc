@@ -5,6 +5,7 @@
  * @date 2018/5/5
  * @details 
  */
+#include "vector2f.h"
 #include "bounds2f.h"
 /*
 // ---------------------------------------------------------------------------
@@ -30,6 +31,33 @@ Bounds2f::Bounds2f (const Point2f& p0, const Point2f& p1)
 
   min_ = Point2f (min_x, min_y);
   max_ = Point2f (max_x, max_y);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bounds2f::Append (const Point2f& p) noexcept -> void
+{
+  const Float min_x = std::fmin (min_.X (), p.X ());
+  const Float max_x = std::fmax (max_.X (), p.X ());
+  const Float min_y = std::fmin (min_.Y (), p.Y ());
+  const Float max_y = std::fmax (max_.Y (), p.Y ());
+  *this = Bounds2f (Point2f (min_x, min_y), Point2f (max_x, max_y));
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bounds2f::Diagonal () const noexcept -> Vector2f
+{
+  return max_ - min_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bounds2f::Expand (Float delta) noexcept -> void
+{
+  const Point2f min = Point2f (min_.X () - delta, min_.Y () - delta);
+  const Point2f max = Point2f (max_.X () + delta, max_.Y () - delta);
+  *this = Bounds2f (min, max);
 }
 /*
 // ---------------------------------------------------------------------------

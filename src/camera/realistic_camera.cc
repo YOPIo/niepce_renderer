@@ -12,6 +12,7 @@
 #include "../core/transform.h"
 #include "../core/intersection.h"
 #include "../core/bounds2f.h"
+#include "../core/vector2f.h"
 #include "../sampler/low_discrepancy_sequence.h"
 /*
 // ---------------------------------------------------------------------------
@@ -290,9 +291,10 @@ auto RealisticCamera::ComputeCardinalPoints
 /*
 // ---------------------------------------------------------------------------
 */
-auto RealisticCamera::ComputeExitPupilBounds (Float begin_x, Float last_x) -> void
+auto RealisticCamera::ComputeExitPupilBounds (Float begin_x, Float last_x)
+  const noexcept -> Bounds2f
 {
-  Bounds2f exit_pupil_bounds;
+  Bounds2f exit_bounds;
 
   // Sample the points to find the exit pupil at the segment.
   static constexpr int num_samples = 1024 * 1024;
@@ -301,26 +303,68 @@ auto RealisticCamera::ComputeExitPupilBounds (Float begin_x, Float last_x) -> vo
   int exiting_rays = 0;
 
   // The bounds of exit pupil prefer to bigger than perpendicular projection.
-  const Float rear_radius = RearElementRadius ();
+  const Float    rear_radius = RearElementRadius ();
   const Bounds2f rear_bounds (Point2f (-1.5 * rear_radius, -1.5 * rear_radius),
                               Point2f ( 1.5 * rear_radius,  1.5 * rear_radius));
 
   for (int i = 0; i < num_samples; ++i)
   {
     // Find positions of sample points on x segment and rear lens element.
+    const Point3f origin (Lerp ((i + 0.5) / num_samples, begin_x, last_x), 0, 0);
+
+    // Sample position on rear lens element bounding box.
     const Float tx = Lerp (RadicalInverse (2, i),
                            rear_bounds.Min ().X (),
                            rear_bounds.Max ().X ());
     const Float ty = Lerp (RadicalInverse (3, i),
                            rear_bounds.Min ().Y (),
                            rear_bounds.Max ().Y ());
-
-    const Point3f origin (Lerp ((i + 0.5) / num_samples, begin_x, last_x), 0, 0);
     const Point3f target (tx, ty, LensRear ());
 
-    
+    // The sampled point on rear lens element is in exit pupil bounds.
+    if (exit_bounds.IsInside (Point2f (tx, ty)))
+    {
+      exit_bounds.Append (Point2f (tx, ty));
+      ++exiting_rays;
+      continue;
+    }
+
+    // Construct a ray from point on the segment to rear lens element.
+    const Ray ray (origin, target - origin);
+
+    // Expand exit pupil bounds if ray through the lens system.
+    if (CanRayThroughLensSystemFromFilm (ray, nullptr))
+    {
+      // Ray through the lens system.
+      exit_bounds.Append (Point2f (tx, ty));
+      ++exiting_rays;
+    }
   }
 
+  if (exiting_rays == 0)
+  {
+    // No ray from segment through lens system.
+    return Bounds2f ();
+  }
+
+  // Expand a exit pupil bounds.
+  exit_bounds.Expand (2.0 * rear_bounds.Diagonal ().Length ()
+                      / std::sqrt (num_samples));
+
+  return exit_bounds;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto RealisticCamera::SampleExitPupil
+(
+ const Point2f& pfilm,
+ const Point2f& plens,
+ Float* bounds_area
+)
+  const noexcept -> Point3f
+{
+  // Find 
 }
 /*
 // ---------------------------------------------------------------------------
@@ -435,6 +479,43 @@ auto RealisticCamera::FocusOn (Float focus_distance) -> Float
     = 0.5 * (p2 - z + p1 - std::sqrt ((p1 - z - p1) * (p1 - z - 4 * f - p1)));
 
   return lens_.back ().thickness_ + translation;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto RealisticCamera::RenderExitPupil
+(
+ const Point2f& film, // Camera coordinate
+ const char* filename
+)
+  const noexcept -> void
+{
+  const Point3f point_on_film (film.X (), film.Y (), 0);
+  const int     num_samples = 2048;
+  const Float   radius = RearElementRadius ();
+
+  Float* image = new Float [3 * num_samples * num_samples];
+
+  for (int y = 0; y < num_samples; ++y)
+  {
+    const Float fy = static_cast <Float> (y) /
+                     static_cast<Float>(num_samples - 1);
+    const Float ly = Lerp (fy, -radius, radius);
+
+    for (int x = 0; x < num_samples; ++y)
+    {
+      const Float fx = static_cast <Float> (x) /
+                       static_cast <Float> (num_samples - 1);
+      const Float lx = Lerp(fx, -radius, radius);
+
+      const Point3f target (lx, ly, LensRear ());
+
+      if (lx * lx + ly * ly > radius * radius)
+      {
+        
+      }
+    }
+  }
 }
 /*
 // ---------------------------------------------------------------------------

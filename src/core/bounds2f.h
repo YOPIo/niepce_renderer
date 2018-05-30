@@ -51,6 +51,37 @@ public:
 
 public:
   /*!
+   * @fn void Append (const Point2f&)
+   * @brief 
+   * @param[in] p
+   *    Point
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto Append (const Point2f& p) noexcept -> void;
+
+  /*!
+   * @fn Vector2f Diagonal ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+  */
+  auto Diagonal () const noexcept -> Vector2f;
+
+  /*!
+   * @fn void Expand (Float)
+   * @brief 
+   * @param[in] delta
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Expand (Float delta) noexcept -> void;
+
+  /*!
    * @fn Point2f Max ()
    * @brief Return the maximum point of bounds.
    * @return Position of maximum as Point2f.
