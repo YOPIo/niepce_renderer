@@ -57,8 +57,8 @@ else () # if (BUILD_CUI_RENDERER)
     Bsdf
     Shape
     Primitive
-    Sampler
     Camera
+    Sampler
     Core)
 
 endif ()

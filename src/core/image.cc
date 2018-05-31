@@ -6,7 +6,7 @@
  * @details
  */
 #include "image.h"
-#include "pixel.h"
+#include "vector3f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -15,49 +15,52 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Image::Image () :
-  width_  (0),
-  height_ (0),
-  pixels_ (nullptr)
+template <typename T>
+Image<T>::Image (unsigned int width, unsigned int height) :
+  width_  (width),
+  height_ (height),
+  data_   (new T [width * height])
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-Image::Image (unsigned int width, unsigned int height) :
-  width_  (width),
-  height_ (height),
-  pixels_ (new Pixel[width * height])
+template <typename T>
+auto Image<T>::operator () (unsigned int x, unsigned int y)
+  const noexcept -> T
 {
-  for (int i = 0; i < width * height; ++i)
-  {
-    pixels_[i] = Pixel ();
-  }
+  return data_[y * width_ + x];
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Image::operator () (unsigned int x, unsigned int y) const -> Pixel
+template <typename T>
+auto Image<T>::At (unsigned int x, unsigned int y) const -> T
 {
-  if (width_ <= x || height_ <= y)
-  {
-    throw std::out_of_range ("");
-  }
-  return pixels_[x * width_ + y];
+  if (width_ <= x || height_ <= y) { throw std::out_of_range (""); }
+  return data_[y * width_ + x];
 }
 /*
 // ---------------------------------------------------------------------------
 */
-inline auto Image::Height () const noexcept -> unsigned int
+template <typename T>
+auto Image<T>::Height () const noexcept -> unsigned int
 {
   return height_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-inline auto Image::Width () const noexcept -> unsigned int
+template <typename T>
+auto Image<T>::Width () const noexcept -> unsigned int
 {
   return width_;
 }
+/*
+// ---------------------------------------------------------------------------
+*/
+template class Image <bool>;
+template class Image <Float>;
+template class Image <Spectrum>;
 /*
 // ---------------------------------------------------------------------------
 */

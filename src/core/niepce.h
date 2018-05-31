@@ -44,8 +44,8 @@ class AssembledTiles;
 class BeckmannDistribution;
 class Bounds2f;
 class Bsdf;
-class Image;
-class IOImage;
+template <typename T> class Image;
+template <typename T> class ImageIO;
 class Intersection;
 class Lambert;
 class Material;
@@ -134,6 +134,14 @@ inline auto ReverseBits64 (uint64_t n) -> uint64_t
   uint64_t n1 = ReverseBits32 (static_cast <uint32_t> (n));
   uint64_t n2 = ReverseBits32 (static_cast <uint32_t> (n >> 32));
   return (n1 << 32) | n2;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto FloatToInt (Float x) -> uint8_t
+{
+  uint8_t res = static_cast <uint8_t> (x * 255 - 1.0 + 0.5);
+  return res;
 }
 /*
 // ---------------------------------------------------------------------------

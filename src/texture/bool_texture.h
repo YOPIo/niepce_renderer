@@ -1,56 +1,54 @@
 /*!
- * @file image_texture.h
+ * @file bool_texture.h
  * @brief 
  * @author Masashi Yoshida
  * @date 
  * @details 
  */
-#ifndef _IMAGE_TEXTURE_H_
-#define _IMAGE_TEXTURE_H_
+#ifndef _BOOL_TEXTURE_H_
+#define _BOOL_TEXTURE_H_
 /*
 // ---------------------------------------------------------------------------
 */
+#include "../core/niepce.h"
 #include "texture.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-*/
 //! ----------------------------------------------------------------------------
-//! @class ImageTexture
+//! @class BoolTexture
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class ImageTexture : public Texture
+class BoolTexture final : public Texture
 {
 public:
   //! The default class constructor.
-  ImageTexture () = default;
+  BoolTexture () = default;
 
-  //! The constructor takes filename.
-  ImageTexture (const char* filename);
+  //! The constructor takes file path.
+  BoolTexture (const char* filename);
 
   //! The copy constructor of the class.
-  ImageTexture (const ImageTexture& texture) = default;
+  BoolTexture (const BoolTexture& texture) = default;
 
   //! The move constructor of the class.
-  ImageTexture (ImageTexture&& texture) = default;
+  BoolTexture (BoolTexture&& texture) = default;
 
   //! The default class destructor.
-  virtual ~ImageTexture () = default;
+  virtual ~BoolTexture () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const ImageTexture& texture) -> ImageTexture& = default;
+  auto operator = (const BoolTexture& texture) -> BoolTexture& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (ImageTexture&& texture) -> ImageTexture& = default;
+  auto operator = (BoolTexture&& texture) -> BoolTexture& = default;
 
 public:
   /*!
-   * @fn Pixel Sample (Float)
+   * @fn Spectrum Sample (const Point2f&)
    * @brief Sample the pixel.
    * @param[in] uv
    *    UV-parameter [0, 1]
@@ -61,14 +59,9 @@ public:
   auto Sample (const Point2f& uv) const noexcept -> Spectrum override final;
 
 private:
-  std::shared_ptr <ImageIO <Spectrum>> image_;
-}; // class ImageTexture
-/*
-// ---------------------------------------------------------------------------
-// Function for the image texture
-// ---------------------------------------------------------------------------
-*/
-auto CreateImageTexture (const std::string& filename) -> std::shared_ptr <Texture>;
+  std::shared_ptr <ImageIO <bool>> image_;
+
+}; // class BoolTexture
 /*
 // ---------------------------------------------------------------------------
 */
@@ -76,5 +69,4 @@ auto CreateImageTexture (const std::string& filename) -> std::shared_ptr <Textur
 /*
 // ---------------------------------------------------------------------------
 */
-#endif // _IMAGE_TEXTURE_H_
-
+#endif // _BOOL_TEXTURE_H_

@@ -50,7 +50,7 @@ auto PathTracer::Render () -> void
     = settings_.GetItem (RenderSettings::Item::kNumSamples);
 
   // Todo: Delete
-  image_.reset (new Vector3f [resolution_width * resolution_height]);
+  image_.reset (new Spectrum [resolution_width * resolution_height]);
 
   // Divide tile
   std::vector <Bounds2f> tile_bounds;
@@ -206,7 +206,7 @@ auto PathTracer::Radiance
   MemoryArena memory;
 
   // Render the tile.
-  for (unsigned int depth = 0; ; ++depth)
+  for (unsigned int depth = 0; depth < 10; ++depth)
   {
     // -------------------------------------------------------------------------
     // Intersection test
@@ -223,9 +223,9 @@ auto PathTracer::Radiance
     // Ready to generate the BSDF.
     const std::shared_ptr <Material> material = intersection.Material ();
 
-    l = l + Multiply (f, material->Emission (intersection.Texcoord ()));
+    l = l + f * material->Emission (intersection.Texcoord ());
 
-    if (material->HasEmission ()) return l;
+    if (material->HasEmission ()) { return l; }
 
     // Russian roulette
     Float q = std::max ({l[0], l[1], l[2]});
@@ -251,6 +251,7 @@ auto PathTracer::Radiance
     // Ready to trace the incident direction.
     ray = Ray (intersection.Position (), incident);
   }
+
   return l;
 }
 /*

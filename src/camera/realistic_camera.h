@@ -17,6 +17,19 @@
 */
 namespace niepce
 {
+/*
+// ---------------------------------------------------------------------------
+*/
+/*
+                                              x
+                                              |
+                                              |
+                                              |
+  Scene --------------------------------------|-----> z Film
+                                              |
+                                              |
+                                              |
+*/
 /*!
  * ----------------------------------------------------------------------------
  * @class RealisticCamera
@@ -76,18 +89,8 @@ public:
   auto GenerateRay () const -> Ray override final
   {}
 
-  /*!
-   * @fn Float FocusOn ()
-   * @brief 
-   * @param[in] focus_distance
-   *    
-   * @return 
-   * @exception none
-   * @details
-   */
-  auto FocusOn (Float focus_distance) -> Float;
-
 private:
+  // public:
   /*!
    * @fn bool CanRayThroughLensSystemFromFilm (const Ray&, Ray*) const noexcept
    * @brief 
@@ -157,6 +160,17 @@ private:
    */
   auto ComputeExitPupilBounds (Float begin_x, Float last_x)
     const noexcept -> Bounds2f;
+
+  /*!
+   * @fn Float FocusOn ()
+   * @brief 
+   * @param[in] focus_distance
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto FocusOn (Float focus_distance) -> Float;
 
   /*!
    * @fn Float SampleExitPupil ()
@@ -246,7 +260,7 @@ public:
 
 private:
   const Float aperture_diameter_;
-  const bool simple_weighting_;
+  const bool  simple_weighting_;
   std::vector <LensElement> lens_;
 
   std::vector <Bounds2f> exit_pupil_bounds_;

@@ -7,7 +7,7 @@
 #include "../random/xorshift.h"
 #include "../core/bounds2f.h"
 #include "../core/image.h"
-#include "../core/ioimage.h"
+#include "../core/imageio.h"
 #include "../core/stop_watch.h"
 #include "../texture/image_texture.h"
 #include "../core/utilities.h"
@@ -52,9 +52,17 @@ auto RenderScene () -> void
 int main (int argc, char* argv[])
 {
   // niepce::StopWatch stopwatch;
-  // stopwatch.Start ();
+  // nstopwatch.Start ();
   // niepce::RenderScene ();
   // stopwatch.Stop ();
-  // std::cout << std::endl;
+
+  niepce::Transform t;
+  niepce::RealisticCamera camera (t,
+                                  "../assets/lenses/wide.22mm.dat",
+                                  3.0,
+                                  3.0,
+                                  false);
+  camera.RenderExitPupil (niepce::Point2f (0, 0), "aperture.ppm");
+
   return 0;
 }

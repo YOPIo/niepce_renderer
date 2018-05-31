@@ -5,8 +5,8 @@
  * @date 
  * @details 
  */
-#ifndef _IOIMAGE_H_
-#define _IOIMAGE_H_
+#ifndef _IMAGEIO_H_
+#define _IMAGEIO_H_
 /*
 // ---------------------------------------------------------------------------
 */
@@ -17,15 +17,13 @@
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-*/
 //! ----------------------------------------------------------------------------
-//! @class IOImage
+//! @class ImageIO
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class IOImage : public Image
+template <typename T>
+class ImageIO : public Image <T>
 {
 public:
   enum Format
@@ -39,50 +37,30 @@ public:
 
 public:
   //! The default class constructor.
-  IOImage () = default;
+  ImageIO () = delete;
+
+  //! The constructor takes width and height.
+  ImageIO (unsigned int widht, unsigned int height);
 
   //! The Constructor load the file.
-  IOImage (const char* filename);
+  ImageIO (const char* filename);
 
   //! The copy constructor of the class.
-  IOImage (const IOImage& image) = default;
+  ImageIO (const ImageIO& image) = default;
 
   //! The move constructor of the class.
-  IOImage (IOImage&& image) = default;
+  ImageIO (ImageIO&& image) = default;
 
   //! The default class destructor.
-  virtual ~IOImage () = default;
+  virtual ~ImageIO () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const IOImage& image) -> IOImage& = default;
+  auto operator = (const ImageIO& image) -> ImageIO& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (IOImage&& image) -> IOImage& = default;
+  auto operator = (ImageIO&& image) -> ImageIO& = default;
 
 public:
-  /*!
-   * @fn operator ()
-   * @brief 
-   * @details 
-   * @param [in] x
-   * @param [in] y
-   * @return 
-   * @exception none
-   */
-  auto operator () (unsigned int x, unsigned int y) const noexcept -> Pixel;
-
-public:
-  /*!
-   * @fn Pixel At (unsigned)
-   * @brief Return the pixel
-   * @param[in] x
-   * @param[in] y
-   * @return Pixel
-   * @exception none
-   * @details
-   */
-  auto At (unsigned int x, unsigned int y) const -> Pixel;
-
   /*!
    * @fn void Load (const)
    * @brief Load the image file via stb library.
@@ -111,7 +89,21 @@ public:
    * @exception none
    * @details
    */
-  auto SaveAs (const char* filename, Format format) const noexcept-> void;
+  auto SaveAs (const char* filename) const noexcept-> void;
+
+  /*!
+   * @fn void Set (unsigned int, unsigned int)
+   * @brief 
+   * @param[in] x
+   *    
+   * @param[in] y
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Set (unsigned int x, unsigned int y, const T& val) noexcept -> void;
+
 
   /*!
    * @fn Return Rename (std)
@@ -167,8 +159,7 @@ private:
 
 private:
   std::string name_;
-
-}; // class IOImage
+}; // class ImageIO
 /*
 // ---------------------------------------------------------------------------
 */

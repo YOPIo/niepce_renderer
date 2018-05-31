@@ -14,8 +14,8 @@ add_library (Core STATIC
   point3f.cc
   vector2f.cc
   vector3f.cc
-  ioimage.cc
   image.cc
+  imageio.cc
   matrix4x4f.cc
   transform.cc
   film.cc

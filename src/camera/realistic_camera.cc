@@ -14,6 +14,7 @@
 #include "../core/bounds2f.h"
 #include "../core/vector2f.h"
 #include "../sampler/low_discrepancy_sequence.h"
+#include "../core/imageio.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -34,7 +35,14 @@ RealisticCamera::RealisticCamera
   simple_weighting_  (simple_weighting),
   aperture_diameter_ (aperture_diameter)
 {
+  // Load a lens system file.
   AttachLens (lens_file_path);
+
+  // Compute focus distance.
+  lens_.back().thickness_ = FocusOn (focus_distance);
+
+  // Precomputing exit pupil.
+  // ComputeExitPupilBounds ();
 }
 /*
 // ---------------------------------------------------------------------------
@@ -75,15 +83,12 @@ auto RealisticCamera::CanRayThroughLensSystemFromFilm
     {
       // Next element is convex or concave lens.
       intersection = CanRayThroughSphericalElement (lens_ray, element);
-      if (!intersection) { std::cout << "elem" << std::endl;  return false; /* Ray cannot through. */ }
+      if (!intersection) { return false; /* Ray cannot through. */ }
     }
 
     // Intersection test again. (Aperture)
     if (!CanRayThroughApertureElement (intersection.Position (), element))
     {
-      // Ray cannot intersect at the outside of aperture.
-      std::cout << intersection.Position().ToString() << std::endl;
-      std::cout << "aperture" << std::endl;
       return false;
     }
 
@@ -102,8 +107,6 @@ auto RealisticCamera::CanRayThroughLensSystemFromFilm
                           ior2,
                           &w))
       {
-        // Total reflection has occurred.
-        std::cout << "total" << std::endl;
         return false;
       }
       lens_ray = Ray (intersection.Position (), w);
@@ -491,31 +494,43 @@ auto RealisticCamera::RenderExitPupil
   const noexcept -> void
 {
   const Point3f point_on_film (film.X (), film.Y (), 0);
-  const int     num_samples = 2048;
+  const int     num_samples = 1024;
   const Float   radius = RearElementRadius ();
 
-  Float* image = new Float [3 * num_samples * num_samples];
+  ImageIO <Float> res (num_samples, num_samples);
 
   for (int y = 0; y < num_samples; ++y)
   {
     const Float fy = static_cast <Float> (y) /
-                     static_cast<Float>(num_samples - 1);
+                     static_cast <Float> (num_samples - 1);
     const Float ly = Lerp (fy, -radius, radius);
 
-    for (int x = 0; x < num_samples; ++y)
+    for (int x = 0; x < num_samples; ++x)
     {
       const Float fx = static_cast <Float> (x) /
                        static_cast <Float> (num_samples - 1);
-      const Float lx = Lerp(fx, -radius, radius);
+      const Float lx = Lerp (fx, -radius, radius);
 
       const Point3f target (lx, ly, LensRear ());
-
       if (lx * lx + ly * ly > radius * radius)
       {
-        
+        // Out of aperture.
+        res.Set (x, y, 0.5);
+        continue;
       }
+      Ray ray (point_on_film, target - point_on_film);
+      if (CanRayThroughLensSystemFromFilm (ray, nullptr))
+      {
+        // Found exit pupil
+        res.Set (x, y, 1);
+        continue;
+      }
+      // Ray cannot through lens system.
+      res.Set (x, y, 0);
     }
   }
+
+  res.SaveAs (filename);
 }
 /*
 // ---------------------------------------------------------------------------

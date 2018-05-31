@@ -7,7 +7,7 @@
  */
 #include "image_texture.h"
 #include "../core/image.h"
-#include "../core/ioimage.h"
+#include "../core/imageio.h"
 #include "../core/point2f.h"
 #include "../core/vector3f.h"
 #include "../core/pixel.h"
@@ -20,12 +20,12 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 ImageTexture::ImageTexture (const char* filename) :
-  image_ (new IOImage (filename))
+  image_ (new ImageIO <Spectrum> (filename))
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-auto ImageTexture::Sample (const Point2f& uv) const noexcept -> Vector3f
+auto ImageTexture::Sample (const Point2f& uv) const noexcept -> Spectrum
 {
   if (image_)
   {
@@ -38,8 +38,8 @@ auto ImageTexture::Sample (const Point2f& uv) const noexcept -> Vector3f
     x = Clamp (x, 0, width - 1);
     y = Clamp (y, 0, height - 1);
 
-    const Pixel p = image_->At (x, y);
-    return Vector3f (p.R (), p.G (), p.B ());
+    const Spectrum s = image_->At (x, y);
+    return Vector3f (s.X (), s.Y (), s.Z ());
   }
   return Vector3f::Zero ();
 }

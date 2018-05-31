@@ -44,7 +44,7 @@ public:
 
 public:
   /*!
-   * @fn Pixel Sample (Float)
+   * @fn Spectrum Sample (Float)
    * @brief Sample the pixel.
    * @param[in] uv
    *    UV-parameter [0, 1]

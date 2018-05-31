@@ -75,7 +75,7 @@ public:
   // TODO: Delete
   auto ReadyCornellBox () -> void;
 
-private:
+public:
   std::vector <std::shared_ptr<Primitive>> primitives_;
 }; // class Scene
 /*

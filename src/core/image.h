@@ -21,11 +21,12 @@ namespace niepce
 //! @brief The fundamental core class that representing a image.
 //! @details
 //! ----------------------------------------------------------------------------
+template <typename T>
 class Image
 {
 public:
   //! The default class constructor.
-  Image ();
+  Image () = delete;
 
   //! The Constructor allocate memory.
   Image (unsigned int width, unsigned int height);
@@ -52,9 +53,22 @@ public:
    * @return Pixel
    * @exception std::out_of_range
    */
-  auto operator () (unsigned int x, unsigned int y) const -> Pixel;
+  auto operator () (unsigned int x, unsigned int y) const noexcept -> T;
 
 public:
+  /*!
+   * @fn Specturm At (unsigned)
+   * @brief 
+   * @param[in] x
+   *    x
+   * @param[in] y
+   *    y
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto At (unsigned int x, unsigned int y) const -> T;
+
   /*!
    * @fn unsigned Height ()
    * @brief Return the height of image size.
@@ -62,7 +76,7 @@ public:
    * @exception none
    * @details
    */
-  virtual auto Height () const noexcept -> unsigned int;
+  auto Height () const noexcept -> unsigned int;
 
   /*!
    * @fn unsigned Width ()
@@ -71,12 +85,12 @@ public:
    * @exception none
    * @details
    */
-  virtual auto Width () const noexcept -> unsigned int;
+  auto Width () const noexcept -> unsigned int;
 
 protected:
   unsigned int width_;
   unsigned int height_;
-  std::shared_ptr <Pixel []> pixels_;
+  std::shared_ptr <T []> data_;
 }; // class Image
 /*
 // ---------------------------------------------------------------------------
@@ -86,4 +100,3 @@ protected:
 // ---------------------------------------------------------------------------
 */
 #endif // _IMAGE_H_
-
