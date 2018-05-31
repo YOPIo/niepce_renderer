@@ -31,6 +31,8 @@ auto BoolTexture::Sample (const Point2f &uv) const noexcept -> Spectrum
   {
     const int width  = static_cast <int> (image_->Width ());
     const int height = static_cast <int> (image_->Height ());
+
+    
   }
   return Vector3f::Zero ();
 }

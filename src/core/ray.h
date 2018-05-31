@@ -75,6 +75,15 @@ public:
    */
   auto IntersectAt (Float t) const noexcept -> Point3f;
 
+  /*!
+   * @fn std ToString ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto ToString () const noexcept -> std::string;
+
 private:
   Point3f  origin_;
   Vector3f direction_;

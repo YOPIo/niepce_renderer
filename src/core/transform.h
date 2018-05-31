@@ -95,6 +95,15 @@ public:
    */
   auto InverseMatrix () const noexcept -> Matrix4x4f;
 
+  /*!
+   * @fn std ToString ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto ToString () const noexcept -> std::string;
+
 private:
   Matrix4x4f mat_;
   Matrix4x4f inv_;
@@ -124,6 +133,8 @@ auto operator * (const Transform& t, const Ray&      r) -> Ray;
 */
 auto Transpose (const Transform& t) -> Transform;
 auto Inverse   (const Transform& t) -> Transform;
+auto LookAt (const Point3f&  position, const Point3f&  look, const Vector3f& up)
+  -> Transform;
 /*
 // ---------------------------------------------------------------------------
 */

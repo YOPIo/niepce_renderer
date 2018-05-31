@@ -157,104 +157,87 @@ auto Transpose (const Matrix4x4f& m) -> Matrix4x4f
 */
 auto Inverse (const Matrix4x4f& m) -> Matrix4x4f
 {
-  int indxc[4];
-  int indxr[4];
+  int indxc[4], indxr[4];
   int ipiv[4] = {0, 0, 0, 0};
-  Float minv[4][4];
+  Float inv[4][4];
 
-  for (unsigned int i = 0; i < 4; ++i)
+  // Copy
+  for (int i = 0; i < 4; ++i)
   {
-    for (unsigned int j = 0; j < 4; ++j)
+    for (int j = 0; j < 4; ++j)
     {
-      minv[i][j] = m (i, j);
+      inv[i][j] = m (i, j);
     }
   }
 
-  for (unsigned int i = 0; i < 4; i++)
+  for (int i = 0; i < 4; i++)
   {
     int irow = 0, icol = 0;
     Float big = 0.f;
     // Choose pivot
-    for (unsigned int j = 0; j < 4; j++)
+    for (int j = 0; j < 4; j++)
     {
       if (ipiv[j] != 1)
       {
-        for (unsigned int k = 0; k < 4; k++)
+        for (int k = 0; k < 4; k++)
         {
           if (ipiv[k] == 0)
           {
-            if (std::abs (minv[j][k]) >= big)
+            if (std::abs (inv[j][k]) >= big)
             {
-              big = Float (std::abs (minv[j][k]));
+              big = Float(std::abs(inv[j][k]));
               irow = j;
               icol = k;
             }
           }
-          else if (ipiv[k] > 1)
-          {
-            // Inverse matrix is not found.
-            std::cerr << " Inverse matrix is not found." << std::endl;
-          }
         }
       }
     }
-
     ++ipiv[icol];
     // Swap rows _irow_ and _icol_ for pivot
     if (irow != icol)
     {
-      for (unsigned int k = 0; k < 4; ++k)
+      for (int k = 0; k < 4; ++k)
       {
-        std::swap (minv[irow][k], minv[icol][k]);
+        std::swap(inv[irow][k], inv[icol][k]);
       }
     }
-
     indxr[i] = irow;
     indxc[i] = icol;
-    if (minv[icol][icol] == 0.f)
-    {
-      // Inverse matrix is not found.
-      std::cerr << " Inverse matrix is not found." << std::endl;
-    }
+
+    if (inv[icol][icol] == 0.f) std::cout << "Inverse matrix error." << std::endl;
 
     // Set $m[icol][icol]$ to one by scaling row _icol_ appropriately
-    Float pivinv = 1. / minv[icol][icol];
-    minv[icol][icol] = 1.;
-    for (unsigned int j = 0; j < 4; j++)
-    {
-      minv[icol][j] *= pivinv;
-    }
+    Float pivinv = 1.0 / inv[icol][icol];
+    inv[icol][icol] = 1.;
+    for (int j = 0; j < 4; j++) { inv[icol][j] *= pivinv; }
 
     // Subtract this row from others to zero out their columns
-    for (unsigned int j = 0; j < 4; j++)
+    for (int j = 0; j < 4; j++)
     {
       if (j != icol)
       {
-        Float save = minv[j][icol];
-        minv[j][icol] = 0;
-        for (unsigned int k = 0; k < 4; k++)
-        {
-          minv[j][k] -= minv[icol][k] * save;
-        }
+        Float save = inv[j][icol];
+        inv[j][icol] = 0;
+        for (int k = 0; k < 4; k++) { inv[j][k] -= inv[icol][k] * save; }
       }
     }
   }
   // Swap columns to reflect permutation
-  for (unsigned int j = 3; j >= 0; j--)
+  for (int j = 3; j >= 0; j--)
   {
     if (indxr[j] != indxc[j])
     {
-      for (unsigned int k = 0; k < 4; k++)
+      for (int k = 0; k < 4; k++)
       {
-        std::swap(minv[k][indxr[j]], minv[k][indxc[j]]);
+        std::swap(inv[k][indxr[j]], inv[k][indxc[j]]);
       }
     }
   }
-
-  return Matrix4x4f (minv[0][0], minv[0][1], minv[0][2], minv[0][3],
-                     minv[1][0], minv[1][1], minv[1][2], minv[1][3],
-                     minv[2][0], minv[2][1], minv[2][2], minv[2][3],
-                     minv[3][0], minv[3][1], minv[3][2], minv[3][3]);
+  return Matrix4x4f (inv[0][0], inv[0][1], inv[0][2],inv[0][3],
+                     inv[1][0], inv[1][1], inv[1][2],inv[1][3],
+                     inv[2][0], inv[2][1], inv[2][2],inv[2][3],
+                     inv[3][0], inv[3][1], inv[3][2],inv[3][3]);
 }
 /*
 // ---------------------------------------------------------------------------

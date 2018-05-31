@@ -42,4 +42,14 @@ auto Ray::IntersectAt (Float t) const noexcept -> Point3f
 /*
 // ---------------------------------------------------------------------------
 */
+auto Ray::ToString () const noexcept -> std::string
+{
+  std::string res;
+  res += "Origin    : " + origin_.ToString () + "\n";
+  res += "Direction : " + direction_.ToString ();
+  return res;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce

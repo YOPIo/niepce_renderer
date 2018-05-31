@@ -75,6 +75,26 @@ auto Transform::At (unsigned int x, unsigned int y) const noexcept -> Float
 }
 /*
 // ---------------------------------------------------------------------------
+*/
+auto Transform::ToString () const noexcept -> std::string
+{
+  std::string res;
+  res = "[" + std::to_string (mat_(0, 0)) + " " + std::to_string (mat_(0, 1)) + " "
+      + std::to_string (mat_(0, 2)) + " " + std::to_string (mat_(0, 3)) + "]\n";
+
+  res += "[" + std::to_string (mat_(1, 0)) + " " + std::to_string (mat_(1, 1)) + " "
+      + std::to_string (mat_(1, 2)) + " " + std::to_string (mat_(1, 3)) + "]\n";
+
+  res += "[" + std::to_string (mat_ (2, 0)) + " " + std::to_string (mat_ (2, 1)) + " "
+      + std::to_string (mat_ (2, 2)) + " " + std::to_string (mat_ (2, 3)) + "]\n";
+
+  res += "[" + std::to_string (mat_ (3, 0)) + " " + std::to_string (mat_ (3, 1)) + " "
+      + std::to_string (mat_ (3, 2)) + " " + std::to_string (mat_ (3, 3)) + "]\n";
+
+  return res;
+}
+/*
+// ---------------------------------------------------------------------------
 // Transform operators
 // ---------------------------------------------------------------------------
 */
@@ -156,6 +176,53 @@ auto Transpose (const Transform& t) -> Transform
 auto Inverse (const Transform& t) -> Transform
 {
   return Transform (t.InverseMatrix (), t.Matrix ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto LookAt
+(
+ const Point3f&  position,
+ const Point3f&  look,
+ const Vector3f& up
+)
+  -> Transform
+{
+  // Initialize the position.
+  const Float m03 = position.X ();
+  const Float m13 = position.Y ();
+  const Float m23 = position.Z ();
+  const Float m33 = 1.0;
+
+  const Vector3f direction = Normalize (look - position);
+  if (Cross (Normalize (up), direction).Length () == 0)
+  {
+    std::cerr << "" << std::endl;
+  }
+  const Vector3f x = Normalize (Cross (Normalize (up), direction));
+  const Vector3f new_up = Cross (direction, x);
+
+  const Float m00 = x.X ();
+  const Float m10 = x.Y ();
+  const Float m20 = x.Z ();
+  const float m30 = 0;
+
+  const Float m01 = new_up.X ();
+  const Float m11 = new_up.Y ();
+  const Float m21 = new_up.Z ();
+  const float m31 = 0;
+
+  const Float m02 = direction.X ();
+  const Float m12 = direction.Y ();
+  const Float m22 = direction.Z ();
+  const float m32 = 0;
+
+  const Matrix4x4f camera_to_world (m00, m01, m02, m03,
+                                    m10, m11, m12, m13,
+                                    m20, m21, m22, m23,
+                                    m30, m31, m32, m33);
+
+  return Transform (camera_to_world, Inverse (camera_to_world));
 }
 /*
 // ---------------------------------------------------------------------------
