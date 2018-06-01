@@ -18,5 +18,6 @@ add_library (Core STATIC
   imageio.cc
   matrix4x4f.cc
   transform.cc
+  singleton.cc
   film.cc
 )

@@ -61,11 +61,30 @@ int main (int argc, char* argv[])
 
   niepce::RealisticCamera camera (t,
                                   "../assets/lenses/wide.22mm.dat",
-                                  3.0,
-                                  3.0,
+                                  0.5,
+                                  5.5,
                                   false);
-  // camera.RenderExitPupil (niepce::Point2f (0, 0), "aperture.ppm");
+  camera.Dump();
+  camera.RenderExitPupil (niepce::Point2f (0, 0), "aperture.ppm");
+  /*
+  std::cout << "From film" << std::endl;
+  niepce::Ray in (niepce::Point3f  (0.005, 0, 0),
+                  niepce::Vector3f (0, 0, 1));
+  niepce::Ray out;
+  if (camera.CanRayThroughLensSystemFromFilm (in, &out))
+  {
+    std::cout << "through" << std::endl;
+  }
+  std::cout << "From scene" << std::endl;
+  in = niepce::Ray (niepce::Point3f  (-0.005, 0, 1),
+                    niepce::Vector3f (0, 0, -1));
+  if (camera.CanRayThroughLensSystemFromScene (in, &out))
+  {
+    std::cout << "through" << std::endl;
+  }
+  */
 
+  /*
   niepce::Transform c2w = niepce::LookAt (niepce::Point3f  (5, 5, 5),
                                           niepce::Point3f  (5, 5, 0),
                                           niepce::Vector3f (0, 1, 0));
@@ -73,6 +92,7 @@ int main (int argc, char* argv[])
 
   std::cout << camera_ray.ToString() << std::endl;
   std::cout << (c2w * camera_ray).ToString() << std::endl;
+  */
 
   return 0;
 }

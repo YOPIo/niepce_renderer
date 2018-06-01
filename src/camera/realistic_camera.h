@@ -89,7 +89,7 @@ public:
   auto GenerateRay () const -> Ray override final
   {}
 
-private:
+public:
   // public:
   /*!
    * @fn bool CanRayThroughLensSystemFromFilm (const Ray&, Ray*) const noexcept
@@ -226,6 +226,24 @@ private:
   )
   const noexcept -> bool;
 
+  /*!
+   * @fn void LoadLens (const)
+   * @brief 
+   * @param[in] filename
+   *    
+   * @param[in] aperture_diameter
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto LoadLens
+  (
+   const char* filename,
+   Float aperture_diameter
+  )
+  -> void;
+
   // ---------------------------------------------------------------------------
 
 public:
@@ -248,9 +266,6 @@ public:
     return lens_.back ().aperture_radius_;
   }
 
-  // Load lens file
-  auto AttachLens (const char* filename) noexcept -> void;
-
   auto RenderExitPupil
   (
    const Point2f& film, // Camera coordinate
@@ -258,11 +273,23 @@ public:
   )
   const noexcept -> void;
 
+  auto Dump () const noexcept -> void
+  {
+    std::cout << "Dump" << std::endl;
+    for (const auto& element : lens_)
+    {
+      std::printf ("%f, %f, %f, %f\n",
+                   element.center_z_,
+                   element.curvature_radius_,
+                   -element.aperture_radius_,
+                   element.aperture_radius_);
+    }
+    std::cout << std::endl;
+  }
+
 private:
-  const Float aperture_diameter_;
   const bool  simple_weighting_;
   std::vector <LensElement> lens_;
-
   std::vector <Bounds2f> exit_pupil_bounds_;
 
 }; // class RealisticCamera

@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "niepce.h"
+#include "imageio.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -33,7 +34,7 @@ public:
    const char*  filename,
    unsigned int width,
    unsigned int height,
-   Float        diagonal
+   Float        diagonal // (mm)
   );
 
   //! The copy constructor of the class.
@@ -79,6 +80,26 @@ public:
   */
   auto Width () const noexcept -> unsigned int;
 
+  /*!
+   * @fn Bounds2f RenderingBounds ()
+   * @brief Return the bound of rendering area.
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto RenderingBounds () const noexcept -> Bounds2f;
+
+  /*!
+   * @fn void SetFilmTile (const)
+   * @brief 
+   * @param[in] tile
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SetFilmTile (const FilmTile& tile) noexcept -> void;
+
 private:
   //! @brief filename
   std::string filename_;
@@ -88,6 +109,9 @@ private:
 
   //! @brief Physical length of diagonal. [m]
   const Float diagonal_;
+
+  //! @brief Result of rendering will be stored here.
+  ImageIO <Spectrum> image_;
 
 }; // class Film
 /*

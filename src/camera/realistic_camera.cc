@@ -27,19 +27,24 @@ RealisticCamera::RealisticCamera
 (
  const Transform& camera_to_world,
  const char* lens_file_path,
- Float focus_distance,
+ Float focus_distance, // (mm)
  Float aperture_diameter,
  bool  simple_weighting
 ) :
   Camera (camera_to_world),
-  simple_weighting_  (simple_weighting),
-  aperture_diameter_ (aperture_diameter)
+  simple_weighting_  (simple_weighting)
 {
   // Load a lens system file.
-  AttachLens (lens_file_path);
+  // Converting focus distance unit to m from mm.
+  LoadLens (lens_file_path, aperture_diameter * 0.001);
 
   // Compute focus distance.
-  lens_.back().thickness_ = FocusOn (focus_distance);
+  const Float delta = FocusOn (focus_distance);
+  lens_.back ().thickness_ = delta;
+  for (auto& element : lens_)
+  {
+    element.center_z_ -= delta;
+  }
 
   // Precomputing exit pupil.
   // ComputeExitPupilBounds ();
@@ -91,8 +96,6 @@ auto RealisticCamera::CanRayThroughLensSystemFromFilm
     {
       return false;
     }
-
-    // std::cout << intersection.Position().Z () << ", " << intersection.Position().X () << std::endl;
 
     // Update ray path.
     if (!is_aperture_stop)
@@ -359,20 +362,12 @@ auto RealisticCamera::ComputeExitPupilBounds (Float begin_x, Float last_x)
 /*
 // ---------------------------------------------------------------------------
 */
-auto RealisticCamera::SampleExitPupil
+auto RealisticCamera::LoadLens
 (
- const Point2f& pfilm,
- const Point2f& plens,
- Float* bounds_area
+ const char* filename,
+ Float aperture_diameter
 )
-  const noexcept -> Point3f
-{
-  // Find 
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto RealisticCamera::AttachLens (const char* filename) noexcept -> void
+  -> void
 {
   std::ifstream ifs (filename);
   std::string line;
@@ -390,11 +385,7 @@ auto RealisticCamera::AttachLens (const char* filename) noexcept -> void
   // Left to right.
   while (std::getline (ifs, line))
   {
-    if (line[0] == '#')
-    {
-      // Comment begin with '#'.
-      continue;
-    }
+    if (line[0] == '#') { /* Comment begin with '#'. */ continue; }
 
     // Parse by space and store.
     std::istringstream iss (line);
@@ -422,13 +413,20 @@ auto RealisticCamera::AttachLens (const char* filename) noexcept -> void
 
     if (element.curvature_radius_ == 0)
     {
-      element.aperture_radius_ = aperture_diameter_ / 2.0;
+      if (aperture_diameter / 2.0 > element.aperture_radius_)
+      {
+        // Since the specified size of aperture diameter is greater than maximum
+        // size of aperture diameter, set the aperture size to maximum.
+        std::cerr << "Since the specified size of aperture diameter is greater than maximum size of aperture diameter, set the aperture size to maximum." << std::endl;
+        break;
+      }
+      element.aperture_radius_ = aperture_diameter / 2.0;
     }
 
     lens_.push_back (element);
   }
 
-  // Initialize center of z-component.
+  // Initialize position of center.
   Float z = 0;
   for (int i = lens_.size () - 1; i >= 0; --i)
   {
@@ -439,9 +437,25 @@ auto RealisticCamera::AttachLens (const char* filename) noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
+auto RealisticCamera::SampleExitPupil
+(
+ const Point2f& pfilm,
+ const Point2f& plens,
+ Float* bounds_area
+)
+  const noexcept -> Point3f
+{
+  // Find 
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto RealisticCamera::FocusOn (Float focus_distance) -> Float
 {
+  // focus length
   Float f1, f2;
+
+  // principal planes
   Float p1, p2;
 
   // Find the height x from optical axis for parallel rays.
@@ -456,7 +470,7 @@ auto RealisticCamera::FocusOn (Float focus_distance) -> Float
   if (!CanRayThroughLensSystemFromFilm (ray1, &out1))
   {
     // TODO: Fix
-    std::cout << "Error" << std::endl;
+    std::cout << "Error FucosOn." << std::endl;
     return -1;
   }
   ComputeCardinalPoints (ray1, out1, &f1, &p1);
@@ -469,7 +483,7 @@ auto RealisticCamera::FocusOn (Float focus_distance) -> Float
   if (!CanRayThroughLensSystemFromScene (ray2, &out2))
   {
     // TODO: Fix
-    std::cout << "Error" << std::endl;
+    std::cout << "Error FucosOn." << std::endl;
     return -1;
   }
   ComputeCardinalPoints (ray2, out2, &f2, &p2);
@@ -478,10 +492,10 @@ auto RealisticCamera::FocusOn (Float focus_distance) -> Float
   const Float f = f1 - p1;
   const Float z = -focus_distance;
 
-  const Float translation
+  const Float delta
     = 0.5 * (p2 - z + p1 - std::sqrt ((p1 - z - p1) * (p1 - z - 4 * f - p1)));
 
-  return lens_.back ().thickness_ + translation;
+  return delta;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -515,14 +529,14 @@ auto RealisticCamera::RenderExitPupil
       if (lx * lx + ly * ly > radius * radius)
       {
         // Out of aperture.
-        res.Set (x, y, 0.5);
+        res.Set (x, y, 1);
         continue;
       }
       Ray ray (point_on_film, target - point_on_film);
       if (CanRayThroughLensSystemFromFilm (ray, nullptr))
       {
         // Found exit pupil
-        res.Set (x, y, 1);
+        res.Set (x, y, 0.5);
         continue;
       }
       // Ray cannot through lens system.

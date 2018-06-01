@@ -14,6 +14,7 @@
 */
 #include <algorithm>
 #include <array>
+#include <cassert>
 #include <cmath>
 #include <condition_variable>
 #include <cstdint>
@@ -44,6 +45,8 @@ class AssembledTiles;
 class BeckmannDistribution;
 class Bounds2f;
 class Bsdf;
+class Film;
+class FilmTile;
 template <typename T> class Image;
 template <typename T> class ImageIO;
 class Intersection;
