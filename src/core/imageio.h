@@ -26,16 +26,6 @@ template <typename T>
 class ImageIO : public Image <T>
 {
 public:
-  enum Format
-  {
-    kExr,
-    kHdr,
-    kPng,
-    kTiff,
-    kPpm
-  };
-
-public:
   //! The default class constructor.
   ImageIO () = delete;
 
@@ -73,13 +63,14 @@ public:
 
   /*!
    * @fn void Save ()
-   * @brief Save the image with argument format.
-   * @param[in] format
-   * @return void
+   * @brief 
+   * @param[in] 
+   * @param[out] 
+   * @return 
    * @exception none
    * @details
    */
-  auto Save (Format format) const noexcept -> void;
+  auto Save () const noexcept -> void;
 
   /*!
    * @fn void SaveAs (const)
@@ -103,7 +94,6 @@ public:
    * @details
    */
   auto Set (unsigned int x, unsigned int y, const T& val) noexcept -> void;
-
 
   /*!
    * @fn Return Rename (std)

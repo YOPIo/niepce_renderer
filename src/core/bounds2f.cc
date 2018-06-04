@@ -46,9 +46,9 @@ auto Bounds2f::Append (const Point2f& p) noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
-auto Bounds2f::Diagonal () const noexcept -> Vector2f
+auto Bounds2f::Diagonal () const noexcept -> Float
 {
-  return max_ - min_;
+  return (max_ - min_).Length ();
 }
 /*
 // ---------------------------------------------------------------------------
@@ -58,6 +58,14 @@ auto Bounds2f::Expand (Float delta) noexcept -> void
   const Point2f min = Point2f (min_.X () - delta, min_.Y () - delta);
   const Point2f max = Point2f (max_.X () + delta, max_.Y () - delta);
   *this = Bounds2f (min, max);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bounds2f::Lerp (const Point2f &t) const noexcept -> Point2f
+{
+  return Point2f (niepce::Lerp (t.X (), min_.X (), max_.X ()),
+                  niepce::Lerp (t.Y (), min_.Y (), max_.Y ()));
 }
 /*
 // ---------------------------------------------------------------------------
@@ -86,6 +94,27 @@ auto Bounds2f::SetMax (const Point2f& max) noexcept -> void
 auto Bounds2f::SetMin (const Point2f& min) noexcept -> void
 {
   min_ = min;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bounds2f::SurfaceArea () const noexcept -> Float
+{
+  return Width () * Height ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bounds2f::Width () const noexcept -> Float
+{
+  return max_.X () - min_.X ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bounds2f::Height () const noexcept -> Float
+{
+  return max_.Y () - min_.Y ();
 }
 /*
 // ---------------------------------------------------------------------------

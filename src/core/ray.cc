@@ -21,6 +21,44 @@ Ray::Ray (const Point3f& o, const Vector3f& d) :
 /*
 // ---------------------------------------------------------------------------
 */
+Ray::Ray (const Ray& ray) :
+  origin_    (ray.Origin ()),
+  direction_ (Normalize (ray.Direction ()))
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+Ray::Ray (Ray&& ray) :
+  origin_    (ray.Origin ()),
+  direction_ (Normalize (ray.Direction ()))
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Ray::operator = (const Ray& ray) -> Ray&
+{
+  if (this != &ray)
+  {
+    origin_    = ray.Origin ();
+    direction_ = ray.Direction ();
+  }
+  return *this;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Ray::operator = (Ray&& ray) -> Ray&
+{
+  if (this != &ray)
+  {
+    origin_    = ray.Origin ();
+    direction_ = ray.Direction ();
+  }
+  return *this;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Ray::Direction () const noexcept -> Vector3f
 {
   return direction_;

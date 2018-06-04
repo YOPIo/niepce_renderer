@@ -15,6 +15,8 @@
 #include "../core/vector2f.h"
 #include "../sampler/low_discrepancy_sequence.h"
 #include "../core/imageio.h"
+#include "../core/thread_pool.h"
+#include "../core/singleton.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -31,7 +33,7 @@ RealisticCamera::RealisticCamera
  Float aperture_diameter,
  bool  simple_weighting
 ) :
-  Camera (camera_to_world),
+  Camera (camera_to_world, "pt.ppm", 480, 270, 3.5),
   simple_weighting_  (simple_weighting)
 {
   // Load a lens system file.
@@ -46,8 +48,74 @@ RealisticCamera::RealisticCamera
     element.center_z_ -= delta;
   }
 
-  // Precomputing exit pupil.
-  // ComputeExitPupilBounds ();
+  /*
+  // Precomputing exit pupil bounds
+  constexpr static int kSamples = 64;
+  exit_pupil_bounds_.resize (kSamples);
+  std::vector <std::future<Bounds2f>> futures (kSamples);
+
+  ThreadPool& pool = Singleton <ThreadPool>::Instance ();
+  for (int i = 0; i < kSamples; ++i)
+  {
+    const Float diagonal = film_->Diagonal ();
+    const Float begin = static_cast <Float> (i) / kSamples * diagonal / 2.0;
+    const Float end   = static_cast <Float> (i + 1) / kSamples * diagonal / 2.0;
+    auto func = std::bind (&RealisticCamera::ComputeExitPupilBounds,
+                           this,
+                           std::placeholders::_1,
+                           std::placeholders::_2);
+    futures[i] = pool.Enqueue (func, begin, end);
+  }
+
+  // Wait for computing exit pupil bounds.
+  for (auto& future : futures) { future.wait (); }
+
+  // Copy bounds
+  for (int i = 0; i < kSamples; ++i)
+  {
+    exit_pupil_bounds_[i] = futures[i].get ();
+  }
+  */
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto RealisticCamera::GenerateRay
+(
+ const CameraSample& samples,
+       Ray*          ray
+)
+  const -> Float
+{
+  // Compute pixle position on film from sample.
+  const Bounds2f& film_resolution = Resolution ();
+  const Point2f s (samples.film_.X () / film_resolution.Width (),
+                   samples.film_.Y () / film_resolution.Height ());
+  const Point2f p = PhysicalBounds ().Lerp (s);
+  const Point3f film (-p.X (), p.Y (), 0);
+
+  // Sample point on exit pupil.
+  Float exit_pupil_area;
+  const Point3f rear = SampleExitPupil (Point2f (film.X (), film.Y ()),
+                                        samples.lens_,
+                                        &exit_pupil_area);
+
+  // Generate ray in camera coordinate.
+  const Ray camera_ray (film, rear - film);
+
+  // Testing
+  if (!CanRayThroughLensSystemFromFilm (camera_ray, ray))
+  {
+    // Sampled ray could not through lens system
+    // Caller should check this case.
+    return 0;
+  }
+
+  // Generated ray could through lens system.
+  // Transform ray to world coordinate from camera coordinate.
+  *ray = Ray (camera_to_world_ * (*ray));
+
+  return 1;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -354,7 +422,7 @@ auto RealisticCamera::ComputeExitPupilBounds (Float begin_x, Float last_x)
   }
 
   // Expand a exit pupil bounds.
-  exit_bounds.Expand (2.0 * rear_bounds.Diagonal ().Length ()
+  exit_bounds.Expand (2.0 * rear_bounds.Diagonal ()
                       / std::sqrt (num_samples));
 
   return exit_bounds;
@@ -441,11 +509,33 @@ auto RealisticCamera::SampleExitPupil
 (
  const Point2f& pfilm,
  const Point2f& plens,
- Float* bounds_area
+ Float* bound_area
 )
   const noexcept -> Point3f
 {
-  // Find 
+  // Find exit pupil bound from film center.
+
+  // Compute index of exit pupil bound for sampling.
+  const Float distance
+    = std::sqrt (pfilm.X () * pfilm.X () + pfilm.Y () * pfilm.Y ());
+  int index = distance / (Diagonal () / 2.0) * exit_pupil_bounds_.size ();
+  index = std::min (index, static_cast <int> (exit_pupil_bounds_.size () - 1));
+
+  // Get exit pupil bound
+  const Bounds2f& bound = exit_pupil_bounds_[index];
+
+  // Store a area of exit pupil for computing a weight if needed.
+  if (bound_area) { *bound_area = bound.SurfaceArea (); }
+
+  // Generate sample point inside exit pupil.
+  const Point2f pbound = bound.Lerp (plens);
+
+  // Rotate sampled point inside exit pupil by angle of pfilm with +x axis.
+  const Float sin_theta = (distance != 0) ? pfilm.Y () / distance : 0;
+  const Float cos_theta = (distance != 0) ? pfilm.X () / distance : 1;
+  return Point3f (cos_theta * plens.X () - sin_theta * plens.Y (),
+                  sin_theta * plens.X () - cos_theta * plens.Y (),
+                  LensRear ());
 }
 /*
 // ---------------------------------------------------------------------------
@@ -460,7 +550,7 @@ auto RealisticCamera::FocusOn (Float focus_distance) -> Float
 
   // Find the height x from optical axis for parallel rays.
   // Works well. (May be)
-  const Float x = film_.Diagonal () * 0.001;
+  const Float x = Diagonal () * 0.001;
 
   // Compute the focus point and principal plane. (film to scene)
   // Ray should be camera coordinate.

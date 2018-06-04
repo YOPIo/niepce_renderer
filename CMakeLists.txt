@@ -51,7 +51,6 @@ else () # if (BUILD_CUI_RENDERER)
   target_link_libraries (${PROJECT_NAME}
     Renderer
     Scene
-    Random
     Texture
     Material
     Bsdf
@@ -59,6 +58,7 @@ else () # if (BUILD_CUI_RENDERER)
     Primitive
     Camera
     Sampler
+    Random
     Core)
 
 endif ()

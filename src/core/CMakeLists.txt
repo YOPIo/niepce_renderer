@@ -3,6 +3,8 @@ cmake_minimum_required (VERSION 3.0)
 # Create static library
 add_library (Core STATIC
   bounds2f.cc
+  film.cc
+  film_tile.cc
   intersection.cc
   pixel.cc
   ray.cc

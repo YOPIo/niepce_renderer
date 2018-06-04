@@ -33,19 +33,19 @@ public:
   Ray (const Point3f& o, const Vector3f& d);
 
   //! The copy constructor of the class.
-  Ray (const Ray& ray) = default;
+  Ray (const Ray& ray);
 
   //! The move constructor of the class.
-  Ray (Ray&& ray) = default;
+  Ray (Ray&& ray);
 
   //! The default class destructor.
   virtual ~Ray () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const Ray& ray) -> Ray& = default;
+  auto operator = (const Ray& ray) -> Ray&;
 
   //! The move assignment operator of the class.
-  auto operator = (Ray&& ray) -> Ray& = default;
+  auto operator = (Ray&& ray) -> Ray&;
 
   /*!
    * @fn Vector3f Direction ()

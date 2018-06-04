@@ -12,7 +12,9 @@
 */
 #include "../core/niepce.h"
 #include "../core/film.h"
+#include "../core/film_tile.h"
 #include "../core/transform.h"
+#include "camera_sample.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -23,14 +25,21 @@ namespace niepce
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class Camera
+class Camera : public Film
 {
 public:
   //! The default class constructor.
   Camera () = delete;
 
   //! The constructor takes transform matrix.
-  Camera (const Transform& t);
+  Camera
+  (
+   const Transform& t,
+   const char* filename,
+   unsigned int width,   // Resolution
+   unsigned int height,  // Resolution
+   Float        diagonal // Physical length (mm)
+  );
 
   //! The copy constructor of the class.
   Camera (const Camera& camera) = default;
@@ -55,14 +64,18 @@ public:
    * @exception none
    * @details
    */
-  virtual auto GenerateRay () const -> Ray = 0;
+  virtual auto GenerateRay
+  (
+   const CameraSample& samples,
+         Ray*          ray
+  )
+  const -> Float = 0;
 
 protected:
   /*!
    * @brief Matrix that transform camera coordinate to world coordinates.
    */
   Transform camera_to_world_;
-  Film      film_;
 }; // class Camera
 /*
 // ---------------------------------------------------------------------------

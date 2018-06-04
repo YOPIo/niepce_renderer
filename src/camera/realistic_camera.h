@@ -86,8 +86,12 @@ public:
    * @exception none
    * @details
    */
-  auto GenerateRay () const -> Ray override final
-  {}
+  auto GenerateRay
+  (
+   const CameraSample& samples,
+         Ray*          ray
+  )
+  const -> Float override final;
 
 public:
   // public:
@@ -185,7 +189,7 @@ public:
   (
    const Point2f& pfilm,
    const Point2f& plens,
-   Float* bounds_area
+   Float* bound_area
   )
   const noexcept -> Point3f;
 

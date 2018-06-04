@@ -95,7 +95,7 @@ auto ImageIO<Spectrum>::Load (const char *filename) -> void
 // ---------------------------------------------------------------------------
 */
 template <typename T>
-auto ImageIO<T>::Save (Format format) const noexcept -> void
+auto ImageIO<T>::Save () const noexcept -> void
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -163,6 +163,22 @@ auto ImageIO<Float>::SavePpm (const char* filename) const noexcept -> void
   for (int i = 0; i < this->width_ * this->height_; ++i)
   {
     os << (int)FloatToInt (this->data_[i]) << " ";
+  }
+  os.close ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <>
+auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
+{
+  std::ofstream os (filename);
+  os << "P3\n" << this->width_ << " " << this->height_ << "\n255\n";
+  for (int i = 0; i < this->width_ * this->height_; ++i)
+  {
+    os << (int)FloatToInt (this->data_[i].X ()) << " ";
+    os << (int)FloatToInt (this->data_[i].Y ()) << " ";
+    os << (int)FloatToInt (this->data_[i].Z ()) << " ";
   }
   os.close ();
 }

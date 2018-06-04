@@ -68,7 +68,7 @@ public:
    * @exception none
    * @details 
   */
-  auto Diagonal () const noexcept -> Vector2f;
+  auto Diagonal () const noexcept -> Float;
 
   /*!
    * @fn void Expand (Float)
@@ -80,6 +80,17 @@ public:
    * @details
    */
   auto Expand (Float delta) noexcept -> void;
+
+  /*!
+   * @fn Point2f Lerp (const)
+   * @brief 
+   * @param[in] 
+   * @param[out] 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Lerp (const Point2f& t) const noexcept -> Point2f;
 
   /*!
    * @fn Point2f Max ()
@@ -120,6 +131,15 @@ public:
   auto SetMin (const Point2f& min) noexcept -> void;
 
   /*!
+   * @fn Float SurfaceArea ()
+   * @brief Return the surface area of this bound.
+   * @return Float
+   * @exception none
+   * @details
+   */
+  auto SurfaceArea () const noexcept -> Float;
+
+  /*!
    * @fn std ToString ()
    * @brief 
    * @return 
@@ -138,6 +158,24 @@ public:
    * @details
    */
   auto IsInside (const Point2f& p) const noexcept -> bool;
+
+  /*!
+   * @fn Float Width ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Width () const noexcept -> Float;
+
+  /*!
+   * @fn Float Height ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Height () const noexcept -> Float;
 
 public:
   Point2f min_, max_;

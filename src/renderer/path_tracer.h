@@ -17,6 +17,7 @@
 #include "../random/xorshift.h"
 #include "../scene/scene.h"
 #include "../sampler/random_sampler.h"
+#include "../camera/camera.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -36,8 +37,8 @@ public:
   //! The constructor takes render settings.
   PathTracer
   (
-   const Scene& scene,
-   const RenderSettings& settings
+   const std::shared_ptr <Camera>& camera,
+   const Scene& scene
   );
 
   //! Copy constructor
@@ -75,7 +76,7 @@ private:
    * @exception none
    * @details
    */
-  auto TraceRay
+  auto RenderTileBounds
   (
    const Bounds2f& tile,
    RandomSampler*  tile_sampler
@@ -99,11 +100,7 @@ private:
 
 private:
   Scene scene_;
-  RenderSettings settings_;
-  ThreadPool     pool_;
-
-  // TODO: delete
-  std::unique_ptr<Vector3f []> image_;
+  std::shared_ptr <Camera> camera_;
 }; // class PathTracer
 /*
 // ---------------------------------------------------------------------------

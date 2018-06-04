@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "niepce.h"
+#include "singleton.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -24,13 +25,11 @@ namespace niepce
 class ThreadPool
 {
 public:
-  //! The default constructor
-  ThreadPool () = delete;
-
   //! The constructor that takes number of thread.
   /*!
    * Create the number of threads given in argument if possible. Otherwise, it set the number of thread to one.
    */
+  // ThreadPool (unsigned int num_thread = std::thread::hardware_concurrency ());
   ThreadPool (unsigned int num_thread = 1);
 
   //! Copy constructor
@@ -87,12 +86,12 @@ auto ThreadPool::Enqueue(F&& func, Args&& ... args)
     // Get the lock.
     std::unique_lock <std::mutex> lock (mutex_);
 
-    // Add the task into the end of internal vector if thread pool is not stopping.
+    // Add the task into the end of internal vector if thread pool is
+    // not stopping.
     if(stop_)
-      {
-        throw std::runtime_error("enqueue on stopped ThreadPool");
-      }
-
+    {
+      throw std::runtime_error("enqueue on stopped ThreadPool");
+    }
     tasks_.emplace ([task] () { (*task) (); });
   }
   condition_.notify_one ();
@@ -100,7 +99,7 @@ auto ThreadPool::Enqueue(F&& func, Args&& ... args)
   return result;
 }
 /*
-// ---------------------------------------------------------------------------x
+// ---------------------------------------------------------------------------
 */
 }  // namespace niepce
 /*

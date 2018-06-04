@@ -14,6 +14,9 @@
 #include "../core/vector3f.h"
 #include "../bsdf/bsdf.h"
 #include "../bsdf/bsdf_record.h"
+#include "../camera/camera.h"
+#include "../core/singleton.h"
+#include "../core/film_tile.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -24,81 +27,52 @@ namespace niepce
 */
 PathTracer::PathTracer
 (
- const Scene& scene,
- const RenderSettings& settings
+ const std::shared_ptr <Camera>& camera,
+ const Scene& scene
 ) :
-  scene_    (scene),
-  settings_ (settings),
-  pool_     (settings.GetItem (RenderSettings::Item::kNumThread))
+  camera_   (camera),
+  scene_    (scene)
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 auto PathTracer::Render () -> void
 {
-  // Generate the tiles
-  const unsigned int tile_width
-    = settings_.GetItem (RenderSettings::Item::kTileWidth);
-  const unsigned int tile_height
-    = settings_.GetItem (RenderSettings::Item::kTileHeight);
-
-  const unsigned int resolution_width
-    = settings_.GetItem (RenderSettings::Item::kWidth);
-  const unsigned int resolution_height
-    = settings_.GetItem (RenderSettings::Item::kHeight);
-  const unsigned int num_sample
-    = settings_.GetItem (RenderSettings::Item::kNumSamples);
-
-  // Todo: Delete
-  image_.reset (new Spectrum [resolution_width * resolution_height]);
-
-  // Divide tile
+  // Compute the tile bounds.
   std::vector <Bounds2f> tile_bounds;
-  for (unsigned int y = 0; y < resolution_height; y += tile_height)
+  std::vector <std::shared_ptr <RandomSampler>> samplers;
+  constexpr static int tile_size = 32;
+  const Bounds2f resolution  = camera_->Resolution ();
+  const unsigned int width  = resolution.Width ();
+  const unsigned int height = resolution.Height ();
+
+  for (int y = 0; y < height; y += tile_size)
   {
-    for (unsigned int x = 0; x < resolution_width; x += tile_width)
+    for (int x = 0; x < width; x += tile_size)
     {
-      const Point2f  min  (x, y);
-      const Point2f  max  (x + tile_width - 1, y + tile_height - 1);
-      const Bounds2f tile (min, max);
+      const int end_x = x + tile_size >= width  ? width  - 1 : x + tile_size - 1;
+      const int end_y = y + tile_size >= height ? height - 1 : y + tile_size - 1;
+      const Bounds2f tile (Point2f (x, y), Point2f (end_x, end_y));
       tile_bounds.push_back (tile);
+
+      // Clone sampler for each tile.
+      samplers.push_back (std::make_shared <RandomSampler> (end_x * end_y));
     }
   }
 
-  std::unique_ptr <RandomSampler> sampler (new RandomSampler ());
-
-  // Generate sampler for each tile.
-  std::vector <std::unique_ptr <RandomSampler>> samplers;
-  for (const auto& tile : tile_bounds)
-  {
-    const auto x = tile.Max ().X ();
-    const auto y = tile.Min ().Y ();
-    samplers.push_back (sampler->Clone (y * tile_width + x));
-  }
-
-  // The number of tiles and samplers should be same.
-  if (samplers.size () != tile_bounds.size ())
-  {
-    return ;
-  }
-
   // Register the tasks
+  ThreadPool& threads = Singleton <ThreadPool>::Instance ();
   std::vector <std::future <void>> futures (tile_bounds.size ());
-  for (unsigned int i = 0; i < tile_bounds.size (); ++i)
+  for (int i = 0; i < tile_bounds.size (); ++i)
   {
     std::function <void (const Bounds2f&, RandomSampler*)> func
-      = std::bind (&PathTracer::TraceRay,
+      = std::bind (&PathTracer::RenderTileBounds,
                    this,
                    std::placeholders::_1,
                    std::placeholders::_2);
-    futures[i] = pool_.Enqueue (func,
-                                tile_bounds[i],
-                                samplers[i].get ());
-    /*
-    // This is bug codes.
-    auto task = [&] () { this->TraceRay (tile_bounds[i], samplers[i].get ()); };
-    futures.emplace_back (pool_.Enqueue (task));
-    */
+    futures[i] = threads.Enqueue (func,
+                                  tile_bounds[i],
+                                  samplers[i].get ());
   }
 
   // Wait for all task done.
@@ -107,60 +81,34 @@ auto PathTracer::Render () -> void
     future.wait ();
   }
 
-  auto to_int = [] (Float x) -> int
-  {
-    const int res = static_cast <int> (x * 255 - 1.0 + 0.5);
-    if (res > 255) { std::cerr << res << "\n"; return 255; }
-    if (res < 0)   { std::cerr << res << "\n"; return 0; }
-    return res;
-  };
-
-  std::ofstream os ("pt.ppm");
-  os << "P3\n" << resolution_width << " " << resolution_height << " 255\n";
-  for (int i = 0; i < resolution_width * resolution_height; ++i)
-  {
-    const int red   = to_int (image_[i].X ());
-    const int green = to_int (image_[i].Y ());
-    const int blue  = to_int (image_[i].Z ());
-    os << red << " " << green << " " << blue << " ";
-  }
-  os.close ();
+  camera_->Save ();
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto PathTracer::TraceRay
+auto PathTracer::RenderTileBounds
 (
  const Bounds2f& tile,
  RandomSampler*  tile_sampler
 )
   noexcept -> void
 {
-  const Point2f min = tile.Min ();
-  const Point2f max = tile.Max ();
+  FilmTile film_tile (tile);
 
-  const unsigned int tile_width
-    = settings_.GetItem (RenderSettings::Item::kTileWidth);
-  const unsigned int tile_height
-    = settings_.GetItem (RenderSettings::Item::kTileHeight);
+  std::cout << film_tile.Bounds().ToString() << std::endl;
 
-  const unsigned int resolution_width
-    = settings_.GetItem (RenderSettings::Item::kWidth);
-  const unsigned int resolution_height
-    = settings_.GetItem (RenderSettings::Item::kHeight);
-  const unsigned int num_sample
-    = settings_.GetItem (RenderSettings::Item::kNumSamples);
+  static constexpr int num_sample = 8;
 
   // Camera
   Ray cam (Point3f(50,50,350), Normalize (Vector3f(0, 0, -1)));
-  Vector3f cx = Vector3f (resolution_width*.5135/resolution_height, 0, 0);
+  Vector3f cx = Vector3f (tile.Width ()*.5135 / tile.Height (), 0, 0);
   Vector3f cy = Cross (cx, cam.Direction ()).Normalize () * .5135;
 
-  for (unsigned int y = min.Y (); y <= max.Y (); ++y)
+  for (unsigned int y = tile.Min ().Y (); y <= tile.Max ().Y (); ++y)
   {
-    for (unsigned int x = min.X (); x <= max.X (); ++x)
+    for (unsigned int x = tile.Min ().X (); x <= tile.Max ().X (); ++x)
     {
-      const unsigned int idx = (resolution_height - y - 1) * resolution_width + x;
+      const unsigned int idx = (tile.Height () - y - 1) * tile.Width() + x;
       for (unsigned sy = 0; sy < 2; ++sy)
       {
         for (unsigned int sx = 0; sx < 2; ++sx)
@@ -173,21 +121,23 @@ auto PathTracer::TraceRay
             const Float r2 = 2.0 * tile_sampler->SampleFloat ();
             const Float dx = r1 < 1 ? std::sqrt (r1) - 1 : 1 - std::sqrt (2 - r1);
             const Float dy = r2 < 1 ? std::sqrt (r2) - 1 : 1 - std::sqrt (2 - r2);
-            const Vector3f d = cx * (((sx +.5 + dx) / 2 + x) / resolution_width  - 0.5)
-                             + cy * (((sy +.5 + dy) / 2 + y) / resolution_height - 0.5)
+            const Vector3f d = cx * (((sx +.5 + dx) / 2 + x) / tile.Width ()  - 0.5)
+                             + cy * (((sy +.5 + dy) / 2 + y) / tile.Height () - 0.5)
                              + cam.Direction ();
             const Ray ray (cam.Origin () + d * 140, d.Normalized ());
 
             r = r + Radiance (ray, tile_sampler)
               / ((static_cast <Float> (num_sample)));
           }
-          image_[idx] = image_[idx] + Vector3f (Clamp (r.X ()),
-                                                Clamp (r.Y ()),
-                                                Clamp (r.Z ())) * 0.25;
+          const Spectrum s = film_tile (x, y) + Spectrum (Clamp (r.X ()),
+                                                          Clamp (r.Y ()),
+                                                          Clamp (r.Z ()));
+          film_tile.Set(x, y, s);
         }
       }
     }
   }
+  camera_->AddFilmTile (film_tile);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -201,6 +151,9 @@ auto PathTracer::Radiance
 {
   Spectrum l = Spectrum (0);
   Spectrum f = Spectrum (1);
+
+  return f;
+
   Ray ray (first_ray);
 
   MemoryArena memory;

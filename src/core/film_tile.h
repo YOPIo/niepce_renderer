@@ -12,6 +12,7 @@
 */
 #include "niepce.h"
 #include "bounds2f.h"
+#include "imageio.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -22,7 +23,7 @@ namespace niepce
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class FilmTile
+class FilmTile : public ImageIO <Spectrum>
 {
 public:
   //! The default class constructor.
@@ -46,49 +47,7 @@ public:
   //! The move assignment operator of the class.
   auto operator = (FilmTile&& tile) -> FilmTile& = default;
 
-  /*!
-   * @fn operator ()
-   * @brief 
-   * @details 
-   * @return 
-   * @exception none
-   */
-  auto operator () (unsigned int x, unsigned int y) const noexcept -> Spectrum;
-
 public:
-  /*!
-   * @fn Spectrum At (unsigned)
-   * @brief 
-   * @param[in] x
-   *    
-   * @param[in] y
-   *    
-   * @return 
-   * @exception none
-   * @details
-   */
-  auto At (unsigned int x, unsigned int y) const -> Spectrum;
-
-  /*!
-   * @fn int Width ()
-   * @brief 
-   * @return 
-   * @exception none
-   * @details
-   */
-  auto Width () const noexcept -> unsigned int;
-
-  /*!
-   * @fn unsigned Height ()
-   * @brief 
-   * @param[in] 
-   * @param[out] 
-   * @return 
-   * @exception none
-   * @details
-   */
-  auto Height () const noexcept -> unsigned int;
-
   /*!
    * @fn Bounds2f Bounds ()
    * @brief 
@@ -98,22 +57,8 @@ public:
    */
   auto Bounds () const noexcept -> Bounds2f;
 
-  /*!
-   * @fn void SetSpectrum (unsigned int, unsigned int)
-   * @brief 
-   * @param[in] x
-   *    
-   * @param[in] y
-   *    
-   * @return void
-   * @exception none
-   * @details
-   */
-  auto SetSpectrumAt (unsigned int x, unsigned int y, const Spectrum& s) -> void;
-
 private:
   const Bounds2f tile_bounds_;
-  std::vector <Spectrum> data_;
 }; // class FilmTile
 /*
 // ---------------------------------------------------------------------------

@@ -24,9 +24,8 @@ Film::Film
  Float        diagonal // (mm)
 ) :
   filename_   (filename),
-  resolution_ (std::make_pair (width, height)),
-  diagonal_   (diagonal * 0.001), // Convert mm to m.
-  image_      (width, height)
+  resolution_ (Bounds2f (Point2f (0, 0), Point2f(width, height))),
+  diagonal_   (diagonal * 0.001) // Convert mm to m.
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -38,36 +37,48 @@ auto Film::Diagonal () const noexcept -> Float
 /*
 // ---------------------------------------------------------------------------
 */
-auto Film::Height () const noexcept -> unsigned int
+auto Film::PhysicalBounds () const noexcept -> Bounds2f
 {
-  return resolution_.second;
+  const Float aspect = resolution_.Height () / resolution_.Width ();
+  const Float x = std::sqrt (diagonal_ * diagonal_ / (1 + aspect * aspect));
+  const Float y = aspect * x;
+  return Bounds2f (Point2f (-x / 2.0, -y / 2.0), Point2f (x / 2.0, y / 2.0));
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Film::Width () const noexcept -> unsigned int
+auto Film::RenderingBounds () const noexcept -> Bounds2f
 {
-  return resolution_.first;
+  // TODO: くけいれんだりんぐ
+  return resolution_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Film::SetFilmTile (const FilmTile& tile) noexcept -> void
+auto Film::Resolution () const noexcept -> Bounds2f
 {
-  const Bounds2f tile_bounds = tile.Bounds ();
-  const unsigned int begin_x = tile_bounds.Min ().X ();
-  const unsigned int begin_y = tile_bounds.Min ().Y ();
-  const unsigned int last_x  = tile_bounds.Max ().X ();
-  const unsigned int last_y  = tile_bounds.Max ().Y ();
-
-  // Copy
-  for (int y = begin_y; y <= last_y; ++y)
-  {
-    for (int x = begin_x; x <= last_x; ++x)
-    {
-      image_.Set (x, y, tile (x, y));
-    }
-  }
+  return resolution_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Film::Save () const noexcept -> void
+{
+  SaveAs (filename_.c_str ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Film::SaveAs (const char *filename) const noexcept -> void
+{
+  
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Film::AddFilmTile (const FilmTile& tile) noexcept -> void
+{
+  tiles_.push_back (tile);
 }
 /*
 // ---------------------------------------------------------------------------

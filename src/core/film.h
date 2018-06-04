@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "niepce.h"
+#include "bounds2f.h"
 #include "imageio.h"
 /*
 // ---------------------------------------------------------------------------
@@ -32,9 +33,9 @@ public:
   Film
   (
    const char*  filename,
-   unsigned int width,
-   unsigned int height,
-   Float        diagonal // (mm)
+   unsigned int width,   // Resolution
+   unsigned int height,  // Resolution
+   Float        diagonal // Physical length (mm)
   );
 
   //! The copy constructor of the class.
@@ -63,22 +64,13 @@ public:
   auto Diagonal () const noexcept -> Float;
 
   /*!
-   * @fn unsigned Height () const noexcept
-   * @brief Return the resolution of height.
+   * @fn Bounds2f PhysicalBounds ()
+   * @brief 
    * @return 
    * @exception none
-   * @details 
+   * @details
    */
-  auto Height () const noexcept -> unsigned int;
-
-  /*!
-   * @fn unsigned Width () const noexcept
-   * @brief Return the resolution of width.
-   * @return 
-   * @exception none
-   * @details 
-  */
-  auto Width () const noexcept -> unsigned int;
+  auto PhysicalBounds () const noexcept -> Bounds2f;
 
   /*!
    * @fn Bounds2f RenderingBounds ()
@@ -90,29 +82,57 @@ public:
   auto RenderingBounds () const noexcept -> Bounds2f;
 
   /*!
-   * @fn void SetFilmTile (const)
+   * @fn Bounds2f Resolution ()
    * @brief 
-   * @param[in] tile
-   *    
    * @return 
    * @exception none
    * @details
    */
-  auto SetFilmTile (const FilmTile& tile) noexcept -> void;
+  auto Resolution () const noexcept -> Bounds2f;
+
+  /*!
+   * @fn void Save ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Save () const noexcept -> void;
+
+  /*!
+   * @fn void SaveAs (const)
+   * @brief 
+   * @param[in] filename
+   *   
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SaveAs (const char* filename) const noexcept -> void;
+
+  /*!
+   * @fn void SetFilmTile (const)
+   * @brief 
+   * @param[in] tile
+   *    t
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto AddFilmTile (const FilmTile& tile) noexcept -> void;
 
 private:
   //! @brief filename
   std::string filename_;
 
   //! @brief <width, heigth>
-  const std::pair <unsigned int, unsigned int> resolution_;
+  const Bounds2f resolution_;
 
   //! @brief Physical length of diagonal. [m]
   const Float diagonal_;
 
-  //! @brief Result of rendering will be stored here.
-  ImageIO <Spectrum> image_;
-
+  //! @brief
+  std::vector <FilmTile> tiles_;
 }; // class Film
 /*
 // ---------------------------------------------------------------------------
