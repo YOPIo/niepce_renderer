@@ -31,6 +31,9 @@ public:
   //! The default class constructor.
   Bounds2f ();
 
+  //! The constructor takes maximum conpoments.
+  Bounds2f (Float x, Float y);
+
   //! The constructor takes two points.
   Bounds2f (const Point2f& p0, const Point2f& p1);
 
@@ -180,6 +183,17 @@ public:
 public:
   Point2f min_, max_;
 }; // class Bounds2f
+/*
+// ---------------------------------------------------------------------------
+//
+// ---------------------------------------------------------------------------
+*/
+auto BoundFor2
+(
+ const std::function <void(int, int)>& func,
+ const Bounds2f& bound
+)
+-> void;
 /*
 // ---------------------------------------------------------------------------
 */

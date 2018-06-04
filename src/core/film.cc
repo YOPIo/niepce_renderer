@@ -23,9 +23,9 @@ Film::Film
  unsigned int height,
  Float        diagonal // (mm)
 ) :
-  filename_   (filename),
-  resolution_ (Bounds2f (Point2f (0, 0), Point2f(width, height))),
-  diagonal_   (diagonal * 0.001) // Convert mm to m.
+  ImageIO <Spectrum> (filename, width, height),
+  bounds_   (width, height),
+  diagonal_ (diagonal * 0.001) // Convert mm to m.
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -39,7 +39,8 @@ auto Film::Diagonal () const noexcept -> Float
 */
 auto Film::PhysicalBounds () const noexcept -> Bounds2f
 {
-  const Float aspect = resolution_.Height () / resolution_.Width ();
+  const Float aspect = static_cast <Float> (height_)
+                     / static_cast <Float> (width_);
   const Float x = std::sqrt (diagonal_ * diagonal_ / (1 + aspect * aspect));
   const Float y = aspect * x;
   return Bounds2f (Point2f (-x / 2.0, -y / 2.0), Point2f (x / 2.0, y / 2.0));
@@ -47,38 +48,26 @@ auto Film::PhysicalBounds () const noexcept -> Bounds2f
 /*
 // ---------------------------------------------------------------------------
 */
-auto Film::RenderingBounds () const noexcept -> Bounds2f
-{
-  // TODO: くけいれんだりんぐ
-  return resolution_;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
 auto Film::Resolution () const noexcept -> Bounds2f
 {
-  return resolution_;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Film::Save () const noexcept -> void
-{
-  SaveAs (filename_.c_str ());
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Film::SaveAs (const char *filename) const noexcept -> void
-{
-  
+  return Bounds2f (Point2f (0, 0), Point2f (width_, height_));
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Film::AddFilmTile (const FilmTile& tile) noexcept -> void
 {
-  tiles_.push_back (tile);
+  const Point2f min = tile.Bounds ().Min ();
+  const Point2f max = tile.Bounds ().Max ();
+  // Range check
+  if (bounds_.IsInside (min) && bounds_.IsInside (max))
+  {
+    auto copy = [&] (int x, int y) -> void
+    {
+      SetValueAt (x, y, tile (x - min.X (), y - min.Y ()));
+    };
+    BoundFor2 (copy, tile.Bounds ());
+  }
 }
 /*
 // ---------------------------------------------------------------------------

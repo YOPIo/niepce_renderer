@@ -23,7 +23,7 @@ namespace niepce
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class Film
+class Film : public ImageIO <Spectrum>
 {
 public:
   //! The default class constructor.
@@ -73,15 +73,6 @@ public:
   auto PhysicalBounds () const noexcept -> Bounds2f;
 
   /*!
-   * @fn Bounds2f RenderingBounds ()
-   * @brief Return the bound of rendering area.
-   * @return 
-   * @exception none
-   * @details
-   */
-  auto RenderingBounds () const noexcept -> Bounds2f;
-
-  /*!
    * @fn Bounds2f Resolution ()
    * @brief 
    * @return 
@@ -89,26 +80,6 @@ public:
    * @details
    */
   auto Resolution () const noexcept -> Bounds2f;
-
-  /*!
-   * @fn void Save ()
-   * @brief 
-   * @return 
-   * @exception none
-   * @details
-   */
-  auto Save () const noexcept -> void;
-
-  /*!
-   * @fn void SaveAs (const)
-   * @brief 
-   * @param[in] filename
-   *   
-   * @return 
-   * @exception none
-   * @details
-   */
-  auto SaveAs (const char* filename) const noexcept -> void;
 
   /*!
    * @fn void SetFilmTile (const)
@@ -122,17 +93,11 @@ public:
   auto AddFilmTile (const FilmTile& tile) noexcept -> void;
 
 private:
-  //! @brief filename
-  std::string filename_;
-
-  //! @brief <width, heigth>
-  const Bounds2f resolution_;
+  //! @brief
+  const Bounds2f bounds_;
 
   //! @brief Physical length of diagonal. [m]
   const Float diagonal_;
-
-  //! @brief
-  std::vector <FilmTile> tiles_;
 }; // class Film
 /*
 // ---------------------------------------------------------------------------

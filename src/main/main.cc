@@ -43,6 +43,10 @@ auto RenderScene () -> void
 {
   niepce::Transform t;
   std::shared_ptr<Camera> camera (new RealisticCamera(t,
+                                                      "pt.ppm",
+                                                      540,
+                                                      270,
+                                                      3.5,
                                                       "../assets/lenses/wide.22mm.dat",
                                                       0.5,
                                                       1,
@@ -53,7 +57,6 @@ auto RenderScene () -> void
 
   niepce::Scene scene;
   scene.ReadyCornellBox ();
-
   PathTracer pt (camera, scene);
   pt.Render ();
 }
@@ -67,13 +70,26 @@ auto RenderScene () -> void
 int main (int argc, char* argv[])
 {
   niepce::Initialize ();
-
   niepce::StopWatch stopwatch;
   stopwatch.Start ();
   niepce::RenderScene ();
   stopwatch.Stop ();
-
-
   niepce::Finalize ();
+
+  return 0;
+
+  niepce::Film f ("", 480, 480, 35.0);
+  niepce::FilmTile ft (niepce::Bounds2f (niepce::Point2f (32, 32),
+                                         niepce::Point2f (100, 400)));
+
+  auto func = [&] (int x, int y) -> void
+  {
+    ft.SetValueAt (x, y, niepce::Spectrum(0.75, 0.25, 0.25));
+  };
+  BoundFor2 (func, niepce::Bounds2f (ft.Width(), ft.Height()));
+  f.AddFilmTile(ft);
+
+  f.SaveAs ("aaa.ppm");
+
   return 0;
 }

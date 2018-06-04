@@ -70,6 +70,28 @@ public:
   auto At (unsigned int x, unsigned int y) const -> T;
 
   /*!
+   * @fn  SetValueAt (unsigned int, unsigned int, const T&)
+   * @brief 
+   * @param[in] x
+   *    
+   * @param[in] y
+   *    
+   * @param[in] value
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SetValueAt
+  (
+   unsigned int x,
+   unsigned int y,
+   const T& value
+  )
+  const -> void;
+
+
+  /*!
    * @fn unsigned Height ()
    * @brief Return the height of image size.
    * @return The height of image as unsigned integer.
@@ -90,7 +112,7 @@ public:
 protected:
   unsigned int width_;
   unsigned int height_;
-  std::shared_ptr <T []> data_;
+  std::shared_ptr <T> data_;
 }; // class Image
 /*
 // ---------------------------------------------------------------------------

@@ -27,13 +27,17 @@ namespace niepce
 */
 RealisticCamera::RealisticCamera
 (
- const Transform& camera_to_world,
- const char* lens_file_path,
- Float focus_distance, // (mm)
- Float aperture_diameter,
- bool  simple_weighting
+   const Transform& camera_to_world,
+   const char* filename,
+   unsigned int width,
+   unsigned int height,
+   Float diagonal, // [mm]
+   const char* lens_file_path,
+   Float focus_distance,
+   Float aperture_diameter,
+   bool  simple_weighting
 ) :
-  Camera (camera_to_world, "pt.ppm", 480, 270, 3.5),
+  Camera (camera_to_world, filename, width, height, diagonal),
   simple_weighting_  (simple_weighting)
 {
   // Load a lens system file.
@@ -619,18 +623,18 @@ auto RealisticCamera::RenderExitPupil
       if (lx * lx + ly * ly > radius * radius)
       {
         // Out of aperture.
-        res.Set (x, y, 1);
+        res.SetValueAt (x, y, 1);
         continue;
       }
       Ray ray (point_on_film, target - point_on_film);
       if (CanRayThroughLensSystemFromFilm (ray, nullptr))
       {
         // Found exit pupil
-        res.Set (x, y, 0.5);
+        res.SetValueAt (x, y, 0.5);
         continue;
       }
       // Ray cannot through lens system.
-      res.Set (x, y, 0);
+      res.SetValueAt (x, y, 0);
     }
   }
 

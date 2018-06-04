@@ -30,7 +30,10 @@ public:
   ImageIO () = delete;
 
   //! The constructor takes width and height.
-  ImageIO (unsigned int widht, unsigned int height);
+  ImageIO (unsigned int width, unsigned int height);
+
+  //! The construcoor takes width, hegith and filename.
+  ImageIO (const char* filename, unsigned int width, unsigned int height);
 
   //! The Constructor load the file.
   ImageIO (const char* filename);
@@ -81,19 +84,6 @@ public:
    * @details
    */
   auto SaveAs (const char* filename) const noexcept-> void;
-
-  /*!
-   * @fn void Set (unsigned int, unsigned int)
-   * @brief 
-   * @param[in] x
-   *    
-   * @param[in] y
-   *    
-   * @return 
-   * @exception none
-   * @details
-   */
-  auto Set (unsigned int x, unsigned int y, const T& val) noexcept -> void;
 
   /*!
    * @fn Return Rename (std)
@@ -147,7 +137,7 @@ private:
    */
   auto AllocateMemory (unsigned int width, unsigned int height) -> void;
 
-private:
+protected:
   std::string name_;
 }; // class ImageIO
 /*

@@ -35,7 +35,7 @@ public:
   Camera
   (
    const Transform& t,
-   const char* filename,
+   const char*  filename,
    unsigned int width,   // Resolution
    unsigned int height,  // Resolution
    Float        diagonal // Physical length (mm)

@@ -45,18 +45,16 @@ auto PathTracer::Render () -> void
   const Bounds2f resolution  = camera_->Resolution ();
   const unsigned int width  = resolution.Width ();
   const unsigned int height = resolution.Height ();
-
   for (int y = 0; y < height; y += tile_size)
   {
     for (int x = 0; x < width; x += tile_size)
     {
-      const int end_x = x + tile_size >= width  ? width  - 1 : x + tile_size - 1;
-      const int end_y = y + tile_size >= height ? height - 1 : y + tile_size - 1;
-      const Bounds2f tile (Point2f (x, y), Point2f (end_x, end_y));
+      const int last_x = x + tile_size >= width  ? width  - 1 : x + tile_size;
+      const int last_y = y + tile_size >= height ? height - 1 : y + tile_size;
+      const Bounds2f tile (Point2f (x, y), Point2f (last_x, last_y));
       tile_bounds.push_back (tile);
-
       // Clone sampler for each tile.
-      samplers.push_back (std::make_shared <RandomSampler> (end_x * end_y));
+      samplers.push_back (std::make_shared <RandomSampler> (last_x * last_y));
     }
   }
 
@@ -74,13 +72,11 @@ auto PathTracer::Render () -> void
                                   tile_bounds[i],
                                   samplers[i].get ());
   }
-
   // Wait for all task done.
   for (auto& future : futures)
   {
     future.wait ();
   }
-
   camera_->Save ();
 }
 /*
@@ -94,9 +90,16 @@ auto PathTracer::RenderTileBounds
   noexcept -> void
 {
   FilmTile film_tile (tile);
+  auto func = [&] (int x, int y) -> void
+  {
+    film_tile.SetValueAt (x, y, Spectrum(1));
+  };
+  BoundFor2 (func, Bounds2f (tile.Width (), tile.Height ()));
+
+  camera_->AddFilmTile (film_tile);
+  return ;
 
   std::cout << film_tile.Bounds().ToString() << std::endl;
-
   static constexpr int num_sample = 8;
 
   // Camera
@@ -132,7 +135,7 @@ auto PathTracer::RenderTileBounds
           const Spectrum s = film_tile (x, y) + Spectrum (Clamp (r.X ()),
                                                           Clamp (r.Y ()),
                                                           Clamp (r.Z ()));
-          film_tile.Set(x, y, s);
+          film_tile.SetValueAt (x, y, s);
         }
       }
     }

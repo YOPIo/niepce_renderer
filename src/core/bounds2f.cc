@@ -22,11 +22,19 @@ Bounds2f::Bounds2f () :
 /*
 // ---------------------------------------------------------------------------
 */
+Bounds2f::Bounds2f (Float x, Float y) :
+  min_ (Point2f (std::fmin (0, x), std::fmin (0, y))),
+  max_ (Point2f (std::fmax (0, x), std::fmax (0, y)))
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
 Bounds2f::Bounds2f (const Point2f& p0, const Point2f& p1)
 {
   const Float min_x = std::fmin (p0.X (), p1.X ());
-  const Float min_y = std::fmin (p0.Y (), p1.Y ());
   const Float max_x = std::fmax (p0.X (), p1.X ());
+
+  const Float min_y = std::fmin (p0.Y (), p1.Y ());
   const Float max_y = std::fmax (p0.Y (), p1.Y ());
 
   min_ = Point2f (min_x, min_y);
@@ -107,14 +115,14 @@ auto Bounds2f::SurfaceArea () const noexcept -> Float
 */
 auto Bounds2f::Width () const noexcept -> Float
 {
-  return max_.X () - min_.X ();
+  return std::fabs (max_.X () - min_.X ());
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Bounds2f::Height () const noexcept -> Float
 {
-  return max_.Y () - min_.Y ();
+  return std::fabs (max_.Y () - min_.Y ());
 }
 /*
 // ---------------------------------------------------------------------------
@@ -131,6 +139,24 @@ auto Bounds2f::IsInside (const Point2f &p) const noexcept -> bool
 {
   return (min_.X () <= p.X ()) && (p.X () <= max_.X ()) &&
          (min_.Y () <= p.Y ()) && (p.Y () <= max_.Y ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto BoundFor2
+(
+ const std::function <void(int, int)>& func,
+ const Bounds2f& bound
+)
+-> void
+{
+  for (int y = bound.Min ().Y (); y < bound.Max ().Y (); ++y)
+  {
+    for (int x = bound.Min ().X (); x < bound.Max ().X (); ++x)
+    {
+      func (x, y);
+    }
+  }
 }
 /*
 // ---------------------------------------------------------------------------

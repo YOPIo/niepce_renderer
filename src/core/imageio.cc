@@ -6,6 +6,8 @@
  * @details 
  */
 #include "imageio.h"
+#include "bounds2f.h"
+#include "point2f.h"
 #include "vector3f.h"
 /*
 // ---------------------------------------------------------------------------
@@ -25,9 +27,22 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 template <typename T>
-ImageIO<T>::ImageIO (unsigned int w, unsigned int h) :
-  Image<T> (w, h),
-  name_ ("no_name.ppm")
+ImageIO<T>::ImageIO (unsigned int width, unsigned int height) :
+  Image<T> (width, height),
+  name_ ()
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
+ImageIO<T>::ImageIO
+(
+ const char* filename,
+ unsigned int width,
+ unsigned int height
+) :
+  Image<T> (width, height),
+  name_ (filename)
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -57,8 +72,6 @@ auto ImageIO<T>::Load (const char *filename) -> void
 
   // Reallocate the memory and copy image.
   AllocateMemory (width, height);
-
-
 }
 /*
 // ---------------------------------------------------------------------------
@@ -68,7 +81,7 @@ auto ImageIO<Spectrum>::Load (const char *filename) -> void
 {
   // Load a image via stbi.
   int width, height, n;
-  unsigned char* data = stbi_load (filename, &width, &height, &n, 4);
+  unsigned char* img = stbi_load (filename, &width, &height, &n, 4);
 
   auto to_float = [] (unsigned char c) -> Float
   {
@@ -83,11 +96,10 @@ auto ImageIO<Spectrum>::Load (const char *filename) -> void
     for (int x = 0; x < width; ++x)
     {
       const unsigned int idx = y * width + x;
-      const Float r = to_float (data[idx * 4 + 0]);
-      const Float g = to_float (data[idx * 4 + 1]);
-      const Float b = to_float (data[idx * 4 + 2]);
-
-      this->data_[idx] = Spectrum (r, g, b);
+      const Float r = to_float (img[idx * 4 + 0]);
+      const Float g = to_float (img[idx * 4 + 1]);
+      const Float b = to_float (img[idx * 4 + 2]);
+      SetValueAt (x, y, Spectrum (r, g, b));
     }
   }
 }
@@ -96,7 +108,9 @@ auto ImageIO<Spectrum>::Load (const char *filename) -> void
 */
 template <typename T>
 auto ImageIO<T>::Save () const noexcept -> void
-{}
+{
+  SaveAs (name_.c_str ());
+}
 /*
 // ---------------------------------------------------------------------------
 */
@@ -104,15 +118,6 @@ template <typename T>
 auto ImageIO<T>::SaveAs (const char *filename) const noexcept -> void
 {
   SavePpm (filename);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto ImageIO<T>::Set (unsigned int x, unsigned int y, const T& val)
-  noexcept -> void
-{
-  this->data_[y * this->width_ + x] = val;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -151,35 +156,23 @@ auto ImageIO<T>::SavePpm (const char* filename) const noexcept -> void
 */
 template <>
 auto ImageIO<Float>::SavePpm (const char* filename) const noexcept -> void
-{
-  auto to_int = [] (Float x) -> unsigned char
-  {
-    return static_cast <unsigned char> (x * 255 - 1.0 + 0.5);
-  };
-
-  std::ofstream os (filename);
-  os << "P2\n" << this->width_ << " " << this->height_ << "\n255\n";
-
-  for (int i = 0; i < this->width_ * this->height_; ++i)
-  {
-    os << (int)FloatToInt (this->data_[i]) << " ";
-  }
-  os.close ();
-}
+{}
 /*
 // ---------------------------------------------------------------------------
 */
 template <>
 auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
 {
+  std::cout << "Save "<< filename << std::endl;
   std::ofstream os (filename);
-  os << "P3\n" << this->width_ << " " << this->height_ << "\n255\n";
-  for (int i = 0; i < this->width_ * this->height_; ++i)
+  os << "P3\n" << width_ << " " << height_ << "\n255\n";
+  auto func = [&] (int x, int y) -> void
   {
-    os << (int)FloatToInt (this->data_[i].X ()) << " ";
-    os << (int)FloatToInt (this->data_[i].Y ()) << " ";
-    os << (int)FloatToInt (this->data_[i].Z ()) << " ";
-  }
+    os << (int)FloatToInt (At (x, y).X ()) << " ";
+    os << (int)FloatToInt (At (x, y).Y ()) << " ";
+    os << (int)FloatToInt (At (x, y).Z ()) << " ";
+  };
+  BoundFor2 (func, Bounds2f (Point2f (0, 0), Point2f (width_, height_)));
   os.close ();
 }
 /*

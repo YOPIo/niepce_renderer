@@ -51,12 +51,16 @@ public:
 
 public:
   //! The default class constructor.
-  RealisticCamera () = default;
+  RealisticCamera () = delete;
 
   //! The constructor takes
   RealisticCamera
   (
    const Transform& camera_to_world,
+   const char* filename,
+   unsigned int width,
+   unsigned int height,
+   Float diagonal,
    const char* lens_file_path,
    Float focus_distance,
    Float aperture_diameter,

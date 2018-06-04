@@ -29,8 +29,8 @@ public:
   /*!
    * Create the number of threads given in argument if possible. Otherwise, it set the number of thread to one.
    */
-  // ThreadPool (unsigned int num_thread = std::thread::hardware_concurrency ());
-  ThreadPool (unsigned int num_thread = 1);
+  ThreadPool (unsigned int num_thread = std::thread::hardware_concurrency ());
+  // ThreadPool (unsigned int num_thread = 1);
 
   //! Copy constructor
   ThreadPool (const ThreadPool& pool) = default;
