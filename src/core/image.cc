@@ -28,7 +28,10 @@ template <typename T>
 auto Image<T>::operator () (unsigned int x, unsigned int y)
   const noexcept -> T
 {
-  if (x * y < width_ * height_) { return data_.get ()[y * width_ + x]; }
+  if (y * width_ + x < width_ * height_)
+  {
+    return data_.get ()[y * width_ + x];
+  }
   return data_.get ()[0];
 }
 /*
@@ -37,8 +40,11 @@ auto Image<T>::operator () (unsigned int x, unsigned int y)
 template <typename T>
 auto Image<T>::At (unsigned int x, unsigned int y) const -> T
 {
-  if (width_ <= x || height_ <= y) { throw std::out_of_range (""); }
-  return data_.get ()[y * width_ + x];
+  if (y * width_ + x < width_ * height_)
+  {
+    return data_.get ()[y * width_ + x];
+  }
+  return data_.get () [0];
 }
 /*
 // ---------------------------------------------------------------------------
@@ -52,7 +58,12 @@ auto Image<T>::SetValueAt
 )
   const -> void
 {
-  data_.get ()[y * width_ + x] = value;
+  if (y * width_ + x < width_ * height_)
+  {
+    data_.get ()[y * width_ + x] = value;
+    return ;
+  }
+  std::cout << x << ", " << y <<std::endl;
 }
 /*
 // ---------------------------------------------------------------------------

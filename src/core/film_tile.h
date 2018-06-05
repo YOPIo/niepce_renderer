@@ -57,6 +57,24 @@ public:
    */
   auto Bounds () const noexcept -> Bounds2f;
 
+  /*!
+   * @fn Point2f Min ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Min () const noexcept -> Point2f;
+
+  /*!
+   * @fn Point2f Max ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Max () const noexcept -> Point2f;
+
 private:
   const Bounds2f tile_bounds_;
 }; // class FilmTile

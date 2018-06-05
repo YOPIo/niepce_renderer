@@ -30,8 +30,8 @@ PathTracer::PathTracer
  const std::shared_ptr <Camera>& camera,
  const Scene& scene
 ) :
-  camera_   (camera),
-  scene_    (scene)
+  camera_ (camera),
+  scene_  (scene)
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -39,7 +39,7 @@ PathTracer::PathTracer
 auto PathTracer::Render () -> void
 {
   // Compute the tile bounds.
-  std::vector <Bounds2f> tile_bounds;
+  std::vector <FilmTile> tiles;
   std::vector <std::shared_ptr <RandomSampler>> samplers;
   constexpr static int tile_size = 32;
   const Bounds2f resolution  = camera_->Resolution ();
@@ -52,7 +52,7 @@ auto PathTracer::Render () -> void
       const int last_x = x + tile_size >= width  ? width  - 1 : x + tile_size;
       const int last_y = y + tile_size >= height ? height - 1 : y + tile_size;
       const Bounds2f tile (Point2f (x, y), Point2f (last_x, last_y));
-      tile_bounds.push_back (tile);
+      tiles.push_back (FilmTile (tile));
       // Clone sampler for each tile.
       samplers.push_back (std::make_shared <RandomSampler> (last_x * last_y));
     }
@@ -60,23 +60,29 @@ auto PathTracer::Render () -> void
 
   // Register the tasks
   ThreadPool& threads = Singleton <ThreadPool>::Instance ();
-  std::vector <std::future <void>> futures (tile_bounds.size ());
-  for (int i = 0; i < tile_bounds.size (); ++i)
+  std::vector <std::future <void>> futures (tiles.size ());
+  for (int i = 0; i < tiles.size (); ++i)
   {
-    std::function <void (const Bounds2f&, RandomSampler*)> func
-      = std::bind (&PathTracer::RenderTileBounds,
-                   this,
-                   std::placeholders::_1,
-                   std::placeholders::_2);
+    auto func = std::bind (&PathTracer::RenderTileBounds,
+                           this,
+                           std::placeholders::_1,
+                           std::placeholders::_2);
     futures[i] = threads.Enqueue (func,
-                                  tile_bounds[i],
+                                  &tiles[i],
                                   samplers[i].get ());
   }
+
   // Wait for all task done.
-  for (auto& future : futures)
+  for (auto& future : futures) { future.wait (); }
+
+  // Merge tiles
+  int i = 1;
+  for (const auto& tile : tiles)
   {
-    future.wait ();
+    // tile.SaveAs ((std::to_string(i++) + ".ppm").c_str ());
+    camera_->AddFilmTile (tile);
   }
+
   camera_->Save ();
 }
 /*
@@ -84,63 +90,51 @@ auto PathTracer::Render () -> void
 */
 auto PathTracer::RenderTileBounds
 (
- const Bounds2f& tile,
+ FilmTile*       tile,
  RandomSampler*  tile_sampler
 )
   noexcept -> void
 {
-  FilmTile film_tile (tile);
-  auto func = [&] (int x, int y) -> void
-  {
-    film_tile.SetValueAt (x, y, Spectrum(1));
-  };
-  BoundFor2 (func, Bounds2f (tile.Width (), tile.Height ()));
+  const Bounds2f& tile_bounds = tile->Bounds ();
+  // std::cout << tile_bounds.ToString() << std::endl;
 
-  camera_->AddFilmTile (film_tile);
-  return ;
-
-  std::cout << film_tile.Bounds().ToString() << std::endl;
-  static constexpr int num_sample = 8;
+  static constexpr int num_sample = 64;
+  const Float width  = static_cast <Float> (camera_->Width ());
+  const Float height = static_cast <Float> (camera_->Height ());
 
   // Camera
   Ray cam (Point3f(50,50,350), Normalize (Vector3f(0, 0, -1)));
-  Vector3f cx = Vector3f (tile.Width ()*.5135 / tile.Height (), 0, 0);
+  Vector3f cx = Vector3f (tile->Width ()*.5135 / tile->Height (), 0, 0);
   Vector3f cy = Cross (cx, cam.Direction ()).Normalize () * .5135;
 
-  for (unsigned int y = tile.Min ().Y (); y <= tile.Max ().Y (); ++y)
+  auto func = [&] (int x, int y) -> void
   {
-    for (unsigned int x = tile.Min ().X (); x <= tile.Max ().X (); ++x)
+    auto super_sampling = [&] (int sx, int sy) -> void
     {
-      const unsigned int idx = (tile.Height () - y - 1) * tile.Width() + x;
-      for (unsigned sy = 0; sy < 2; ++sy)
+      Spectrum r (0);
+      for (int s = 0; s < num_sample; ++s)
       {
-        for (unsigned int sx = 0; sx < 2; ++sx)
-        {
-          Spectrum r (0);
-          for (unsigned int s = 0; s < num_sample; ++s)
-          {
-            // Generate ray.
-            const Float r1 = 2.0 * tile_sampler->SampleFloat ();
-            const Float r2 = 2.0 * tile_sampler->SampleFloat ();
-            const Float dx = r1 < 1 ? std::sqrt (r1) - 1 : 1 - std::sqrt (2 - r1);
-            const Float dy = r2 < 1 ? std::sqrt (r2) - 1 : 1 - std::sqrt (2 - r2);
-            const Vector3f d = cx * (((sx +.5 + dx) / 2 + x) / tile.Width ()  - 0.5)
-                             + cy * (((sy +.5 + dy) / 2 + y) / tile.Height () - 0.5)
-                             + cam.Direction ();
-            const Ray ray (cam.Origin () + d * 140, d.Normalized ());
+        const Float r1 = 2.0 * tile_sampler->SampleFloat ();
+        const Float r2 = 2.0 * tile_sampler->SampleFloat ();
 
-            r = r + Radiance (ray, tile_sampler)
-              / ((static_cast <Float> (num_sample)));
-          }
-          const Spectrum s = film_tile (x, y) + Spectrum (Clamp (r.X ()),
-                                                          Clamp (r.Y ()),
-                                                          Clamp (r.Z ()));
-          film_tile.SetValueAt (x, y, s);
-        }
+        // Generate ray
+        const Float dx = r1 < 1 ? std::sqrt (r1) - 1 : 1 - std::sqrt (2 - r1);
+        const Float dy = r2 < 1 ? std::sqrt (r2) - 1 : 1 - std::sqrt (2 - r2);
+
+        const Vector3f d = cx * (((sx +.5 + dx) / 2 + x + tile_bounds.Min (). X ()) / width  - 0.5)
+                         + cy * (((sy +.5 + dy) / 2 + y + tile_bounds.Min (). Y ()) / height - 0.5)
+                         + cam.Direction ();
+        const Ray ray (cam.Origin () + d * 140, d.Normalized ());
+        r = r + Radiance (ray, tile_sampler) / (Float)num_sample;
       }
-    }
-  }
-  camera_->AddFilmTile (film_tile);
+      const Spectrum s = tile->At (x, y) + Spectrum (Clamp (r. X ()),
+                                                     Clamp (r. Y ()),
+                                                     Clamp (r. Z ())) * 0.25;
+      tile->SetValueAt (x, y, s);
+    };
+    BoundFor2 (super_sampling, Bounds2f (1, 1));
+  };
+  BoundFor2 (func, Bounds2f (tile_bounds.Width () - 1, tile_bounds.Height () - 1));
 }
 /*
 // ---------------------------------------------------------------------------
@@ -154,8 +148,6 @@ auto PathTracer::Radiance
 {
   Spectrum l = Spectrum (0);
   Spectrum f = Spectrum (1);
-
-  return f;
 
   Ray ray (first_ray);
 

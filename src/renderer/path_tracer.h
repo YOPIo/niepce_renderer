@@ -18,6 +18,7 @@
 #include "../scene/scene.h"
 #include "../sampler/random_sampler.h"
 #include "../camera/camera.h"
+#include "../core/film_tile.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -78,7 +79,7 @@ private:
    */
   auto RenderTileBounds
   (
-   const Bounds2f& tile,
+   FilmTile*       tile,
    RandomSampler*  tile_sampler
   )
   noexcept -> void;

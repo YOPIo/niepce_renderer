@@ -150,9 +150,11 @@ auto BoundFor2
 )
 -> void
 {
-  for (int y = bound.Min ().Y (); y < bound.Max ().Y (); ++y)
+  const Point2f& min = bound.Min ();
+  const Point2f& max = bound.Max ();
+  for (int y = min.Y (); y <= max.Y (); ++y)
   {
-    for (int x = bound.Min ().X (); x < bound.Max ().X (); ++x)
+    for (int x = min.X (); x <= max.X (); ++x)
     {
       func (x, y);
     }

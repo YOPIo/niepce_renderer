@@ -172,7 +172,7 @@ auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
     os << (int)FloatToInt (At (x, y).Y ()) << " ";
     os << (int)FloatToInt (At (x, y).Z ()) << " ";
   };
-  BoundFor2 (func, Bounds2f (Point2f (0, 0), Point2f (width_, height_)));
+  BoundFor2 (func, Bounds2f (width_ - 1, height_ - 1));
   os.close ();
 }
 /*

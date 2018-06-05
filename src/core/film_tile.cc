@@ -29,4 +29,18 @@ auto FilmTile::Bounds () const noexcept -> Bounds2f
 /*
 // ---------------------------------------------------------------------------
 */
+auto FilmTile::Min () const noexcept -> Point2f
+{
+  return tile_bounds_.Min ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto FilmTile::Max () const noexcept -> Point2f
+{
+  return tile_bounds_.Max ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce

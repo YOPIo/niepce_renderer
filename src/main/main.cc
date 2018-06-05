@@ -43,9 +43,9 @@ auto RenderScene () -> void
 {
   niepce::Transform t;
   std::shared_ptr<Camera> camera (new RealisticCamera(t,
-                                                      "pt.ppm",
-                                                      540,
-                                                      270,
+                                                      "result.ppm",
+                                                      256,
+                                                      256,
                                                       3.5,
                                                       "../assets/lenses/wide.22mm.dat",
                                                       0.5,

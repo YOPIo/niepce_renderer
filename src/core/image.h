@@ -53,7 +53,7 @@ public:
    * @return Pixel
    * @exception std::out_of_range
    */
-  auto operator () (unsigned int x, unsigned int y) const noexcept -> T;
+  virtual auto operator () (unsigned int x, unsigned int y) const noexcept -> T;
 
 public:
   /*!
@@ -67,7 +67,7 @@ public:
    * @exception none
    * @details
    */
-  auto At (unsigned int x, unsigned int y) const -> T;
+  virtual auto At (unsigned int x, unsigned int y) const -> T;
 
   /*!
    * @fn  SetValueAt (unsigned int, unsigned int, const T&)
@@ -82,7 +82,7 @@ public:
    * @exception none
    * @details
    */
-  auto SetValueAt
+  virtual auto SetValueAt
   (
    unsigned int x,
    unsigned int y,
