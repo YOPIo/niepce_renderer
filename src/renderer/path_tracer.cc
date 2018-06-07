@@ -17,6 +17,7 @@
 #include "../camera/camera.h"
 #include "../core/singleton.h"
 #include "../core/film_tile.h"
+#include "../camera/camera_sample.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -98,14 +99,16 @@ auto PathTracer::RenderTileBounds
   const Bounds2f& tile_bounds = tile->Bounds ();
   // std::cout << tile_bounds.ToString() << std::endl;
 
-  static constexpr int num_sample = 64;
+  static constexpr int num_sample = 8;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 
   // Camera
+  /*
   Ray cam (Point3f(50,50,350), Normalize (Vector3f(0, 0, -1)));
   Vector3f cx = Vector3f (tile->Width ()*.5135 / tile->Height (), 0, 0);
   Vector3f cy = Cross (cx, cam.Direction ()).Normalize () * .5135;
+  */
 
   auto func = [&] (int x, int y) -> void
   {
@@ -121,10 +124,21 @@ auto PathTracer::RenderTileBounds
         const Float dx = r1 < 1 ? std::sqrt (r1) - 1 : 1 - std::sqrt (2 - r1);
         const Float dy = r2 < 1 ? std::sqrt (r2) - 1 : 1 - std::sqrt (2 - r2);
 
+        /*
         const Vector3f d = cx * (((sx +.5 + dx) / 2 + x + tile_bounds.Min (). X ()) / width  - 0.5)
                          + cy * (((sy +.5 + dy) / 2 + y + tile_bounds.Min (). Y ()) / height - 0.5)
                          + cam.Direction ();
         const Ray ray (cam.Origin () + d * 140, d.Normalized ());
+        */
+        const Point2f pfilm (x + tile_bounds.Min ().X (),
+                             y + tile_bounds.Max ().Y ());
+        const Float fx = 2.0 * tile_sampler->SampleFloat () - 1;
+        const Float fy = 2.0 * tile_sampler->SampleFloat () - 1;
+        CameraSample cs (pfilm, Point2f (fx, fy));
+
+        Ray ray;
+        const Float weight = camera_->GenerateRay(cs, &ray);
+
         r = r + Radiance (ray, tile_sampler) / (Float)num_sample;
       }
       const Spectrum s = tile->At (x, y) + Spectrum (Clamp (r. X ()),

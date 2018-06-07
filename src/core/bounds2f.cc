@@ -129,8 +129,7 @@ auto Bounds2f::Height () const noexcept -> Float
 */
 auto Bounds2f::ToString () const noexcept -> std::string
 {
-  return "min: " + min_.ToString () + "\n" +
-         "max: " + max_.ToString ();
+  return "min: " + min_.ToString () + " " + "max: " + max_.ToString ();
 }
 /*
 // ---------------------------------------------------------------------------

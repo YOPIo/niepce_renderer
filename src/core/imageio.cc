@@ -156,14 +156,22 @@ auto ImageIO<T>::SavePpm (const char* filename) const noexcept -> void
 */
 template <>
 auto ImageIO<Float>::SavePpm (const char* filename) const noexcept -> void
-{}
+{
+  std::ofstream os (filename);
+  os << "P2\n" << width_ << " " << height_ << "\n255\n";
+  auto func = [&] (int x, int y) -> void
+  {
+    os << (int)FloatToInt (At (x, y)) << " ";
+  };
+  BoundFor2(func, Bounds2f (width_ - 1, height_ - 1));
+  os.close ();
+}
 /*
 // ---------------------------------------------------------------------------
 */
 template <>
 auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
 {
-  std::cout << "Save "<< filename << std::endl;
   std::ofstream os (filename);
   os << "P3\n" << width_ << " " << height_ << "\n255\n";
   auto func = [&] (int x, int y) -> void

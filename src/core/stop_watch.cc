@@ -16,41 +16,42 @@ namespace niepce
 // Definition of ElapsedTime
 // ---------------------------------------------------------------------------
 */
-ElapsedTime::ElapsedTime
-(
- unsigned int hours,
- unsigned int minutes,
- unsigned int seconds,
- unsigned int milliseconds
-) :
-  hours_        (hours),
-  minutes_      (minutes),
-  seconds_      (seconds),
-  milliseconds_ (milliseconds)
-{}
+ElapsedTime::ElapsedTime (uint64_t t)
+{
+  uint64_t tmp = static_cast <uint64_t> (std::floor (t * 0.001));
+  minutes_ = tmp / 60;
+  seconds_ = tmp % 60;
+  milliseconds_ = t % 1000;
+}
 /*
 // ---------------------------------------------------------------------------
 */
 auto ElapsedTime::ToString () -> std::string
 {
-  
+  return std::to_string (minutes_) + "m " + std::to_string(seconds_) + "s "
+       + std::to_string (milliseconds_) + "ms";
 }
 /*
 // ---------------------------------------------------------------------------
 // Definition of StopWatch
 // ---------------------------------------------------------------------------
 */
-auto StopWatch::Lap () const
+auto StopWatch::Lap ()
   -> ElapsedTime
 {
-
+  const auto now = std::chrono::system_clock::now ();
+  const auto diff = now - lap_;
+  const uint64_t t
+    = std::chrono::duration_cast <std::chrono::milliseconds> (diff).count ();
+  lap_ = now;
+  return ElapsedTime (t);
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto StopWatch::Reset () -> void
 {
-
+  lap_ = start_ = std::chrono::system_clock::now ();
 }
 /*
 // ---------------------------------------------------------------------------
@@ -58,7 +59,10 @@ auto StopWatch::Reset () -> void
 auto StopWatch::Split () const
   -> ElapsedTime
 {
-
+  auto diff = std::chrono::system_clock::now () - start_;
+  uint64_t t
+    = std::chrono::duration_cast <std::chrono::milliseconds> (diff).count ();
+  return ElapsedTime (t);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -66,6 +70,7 @@ auto StopWatch::Split () const
 auto StopWatch::Start () -> void
 {
   start_ = std::chrono::system_clock::now ();
+  lap_   = start_;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -74,22 +79,9 @@ auto StopWatch::Stop () const
   -> ElapsedTime
 {
   auto diff = std::chrono::system_clock::now () - start_;
-
-  unsigned int hours
-    = std::chrono::duration_cast <std::chrono::hours> (diff).count ();
-  unsigned int minutes
-    = std::chrono::duration_cast <std::chrono::minutes> (diff).count ();
-  unsigned int seconds
-    = std::chrono::duration_cast <std::chrono::seconds> (diff).count ();
-  unsigned int milliseconds
+  uint64_t t
     = std::chrono::duration_cast <std::chrono::milliseconds> (diff).count ();
-
-  std::cout << "hours        : " << hours   << "\n"
-            << "minutes      : " << minutes << "\n"
-            << "second       : " << seconds << "\n"
-            << "milliseconds : " << milliseconds
-            << std::endl;
-  return ElapsedTime (1, 1, 1, 1);
+  return ElapsedTime (t);
 }
 /*
 // ---------------------------------------------------------------------------

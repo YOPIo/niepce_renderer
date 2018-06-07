@@ -31,6 +31,10 @@
 #include <string>
 #include <thread>
 #include <type_traits>
+/*
+// ---------------------------------------------------------------------------
+*/
+#include "../ext/easyloggingpp/easylogging++.h"
 /*!
  * @namespace niepce
  */

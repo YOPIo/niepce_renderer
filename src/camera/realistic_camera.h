@@ -166,7 +166,7 @@ public:
    * @exception none
    * @details
    */
-  auto ComputeExitPupilBounds (Float begin_x, Float last_x)
+  auto PrecomputeExitPupilBounds (Float begin_x, Float last_x)
     const noexcept -> Bounds2f;
 
   /*!
@@ -178,7 +178,7 @@ public:
    * @exception none
    * @details
    */
-  auto FocusOn (Float focus_distance) -> Float;
+  auto FocusOn (Float focus_distance) -> void;
 
   /*!
    * @fn Float SampleExitPupil ()
@@ -273,8 +273,8 @@ public:
   {
     return lens_.back ().aperture_radius_;
   }
-
-  auto RenderExitPupil
+public:
+  auto RenderExitPupilFrom
   (
    const Point2f& film, // Camera coordinate
    const char* filename
@@ -292,13 +292,18 @@ public:
                    -element.aperture_radius_,
                    element.aperture_radius_);
     }
-    std::cout << std::endl;
+    std::cout << std::endl << std::endl;;
+
+    for (const auto& bounds : exit_pupils_)
+    {
+      std::cout << bounds.ToString() << std::endl;
+    }
   }
 
 private:
-  const bool  simple_weighting_;
+  const bool simple_weighting_;
   std::vector <LensElement> lens_;
-  std::vector <Bounds2f> exit_pupil_bounds_;
+  std::vector <Bounds2f> exit_pupils_;
 
 }; // class RealisticCamera
 /*

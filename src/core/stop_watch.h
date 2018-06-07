@@ -24,18 +24,10 @@ namespace niepce
 class ElapsedTime
 {
 public:
-  //! The constructor that takes number of thread.
   ElapsedTime () = delete;
 
-  //! The constructor takes four arguments. (hours, minutes, seconds and milliseconds).
-  //! Only constructor could initialize elapsed time.
-  ElapsedTime
-  (
-   unsigned int hours,
-   unsigned int minutes,
-   unsigned int seconds,
-   unsigned int milliseconds
-  );
+  //! The constructor takes milliseconds
+  ElapsedTime (uint64_t t);
 
   //! Copy constructor
   ElapsedTime(const ElapsedTime& elapsed) = default;
@@ -63,10 +55,9 @@ public:
   auto ToString () -> std::string;
 
 private:
-  const unsigned int hours_;
-  const unsigned int minutes_;
-  const unsigned int seconds_;
-  const unsigned int milliseconds_;
+  uint64_t minutes_;
+  uint64_t seconds_;
+  uint64_t milliseconds_;
 };
 //! ----------------------------------------------------------------------------
 //! @class StopWatch
@@ -100,7 +91,7 @@ public:
   //! @return 
   //! @exception none
   //! @details 
-  auto Lap () const -> ElapsedTime;
+  auto Lap () -> ElapsedTime;
 
   //! @fn void Reset ()
   //! @brief Reset a measuring time to 0 second.

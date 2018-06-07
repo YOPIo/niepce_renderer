@@ -41,6 +41,7 @@ add_subdirectory (src/texture)
 add_subdirectory (src/material)
 add_subdirectory (src/camera)
 add_subdirectory (src/core)
+add_subdirectory (src/ext)
 
 # Add subdirectory to build the maya plugin
 if (BUILD_MAYA_PLUGIN)
@@ -53,12 +54,13 @@ else () # if (BUILD_CUI_RENDERER)
     Scene
     Texture
     Material
+    Camera
     Bsdf
     Shape
     Primitive
-    Camera
     Sampler
     Random
+    Ext
     Core)
 
 endif ()

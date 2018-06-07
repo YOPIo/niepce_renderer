@@ -22,18 +22,29 @@
 /*
 // ---------------------------------------------------------------------------
 */
+INITIALIZE_EASYLOGGINGPP
+/*
+// ---------------------------------------------------------------------------
+*/
 namespace niepce
 {
 /*
 // ---------------------------------------------------------------------------
 */
 auto Initialize () -> void
-{}
+{
+  auto& stop_watch = Singleton<StopWatch>::Instance ();
+  stop_watch.Start ();
+}
 /*
 // ---------------------------------------------------------------------------
 */
 auto Finalize () -> void
 {
+  auto& stop_watch = Singleton<StopWatch>::Instance ();
+  auto time = stop_watch.Stop ();
+  std::cout << time.ToString () << std::endl;
+
   SingletonFinalizer::Finalize ();
 }
 /*
@@ -41,24 +52,27 @@ auto Finalize () -> void
 */
 auto RenderScene () -> void
 {
-  niepce::Transform t;
-  std::shared_ptr<Camera> camera (new RealisticCamera(t,
+  niepce::Transform t = LookAt (Point3f  (50, 50, 550),
+                                Point3f  (50, 50,   0),
+                                Vector3f ( 0,  1,   0));
+  std::shared_ptr<RealisticCamera> camera (new RealisticCamera(t,
                                                       "result.ppm",
-                                                      256,
-                                                      256,
-                                                      3.5,
-                                                      "../assets/lenses/wide.22mm.dat",
-                                                      0.5,
-                                                      1,
+                                                      360,
+                                                      240,
+                                                      43.2666153056, // Full size sensor size
+                                                      "../assets/lenses/thin.dat",
+                                                      1.0,
+                                                      5.5,
                                                       false));
+  CameraSample cs (Point2f (100, 100), Point2f (0.355, 0.089));
+  Ray ray;
+  camera->GenerateRay (cs, &ray);
+  std::cout << ray.ToString() << std::endl;
 
-  // camera->Dump();
-  // camera->RenderExitPupil (niepce::Point2f (0, 0), "aperture.ppm");
-
-  niepce::Scene scene;
-  scene.ReadyCornellBox ();
-  PathTracer pt (camera, scene);
-  pt.Render ();
+  // niepce::Scene scene;
+  // scene.ReadyCornellBox ();
+  // PathTracer pt (camera, scene);
+  // pt.Render ();
 }
 /*
 // ---------------------------------------------------------------------------
@@ -70,26 +84,7 @@ auto RenderScene () -> void
 int main (int argc, char* argv[])
 {
   niepce::Initialize ();
-  niepce::StopWatch stopwatch;
-  stopwatch.Start ();
   niepce::RenderScene ();
-  stopwatch.Stop ();
   niepce::Finalize ();
-
-  return 0;
-
-  niepce::Film f ("", 480, 480, 35.0);
-  niepce::FilmTile ft (niepce::Bounds2f (niepce::Point2f (32, 32),
-                                         niepce::Point2f (100, 400)));
-
-  auto func = [&] (int x, int y) -> void
-  {
-    ft.SetValueAt (x, y, niepce::Spectrum(0.75, 0.25, 0.25));
-  };
-  BoundFor2 (func, niepce::Bounds2f (ft.Width(), ft.Height()));
-  f.AddFilmTile(ft);
-
-  f.SaveAs ("aaa.ppm");
-
   return 0;
 }
