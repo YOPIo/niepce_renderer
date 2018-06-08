@@ -13,6 +13,7 @@
 #include "../core/niepce.h"
 #include "../core/ray.h"
 #include "../core/intersection.h"
+#include "../core/bounds3f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -60,6 +61,15 @@ public:
    Intersection* intersection
   )
   const noexcept -> bool = 0;
+
+  /*!
+   * @fn Bounds3f Bounds () const noexcept
+   * @brief Return bound of this shape.
+   * @return 
+   * @exception none
+   * @details 
+  */
+  virtual auto Bounds () const noexcept -> Bounds3f = 0;
 
 protected:
   const Float kIntersectionEpsilon = 1e-4;

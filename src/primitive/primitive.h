@@ -69,9 +69,27 @@ public:
   )
   const noexcept -> bool;
 
+  /*!
+   * @fn std Shape ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+  */
+  auto Shape () const noexcept -> const std::shared_ptr <niepce::Shape>;
+
+  /*!
+   * @fn std Material ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+  */
+  auto Material () const noexcept -> const std::shared_ptr <niepce::Material>;
+
 private:
-  std::shared_ptr <Shape>    shape_prt_;
-  std::shared_ptr <Material> material_ptr_;
+  std::shared_ptr <niepce::Shape>    shape_prt_;
+  std::shared_ptr <niepce::Material> material_ptr_;
 }; // class Primitive
 /*
 // ---------------------------------------------------------------------------

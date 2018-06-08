@@ -180,7 +180,7 @@ public:
    */
   auto Height () const noexcept -> Float;
 
-public:
+private:
   Point2f min_, max_;
 }; // class Bounds2f
 /*

@@ -16,8 +16,8 @@ namespace niepce
 */
 Primitive::Primitive
 (
- const std::shared_ptr <Shape>&    shape,
- const std::shared_ptr <Material>& material
+ const std::shared_ptr <niepce::Shape>&    shape,
+ const std::shared_ptr <niepce::Material>& material
 ) :
   shape_prt_    (shape),
   material_ptr_ (material)
@@ -40,6 +40,21 @@ auto Primitive::IsIntersect
     return true;
   }
   return false;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Primitive::Shape () const noexcept -> const std::shared_ptr <niepce::Shape>
+{
+  return shape_prt_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Primitive::Material () const noexcept
+  -> const std::shared_ptr<niepce::Material>
+{
+  return material_ptr_;
 }
 /*
 // ---------------------------------------------------------------------------

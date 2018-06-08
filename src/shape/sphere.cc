@@ -53,6 +53,19 @@ auto Sphere::IsIntersect
 }
 /*
 // ---------------------------------------------------------------------------
+*/
+auto Sphere::Bounds () const noexcept -> Bounds3f
+{
+  const Point3f min (center_.X () - radius_,
+                     center_.Y () - radius_,
+                     center_.Z () - radius_);
+  const Point3f max (center_.X () + radius_,
+                     center_.Y () + radius_,
+                     center_.Z () + radius_);
+  return Bounds3f (min, max);
+}
+/*
+// ---------------------------------------------------------------------------
 // Helper function for sphere
 // ---------------------------------------------------------------------------
 */

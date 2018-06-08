@@ -64,6 +64,15 @@ public:
   )
   const noexcept -> bool override;
 
+  /*!
+   * @fn Bounds3f Bounds () const noexcept
+   * @brief Return bound of this shape.
+   * @return 
+   * @exception none
+   * @details 
+  */
+  auto Bounds () const noexcept -> Bounds3f override final;
+
 private:
   Float   radius_;
   Point3f center_;

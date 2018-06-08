@@ -99,7 +99,7 @@ auto PathTracer::RenderTileBounds
   const Bounds2f& tile_bounds = tile->Bounds ();
   // std::cout << tile_bounds.ToString() << std::endl;
 
-  static constexpr int num_sample = 8;
+  static constexpr int num_sample = 256;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 
@@ -132,12 +132,14 @@ auto PathTracer::RenderTileBounds
         */
         const Point2f pfilm (x + tile_bounds.Min ().X (),
                              y + tile_bounds.Max ().Y ());
-        const Float fx = 2.0 * tile_sampler->SampleFloat () - 1;
-        const Float fy = 2.0 * tile_sampler->SampleFloat () - 1;
-        CameraSample cs (pfilm, Point2f (fx, fy));
 
+        Float weight = 0;
         Ray ray;
-        const Float weight = camera_->GenerateRay(cs, &ray);
+        while (!weight)
+        {
+          CameraSample cs (pfilm, tile_sampler->SamplePoint2f ());
+          weight = camera_->GenerateRay (cs, &ray);
+        }
 
         r = r + Radiance (ray, tile_sampler) / (Float)num_sample;
       }

@@ -12,6 +12,7 @@
 */
 #include "../core/niepce.h"
 #include "../core/point2f.h"
+#include "../sampler/random_sampler.h"
 /*
 // ---------------------------------------------------------------------------
 */

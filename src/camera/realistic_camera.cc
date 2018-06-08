@@ -89,8 +89,6 @@ auto RealisticCamera::GenerateRay
 )
   const -> Float
 {
-
-
   // Compute pixle position on film from sample.
   const Bounds2f& film_resolution = Resolution ();
   const Point2f s (samples.film_.X () / film_resolution.Width (),
@@ -112,14 +110,12 @@ auto RealisticCamera::GenerateRay
   {
     // Sampled ray could not through lens system
     // Caller should check this case.
-
     return 0;
   }
 
   // Generated ray could through lens system.
   // Transform ray to world coordinate from camera coordinate.
   *ray = Ray (camera_to_world_ * (*ray));
-
   return 1;
 }
 /*
@@ -302,11 +298,7 @@ auto RealisticCamera::CanRayThroughSphericalElement
 
   const Float t = ((radius < 0) ^ (ray.Direction ().Z () > 0))
                 ? std::fmin (t1, t2) : std::fmax (t1, t2);
-  if (t < 0)
-  {
-    // std::cout << t1 << ", " << t2 << std::endl;
-    return intersection;
-  }
+  if (t < 0) { return intersection; }
 
   // Compute the intersect position.
   const Point3f position = ray.IntersectAt (t);

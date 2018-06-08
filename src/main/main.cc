@@ -18,6 +18,7 @@
 #include "../sampler/low_discrepancy_sequence.h"
 #include "../core/transform.h"
 #include "../core/thread_pool.h"
+#include "../core/bounds3f.h"
 #include "../core/singleton.h"
 /*
 // ---------------------------------------------------------------------------
@@ -52,27 +53,24 @@ auto Finalize () -> void
 */
 auto RenderScene () -> void
 {
-  niepce::Transform t = LookAt (Point3f  (50, 50, 550),
+  niepce::Transform t = LookAt (Point3f  (50, 80, 200),
                                 Point3f  (50, 50,   0),
                                 Vector3f ( 0,  1,   0));
-  std::shared_ptr<RealisticCamera> camera (new RealisticCamera(t,
+  std::shared_ptr<Camera> camera (new RealisticCamera(t,
                                                       "result.ppm",
                                                       360,
                                                       240,
                                                       43.2666153056, // Full size sensor size
                                                       "../assets/lenses/thin.dat",
-                                                      1.0,
+                                                      // "../assets/lenses/fisheye.10mm.dat",
+                                                      // "../assets/lenses/wide.22mm.dat",
+                                                      175,
                                                       5.5,
                                                       false));
-  CameraSample cs (Point2f (100, 100), Point2f (0.355, 0.089));
-  Ray ray;
-  camera->GenerateRay (cs, &ray);
-  std::cout << ray.ToString() << std::endl;
-
-  // niepce::Scene scene;
-  // scene.ReadyCornellBox ();
-  // PathTracer pt (camera, scene);
-  // pt.Render ();
+  niepce::Scene scene;
+  scene.ReadyCornellBox ();
+  PathTracer pt (camera, scene);
+  pt.Render ();
 }
 /*
 // ---------------------------------------------------------------------------
@@ -83,8 +81,12 @@ auto RenderScene () -> void
 */
 int main (int argc, char* argv[])
 {
+  niepce::Bounds3f b (niepce::Point3f (1, 1, 1),
+                      niepce::Point3f (-1, -1, -1));
+  std::cout << b.SurfaceArea() << std::endl;
+  std::cout << b.Center().ToString() << std::endl;
   niepce::Initialize ();
-  niepce::RenderScene ();
+  // niepce::RenderScene ();
   niepce::Finalize ();
   return 0;
 }

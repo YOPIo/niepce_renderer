@@ -185,6 +185,15 @@ auto Triangle::IsIntersect
 /*
 // ---------------------------------------------------------------------------
 */
+auto Triangle::Bounds () const noexcept -> Bounds3f
+{
+  Bounds3f res (Position (0), Position (1));
+  res.Merge (Position (2));
+  return res;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Triangle::Normal (unsigned int idx) const -> const Vector3f&
 {
   if (mesh_)
