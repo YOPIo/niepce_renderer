@@ -20,6 +20,7 @@
 #include "../core/thread_pool.h"
 #include "../core/bounds3f.h"
 #include "../core/singleton.h"
+#include "../core/memory.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -81,12 +82,9 @@ auto RenderScene () -> void
 */
 int main (int argc, char* argv[])
 {
-  niepce::Bounds3f b (niepce::Point3f (1, 1, 1),
-                      niepce::Point3f (-1, -1, -1));
-  std::cout << b.SurfaceArea() << std::endl;
-  std::cout << b.Center().ToString() << std::endl;
   niepce::Initialize ();
-  // niepce::RenderScene ();
+  niepce::RenderScene ();
   niepce::Finalize ();
+
   return 0;
 }

@@ -64,9 +64,10 @@ auto Film::AddFilmTile (const FilmTile& tile) noexcept -> void
   {
     auto copy = [&] (int x, int y) -> void
     {
-      SetValueAt (x, y, tile (x - min.X (), y - min.Y ()));
+      SetValueAt (x + min.X (), y + min.Y (), tile (x, y));
     };
-    BoundFor2 (copy, tile.Bounds ());
+    For2 (copy, tile.Width (), tile.Height ());
+    return ;
   }
 }
 /*

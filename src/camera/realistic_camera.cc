@@ -49,6 +49,7 @@ RealisticCamera::RealisticCamera
   FocusOn (focus_distance);
 
   // RenderExitPupilFrom (Point2f (0, 0), "aperture.ppm"); // debug
+  return ;
 
   auto& stop_watch = Singleton<StopWatch>::Instance ();
   stop_watch.Lap ();

@@ -21,24 +21,64 @@ BvhNode::BvhNode ()
 /*
 // ---------------------------------------------------------------------------
 */
-auto Bvh::Build (Primitives& primitives) -> void
+auto BvhNode::InitializeAsLeaf
+(
+ const Primitives& primitives,
+ const Bounds3f&   bounds
+)
+-> void
+{
+  primitives_ = primitives;
+  right_ = nullptr;
+  left_  = nullptr;
+  bounds_ = bounds;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto BvhNode::InitializeAsInternal
+(
+ const Bounds3f& bounds,
+ BvhNode* right,
+ BvhNode* left
+) -> void
+{
+  primitives_.clear ();
+  right_ = right;
+  left_  = left;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bvh::Build
+(
+ Primitives&  primitives,
+ MemoryArena& memory
+)
+  -> BvhNode*
 {
   const unsigned int num_primitive = primitives.size ();
 
   // Compute bounding box. (aabb)
-  const Bounds3f pbounds = ComputeBoundsFrom (primitives);
+  const Bounds3f pbounds = ComputeBoundsFromPrimitives (primitives);
 
   // Compute the surface area for the primitive.
   const Float parea = pbounds.SurfaceArea ();
 
-  // cost
+  // Interim best cost.
   Float best_cost = primitives.size ();
 
   // Find a axis to split primitives.
   int best_axis = -1;
 
-  // 
+  // Find a index to 
   int best_index = 0;
+
+  // If a number of primitive less than 4, create leaf node.
+  if (num_primitive <= 4)
+  {
+    return CreateLeafNode (primitives, pbounds, memory);
+  }
 
   for (int axis = 0; axis < 3; ++axis)
   {
@@ -89,6 +129,7 @@ auto Bvh::Build (Primitives& primitives) -> void
   if (best_axis == -1)
   {
     // Create leaf node.
+    return CreateLeafNode (primitives, pbounds, memory);
   }
   // Continue to split.
 
@@ -100,13 +141,16 @@ auto Bvh::Build (Primitives& primitives) -> void
   Primitives rp (primitives.cbegin () + best_index, primitives.cend ());
 
   // Recall method
-  Build (lp);
-  Build (rp);
+  BvhNode* right = Build (lp, memory);
+  BvhNode* left  = Build (rp, memory);
+
+  // Create internal node.
+  return CreateInternalNode (pbounds, right, left, memory);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Bvh::ComputeBoundsFrom (const Primitives& primitives)
+auto Bvh::ComputeBoundsFromPrimitives (const Primitives& primitives)
   const noexcept -> Bounds3f
 {
   Bounds3f res;
@@ -120,10 +164,33 @@ auto Bvh::ComputeBoundsFrom (const Primitives& primitives)
 /*
 // ---------------------------------------------------------------------------
 */
-auto Bvh::CreateLeafNode (const Primitives& primitives)
-  const noexcept -> BvhNode
+auto Bvh::CreateLeafNode
+(
+ const Primitives& primitives,
+ const Bounds3f&   bounds,
+ MemoryArena&      memory
+)
+  const -> BvhNode*
 {
-  
+  BvhNode* node = memory.Allocate<BvhNode> ();
+  node->InitializeAsLeaf (primitives, bounds);
+  return node;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bvh::CreateInternalNode
+(
+ const Bounds3f& bounds,
+ BvhNode* right,
+ BvhNode* left,
+ MemoryArena& memory
+)
+  -> BvhNode*
+{
+  BvhNode* node = memory.Allocate <BvhNode> ();
+  node->InitializeAsInternal (bounds, right, left);
+  return node;
 }
 /*
 // ---------------------------------------------------------------------------

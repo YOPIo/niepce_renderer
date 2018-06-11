@@ -163,7 +163,7 @@ auto ImageIO<Float>::SavePpm (const char* filename) const noexcept -> void
   {
     os << (int)FloatToInt (At (x, y)) << " ";
   };
-  BoundFor2(func, Bounds2f (width_ - 1, height_ - 1));
+  For2(func, Width (), Height ());
   os.close ();
 }
 /*
@@ -180,7 +180,7 @@ auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
     os << (int)FloatToInt (At (x, y).Y ()) << " ";
     os << (int)FloatToInt (At (x, y).Z ()) << " ";
   };
-  BoundFor2 (func, Bounds2f (width_ - 1, height_ - 1));
+  For2(func, Width (), Height ());
   os.close ();
 }
 /*

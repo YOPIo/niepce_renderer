@@ -50,8 +50,8 @@ auto PathTracer::Render () -> void
   {
     for (int x = 0; x < width; x += tile_size)
     {
-      const int last_x = x + tile_size >= width  ? width  - 1 : x + tile_size;
-      const int last_y = y + tile_size >= height ? height - 1 : y + tile_size;
+      const int last_x = x + tile_size >= width  ? width  : x + tile_size;
+      const int last_y = y + tile_size >= height ? height : y + tile_size;
       const Bounds2f tile (Point2f (x, y), Point2f (last_x, last_y));
       tiles.push_back (FilmTile (tile));
       // Clone sampler for each tile.
@@ -71,6 +71,7 @@ auto PathTracer::Render () -> void
     futures[i] = threads.Enqueue (func,
                                   &tiles[i],
                                   samplers[i].get ());
+    std::cout << tiles[i].Bounds().ToString() <<std::endl;
   }
 
   // Wait for all task done.
@@ -99,16 +100,14 @@ auto PathTracer::RenderTileBounds
   const Bounds2f& tile_bounds = tile->Bounds ();
   // std::cout << tile_bounds.ToString() << std::endl;
 
-  static constexpr int num_sample = 256;
+  static constexpr int num_sample = 8;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 
   // Camera
-  /*
   Ray cam (Point3f(50,50,350), Normalize (Vector3f(0, 0, -1)));
   Vector3f cx = Vector3f (tile->Width ()*.5135 / tile->Height (), 0, 0);
   Vector3f cy = Cross (cx, cam.Direction ()).Normalize () * .5135;
-  */
 
   auto func = [&] (int x, int y) -> void
   {
@@ -124,15 +123,14 @@ auto PathTracer::RenderTileBounds
         const Float dx = r1 < 1 ? std::sqrt (r1) - 1 : 1 - std::sqrt (2 - r1);
         const Float dy = r2 < 1 ? std::sqrt (r2) - 1 : 1 - std::sqrt (2 - r2);
 
-        /*
         const Vector3f d = cx * (((sx +.5 + dx) / 2 + x + tile_bounds.Min (). X ()) / width  - 0.5)
                          + cy * (((sy +.5 + dy) / 2 + y + tile_bounds.Min (). Y ()) / height - 0.5)
                          + cam.Direction ();
         const Ray ray (cam.Origin () + d * 140, d.Normalized ());
-        */
+
+        /*
         const Point2f pfilm (x + tile_bounds.Min ().X (),
                              y + tile_bounds.Max ().Y ());
-
         Float weight = 0;
         Ray ray;
         while (!weight)
@@ -140,6 +138,7 @@ auto PathTracer::RenderTileBounds
           CameraSample cs (pfilm, tile_sampler->SamplePoint2f ());
           weight = camera_->GenerateRay (cs, &ray);
         }
+        */
 
         r = r + Radiance (ray, tile_sampler) / (Float)num_sample;
       }
@@ -148,9 +147,9 @@ auto PathTracer::RenderTileBounds
                                                      Clamp (r. Z ())) * 0.25;
       tile->SetValueAt (x, y, s);
     };
-    BoundFor2 (super_sampling, Bounds2f (1, 1));
+    For2 (super_sampling, 2, 2);
   };
-  BoundFor2 (func, Bounds2f (tile_bounds.Width () - 1, tile_bounds.Height () - 1));
+  For2 (func, tile->Width (), tile->Height ());
 }
 /*
 // ---------------------------------------------------------------------------

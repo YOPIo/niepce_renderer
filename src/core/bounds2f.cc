@@ -133,7 +133,7 @@ auto Bounds2f::ToString () const noexcept -> std::string
 }
 /*
 // ---------------------------------------------------------------------------
-*/
+6*/
 auto Bounds2f::IsInside (const Point2f &p) const noexcept -> bool
 {
   return (min_.X () <= p.X ()) && (p.X () <= max_.X ()) &&
@@ -142,20 +142,19 @@ auto Bounds2f::IsInside (const Point2f &p) const noexcept -> bool
 /*
 // ---------------------------------------------------------------------------
 */
-auto BoundFor2
+auto For2
 (
  const std::function <void(int, int)>& func,
- const Bounds2f& bound
+ int count_x,
+ int count_y
 )
 -> void
 {
-  const Point2f& min = bound.Min ();
-  const Point2f& max = bound.Max ();
-  for (int y = min.Y (); y <= max.Y (); ++y)
+  for (int j = 0; j < count_y; ++j)
   {
-    for (int x = min.X (); x <= max.X (); ++x)
+    for (int i = 0; i < count_x; ++i)
     {
-      func (x, y);
+      func (i, j);
     }
   }
 }

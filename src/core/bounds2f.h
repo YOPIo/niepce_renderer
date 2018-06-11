@@ -188,10 +188,11 @@ private:
 //
 // ---------------------------------------------------------------------------
 */
-auto BoundFor2
+auto For2
 (
  const std::function <void(int, int)>& func,
- const Bounds2f& bound
+ int count_x,
+ int count_y
 )
 -> void;
 /*

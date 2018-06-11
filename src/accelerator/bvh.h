@@ -12,6 +12,7 @@
 */
 #include "../core/niepce.h"
 #include "../core/bounds3f.h"
+#include "../core/memory.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -22,8 +23,11 @@ namespace niepce
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-struct BvhNode
+class BvhNode
 {
+  typedef std::vector <std::shared_ptr<Primitive>> Primitives;
+
+public:
   //! The default class constructor.
   BvhNode ();
 
@@ -42,15 +46,48 @@ struct BvhNode
   //! The move assignment operator of the class.
   auto operator = (BvhNode&& node) -> BvhNode& = default;
 
+public:
+  /*!
+  //! @fn void InitializeAsLeaf ()
+  //! @brief 
+  //! @param[in] 
+  //! @return 
+  //! @exception none
+  //! @details 
+  */
+  auto InitializeAsLeaf
+  (
+   const Primitives& primitives,
+   const Bounds3f&   bounds
+  )
+  -> void;
+
+  /*!
+  //! @fn void InitializeAsInternal ()
+  //! @brief 
+  //! @param[in] 
+  //! @return 
+  //! @exception none
+  //! @details 
+  */
+  auto InitializeAsInternal
+  (
+   const Bounds3f& bounds,
+   BvhNode* right,
+   BvhNode* left
+  )
+  -> void;
+
+private:
   //! @brief Bound of this node.
-  Bounds3f bounds;
+  Bounds3f bounds_;
 
   //! @brief Index of child node.
-  unsigned int left_child;
-  unsigned int right_child;
+  BvhNode* right_;
+  BvhNode* left_;
 
   //! @brief Valid only leaf node
-  std::vector <std::shared_ptr<Primitive>> primitives;
+  std::vector <std::shared_ptr<Primitive>> primitives_;
 }; // class BvhNode
 //! ----------------------------------------------------------------------------
 //! @class Bvh
@@ -80,7 +117,7 @@ public:
   //! The move assignment operator of the class.
   auto operator = (Bvh&& bvh) -> Bvh& = default;
 
-public:
+private:
   /*!
    * @fn voi Build ()
    * @brief 
@@ -88,7 +125,12 @@ public:
    * @exception none
    * @details 
   */
-  auto Build (Primitives& primitives) -> void;
+  auto Build
+  (
+   Primitives&  primitives,
+   MemoryArena& memory
+  )
+  -> BvhNode*;
 
 private:
   /*
@@ -100,19 +142,43 @@ private:
    * @exception none
    * @details 
   */
-  auto ComputeBoundsFrom (const Primitives& primitives)
+  auto ComputeBoundsFromPrimitives (const Primitives& primitives)
     const noexcept -> Bounds3f;
 
   /*!
-   * @fn Return CreateLeafNode (const std::vector <std::shared_ptr <Primitives>>&)
-   * @brief 
-   * @param[in] primitives
-   *    
-   * @return Bounds3f
+   * @fn BvhNode InitializeLeaf ()
+   * @brief
+   * @param[in]
+   *     
+   * @return 
    * @exception none
    * @details 
-   */
-  auto CreateLeafNode (const Primitives& primitives) const noexcept -> BvhNode;
+  */
+  auto CreateLeafNode
+  (
+   const Primitives& primitives,
+   const Bounds3f&   bounds,
+   MemoryArena&      memory
+  )
+  const -> BvhNode*;
+
+  /*!
+   * @fn BvhNode* CreateInternalNode ()
+   * @brief 
+   * @param[in] 
+   *    
+   * @return 
+   * @exception none
+   *  @details 
+  */
+  auto CreateInternalNode
+  (
+   const Bounds3f& bounds,
+   BvhNode* right,
+   BvhNode* left,
+   MemoryArena& memory
+  )
+  -> BvhNode*;
 
   /*!
    * @fn Return ComputeBounds (const std::vector <std::shared_ptr <Primitives>>&)
@@ -127,7 +193,7 @@ private:
     const noexcept -> void;
 
 private:
-  std::vector <BvhNode> nodes_;
+  BvhNode* root_;
   std::vector <std::shared_ptr <Primitive>> primitives_;
 }; // class Bvh
 /*
