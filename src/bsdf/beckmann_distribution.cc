@@ -117,6 +117,7 @@ auto BeckmannDistribution::SampleVisibleOnly (const Vector3f& outgoing)
   const noexcept -> Vector3f
 {
   // Todo: implement here
+  return Spectrum ();
 }
 /*
 // ---------------------------------------------------------------------------

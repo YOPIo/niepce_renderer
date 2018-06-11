@@ -73,7 +73,7 @@ auto MemoryArena::Allocate (size_t num_bytes) -> void*
 
     if (!current_block_)
     {
-      current_allocate_size_ = std::max (num_bytes, block_size_);
+      current_allocate_size_ = std::fmax (num_bytes, block_size_);
       current_block_         = AllocAligned <uint8_t> (current_allocate_size_);
     }
     current_block_position_ = 0;
@@ -109,8 +109,8 @@ auto MemoryArena::TotalAllocated () const -> size_t
 // Memory Allocation Functions
 void *AllocAligned(size_t size)
 {
-#if defined(PBRT_HAVE__ALIGNED_MALLOC)
-    return _aligned_malloc(size, PBRT_L1_CACHE_LINE_SIZE);
+#if defined(_WIN32)
+    return _aligned_malloc(size, 64);
 #elif defined(PBRT_HAVE_POSIX_MEMALIGN)
     void *ptr;
     if (posix_memalign(&ptr, 64, size) != 0) ptr = nullptr;

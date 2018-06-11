@@ -46,7 +46,7 @@ add_subdirectory (src/ext)
 # Add subdirectory to build the maya plugin
 if (BUILD_MAYA_PLUGIN)
   add_subdirectory (src/maya)
-
+  
 else () # if (BUILD_CUI_RENDERER)
   add_executable (${PROJECT_NAME} src/main/main.cc)
   target_link_libraries (${PROJECT_NAME}

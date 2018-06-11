@@ -7,6 +7,10 @@
  */
 #ifndef _NIEPCE_H_
 #define _NIEPCE_H_
+ /*
+ // ---------------------------------------------------------------------------
+ */
+ #define NOMINMAX
 /*
 // ---------------------------------------------------------------------------
 // Niepce renderer std includes
@@ -59,8 +63,9 @@ class Material;
 class MemoryArena;
 class Shape;
 class Sphere;
-class Tile;
 class ThreadPool;
+class Tile;
+class Transform;
 class PathTracer;
 class Pixel;
 class Point2f;
@@ -88,11 +93,11 @@ typedef Vector3f Spectrum;
 // Niepce renderer constant values
 // ---------------------------------------------------------------------------
 */
-constexpr Float kPi       = 3.141592653589793238462643383279502884197169399375105820974;
-constexpr Float kInfinity = std::numeric_limits <Float>::infinity ();
-constexpr Float kEpsilon  = std::numeric_limits <Float>::epsilon ();
-constexpr Float kFloatMax = std::numeric_limits <Float>::max ();
-constexpr Float kFloatMin = std::numeric_limits <Float>::lowest ();
+static constexpr Float kPi       = 3.141592653589793238462643383279502884197169399375105820974;
+static constexpr Float kInfinity = std::numeric_limits <Float>::infinity ();
+static constexpr Float kEpsilon  = std::numeric_limits <Float>::epsilon ();
+static constexpr Float kFloatMax = std::numeric_limits <Float>::max ();
+static constexpr Float kFloatMin = std::numeric_limits <Float>::lowest ();
 /*
 // ---------------------------------------------------------------------------
 // Niepce renderer global function

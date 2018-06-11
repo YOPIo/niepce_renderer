@@ -1,2 +1,2 @@
-/* #undef BUILD_MAYA_PLUGIN */
+#define BUILD_MAYA_PLUGIN
 #define BUILD_CUI_RENDERER

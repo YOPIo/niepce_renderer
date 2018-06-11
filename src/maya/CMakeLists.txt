@@ -1,8 +1,8 @@
-cmake_minimum_required (VERSION 3.5)
+cmake_minimum_required (VERSION 3.0)
 
 # Find autodesk maya
 if (Maya_FOUND)
-    set (SOURCE_FILES "plugin_main.cc")
+    set (SOURCE_FILES "plugin_main.cc" "command.cc" "utilities.cc")
 
     add_library (${PROJECT_NAME} SHARED ${SOURCE_FILES})
     target_link_libraries (${PROJECT_NAME} PRIVATE Maya::Maya)

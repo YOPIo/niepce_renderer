@@ -191,7 +191,7 @@ auto PathTracer::Radiance
     if (material->HasEmission ()) { return l; }
 
     // Russian roulette
-    Float q = std::max ({l[0], l[1], l[2]});
+    Float q = std::fmax (l[0], std::fmax(l[1], l[2]));
     if (depth > 5)
     {
       if (tile_sampler->SampleFloat () >= q) { return l; }
