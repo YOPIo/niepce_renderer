@@ -21,6 +21,7 @@
 #include "../core/bounds3f.h"
 #include "../core/singleton.h"
 #include "../core/memory.h"
+#include "../camera/pinhole.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -54,9 +55,11 @@ auto Finalize () -> void
 */
 auto RenderScene () -> void
 {
-  niepce::Transform t = LookAt (Point3f  (50, 80, 200),
+  niepce::Transform t = LookAt (Point3f  (50, 50, 200),
                                 Point3f  (50, 50,   0),
                                 Vector3f ( 0,  1,   0));
+
+  /*
   std::shared_ptr<Camera> camera (new RealisticCamera(t,
                                                       "result.ppm",
                                                       360,
@@ -68,9 +71,16 @@ auto RenderScene () -> void
                                                       175,
                                                       5.5,
                                                       false));
+  */
+  std::shared_ptr <Camera> pinhole (new PinholeCamera (t,
+                                                       90, // fov
+                                                       "result.ppm",
+                                                       360,
+                                                       240,
+                                                       43.2666153056));
   niepce::Scene scene;
   scene.ReadyCornellBox ();
-  PathTracer pt (camera, scene);
+  PathTracer pt (pinhole, scene);
   pt.Render ();
 }
 /*
@@ -85,6 +95,5 @@ int main (int argc, char* argv[])
   niepce::Initialize ();
   niepce::RenderScene ();
   niepce::Finalize ();
-
   return 0;
 }

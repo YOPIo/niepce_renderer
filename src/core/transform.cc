@@ -113,6 +113,15 @@ auto operator != (const Transform& lhs, const Transform& rhs) -> bool
 /*
 // ---------------------------------------------------------------------------
 */
+auto operator * (const Transform& t1, const Transform& t2) -> Transform
+{
+  const Matrix4x4f& m1 = t1.Matrix ();
+  const Matrix4x4f& m2 = t2.Matrix ();
+  return Transform (m1 * m2);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto operator * (const Transform& t, Float s) -> Transform
 {
   return Transform (t.Matrix () * s);
@@ -227,6 +236,18 @@ auto LookAt
 /*
 // ---------------------------------------------------------------------------
 */
+auto Perspective (Float fov, Float near, Float far) -> Transform
+{
+  Matrix4x4f persp (1, 0,                  0,                          0,
+                    0, 1,                  0,                          0,
+                    0, 0, far / (far - near), -far * near / (far - near),
+                    0, 0,                  1,                          0);
+  const Float inv_tan = 1.0 / std::tan (ToRadian (fov) * 0.5);
+  return Scale (inv_tan, inv_tan, 1) * Transform (persp);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Scale (Float x, Float y, Float z) -> Transform
 {
   const Matrix4x4f mat (x, 0, 0, 0,
@@ -237,6 +258,21 @@ auto Scale (Float x, Float y, Float z) -> Transform
                         0, 1.0 / y, 0, 0,
                         0, 0, 1.0 / z, 0,
                         0, 0, 0, 1);
+  return Transform (mat, inv);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Translate (const Vector3f& delta) -> Transform
+{
+  Matrix4x4f mat (1, 0, 0, delta.X (),
+                  0, 1, 0, delta.Y (),
+                  0, 0, 1, delta.Z (),
+                  0, 0, 0,          1);
+  Matrix4x4f inv (1, 0, 0, -delta.X (),
+                  0, 1, 0, -delta.Y (),
+                  0, 0, 1, -delta.Z (),
+                  0, 0, 0,           1);
   return Transform (mat, inv);
 }
 /*

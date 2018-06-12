@@ -123,9 +123,10 @@ auto operator * (Float s, const Transform& t) -> Transform;
 /*
 // ---------------------------------------------------------------------------
 */
-auto operator * (const Transform& t, const Point3f&  p) -> Point3f;
-auto operator * (const Transform& t, const Vector3f& v) -> Vector3f;
-auto operator * (const Transform& t, const Ray&      r) -> Ray;
+auto operator * (const Transform& t1, const Transform& t2) -> Transform;
+auto operator * (const Transform& t,  const Point3f&  p) -> Point3f;
+auto operator * (const Transform& t,  const Vector3f& v) -> Vector3f;
+auto operator * (const Transform& t,  const Ray&      r) -> Ray;
 /*
 // ---------------------------------------------------------------------------
 // Transform functions
@@ -133,12 +134,19 @@ auto operator * (const Transform& t, const Ray&      r) -> Ray;
 */
 auto Transpose (const Transform& t) -> Transform;
 auto Inverse   (const Transform& t) -> Transform;
-auto LookAt (const Point3f&  position, const Point3f&  look, const Vector3f& up)
+auto LookAt
+(
+ const Point3f&  position,
+ const Point3f&  look,
+ const Vector3f& up
+)
   -> Transform;
+auto Perspective (Float fov, Float near, Float far) -> Transform;
 /*
 // ---------------------------------------------------------------------------
 */
 auto Scale (Float x, Float y, Float z) -> Transform;
+auto Translate (const Vector3f& delta) -> Transform;
 /*
 // ---------------------------------------------------------------------------
 */

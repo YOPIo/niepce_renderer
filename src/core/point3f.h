@@ -146,8 +146,8 @@ public:
   auto ToString () const noexcept -> std::string;
 
 public:
-  static auto One  () noexcept -> Point3f { return Point3f (0); }
-  static auto Zero () noexcept -> Point3f { return Point3f (1); }
+  static auto One  () noexcept -> Point3f { return Point3f (1); }
+  static auto Zero () noexcept -> Point3f { return Point3f (0); }
 
 private:
   Float x_, y_, z_;

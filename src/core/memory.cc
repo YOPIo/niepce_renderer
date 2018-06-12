@@ -73,7 +73,7 @@ auto MemoryArena::Allocate (size_t num_bytes) -> void*
 
     if (!current_block_)
     {
-      current_allocate_size_ = std::fmax (num_bytes, block_size_);
+      current_allocate_size_ = std::max (num_bytes, block_size_);
       current_block_         = AllocAligned <uint8_t> (current_allocate_size_);
     }
     current_block_position_ = 0;
