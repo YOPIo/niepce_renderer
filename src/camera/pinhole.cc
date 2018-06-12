@@ -9,6 +9,7 @@
 #include "../core/point3f.h"
 #include "../core/vector3f.h"
 #include "../core/ray.h"
+#include "../sampler/sampler.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -21,6 +22,8 @@ PinholeCamera::PinholeCamera
 (
  const Transform& camera_to_wrold,
  Float            fov,
+ Float            lens_radius,
+ Float            focus_distance,
  const char*      filename,
  unsigned int     resolution_width,
  unsigned int     resolution_height,
@@ -30,11 +33,13 @@ PinholeCamera::PinholeCamera
           filename,
           resolution_width,
           resolution_height,
-          diagonal)
+          diagonal),
+  lens_radius_     (lens_radius), // [mm] -> [m]
+  object_distance_ (focus_distance)
 {
   // Compute the distance from camera position to film.
   const Float theta = ToRadian (fov * 0.5);
-  distance_to_film_
+  focal_distance_
     = std::fabs ((PhysicalBounds ().Width () * 0.5) / std::tan (theta));
 }
 /*
@@ -48,10 +53,24 @@ auto PinholeCamera::GenerateRay (const CameraSample& samples, Ray *ray)
   const Point2f s (samples.film_.X () / resolution.Width (),
                    samples.film_.Y () / resolution.Height ());
   const Point2f p = PhysicalBounds ().Lerp (s);
-  const Point3f pfilm = Point3f (-p.X (), p.Y (), -distance_to_film_);
+  const Point3f pfilm = Point3f (-p.X (), p.Y (), -focal_distance_);
 
   // Generate a ray from 0 to point on film plane.
   *ray = Ray (Point3f::Zero (), Point3f::Zero () - pfilm);
+
+  if (lens_radius_ > 0)
+  {
+    // Sample a point on lens
+    const Point2f s = SampleConcentricDisk (samples.lens_);
+    const Point3f plens = lens_radius_ * Point3f (s.X (), s.Y (), 0);
+
+    // Compute a point on object plane.
+    const Float t = object_distance_ / ray->Direction ().Z ();
+    const Point3f pfocus = ray->IntersectAt (t);
+
+    // Update ray
+    *ray = Ray (plens, pfocus - plens);
+  }
 
   // Transform to world coordinate.
   *ray = camera_to_world_ * (*ray);

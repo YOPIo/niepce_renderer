@@ -13,6 +13,7 @@
 #include "../texture/value_texture.h"
 #include "../accelerator/aggregation.h"
 #include "../primitive/primitive.h"
+#include "../sampler/random_sampler.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -182,6 +183,49 @@ auto Scene::ReadyCornellBox () -> void
     = CreateSphere (Point3f (40, 15, 40), 15);
   // primitives_.push_back (CreatePrimitive (sphere, metal));
 
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Scene::BuildBokehScene () -> void
+{
+  RandomSampler sampler;
+
+  std::array <std::shared_ptr <Texture>, 5> texs;
+  texs[0] = CreateValueTexture (Spectrum (0.75, 0.2, 0.2));
+  texs[1] = CreateValueTexture (Spectrum (0.2, 0.2, 0.75));
+  texs[2] = CreateValueTexture (Spectrum (0.2, 0.75, 0.2));
+  texs[3] = CreateValueTexture (Spectrum (0.75, 0.75, 0.75));
+  texs[4] = CreateValueTexture (Spectrum::Zero ());
+
+  std::array <std::shared_ptr <Shape>, 11> spheres;
+  spheres[0] = CreateSphere (Point3f (0, -1e-8, 0), 1e8);
+  for (int i = 1; i < 11; ++i)
+  {
+    const Float px = 40.0 * sampler.SampleFloat ();
+    const Float py = 40.0 * sampler.SampleFloat ();
+    const Float pz = 40.0 * sampler.SampleFloat ();
+    const Float r  = 5.0  * sampler.SampleFloat ();
+    spheres[i] = CreateSphere (Point3f (px, py, pz), r);
+  }
+
+  std::shared_ptr <Material> light (new Matte (texs[4], texs[3]));
+
+  std::vector <std::shared_ptr <Primitive>> primitives (11);
+  for (int i = 0; i < 11; ++i)
+  {
+    int idx = std::floor (4 * sampler.SampleFloat ());
+    std::shared_ptr <Material> mat (new Matte (texs[idx], nullptr));
+
+    if (i % 3 == 0)
+    {
+      primitives[i] = CreatePrimitive (spheres[i], light);
+      continue;
+    }
+    primitives[i] = CreatePrimitive (spheres[i], mat);
+  }
+
+  std::swap (primitives, primitives_);
 }
 /*
 // ---------------------------------------------------------------------------

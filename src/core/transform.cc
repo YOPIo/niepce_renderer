@@ -206,7 +206,7 @@ auto LookAt
   const Vector3f direction = Normalize (look - position);
   if (Cross (Normalize (up), direction).Length () == 0)
   {
-    std::cerr << "" << std::endl;
+    std::cerr << "Error: LookAt" << std::endl;
   }
   const Vector3f x = Normalize (Cross (Normalize (up), direction));
   const Vector3f new_up = Cross (direction, x);

@@ -106,6 +106,27 @@ auto ImageIO<Spectrum>::Load (const char *filename) -> void
 /*
 // ---------------------------------------------------------------------------
 */
+template <>
+auto ImageIO<bool>::Load (const char* filename) -> void
+{
+  // Load a image via stbi.
+  int width, height, n;
+  unsigned char* img = stbi_load (filename, &width, &height, &n, 1);
+
+  // Reallocate memory
+  AllocateMemory (width, height);
+  std::cout << width << " " << height << std::endl;
+  for (int y = 0; y < height; ++y)
+  {
+    for (int x = 0; x < width; ++x)
+    {
+      SetValueAt (x, y, static_cast <bool> (img[y * width + x]));
+    }
+  }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 template <typename T>
 auto ImageIO<T>::Save () const noexcept -> void
 {
@@ -179,6 +200,22 @@ auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
     os << (int)FloatToInt (At (x, y).X ()) << " ";
     os << (int)FloatToInt (At (x, y).Y ()) << " ";
     os << (int)FloatToInt (At (x, y).Z ()) << " ";
+  };
+  For2(func, Width (), Height ());
+  os.close ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <>
+auto ImageIO<bool>::SavePpm (const char* filename) const noexcept -> void
+{
+  std::ofstream os (filename);
+  os << "P2\n" << width_ << " " << height_ << "\n1\n";
+  auto func = [&] (int x, int y) -> void
+  {
+    if (At (x, y)) { os << "1 "; }
+    else { os << "0 "; }
   };
   For2(func, Width (), Height ());
   os.close ();

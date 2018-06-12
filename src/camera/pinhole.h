@@ -36,6 +36,8 @@ public:
   (
    const Transform& camera_to_wrold,
    Float            fov,
+   Float            lens_radius,    // [mm]
+   Float            focus_distance, // [m]
    const char*      filename,
    unsigned int     resolution_width,
    unsigned int     resolution_height,
@@ -73,7 +75,9 @@ private:
   const -> Float override final;
 
 protected:
-  Float distance_to_film_;
+  Float focal_distance_;
+  Float lens_radius_;
+  Float object_distance_;
 
 }; // class PinholeCamera
 /*

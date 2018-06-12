@@ -22,6 +22,7 @@
 #include "../core/singleton.h"
 #include "../core/memory.h"
 #include "../camera/pinhole.h"
+#include "../texture/bool_texture.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -58,29 +59,38 @@ auto RenderScene () -> void
   niepce::Transform t = LookAt (Point3f  (50, 50, 200),
                                 Point3f  (50, 50,   0),
                                 Vector3f ( 0,  1,   0));
-
-  /*
-  std::shared_ptr<Camera> camera (new RealisticCamera(t,
+  std::shared_ptr <Camera> camera (new PinholeCamera (t,
+                                                      90,  // fov
+                                                      10,  // [mm]
+                                                      100, // [m]
+                                                      "result.ppm",
+                                                      360 * 3,
+                                                      240 * 3,
+                                                      43.2666153056));
+  niepce::Scene scene;
+  scene.ReadyCornellBox ();
+  PathTracer pt (camera, scene);
+  pt.Render ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto BokehTest () -> void
+{
+  Transform t = LookAt (Point3f  (80, 80, -20),
+                        Point3f  (20, 20,  20),
+                        Vector3f ( 0,  1,   0));
+  std::shared_ptr <Camera> camera (new PinholeCamera (t,
+                                                      90,  // fov
+                                                      50,  // [mm]
+                                                      100, // [m]
                                                       "result.ppm",
                                                       360,
                                                       240,
-                                                      43.2666153056, // Full size sensor size
-                                                      "../assets/lenses/thin.dat",
-                                                      // "../assets/lenses/fisheye.10mm.dat",
-                                                      // "../assets/lenses/wide.22mm.dat",
-                                                      175,
-                                                      5.5,
-                                                      false));
-  */
-  std::shared_ptr <Camera> pinhole (new PinholeCamera (t,
-                                                       90, // fov
-                                                       "result.ppm",
-                                                       360,
-                                                       240,
-                                                       43.2666153056));
-  niepce::Scene scene;
-  scene.ReadyCornellBox ();
-  PathTracer pt (pinhole, scene);
+                                                      43.2666153056));
+  Scene scene;
+  scene.BuildBokehScene ();
+  PathTracer pt (camera, scene);
   pt.Render ();
 }
 /*
@@ -93,7 +103,11 @@ auto RenderScene () -> void
 int main (int argc, char* argv[])
 {
   niepce::Initialize ();
-  niepce::RenderScene ();
+  // niepce::RenderScene ();
+  // niepce::BokehTest ();
   niepce::Finalize ();
+
+  niepce::ImageIO<bool> tex ("/home/yopio/workspace/niepce/assets/aperture.png");
+  // tex.SaveAs ("bool_heart.ppm");
   return 0;
 }
