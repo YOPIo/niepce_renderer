@@ -1,4 +1,4 @@
-/*!
+﻿/*!
  * @file transform.h
  * @brief 
  * @author Masashi Yoshida
@@ -235,13 +235,15 @@ auto LookAt
 }
 /*
 // ---------------------------------------------------------------------------
+// Windowsが勝手にnearとfarを定義しているらしい...
+// ---------------------------------------------------------------------------
 */
-auto Perspective (Float fov, Float near, Float far) -> Transform
+auto Perspective (Float fov, Float n, Float f) -> Transform
 {
-  Matrix4x4f persp (1, 0,                  0,                          0,
-                    0, 1,                  0,                          0,
-                    0, 0, far / (far - near), -far * near / (far - near),
-                    0, 0,                  1,                          0);
+  Matrix4x4f persp (1, 0,           0,                0,
+                    0, 1,           0,                0,
+                    0, 0, f / (f - n), -f * n / (f - n),
+                    0, 0,           1,                0);
   const Float inv_tan = 1.0 / std::tan (ToRadian (fov) * 0.5);
   return Scale (inv_tan, inv_tan, 1) * Transform (persp);
 }

@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.0)
 
 add_library (Ext STATIC
-  easyloggingpp/easylogging++.cc)
-
+  easyloggingpp/easylogging++.cc
+  tinyxml2/tinyxml2.cpp)
