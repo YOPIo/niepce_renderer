@@ -72,10 +72,6 @@ public:
    */
   auto Load () -> void;
 
-  // TODO: Delete
-  auto ReadyCornellBox () -> void;
-  auto BuildBokehScene () -> void;
-
 public:
   std::vector <std::shared_ptr<Primitive>> primitives_;
 }; // class Scene

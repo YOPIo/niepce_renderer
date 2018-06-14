@@ -1,0 +1,32 @@
+<scene>
+
+  <camera type="pinhole">
+    <!--   -->
+    <lookat origin="50 50 300" target="50 50 0" up="0 1 0"/>
+    <film>
+      <!-- Resolution -->
+      <int name="width"  value="480"/>
+      <int name="height" value="270"/>
+      <!-- Film size -->
+      <float name="diagonal" value="43.2666153056"/>
+      <string name="filename" value="output.ppm"/>
+    </film>
+  </camera>
+
+  <shape type="obj">
+    <string name="filename" value="cornellbox.obj"/>
+    <material type="matte">
+      <rgb name="reflectance" value="0.75 0.75 0.75"/>
+      <rgb name="emission" value="0 0 0"/>
+    </material>
+  </shape>
+
+  <shape type="obj">
+    <string name="filename" value="cornellbox_light.obj"/>
+    <material type="matte">
+      <rgb name="reflectance" value="0 0 0"/>
+      <rgb name="emission" value="12 12 12"/>
+    </material>
+  </shape>
+
+</scene>
