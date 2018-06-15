@@ -81,40 +81,33 @@ private:
   auto ParseFilm (tinyxml2::XMLElement* elem) -> std::shared_ptr <Film>;
 
   /*!
-   * @fn int ParseInt (tinyxml2)
+   * @fn T ParseAttribute (tinyxml2::XMLElement*)
    * @brief 
-   * @param[in] tinyxml2::Xmlelement*
+   * @param[in] element
    *    
    * @return 
    * @exception none
-   * @details 
+   * @details
    */
-  auto ParseInt (tinyxml2::XMLElement* elem)
-    const noexcept -> std::pair <std::string, int>;
+  template <typename T>
+  auto ParseAttribute (tinyxml2::XMLElement* element)
+    const noexcept -> std::pair <std::string, T>;
 
   /*!
-   * @fn std ParseFloat (tinyxml2)
-   * @brief 
-   * @param[in] tinyxml2::Xmlelement*
-   *    
-   * @return 
-   * @exception none
-   * @details 
-   */
-  auto ParseFloat (tinyxml2::XMLElement* elem)
-    const noexcept -> std::pair <std::string, Float>;
-
-  /*!
-   * @fn std ParseString (tinyxml2)
+   * @fn bool IsAttributeName (const)
    * @brief 
    * @param[in] 
-   * @param[out] 
+   *    
    * @return 
    * @exception none
-   * @details 
+   * @details
    */
-  auto ParseString (tinyxml2::XMLElement* elem)
-    const noexcept -> std::pair <std::string, std::string>;
+  auto IsAttributeName
+  (
+   tinyxml2::XMLElement* element,
+   const char* name
+  )
+    const noexcept -> bool;
 
   /*!
    * @fn bool IsElementType (tinyxml2)
@@ -132,6 +125,12 @@ public:
   tinyxml2::XMLDocument xml_;
   tinyxml2::XMLElement* root_;
 }; // class SceneImporter
+/*
+// ---------------------------------------------------------------------------
+*/
+template <>
+auto SceneImporter::ParseAttribute <Vector3f> (tinyxml2::XMLElement* element)
+  const noexcept -> std::pair <std::string, Vector3f>;
 /*
 // ---------------------------------------------------------------------------
 */
