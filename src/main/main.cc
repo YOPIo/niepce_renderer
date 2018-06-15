@@ -23,6 +23,7 @@
 #include "../core/memory.h"
 #include "../camera/pinhole.h"
 #include "../texture/bool_texture.h"
+#include "../scene/scene_importer.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -62,6 +63,8 @@ int main (int argc, char* argv[])
 {
   niepce::Initialize ();
   niepce::Finalize ();
+
+  niepce::SceneImporter importer ("/home/yopio/workspace/niepce/assets/cornellbox/cornellbox.xml");
 
   return 0;
 }

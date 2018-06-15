@@ -2,7 +2,11 @@
 
   <camera type="pinhole">
     <!--   -->
-    <lookat origin="50 50 300" target="50 50 0" up="0 1 0"/>
+    <lookat>
+      <vector3 name="origin" value="50 50 300"/>
+      <vector3 name="target" value="50 50 0"/>
+      <vector3 name="up" value="0 1 0"/>
+    </lookat>
     <film>
       <!-- Resolution -->
       <int name="width"  value="480"/>
