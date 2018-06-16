@@ -32,10 +32,10 @@ RealisticCamera::RealisticCamera
    const char* filename,
    unsigned int width,
    unsigned int height,
-   Float diagonal,             // [mm]
+   Float diagonal,             // [m]
    const char* lens_file_path,
    Float focus_distance,       // [m]
-   Float aperture_diameter,    // [mm]
+   Float aperture_diameter,    // [m]
    bool  simple_weighting
 ) :
   Camera (camera_to_world, filename, width, height, diagonal),
@@ -43,7 +43,7 @@ RealisticCamera::RealisticCamera
 {
   // Load a lens system file.
   // Converting focus distance unit to m from mm.
-  LoadLens (lens_file_path, aperture_diameter * 0.001);
+  LoadLens (lens_file_path, aperture_diameter);
 
   // Compute focus distance.
   FocusOn (focus_distance);

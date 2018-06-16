@@ -35,7 +35,7 @@ public:
    const char*  filename,
    unsigned int width,   // Resolution
    unsigned int height,  // Resolution
-   Float        diagonal // Physical length (mm)
+   Float        diagonal // Physical length [m]
   );
 
   //! The copy constructor of the class.

@@ -24,6 +24,7 @@
 #include "../camera/pinhole.h"
 #include "../texture/bool_texture.h"
 #include "../scene/scene_importer.h"
+#include "../core/attributes.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -65,6 +66,9 @@ int main (int argc, char* argv[])
   niepce::Finalize ();
 
   niepce::SceneImporter importer ("/home/yopio/workspace/niepce/assets/cornellbox/cornellbox.xml");
+
+  std::shared_ptr <niepce::Camera> cam
+    = niepce::CreatePinholeCamera (importer.attributes_);
 
   return 0;
 }

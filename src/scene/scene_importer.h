@@ -12,6 +12,7 @@
 */
 #include "../core/niepce.h"
 #include "../ext/tinyxml2/tinyxml2.h"
+#include "../core/attributes.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -59,29 +60,18 @@ public:
 
 private:
   /*!
-   * @fn std::shared_ptr<Camera> ParseCamera ()
+   * @fn void ParseRecursive (tinyxml2)
    * @brief 
-   * @param[in] 
-   * @param[out] 
+   * @param[in] element
+   * 
    * @return 
    * @exception none
-   * @details 
+   * @details
    */
-  auto ParseCamera (tinyxml2::XMLElement* elem) -> std::shared_ptr <Camera>;
+  auto ParseRecursive (tinyxml2::XMLElement* element) -> void;
 
   /*!
-   * @fn std ParseFilm (tinyxml2)
-   * @brief 
-   * @param[in] tinyxml2::XMLElement*
-   *    
-   * @return 
-   * @exception none
-   * @details 
-   */
-  auto ParseFilm (tinyxml2::XMLElement* elem) -> std::shared_ptr <Film>;
-
-  /*!
-   * @fn T ParseAttribute (tinyxml2::XMLElement*)
+   * @fn std::pair <std::string, T> ParseElement (tinyxml2::XMLElement*)
    * @brief 
    * @param[in] element
    *    
@@ -89,25 +79,26 @@ private:
    * @exception none
    * @details
    */
-  template <typename T>
-  auto ParseAttribute (tinyxml2::XMLElement* element)
-    const noexcept -> std::pair <std::string, T>;
+  auto ParseElement (tinyxml2::XMLElement* element)
+    noexcept -> void;
 
-  /*!
-   * @fn bool IsAttributeName (const)
-   * @brief 
-   * @param[in] 
-   *    
-   * @return 
-   * @exception none
-   * @details
-   */
-  auto IsAttributeName
-  (
-   tinyxml2::XMLElement* element,
-   const char* name
-  )
-    const noexcept -> bool;
+  auto ParseBool (tinyxml2::XMLElement* element)
+    const noexcept -> std::pair <std::string, bool>;
+
+  auto ParseInt (tinyxml2::XMLElement* element)
+    const noexcept -> std::pair <std::string, int>;
+
+  auto ParseFloat (tinyxml2::XMLElement* element)
+    const noexcept -> std::pair <std::string, Float>;
+
+  auto ParseString (tinyxml2::XMLElement* element)
+    const noexcept -> std::pair <std::string, std::string>;
+
+  auto ParseVector3f (tinyxml2::XMLElement* element)
+    const noexcept -> std::pair <std::string, Vector3f>;
+
+  auto ParsePoint3f (tinyxml2::XMLElement* element)
+    const noexcept -> std::pair <std::string, Point3f>;
 
   /*!
    * @fn bool IsElementType (tinyxml2)
@@ -121,16 +112,13 @@ private:
   auto IsElementType (tinyxml2::XMLElement* elem, const char* type)
     const noexcept -> bool;
 
-public:
+private:
   tinyxml2::XMLDocument xml_;
   tinyxml2::XMLElement* root_;
+
+public:
+  Attributes attributes_;
 }; // class SceneImporter
-/*
-// ---------------------------------------------------------------------------
-*/
-template <>
-auto SceneImporter::ParseAttribute <Vector3f> (tinyxml2::XMLElement* element)
-  const noexcept -> std::pair <std::string, Vector3f>;
 /*
 // ---------------------------------------------------------------------------
 */

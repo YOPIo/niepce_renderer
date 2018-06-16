@@ -2,6 +2,7 @@ cmake_minimum_required (VERSION 3.0)
 
 # Create static library
 add_library (Core STATIC
+  attributes.cc
   bounds2f.cc
   bounds3f.cc
   film.cc

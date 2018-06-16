@@ -80,6 +80,45 @@ auto PinholeCamera::GenerateRay (const CameraSample& samples, Ray *ray)
 /*
 // ---------------------------------------------------------------------------
 */
+auto CreatePinholeCamera (const Attributes& attributes)
+  -> std::shared_ptr <Camera>
+{
+  const Transform t = LookAt (attributes.FindPoint3f  ("origin"),
+                              attributes.FindPoint3f  ("target"),
+                              attributes.FindVector3f ("up"));
+
+  const Float fov = attributes.FindFloat ("fov");
+  const Float lens_radius = attributes.FindFloat ("lens_radius");
+  const Float focus_distance = attributes.FindFloat ("focus_distance");
+
+  const int   width    = attributes.FindInt ("width");
+  const int   height   = attributes.FindInt ("height");
+  const Float diagonal = attributes.FindFloat ("diagonal");
+  const std::string filename = attributes.FindString ("film/filename");
+
+
+  std::cout << t.ToString() << std::endl;
+  std::cout << fov << std::endl;
+  std::cout << lens_radius << std::endl;
+  std::cout << focus_distance << std::endl;
+
+  std::cout << width << std::endl;
+  std::cout << height << std::endl;
+  std::cout << diagonal << std::endl;
+  std::cout << filename << std::endl;
+
+  return std::make_shared <PinholeCamera> (t,
+                                           fov,
+                                           lens_radius,
+                                           focus_distance,
+                                           filename.c_str (),
+                                           width,
+                                           height,
+                                           diagonal);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 } // namespace niepce
 /*
 // ---------------------------------------------------------------------------

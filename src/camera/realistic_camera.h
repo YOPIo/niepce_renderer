@@ -60,7 +60,7 @@ public:
    const char*  filename,
    unsigned int width,
    unsigned int height,
-   Float diagonal,
+   Float diagonal, // [m]
    const char* lens_file_path,
    Float focus_distance,
    Float aperture_diameter,

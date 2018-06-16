@@ -1,10 +1,10 @@
 <scene>
 
   <camera type="pinhole">
-    <!--   -->
+    <!-- Camera transformation  -->
     <lookat>
-      <vector3 name="origin" value="50 50 300"/>
-      <vector3 name="target" value="50 50 0"/>
+      <point3  name="origin" value="50 50 300"/>
+      <point3  name="target" value="50 50 50"/>
       <vector3 name="up" value="0 1 0"/>
     </lookat>
     <film>
@@ -12,9 +12,13 @@
       <int name="width"  value="480"/>
       <int name="height" value="270"/>
       <!-- Film size -->
-      <float name="diagonal" value="43.2666153056"/>
+      <float name="diagonal" value="43.2666153056" unit="mm"/>
       <string name="filename" value="output.ppm"/>
     </film>
+    <!-- Pinhole camera parameters -->
+    <float name="lens_radius" value="50" unit="mm"/>
+    <float name="fov" value="90" unit="degree"/>
+    <float name="focus_distance" value="250" unit="m"/>
   </camera>
 
   <shape type="obj">

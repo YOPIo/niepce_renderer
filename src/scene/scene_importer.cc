@@ -8,6 +8,7 @@
 #include "scene_importer.h"
 #include "../core/vector3f.h"
 #include "../core/film.h"
+#include "../core/transform.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -35,105 +36,137 @@ auto SceneImporter::Import (const char *filename) -> void
   {
     if (IsElementType (element, "camera"))
     {
-      ParseCamera (element);
+      ParseRecursive (element);
     }
   }
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto SceneImporter::ParseCamera (tinyxml2::XMLElement* camera)
-  -> std::shared_ptr <Camera>
+auto SceneImporter::ParseRecursive (tinyxml2::XMLElement* element) -> void
 {
-  std::shared_ptr <Film> film;
-  // Loop for each element.
-  for (auto element = camera->FirstChildElement ();
-       element != nullptr;
-       element = element->NextSiblingElement ())
+  for (auto elem = element->FirstChildElement ();
+       elem != nullptr;
+       elem = elem->NextSiblingElement ())
   {
-    if (IsElementType (element, "lookat"))
+    if (IsElementType (elem, "lookat") || IsElementType (elem, "film"))
     {
-      ParseAttribute <Vector3f> (element->FirstChildElement ());
+      ParseRecursive (elem);
+      continue;
     }
-    if (IsElementType (element, "film"))
+    if (elem->NoChildren ())
     {
-      film = ParseFilm (element);
+      ParseElement (elem);
       continue;
     }
   }
-  return nullptr;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto SceneImporter::ParseFilm (tinyxml2::XMLElement* film)
-  -> std::shared_ptr <Film>
+auto SceneImporter::ParseElement (tinyxml2::XMLElement* element)
+  noexcept -> void
 {
-  unsigned int width, height;
-  Float diagonal;
-  std::string filename;
-  for (auto element = film->FirstChildElement ();
-       element != nullptr;
-       element = element->NextSiblingElement ())
+  if (IsElementType (element, "bool"))
   {
-    if (IsAttributeName (element, "width"))
-    {
-      width = element->IntAttribute ("value");
-      continue;
-    }
-    if (IsAttributeName (element, "height"))
-    {
-      height = element->IntAttribute ("value");
-      continue;
-    }
-    if (IsAttributeName (element, "diagonal"))
-    {
-      diagonal = element->DoubleAttribute ("value");
-      continue;
-    }
-    if (IsAttributeName (element, "filename"))
-    {
-      filename = element->Attribute ("value");
-    }
+    auto attrib = ParseBool (element);
+    attributes_.AddBool (attrib.first, attrib.second);
   }
-  return std::make_shared <Film> (filename.c_str (), width, height, diagonal);
+  if (IsElementType (element, "int"))
+  {
+    auto attrib = ParseInt (element);
+    attributes_.AddInt (attrib.first, attrib.second);
+  }
+  if (IsElementType (element, "float"))
+  {
+    auto attrib = ParseFloat (element);
+    attributes_.AddFloat (attrib.first, attrib.second);
+  }
+  if (IsElementType (element, "string"))
+  {
+    auto attrib = ParseString (element);
+    attributes_.AddString (attrib.first, attrib.second);
+  }
+  if (IsElementType (element, "vector3"))
+  {
+    auto attrib = ParseVector3f (element);
+    attributes_.AddVector3f (attrib.first, attrib.second);
+  }
+  if (IsElementType (element, "point3"))
+  {
+    auto attrib = ParsePoint3f (element);
+    attributes_.AddPoint3f (attrib.first, attrib.second);
+  }
+  return ;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename T>
-auto SceneImporter::ParseAttribute (tinyxml2::XMLElement* element)
-  const noexcept -> std::pair <std::string, T>
+auto SceneImporter::ParseBool (tinyxml2::XMLElement* element)
+  const noexcept -> std::pair <std::string, bool>
 {
-  
+  const std::string name = element->Attribute ("name");
+  const bool value = element->BoolAttribute ("value");
+  return std::make_pair (name, value);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-template <>
-auto SceneImporter::ParseAttribute <Vector3f> (tinyxml2::XMLElement* element)
+auto SceneImporter::ParseInt (tinyxml2::XMLElement* element)
+  const noexcept -> std::pair <std::string, int>
+{
+  const std::string name = element->Attribute ("name");
+  const int value = element->IntAttribute ("value");
+  return std::make_pair (name, value);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::ParseFloat (tinyxml2::XMLElement* element)
+  const noexcept -> std::pair <std::string, Float>
+{
+  const std::string name = element->Attribute ("name");
+  Float value = element->DoubleAttribute ("value");
+  if (std::strcmp (element->Attribute ("unit"), "mm") == 0)
+  {
+    value *= 0.001;
+  }
+  return std::make_pair (name, value);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::ParseString (tinyxml2::XMLElement* element)
+  const noexcept -> std::pair <std::string, std::string>
+{
+  const std::string name  = element->Attribute ("name");
+  const std::string type  = element->Parent ()->ToElement ()->Name ();
+  const std::string value = element->Attribute ("value");
+  return std::make_pair (type + "/" + name, value);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::ParseVector3f (tinyxml2::XMLElement* element)
   const noexcept -> std::pair <std::string, Vector3f>
 {
-  // Parse string by space, create vector3.
+  const std::string name = element->Attribute ("name");
   std::stringstream ss (element->Attribute ("value"));
   std::vector <Float> v (std::istream_iterator <Float> {ss},
                          std::istream_iterator <Float> ());
-  for (auto t : v){ std::cout << t << std::endl; }
-
-  return std::make_pair ("", Vector3f ());
+  return std::make_pair (name, Vector3f (v[0], v[1], v[2]));
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto SceneImporter::IsAttributeName
-(
- tinyxml2::XMLElement* element,
- const char* type
-)
-  const noexcept -> bool
+auto SceneImporter::ParsePoint3f (tinyxml2::XMLElement* element)
+  const noexcept -> std::pair <std::string, Point3f>
 {
-  if (std::strcmp (element->Attribute ("name"), type) == 0) { return true; }
-  return false;
+  const std::string name = element->Attribute ("name");
+  std::stringstream ss (element->Attribute ("value"));
+  std::vector <Float> v (std::istream_iterator <Float> {ss},
+                         std::istream_iterator <Float> ());
+  return std::make_pair (name, Point3f (v[0], v[1], v[2]));
 }
 /*
 // ---------------------------------------------------------------------------

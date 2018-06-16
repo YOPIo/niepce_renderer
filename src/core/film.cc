@@ -21,11 +21,11 @@ Film::Film
  const char*  filename,
  unsigned int width,
  unsigned int height,
- Float        diagonal // (mm)
+ Float        diagonal
 ) :
   ImageIO <Spectrum> (filename, width, height),
   bounds_   (width, height),
-  diagonal_ (diagonal * 0.001) // Convert mm to m.
+  diagonal_ (diagonal)
 {}
 /*
 // ---------------------------------------------------------------------------
