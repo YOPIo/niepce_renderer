@@ -25,6 +25,7 @@
     <string name="filename" value="icon.png"/>
   </texture>
 
+  <!-- Materials -->
   <material type="matte" id="matte">
     <rgb name="reflectance" value="0.75 0.75 0.75"/>
     <rgb name="emission" value="0 0 0"/>
@@ -40,16 +41,20 @@
     <rgb name="emission" value="12 12 12"/>
   </material>
 
+  <!-- Shapes -->
   <shape type="obj">
     <string name="filename" value="cornellbox.obj"/>
+    <reference name="material" value="matte"/>
   </shape>
 
   <shape type="obj">
     <string name="filename" value="cornellbox_front.obj"/>
+    <reference name="material" value="tex_matte"/>
   </shape>
 
   <shape type="obj">
     <string name="filename" value="cornellbox_light.obj"/>
+    <reference name="material" value="light"/>
   </shape>
 
 </scene>

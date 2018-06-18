@@ -165,6 +165,8 @@ private:
   auto LoadObj (const Attributes& attributes) -> void;
 
 private:
+  std::string base_filepath_;
+
   tinyxml2::XMLDocument xml_;
   tinyxml2::XMLElement* root_;
 
@@ -173,7 +175,7 @@ private:
   std::map <std::string, std::shared_ptr <Texture>>  textures_;
   std::map <std::string, std::shared_ptr <Shape>>    shapes_;
 
-  std::string base_filepath_;
+  std::vector <std::shared_ptr <Primitive>> primitives_;
 }; // class SceneImporter
 /*
 // ---------------------------------------------------------------------------

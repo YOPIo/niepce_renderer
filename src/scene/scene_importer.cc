@@ -14,6 +14,7 @@
 #include "../texture/value_texture.h"
 #include "../material/material.h"
 #include "../shape/triangle.h"
+#include "../primitive/primitive.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -215,6 +216,12 @@ auto SceneImporter::ParseElement
     attributes->AddPoint3f (attrib.first, attrib.second);
     return ;
   }
+  if (IsElementType (element, "reference"))
+  {
+    auto attrib = ParseString (element);
+    attributes->AddString (attrib.first, attrib.second);
+    return ;
+  }
   std::cout << "Ignored element : " << element->Name () << std::endl;
   return ;
 }
@@ -344,31 +351,52 @@ auto SceneImporter::LoadObj (const Attributes& attributes) -> void
   const std::shared_ptr <TriangleMesh> mesh (CreateMesh (attrib.vertices,
                                                          attrib.normals,
                                                          attrib.texcoords));
+
+  std::vector <std::array <int, 3>> p_idxs;
+  std::vector <std::array <int, 3>> n_idxs;
+  std::vector <std::array <int, 3>> t_idxs;
+
+  // Loop over shapes.
   for (const auto& s : shapes)
   {
     size_t index_offset = 0;
     for (size_t f = 0; f < s.mesh.num_face_vertices.size(); f++)
     {
       int fv = s.mesh.num_face_vertices[f];
-      // Loop over vertices in the face.
-      for (size_t v = 0; v < fv; v++) {
-        // access to vertex
-        tinyobj::index_t idx = s.mesh.indices[index_offset + v];
-        std::cout << idx.vertex_index+0 << ", ";
-        std::cout << idx.vertex_index+1 << ", ";
-        std::cout << idx.vertex_index+2 << std::endl;
-        /*
-        tinyobj::real_t nx = attrib.normals[3*idx.normal_index+0];
-        tinyobj::real_t ny = attrib.normals[3*idx.normal_index+1];
-        tinyobj::real_t nz = attrib.normals[3*idx.normal_index+2];
-        tinyobj::real_t tx = attrib.texcoords[2*idx.texcoord_index+0];
-        tinyobj::real_t ty = attrib.texcoords[2*idx.texcoord_index+1];
-        */;
-      }
+      if (fv != 3) {/* Triangle is only supported.*/ return ; }
+
+      // Get triangle position indices.
+      std::array <int, 3> p = {s.mesh.indices[index_offset + 0].vertex_index,
+                               s.mesh.indices[index_offset + 1].vertex_index,
+                               s.mesh.indices[index_offset + 2].vertex_index};
+      // Get triangle normal indices.
+      std::array <int, 3> n = {s.mesh.indices[index_offset + 0].normal_index,
+                               s.mesh.indices[index_offset + 1].normal_index,
+                               s.mesh.indices[index_offset + 2].normal_index};
+      // Get texture coordinate indices.
+      std::array <int, 3> t = {s.mesh.indices[index_offset + 0].texcoord_index,
+                               s.mesh.indices[index_offset + 1].texcoord_index,
+                               s.mesh.indices[index_offset + 2].texcoord_index};
+      // Push indices.
+      p_idxs.push_back (p);
+      n_idxs.push_back (n);
+      t_idxs.push_back (t);
       index_offset += fv;
     }
   }
-  std::cout << std::endl;
+
+  // Construct triangle face.
+  const int  size = p_idxs.size ();
+  const auto id   = attributes.FindString ("material");
+  const auto mat  = materials_.at (id);
+  for (int i = 0; i < size; ++i)
+  {
+    std::shared_ptr <Shape> shape (CreateTriangle (mesh,
+                                                   p_idxs[i],
+                                                   n_idxs[i],
+                                                   t_idxs[i]));
+    primitives_.push_back (CreatePrimitive (shape, mat));
+  }
 }
 /*
 // ---------------------------------------------------------------------------

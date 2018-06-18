@@ -63,7 +63,7 @@ public:
    * @exception none
    * @details
    */
-  auto Position (unsigned int idx) const -> const Point3f&;
+  auto Position (int idx) const -> const Point3f&;
 
   /*!
    * @fn Vector3f& Normal (unsigned)
@@ -74,7 +74,7 @@ public:
    * @exception none
    * @details
    */
-  auto Normal (unsigned int idx) const -> const Vector3f&;
+  auto Normal (int idx) const -> const Vector3f&;
 
   /*!
    * @fn const Texcoord (unsignd)
@@ -85,7 +85,7 @@ public:
    * @exception none
    * @details
    */
-  auto Texcoord (unsigned int idx) const -> const Point2f&;
+  auto Texcoord (int idx) const -> const Point2f&;
 
 
 private:
@@ -108,9 +108,9 @@ public:
   Triangle
   (
    const std::shared_ptr <TriangleMesh>& mesh,
-   const std::array <unsigned int, 3>& position_indices,
-   const std::array <unsigned int, 3>& normal_indices,
-   const std::array <unsigned int, 3>& texcoord_indices,
+   const std::array <int, 3>& position_indices,
+   const std::array <int, 3>& normal_indices,
+   const std::array <int, 3>& texcoord_indices,
    bool backface_culling
   );
 
@@ -148,42 +148,60 @@ public:
 
 private:
   /*!
+   * @fn bool HasTexcoords ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto HasTexcoords () const noexcept -> bool;
+
+  /*!
+   * @fn bool HasNormals ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto HasNormals () const noexcept -> bool;
+
+  /*!
    * @fn const Normal (unsigned)
    * @brief Get the normal.
-   * @param[in] idx unsigned integer.
+   * @param[in] idx integer.
    * @return 
    * @exception none
    * @details
    */
-  auto Normal (unsigned int idx) const -> const Vector3f&;
+  auto Normal (int idx) const -> const Vector3f&;
 
   /*!
    * @fn Point3f Position ()
    * @brief Get the position as reference from triangle mesh.
-   * @param [in] idx Index as unsigned integer.
+   * @param [in] idx Index as integer.
    * @return Position
    * @exception none
    * @details
    */
-  auto Position (unsigned int idx) const -> const Point3f&;
+  auto Position (int idx) const -> const Point3f&;
 
   /*!
    * @fn const Texcoord (unsigned)
    * @brief Get the texcoord
-   * @param[in] idx unsigned integer.
+   * @param[in] idx integer.
    * @return 
    * @exception none
    * @details
    */
-  auto Texcoord (unsigned int idx) const -> const Point2f&;
+  auto Texcoord (int idx) const -> const Point2f&;
 
 private:
   const bool backface_culling_;
 
   const std::shared_ptr <TriangleMesh> mesh_;
-  const std::array <unsigned int, 3> position_indices_;
-  const std::array <unsigned int, 3> normal_indices_;
-  const std::array <unsigned int, 3> texcoord_indices_;
+  const std::array <int, 3> position_indices_;
+  const std::array <int, 3> normal_indices_;
+  const std::array <int, 3> texcoord_indices_;
 }; // class Triangle
 /*
 // ---------------------------------------------------------------------------
@@ -201,9 +219,9 @@ auto CreateMesh
 auto CreateTriangle
 (
  const std::shared_ptr <TriangleMesh>& mesh,
- const std::array <unsigned int, 3> p_idx,
- const std::array <unsigned int, 3> n_idx,
- const std::array <unsigned int, 3> t_idx
+ const std::array <int, 3> p_idx,
+ const std::array <int, 3> n_idx,
+ const std::array <int, 3> t_idx
 )
   -> Triangle*;
 /*
