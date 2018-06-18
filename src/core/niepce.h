@@ -49,6 +49,7 @@ namespace niepce
 // Forward class, struct and enum declaration
 // ---------------------------------------------------------------------------
 */
+class Attributes;
 class AssembledTiles;
 class BeckmannDistribution;
 class Bounds2f;
@@ -64,6 +65,8 @@ class Material;
 class MemoryArena;
 class Shape;
 class Sphere;
+class Texture;
+class TextureAttributes;
 class ThreadPool;
 class Tile;
 class Transform;
@@ -104,6 +107,35 @@ static constexpr Float kFloatMin = std::numeric_limits <Float>::lowest ();
 /*
 // ---------------------------------------------------------------------------
 // Niepce renderer global function
+// ---------------------------------------------------------------------------
+*/
+inline auto GetFileDirectory
+(
+ const std::string& filename,
+       std::string* directory
+)
+  -> void
+{
+#ifdef _WIN32
+  const char split = '\\';
+#else
+  const char split = '/';
+#endif
+  const size_t pos = filename.rfind (split);
+  if (std::string::npos != pos)
+  {
+    *directory = filename.substr(0, pos + 1);
+  }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto IsFileExist (const std::string& filename) -> bool
+{
+  const std::ifstream ifs (filename, std::ios::in);
+  return static_cast <bool> (ifs);
+}
+/*
 // ---------------------------------------------------------------------------
 */
 inline auto Clamp (Float x) -> Float

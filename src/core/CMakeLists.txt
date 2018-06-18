@@ -12,6 +12,7 @@ add_library (Core STATIC
   ray.cc
   render_settings.cc
   stop_watch.cc
+  texture_attributes.cc
   thread_pool.cc
   memory.cc
   point2f.cc

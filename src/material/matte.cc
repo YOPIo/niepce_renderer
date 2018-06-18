@@ -6,6 +6,8 @@
  * @details 
  */
 #include "matte.h"
+#include "../core/texture_attributes.h"
+#include "../core/attributes.h"
 #include "../core/intersection.h"
 #include "../core/memory.h"
 #include "../bsdf/lambert.h"
@@ -40,6 +42,17 @@ const -> Bsdf* const
   Bsdf* const bsdf_ptr = memory->Allocate <Lambert> (intersection, reflectance);
 
   return bsdf_ptr;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateMatteMaterial (const TextureAttributes& attributes) -> Material*
+{
+  const std::shared_ptr <Texture> emission
+    = attributes.FindTexture ("emission");
+  const std::shared_ptr <Texture> reflectance
+    = attributes.FindTexture ("reflectance");
+  return new Matte (emission, reflectance);
 }
 /*
 // ---------------------------------------------------------------------------

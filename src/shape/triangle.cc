@@ -228,6 +228,49 @@ auto Triangle::Texcoord (unsigned int idx) const -> const Point2f&
 /*
 // ---------------------------------------------------------------------------
 */
+auto CreateMesh
+(
+ const std::vector <Float>& positions,
+ const std::vector <Float>& normals,
+ const std::vector <Float>& texcoords
+)
+  -> TriangleMesh*
+{
+  std::vector <Point3f>  pos (positions.size () / 3);
+  for (int i = 0; i < positions.size () / 3; i += 3)
+  {
+    pos.push_back (Point3f (positions[i], positions[i + 1], positions[i + 2]));
+  }
+  std::vector <Vector3f> nor (normals.size () / 3);
+  for (int i = 0; i < normals.size () / 3; i += 3)
+  {
+    nor.push_back (Vector3f (normals[i], normals[i + 1], normals[i + 2]));
+  }
+  std::vector <Point2f>  tex (texcoords.size () / 2);
+  for (int i = 0; i < texcoords.size () / 2; i += 2)
+  {
+    tex.push_back (Point2f (texcoords[i], texcoords[i + 1]));
+  }
+
+  return new TriangleMesh (pos, nor, tex);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateTriangle
+(
+ const std::shared_ptr <TriangleMesh>& mesh,
+ const std::array <unsigned int, 3> p_idx,
+ const std::array <unsigned int, 3> n_idx,
+ const std::array <unsigned int, 3> t_idx
+)
+  -> Triangle*
+{
+  return new Triangle (mesh, p_idx, n_idx, t_idx, false);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce
 /*
 // ---------------------------------------------------------------------------

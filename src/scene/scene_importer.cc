@@ -9,6 +9,20 @@
 #include "../core/vector3f.h"
 #include "../core/film.h"
 #include "../core/transform.h"
+#include "../camera/camera.h"
+#include "../texture/image_texture.h"
+#include "../texture/value_texture.h"
+#include "../material/material.h"
+#include "../shape/triangle.h"
+/*
+// ---------------------------------------------------------------------------
+*/
+#define TINYOBJLOADER_IMPLEMENTATION
+#define TINYOBJLOADER_USE_DOUBLE
+#include "../ext/tinyobjloader/tiny_obj_loader.h"
+/*
+// ---------------------------------------------------------------------------
+*/
 /*
 // ---------------------------------------------------------------------------
 */
@@ -19,6 +33,7 @@ namespace niepce
 */
 SceneImporter::SceneImporter (const char* filename)
 {
+  GetFileDirectory (filename, &base_filepath_);
   Import (filename);
 }
 /*
@@ -27,36 +42,73 @@ SceneImporter::SceneImporter (const char* filename)
 auto SceneImporter::Import (const char *filename) -> void
 {
   xml_.LoadFile (filename);
-  root_ = xml_.FirstChildElement ();
+  root_ = xml_.RootElement ();
+
 
   // Loop for each element.
   for (auto element = root_->FirstChildElement ();
        element != nullptr;
        element = element->NextSiblingElement ())
   {
+    Attributes attributes;
+    TextureAttributes texture_attributes;
+
     if (IsElementType (element, "camera"))
     {
-      ParseRecursive (element);
+      ParseRecursive (element, &attributes);
+      camera_ = CreateCamera (attributes);
+      continue;
+    }
+    if (IsElementType (element, "texture"))
+    {
+      ParseRecursive (element, &attributes);
+      const std::string id = element->Attribute ("id");
+      auto filepath = base_filepath_ + attributes.FindString ("filename");
+      auto texture = CreateImageTexture (filepath);
+      textures_.emplace (id, std::move (texture));
+      continue;
+    }
+    if (IsElementType (element, "material"))
+    {
+      ParseMaterial (element, &texture_attributes);
+      const std::string id = element->Attribute ("id");
+      auto material
+        = std::shared_ptr <Material> (CreateMaterial (texture_attributes));
+      materials_.emplace (id, material);
+      continue;
+    }
+    if (IsElementType (element, "shape"))
+    {
+      ParseRecursive (element, &attributes);
+      // Only .obj type is support.
+      LoadObj (attributes);
+      continue;
     }
   }
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto SceneImporter::ParseRecursive (tinyxml2::XMLElement* element) -> void
+auto SceneImporter::ParseRecursive
+(
+ tinyxml2::XMLElement* element,
+ Attributes*           attributes
+)
+  const -> void
 {
   for (auto elem = element->FirstChildElement ();
        elem != nullptr;
        elem = elem->NextSiblingElement ())
   {
-    if (IsElementType (elem, "lookat") || IsElementType (elem, "film"))
+    if (IsElementType (elem, "lookat") ||
+        IsElementType (elem, "film"))
     {
-      ParseRecursive (elem);
+      ParseRecursive (elem, attributes);
       continue;
     }
     if (elem->NoChildren ())
     {
-      ParseElement (elem);
+      ParseElement (elem, attributes);
       continue;
     }
   }
@@ -64,39 +116,106 @@ auto SceneImporter::ParseRecursive (tinyxml2::XMLElement* element) -> void
 /*
 // ---------------------------------------------------------------------------
 */
-auto SceneImporter::ParseElement (tinyxml2::XMLElement* element)
-  noexcept -> void
+auto SceneImporter::ParseMaterial
+(
+ tinyxml2::XMLElement* material,
+ TextureAttributes*    attributes
+)
+  const -> void
+{
+  // Get material type.
+  attributes->SetMaterialType (MaterialType (material));
+
+  // Parse each element.
+  for (auto element = material->FirstChildElement ();
+       element != nullptr;
+       element = element->NextSiblingElement ())
+  {
+    if (!element->NoChildren ())
+    {
+      std::cerr << "Ignored element " << element->Name ()
+                << " since this element has child element."
+                << std::endl;
+      continue;
+    }
+
+    if (IsElementType (element, "rgb"))
+    {
+      auto attrib  = ParseSpectrum (element);
+      auto texture = CreateValueTexture (attrib.second);
+      attributes->AddTexture (attrib.first, texture);
+      continue;
+    }
+    if (IsElementType (element, "reference"))
+    {
+      auto attrib  = ParseString (element);
+      try
+      {
+        auto texture = textures_.at (attrib.second);
+        attributes->AddTexture (attrib.first, texture);
+        continue;
+      }
+      catch (const std::exception& e)
+      {
+        std::cerr << e.what () << std::endl;
+      }
+    }
+    std::cerr << "Ignored element : " << element->Name () << std::endl;
+  }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::ParseElement
+(
+ tinyxml2::XMLElement* element,
+ Attributes*           attributes
+)
+  const noexcept -> void
 {
   if (IsElementType (element, "bool"))
   {
     auto attrib = ParseBool (element);
-    attributes_.AddBool (attrib.first, attrib.second);
+    attributes->AddBool (attrib.first, attrib.second);
+    return ;
   }
   if (IsElementType (element, "int"))
   {
     auto attrib = ParseInt (element);
-    attributes_.AddInt (attrib.first, attrib.second);
+    attributes->AddInt (attrib.first, attrib.second);
+    return ;
   }
   if (IsElementType (element, "float"))
   {
     auto attrib = ParseFloat (element);
-    attributes_.AddFloat (attrib.first, attrib.second);
+    attributes->AddFloat (attrib.first, attrib.second);
+    return ;
   }
   if (IsElementType (element, "string"))
   {
     auto attrib = ParseString (element);
-    attributes_.AddString (attrib.first, attrib.second);
+    attributes->AddString (attrib.first, attrib.second);
+    return ;
   }
   if (IsElementType (element, "vector3"))
   {
     auto attrib = ParseVector3f (element);
-    attributes_.AddVector3f (attrib.first, attrib.second);
+    attributes->AddVector3f (attrib.first, attrib.second);
+    return ;
+  }
+  if (IsElementType (element, "rgb"))
+  {
+    auto attrib = ParseVector3f (element);
+    attributes->AddSpectrum (attrib.first, attrib.second);
+    return ;
   }
   if (IsElementType (element, "point3"))
   {
     auto attrib = ParsePoint3f (element);
-    attributes_.AddPoint3f (attrib.first, attrib.second);
+    attributes->AddPoint3f (attrib.first, attrib.second);
+    return ;
   }
+  std::cout << "Ignored element : " << element->Name () << std::endl;
   return ;
 }
 /*
@@ -142,7 +261,7 @@ auto SceneImporter::ParseString (tinyxml2::XMLElement* element)
   const std::string name  = element->Attribute ("name");
   const std::string type  = element->Parent ()->ToElement ()->Name ();
   const std::string value = element->Attribute ("value");
-  return std::make_pair (type + "/" + name, value);
+  return std::make_pair (name, value);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -171,11 +290,85 @@ auto SceneImporter::ParsePoint3f (tinyxml2::XMLElement* element)
 /*
 // ---------------------------------------------------------------------------
 */
+auto SceneImporter::ParseSpectrum (tinyxml2::XMLElement* element)
+  const noexcept -> std::pair <std::string, Spectrum>
+{
+  const std::string name = element->Attribute ("name");
+  std::stringstream ss (element->Attribute ("value"));
+  std::vector <Float> v (std::istream_iterator <Float> {ss},
+                         std::istream_iterator <Float> ());
+  return std::make_pair (name, Spectrum (v[0], v[1], v[2]));
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto SceneImporter::IsElementType (tinyxml2::XMLElement* element, const char* type)
   const noexcept -> bool
 {
   if (std::strcmp (element->Name (), type) == 0) { return true; }
   return false;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::MaterialType (tinyxml2::XMLElement* element)
+  const noexcept -> niepce::MaterialType
+{
+  const std::string type = element->Attribute ("type");
+  if (type == "matte") { return MaterialType::kMatte; }
+  return MaterialType::kUnknown;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::LoadObj (const Attributes& attributes) -> void
+{
+  const std::string filename
+    = base_filepath_ + attributes.FindString ("filename");
+
+  tinyobj::attrib_t attrib;
+  std::vector<tinyobj::shape_t> shapes;
+  std::vector<tinyobj::material_t> materials;
+
+  // Load .obj
+  std::string err;
+  bool ret = tinyobj::LoadObj (&attrib,
+                               &shapes,
+                               &materials,
+                               &err,
+                               filename.c_str());
+  // Error check.
+  if (!err.empty() || !ret) { std::cerr << err << std::endl; return ; }
+
+  // Construct mesh.
+  const std::shared_ptr <TriangleMesh> mesh (CreateMesh (attrib.vertices,
+                                                         attrib.normals,
+                                                         attrib.texcoords));
+  for (const auto& s : shapes)
+  {
+    size_t index_offset = 0;
+    for (size_t f = 0; f < s.mesh.num_face_vertices.size(); f++)
+    {
+      int fv = s.mesh.num_face_vertices[f];
+      // Loop over vertices in the face.
+      for (size_t v = 0; v < fv; v++) {
+        // access to vertex
+        tinyobj::index_t idx = s.mesh.indices[index_offset + v];
+        std::cout << idx.vertex_index+0 << ", ";
+        std::cout << idx.vertex_index+1 << ", ";
+        std::cout << idx.vertex_index+2 << std::endl;
+        /*
+        tinyobj::real_t nx = attrib.normals[3*idx.normal_index+0];
+        tinyobj::real_t ny = attrib.normals[3*idx.normal_index+1];
+        tinyobj::real_t nz = attrib.normals[3*idx.normal_index+2];
+        tinyobj::real_t tx = attrib.texcoords[2*idx.texcoord_index+0];
+        tinyobj::real_t ty = attrib.texcoords[2*idx.texcoord_index+1];
+        */;
+      }
+      index_offset += fv;
+    }
+  }
+  std::cout << std::endl;
 }
 /*
 // ---------------------------------------------------------------------------

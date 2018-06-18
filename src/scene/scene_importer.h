@@ -13,6 +13,8 @@
 #include "../core/niepce.h"
 #include "../ext/tinyxml2/tinyxml2.h"
 #include "../core/attributes.h"
+#include "../core/texture_attributes.h"
+#include "../material/material.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -68,7 +70,29 @@ private:
    * @exception none
    * @details
    */
-  auto ParseRecursive (tinyxml2::XMLElement* element) -> void;
+  auto ParseRecursive
+  (
+   tinyxml2::XMLElement* element,
+   Attributes*           attributes
+  )
+    const -> void;
+
+  /*!
+   * @fn void ParseMaterial (tinyxml2::XMLElement* element)
+   * @brief 
+   * @param[in] 
+   * @param[out] 
+   * @return 
+   * @exception none
+   * @details In material element, it supports rgb and reference element. Other
+   *          element will be ignored.
+   */
+  auto ParseMaterial
+  (
+   tinyxml2::XMLElement* element,
+   TextureAttributes*    attributes
+  )
+    const -> void;
 
   /*!
    * @fn std::pair <std::string, T> ParseElement (tinyxml2::XMLElement*)
@@ -79,8 +103,12 @@ private:
    * @exception none
    * @details
    */
-  auto ParseElement (tinyxml2::XMLElement* element)
-    noexcept -> void;
+  auto ParseElement
+  (
+   tinyxml2::XMLElement* element,
+   Attributes*           attributes
+  )
+    const noexcept -> void;
 
   auto ParseBool (tinyxml2::XMLElement* element)
     const noexcept -> std::pair <std::string, bool>;
@@ -100,6 +128,9 @@ private:
   auto ParsePoint3f (tinyxml2::XMLElement* element)
     const noexcept -> std::pair <std::string, Point3f>;
 
+  auto ParseSpectrum (tinyxml2::XMLElement* element)
+    const noexcept -> std::pair <std::string, Spectrum>;
+
   /*!
    * @fn bool IsElementType (tinyxml2)
    * @brief 
@@ -112,12 +143,37 @@ private:
   auto IsElementType (tinyxml2::XMLElement* elem, const char* type)
     const noexcept -> bool;
 
+  /*!
+   * @fn MaterialType MaterialType
+   * @brief 
+   * @param[in] element
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto MaterialType (tinyxml2::XMLElement* element) const noexcept -> MaterialType;
+
+  /*!
+   * @fn void LoadObj (const char*)
+   * @brief 
+   * @param[in] filename
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto LoadObj (const Attributes& attributes) -> void;
+
 private:
   tinyxml2::XMLDocument xml_;
   tinyxml2::XMLElement* root_;
 
-public:
-  Attributes attributes_;
+  std::shared_ptr <Camera> camera_;
+  std::map <std::string, std::shared_ptr <Material>> materials_;
+  std::map <std::string, std::shared_ptr <Texture>>  textures_;
+  std::map <std::string, std::shared_ptr <Shape>>    shapes_;
+
+  std::string base_filepath_;
 }; // class SceneImporter
 /*
 // ---------------------------------------------------------------------------

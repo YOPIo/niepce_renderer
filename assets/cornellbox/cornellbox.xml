@@ -21,20 +21,35 @@
     <float name="focus_distance" value="250" unit="m"/>
   </camera>
 
+  <texture id="texture0">
+    <string name="filename" value="icon.png"/>
+  </texture>
+
+  <material type="matte" id="matte">
+    <rgb name="reflectance" value="0.75 0.75 0.75"/>
+    <rgb name="emission" value="0 0 0"/>
+  </material>
+
+  <material type="matte" id="tex_matte">
+    <reference name="reflectance" value="texture0"/>
+    <rgb name="emission" value="0 0 0"/>
+  </material>
+
+  <material type="matte" id="light">
+    <rgb name="reflectance" value="0 0 0"/>
+    <rgb name="emission" value="12 12 12"/>
+  </material>
+
   <shape type="obj">
     <string name="filename" value="cornellbox.obj"/>
-    <material type="matte">
-      <rgb name="reflectance" value="0.75 0.75 0.75"/>
-      <rgb name="emission" value="0 0 0"/>
-    </material>
+  </shape>
+
+  <shape type="obj">
+    <string name="filename" value="cornellbox_front.obj"/>
   </shape>
 
   <shape type="obj">
     <string name="filename" value="cornellbox_light.obj"/>
-    <material type="matte">
-      <rgb name="reflectance" value="0 0 0"/>
-      <rgb name="emission" value="12 12 12"/>
-    </material>
   </shape>
 
 </scene>

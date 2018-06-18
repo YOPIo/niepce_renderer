@@ -94,18 +94,7 @@ auto CreatePinholeCamera (const Attributes& attributes)
   const int   width    = attributes.FindInt ("width");
   const int   height   = attributes.FindInt ("height");
   const Float diagonal = attributes.FindFloat ("diagonal");
-  const std::string filename = attributes.FindString ("film/filename");
-
-
-  std::cout << t.ToString() << std::endl;
-  std::cout << fov << std::endl;
-  std::cout << lens_radius << std::endl;
-  std::cout << focus_distance << std::endl;
-
-  std::cout << width << std::endl;
-  std::cout << height << std::endl;
-  std::cout << diagonal << std::endl;
-  std::cout << filename << std::endl;
+  const std::string filename = attributes.FindString ("filename");
 
   return std::make_shared <PinholeCamera> (t,
                                            fov,

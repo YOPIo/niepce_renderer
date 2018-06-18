@@ -188,6 +188,27 @@ private:
 /*
 // ---------------------------------------------------------------------------
 */
+auto CreateMesh
+(
+ const std::vector <Float>& positions,
+ const std::vector <Float>& normals,
+ const std::vector <Float>& texcoords
+)
+  -> TriangleMesh*;
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateTriangle
+(
+ const std::shared_ptr <TriangleMesh>& mesh,
+ const std::array <unsigned int, 3> p_idx,
+ const std::array <unsigned int, 3> n_idx,
+ const std::array <unsigned int, 3> t_idx
+)
+  -> Triangle*;
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce
 /*
 // ---------------------------------------------------------------------------

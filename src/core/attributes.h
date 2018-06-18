@@ -23,6 +23,8 @@ namespace niepce
 //! ----------------------------------------------------------------------------
 class Attributes
 {
+  typedef std::shared_ptr <Texture> TexturePtr;
+
 public:
   //! The default class constructor.
   Attributes () = default;
@@ -49,6 +51,7 @@ public:
   auto AddString   (const std::string& name, const std::string& value) -> void;
   auto AddVector3f (const std::string& name, const Vector3f& value) -> void;
   auto AddPoint3f  (const std::string& name, const Point3f& value) -> void;
+  auto AddSpectrum (const std::string& name, const Spectrum& value) -> void;
 
   auto FindBool     (const std::string& name) const -> bool;
   auto FindInt      (const std::string& name) const -> int;
@@ -56,6 +59,9 @@ public:
   auto FindString   (const std::string& name) const -> std::string;
   auto FindVector3f (const std::string& name) const -> Vector3f;
   auto FindPoint3f  (const std::string& name) const -> Point3f;
+  auto FindSpectrum (const std::string& name) const -> Spectrum;
+
+  auto Clear () -> void;
 
 private:
   std::map <std::string, bool>        bools_;
@@ -64,6 +70,7 @@ private:
   std::map <std::string, std::string> strings_;
   std::map <std::string, Vector3f>    vector3fs_;
   std::map <std::string, Point3f>     point3fs_;
+  std::map <std::string, Spectrum>    spectrums_;
 }; // class Attributes
 /*
 // ---------------------------------------------------------------------------

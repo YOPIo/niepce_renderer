@@ -67,8 +67,5 @@ int main (int argc, char* argv[])
 
   niepce::SceneImporter importer ("/home/yopio/workspace/niepce/assets/cornellbox/cornellbox.xml");
 
-  std::shared_ptr <niepce::Camera> cam
-    = niepce::CreatePinholeCamera (importer.attributes_);
-
   return 0;
 }

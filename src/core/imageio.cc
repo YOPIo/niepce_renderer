@@ -60,6 +60,13 @@ ImageIO<T>::ImageIO (const char* filename) :
 template <typename T>
 auto ImageIO<T>::Load (const char *filename) -> void
 {
+  // File check.
+  if (!IsFileExist (filename))
+  {
+    std::cout << "Could not found : " << filename << std::endl;
+    return ;
+  }
+
   // Load a image via stbi.
   int width, height, n;
   unsigned char* data = stbi_load (filename, &width, &height, &n, 1);
@@ -79,6 +86,13 @@ auto ImageIO<T>::Load (const char *filename) -> void
 template <>
 auto ImageIO<Spectrum>::Load (const char *filename) -> void
 {
+  // File check.
+  if (!IsFileExist (filename))
+  {
+    std::cout << "Could not found : " << filename << std::endl;
+    return ;
+  }
+
   // Load a image via stbi.
   int width, height, n;
   unsigned char* img = stbi_load (filename, &width, &height, &n, 4);

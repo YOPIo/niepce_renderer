@@ -61,6 +61,14 @@ auto Attributes::AddPoint3f (const std::string& name, const Point3f& value)
 /*
 // ---------------------------------------------------------------------------
 */
+auto Attributes::AddSpectrum (const std::string& name, const Spectrum& value)
+  -> void
+{
+  spectrums_.emplace (name, value);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Attributes::FindBool (const std::string& name) const -> bool
 {
   try { return bools_.at (name); }
@@ -105,6 +113,27 @@ auto Attributes::FindPoint3f (const std::string& name) const -> Point3f
 {
   try { return point3fs_.at (name); }
   catch (const std::exception& e) { return Point3f::Zero(); }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Attributes::FindSpectrum (const std::string& name) const -> Spectrum
+{
+  try { return spectrums_.at (name); }
+  catch (const std::exception& e) { return Spectrum::Zero (); }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Attributes::Clear () -> void
+{
+  bools_.clear ();
+  ints_.clear ();
+  floats_.clear ();
+  strings_.clear ();
+  vector3fs_.clear ();
+  point3fs_.clear ();
+  spectrums_.clear ();
 }
 /*
 // ---------------------------------------------------------------------------

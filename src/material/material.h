@@ -17,6 +17,14 @@
 */
 namespace niepce
 {
+/*
+// ---------------------------------------------------------------------------
+*/
+enum MaterialType
+{
+  kMatte,
+  kUnknown
+};
 //! ----------------------------------------------------------------------------
 //! @class Material
 //! @brief
@@ -92,6 +100,10 @@ public:
 protected:
   std::shared_ptr <Texture> emission_;
 }; // class Material
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateMaterial (const TextureAttributes& attributes) -> Material*;
 /*
 // ---------------------------------------------------------------------------
 */
