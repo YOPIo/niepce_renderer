@@ -54,6 +54,14 @@ public:
    */
   virtual auto Sample (const Point2f& uv) const noexcept -> Vector3f = 0;
 
+  /*!
+   * @fn bool IsBlack ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  virtual auto IsBlack () const noexcept -> bool = 0;
 }; // class Texture
 /*
 // ---------------------------------------------------------------------------

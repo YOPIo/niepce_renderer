@@ -17,6 +17,15 @@
 */
 namespace niepce
 {
+/*
+// ---------------------------------------------------------------------------
+*/
+enum class TextureType : int
+{
+  kEmission,
+  kReflectance,
+  kUnknown
+};
 //! ----------------------------------------------------------------------------
 //! @class TextureAttributes
 //! @brief
@@ -55,7 +64,7 @@ public:
    */
   auto AddTexture
   (
-   const std::string& name,
+   TextureType                attribute,
    const std::shared_ptr <Texture>& texture
   )
     -> void;
@@ -69,7 +78,7 @@ public:
    * @exception none
    * @details
    */
-  auto FindTexture (const std::string& name)
+  auto FindTexture (TextureType attribute)
     const noexcept -> std::shared_ptr <Texture>;
 
   /*!
@@ -105,7 +114,7 @@ public:
 
 private:
   niepce::MaterialType type_;
-  std::map <std::string, std::shared_ptr <Texture>> textures_;
+  std::map <TextureType, std::shared_ptr <Texture>> textures_;
 }; // class TextureAttributes
 /*
 // ---------------------------------------------------------------------------

@@ -34,7 +34,7 @@ class Material
 {
 public:
   //! The default class constructor.
-  Material ();
+  Material () = delete;
 
   //! The constructor takes emission texture.
   Material (const std::shared_ptr <Texture>& emission);

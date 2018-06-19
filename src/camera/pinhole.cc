@@ -34,7 +34,7 @@ PinholeCamera::PinholeCamera
           resolution_width,
           resolution_height,
           diagonal),
-  lens_radius_     (lens_radius), // [mm] -> [m]
+  lens_radius_     (lens_radius),
   object_distance_ (focus_distance)
 {
   // Compute the distance from camera position to film.
@@ -95,7 +95,6 @@ auto CreatePinholeCamera (const Attributes& attributes)
   const int   height   = attributes.FindInt ("height");
   const Float diagonal = attributes.FindFloat ("diagonal");
   const std::string filename = attributes.FindString ("filename");
-
   return std::make_shared <PinholeCamera> (t,
                                            fov,
                                            lens_radius,

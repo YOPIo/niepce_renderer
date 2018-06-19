@@ -46,10 +46,25 @@ auto ImageTexture::Sample (const Point2f& uv) const noexcept -> Spectrum
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreateImageTexture (const std::string& filename) -> std::shared_ptr <Texture>
+auto ImageTexture::IsBlack () const noexcept -> bool
 {
-  std::shared_ptr <Texture> res (new ImageTexture (filename.c_str ()));
-  return std::move (res);
+  const int& width  = image_->Width ();
+  const int& height = image_->Height ();
+  for (int y = 0; y < height; ++y)
+  {
+    for (int x = 0; x < width; ++x)
+    {
+      if (image_->At (x, y) != Spectrum::Zero ()) { return false; }
+    }
+  }
+  return true;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateImageTexture (const std::string& filename) -> Texture*
+{
+  return new ImageTexture (filename.c_str ());
 }
 /*
 // ---------------------------------------------------------------------------

@@ -61,6 +61,15 @@ public:
    */
   auto Sample (const Point2f& uv) const noexcept -> Vector3f override final;
 
+  /*!
+   * @fn bool IsBlack ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto IsBlack () const noexcept -> bool override final;
+
 private:
   Vector3f value_;
 }; // class ValueTexture
@@ -69,7 +78,7 @@ private:
 // Function for the value texture.
 // ---------------------------------------------------------------------------
 */
-auto CreateValueTexture (const Vector3f& value) -> std::shared_ptr <Texture>;
+auto CreateValueTexture (const Vector3f& value) -> Texture*;
 /*
 // ---------------------------------------------------------------------------
 */

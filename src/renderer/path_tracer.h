@@ -38,8 +38,8 @@ public:
   //! The constructor takes render settings.
   PathTracer
   (
-   const std::shared_ptr <Camera>& camera,
-   const Scene& scene
+   const std::shared_ptr <Scene>&  scene,
+   const std::shared_ptr <Camera>& camera
   );
 
   //! Copy constructor
@@ -100,7 +100,7 @@ private:
     -> Vector3f;
 
 private:
-  Scene scene_;
+  std::shared_ptr <Scene>  scene_;
   std::shared_ptr <Camera> camera_;
 }; // class PathTracer
 /*

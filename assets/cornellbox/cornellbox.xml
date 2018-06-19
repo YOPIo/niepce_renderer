@@ -9,8 +9,8 @@
     </lookat>
     <film>
       <!-- Resolution -->
-      <int name="width"  value="480"/>
-      <int name="height" value="270"/>
+      <int name="width"  value="360"/>
+      <int name="height" value="240"/>
       <!-- Film size -->
       <float name="diagonal" value="43.2666153056" unit="mm"/>
       <string name="filename" value="output.ppm"/>

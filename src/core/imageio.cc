@@ -84,7 +84,7 @@ auto ImageIO<T>::Load (const char *filename) -> void
 // ---------------------------------------------------------------------------
 */
 template <>
-auto ImageIO<Spectrum>::Load (const char *filename) -> void
+auto ImageIO <Spectrum>::Load (const char *filename) -> void
 {
   // File check.
   if (!IsFileExist (filename))

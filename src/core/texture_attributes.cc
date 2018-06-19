@@ -16,12 +16,13 @@ namespace niepce
 */
 auto TextureAttributes::AddTexture
 (
- const std::string& name,
+ TextureType                     attribute,
  const std::shared_ptr<Texture>& texture
 )
   -> void
 {
-  textures_.emplace (name, texture);
+  auto res = textures_.emplace (attribute, texture);
+  if (res.second) { std::cerr << "Could not add." << std::endl; }
 }
 /*
 // ---------------------------------------------------------------------------
@@ -41,13 +42,13 @@ auto TextureAttributes::SetMaterialType(const niepce::MaterialType& type)
 /*
 // ---------------------------------------------------------------------------
 */
-auto TextureAttributes::FindTexture (const std::string& name)
+auto TextureAttributes::FindTexture (TextureType attribute)
   const noexcept -> std::shared_ptr <Texture>
 {
-  try { textures_.at (name); }
+  try { textures_.at (attribute); }
   catch (const std::exception& e)
   {
-    std::cerr << "Could not find " << name << " texture" << std::endl;
+    std::cerr << "Could not find " << (int)attribute << " texture" << std::endl;
   }
   return nullptr;
 }

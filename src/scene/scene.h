@@ -28,8 +28,8 @@ public:
   //! The default class constructor.
   Scene () = default;
 
-  //! The constructor takes aggregation.
-  Scene (std::unique_ptr <Aggregation>&& aggregation);
+  //! The constructor takes primitives.
+  Scene (const std::vector <std::shared_ptr <Primitive>>& primitives);
 
   //! The copy constructor of the class.
   Scene (const Scene& scene) = default;
@@ -75,6 +75,10 @@ public:
 public:
   std::vector <std::shared_ptr<Primitive>> primitives_;
 }; // class Scene
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateScene (const std::vector <std::shared_ptr <Primitive>>& p) -> Scene*;
 /*
 // ---------------------------------------------------------------------------
 */

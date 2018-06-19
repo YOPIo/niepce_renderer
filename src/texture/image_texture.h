@@ -60,6 +60,15 @@ public:
    */
   auto Sample (const Point2f& uv) const noexcept -> Spectrum override final;
 
+  /*!
+   * @fn bool IsBlack ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto IsBlack () const noexcept -> bool override final;
+
 private:
   std::shared_ptr <ImageIO <Spectrum>> image_;
 }; // class ImageTexture
@@ -68,7 +77,7 @@ private:
 // Function for the image texture
 // ---------------------------------------------------------------------------
 */
-auto CreateImageTexture (const std::string& filename) -> std::shared_ptr <Texture>;
+auto CreateImageTexture (const std::string& filename) -> Texture*;
 /*
 // ---------------------------------------------------------------------------
 */

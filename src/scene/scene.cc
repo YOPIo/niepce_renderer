@@ -22,6 +22,12 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
+Scene::Scene (const std::vector <std::shared_ptr <Primitive>>& primitives) :
+  primitives_ (primitives)
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Scene::IsIntersect
 (
  const Ray& ray,
@@ -43,6 +49,14 @@ auto Scene::IsIntersect
     }
   }
   return static_cast <bool> (*intersection);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateScene (const std::vector <std::shared_ptr <Primitive>>& primitives)
+  -> Scene*
+{
+  return new Scene (primitives);
 }
 /*
 // ---------------------------------------------------------------------------

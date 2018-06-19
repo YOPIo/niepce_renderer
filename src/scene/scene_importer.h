@@ -15,6 +15,7 @@
 #include "../core/attributes.h"
 #include "../core/texture_attributes.h"
 #include "../material/material.h"
+#include "scene.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -59,6 +60,24 @@ public:
    * @details 
    */
   auto Import (const char* filename) -> void;
+
+  /*!
+   * @fn std::shared_ptr <Camera> ExtractCamera ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto ExtractCamera () const noexcept -> std::shared_ptr <Camera>;
+
+  /*!
+   * @fn void ExtractScene ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto ExtractScene () const noexcept -> std::shared_ptr <Scene>;
 
 private:
   /*!
@@ -151,7 +170,8 @@ private:
    * @exception none
    * @details
    */
-  auto MaterialType (tinyxml2::XMLElement* element) const noexcept -> MaterialType;
+  auto MaterialType (tinyxml2::XMLElement* element)
+    const noexcept -> MaterialType;
 
   /*!
    * @fn void LoadObj (const char*)
@@ -164,18 +184,30 @@ private:
    */
   auto LoadObj (const Attributes& attributes) -> void;
 
+  /*!
+   * @fn TextureType AttributeType (const)
+   * @brief 
+   * @param[in] type
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto TextureType (const std::string& type) const noexcept -> niepce::TextureType;
+
 private:
   std::string base_filepath_;
 
   tinyxml2::XMLDocument xml_;
   tinyxml2::XMLElement* root_;
 
-  std::shared_ptr <Camera> camera_;
   std::map <std::string, std::shared_ptr <Material>> materials_;
   std::map <std::string, std::shared_ptr <Texture>>  textures_;
   std::map <std::string, std::shared_ptr <Shape>>    shapes_;
-
   std::vector <std::shared_ptr <Primitive>> primitives_;
+
+  std::shared_ptr <Camera> camera_;
+  std::shared_ptr <Scene>  scene_;
 }; // class SceneImporter
 /*
 // ---------------------------------------------------------------------------

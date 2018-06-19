@@ -28,8 +28,8 @@ namespace niepce
 */
 PathTracer::PathTracer
 (
- const std::shared_ptr <Camera>& camera,
- const Scene& scene
+ const std::shared_ptr <Scene>&  scene,
+ const std::shared_ptr <Camera>& camera
 ) :
   camera_ (camera),
   scene_  (scene)
@@ -97,9 +97,8 @@ auto PathTracer::RenderTileBounds
   noexcept -> void
 {
   const Bounds2f& tile_bounds = tile->Bounds ();
-  // std::cout << tile_bounds.ToString() << std::endl;
 
-  static constexpr int num_sample = 32;
+  static constexpr int num_sample = 8;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 
@@ -119,7 +118,6 @@ auto PathTracer::RenderTileBounds
           CameraSample cs (pfilm, tile_sampler->SamplePoint2f ());
           weight = camera_->GenerateRay (cs, &ray);
         }
-
         r = r + Radiance (ray, tile_sampler) / (Float)num_sample;
       }
       const Spectrum s = tile->At (x, y) + Spectrum (Clamp (r. X ()),
@@ -157,7 +155,7 @@ auto PathTracer::Radiance
 
     // Intersect test.
     Intersection intersection;
-    if (!scene_.IsIntersect (ray, &intersection))
+    if (!scene_->IsIntersect (ray, &intersection))
     {
       // No intersection found.
       return l;

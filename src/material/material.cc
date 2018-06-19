@@ -19,12 +19,6 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Material::Material () :
-  emission_ (nullptr)
-{}
-/*
-// ---------------------------------------------------------------------------
-*/
 Material::Material (const std::shared_ptr <Texture>& emission) :
   emission_ (emission)
 {}
@@ -33,7 +27,7 @@ Material::Material (const std::shared_ptr <Texture>& emission) :
 */
 auto Material::HasEmission () const noexcept -> bool
 {
-  return static_cast <bool> (emission_);
+  return !emission_->IsBlack ();
 }
 /*
 // ---------------------------------------------------------------------------
@@ -56,7 +50,7 @@ auto CreateMaterial (const TextureAttributes& attributes) -> Material*
   {
     return CreateMatteMaterial (attributes);
   }
-  std::cerr << "Failed to create material." << std::endl;
+  std::cerr << "Unknown material type detected." << std::endl;
   return nullptr;
 }
 /*

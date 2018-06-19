@@ -49,9 +49,10 @@ const -> Bsdf* const
 auto CreateMatteMaterial (const TextureAttributes& attributes) -> Material*
 {
   const std::shared_ptr <Texture> emission
-    = attributes.FindTexture ("emission");
+    = attributes.FindTexture (TextureType::kEmission);
   const std::shared_ptr <Texture> reflectance
-    = attributes.FindTexture ("reflectance");
+    = attributes.FindTexture (TextureType::kReflectance);
+
   return new Matte (emission, reflectance);
 }
 /*
