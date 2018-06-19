@@ -13,7 +13,7 @@
 #include "../core/niepce.h"
 #include "../ext/tinyxml2/tinyxml2.h"
 #include "../core/attributes.h"
-#include "../core/texture_attributes.h"
+#include "../core/material_attributes.h"
 #include "../material/material.h"
 #include "scene.h"
 /*
@@ -106,12 +106,7 @@ private:
    * @details In material element, it supports rgb and reference element. Other
    *          element will be ignored.
    */
-  auto ParseMaterial
-  (
-   tinyxml2::XMLElement* element,
-   TextureAttributes*    attributes
-  )
-    const -> void;
+  auto ParseMaterial (tinyxml2::XMLElement* element) const -> MaterialAttributes;
 
   /*!
    * @fn std::pair <std::string, T> ParseElement (tinyxml2::XMLElement*)
@@ -201,8 +196,15 @@ private:
   tinyxml2::XMLDocument xml_;
   tinyxml2::XMLElement* root_;
 
-  std::map <std::string, std::shared_ptr <Material>> materials_;
-  std::map <std::string, std::shared_ptr <Texture>>  textures_;
+  // Key   : Texture ID
+  // Value : std::shared_ptr <Textrue>
+  std::unordered_map <std::string, std::shared_ptr <Texture>>  textures_;
+
+  // Key   : Material ID
+  // Value : std::shared_ptr <Material>
+  std::unordered_map <std::string, std::shared_ptr <Material>> materials_;
+
+
   std::map <std::string, std::shared_ptr <Shape>>    shapes_;
   std::vector <std::shared_ptr <Primitive>> primitives_;
 

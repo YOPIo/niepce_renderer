@@ -5,8 +5,8 @@
  * @date 
  * @details 
  */
-#ifndef _TEXTURE_ATTRIBUTES_H_
-#define _TEXTURE_ATTRIBUTES_H_
+#ifndef _MATERIAL_ATTRIBUTES_H_
+#define _MATERIAL_ATTRIBUTES_H_
 /*
 // ---------------------------------------------------------------------------
 */
@@ -27,34 +27,36 @@ enum class TextureType : int
   kUnknown
 };
 //! ----------------------------------------------------------------------------
-//! @class TextureAttributes
+//! @class MaterialAttributes
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class TextureAttributes
+class MaterialAttributes
 {
 public:
   //! The default class constructor.
-  TextureAttributes () = default;
+  MaterialAttributes () = default;
 
   //! The copy constructor of the class.
-  TextureAttributes (const TextureAttributes& attributes) = default;
+  MaterialAttributes (const MaterialAttributes& attributes) = default;
 
   //! The move constructor of the class.
-  TextureAttributes (TextureAttributes&& attributes) = default;
+  MaterialAttributes (MaterialAttributes&& attributes) = default;
 
   //! The default class destructor.
-  virtual ~TextureAttributes () = default;
+  virtual ~MaterialAttributes () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const TextureAttributes& attributes) -> TextureAttributes& = default;
+  auto operator = (const MaterialAttributes& attributes)
+    -> MaterialAttributes& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (TextureAttributes&& attributes) -> TextureAttributes& = default;
+  auto operator = (MaterialAttributes&& attributes)
+    -> MaterialAttributes& = default;
 
 public:
   /*!
-   * @fn Return AddEmissionTexture ()
+   * @Fn Return AddEmissionTexture ()
    * @brief 
    * @param[in] 
    * @param[out] 
@@ -64,7 +66,7 @@ public:
    */
   auto AddTexture
   (
-   TextureType                attribute,
+   TextureType attribute,
    const std::shared_ptr <Texture>& texture
   )
     -> void;
@@ -112,10 +114,11 @@ public:
    */
   auto Clear () -> void;
 
-private:
+  // private:
+public:
   niepce::MaterialType type_;
-  std::map <TextureType, std::shared_ptr <Texture>> textures_;
-}; // class TextureAttributes
+  std::unordered_map <TextureType, std::shared_ptr <Texture>> textures_;
+}; // class MaterialAttributes
 /*
 // ---------------------------------------------------------------------------
 */

@@ -5,7 +5,7 @@
  * @date 
  * @details 
  */
-#include "texture_attributes.h"
+#include "material_attributes.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -14,27 +14,26 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-auto TextureAttributes::AddTexture
+auto MaterialAttributes::AddTexture
 (
- TextureType                     attribute,
+ TextureType attribute,
  const std::shared_ptr<Texture>& texture
 )
   -> void
 {
   auto res = textures_.emplace (attribute, texture);
-  if (res.second) { std::cerr << "Could not add." << std::endl; }
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto TextureAttributes::MaterialType () const noexcept -> niepce::MaterialType
+auto MaterialAttributes::MaterialType () const noexcept -> niepce::MaterialType
 {
   return type_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto TextureAttributes::SetMaterialType(const niepce::MaterialType& type)
+auto MaterialAttributes::SetMaterialType(const niepce::MaterialType& type)
   noexcept -> void
 {
   type_ = type;
@@ -42,10 +41,10 @@ auto TextureAttributes::SetMaterialType(const niepce::MaterialType& type)
 /*
 // ---------------------------------------------------------------------------
 */
-auto TextureAttributes::FindTexture (TextureType attribute)
+auto MaterialAttributes::FindTexture (TextureType attribute)
   const noexcept -> std::shared_ptr <Texture>
 {
-  try { textures_.at (attribute); }
+  try { return textures_.at (attribute); }
   catch (const std::exception& e)
   {
     std::cerr << "Could not find " << (int)attribute << " texture" << std::endl;
@@ -55,7 +54,7 @@ auto TextureAttributes::FindTexture (TextureType attribute)
 /*
 // ---------------------------------------------------------------------------
 */
-auto TextureAttributes::Clear () -> void
+auto MaterialAttributes::Clear () -> void
 {
   textures_.clear ();
   type_ = niepce::MaterialType::kUnknown;

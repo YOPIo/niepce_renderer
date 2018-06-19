@@ -103,7 +103,8 @@ protected:
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreateMaterial (const TextureAttributes& attributes) -> Material*;
+auto CreateMaterial (const MaterialAttributes& attributes)
+  -> std::shared_ptr <Material>;
 /*
 // ---------------------------------------------------------------------------
 */

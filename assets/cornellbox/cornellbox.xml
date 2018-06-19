@@ -3,21 +3,21 @@
   <camera type="pinhole">
     <!-- Camera transformation  -->
     <lookat>
-      <point3  name="origin" value="50 50 300"/>
+      <point3  name="origin" value="50 50 250"/>
       <point3  name="target" value="50 50 50"/>
       <vector3 name="up" value="0 1 0"/>
     </lookat>
     <film>
       <!-- Resolution -->
-      <int name="width"  value="360"/>
-      <int name="height" value="240"/>
+      <int name="width"  value="720"/>
+      <int name="height" value="480"/>
       <!-- Film size -->
       <float name="diagonal" value="43.2666153056" unit="mm"/>
       <string name="filename" value="output.ppm"/>
     </film>
     <!-- Pinhole camera parameters -->
     <float name="lens_radius" value="50" unit="mm"/>
-    <float name="fov" value="90" unit="degree"/>
+    <float name="fov" value="75" unit="degree"/>
     <float name="focus_distance" value="250" unit="m"/>
   </camera>
 
@@ -27,18 +27,28 @@
 
   <!-- Materials -->
   <material type="matte" id="matte">
-    <rgb name="reflectance" value="0.75 0.75 0.75"/>
     <rgb name="emission" value="0 0 0"/>
+    <rgb name="reflectance" value="0.75 0.75 0.75"/>
   </material>
 
   <material type="matte" id="tex_matte">
-    <reference name="reflectance" value="texture0"/>
     <rgb name="emission" value="0 0 0"/>
+    <reference name="reflectance" value="texture0"/>
   </material>
 
   <material type="matte" id="light">
-    <rgb name="reflectance" value="0 0 0"/>
     <rgb name="emission" value="12 12 12"/>
+    <rgb name="reflectance" value="0 0 0"/>
+  </material>
+
+  <material type="matte" id="red">
+    <rgb name="emission" value="0 0 0 "/>
+    <rgb name="reflectance" value="0.75 0.25 0.25"/>
+  </material>
+
+  <material type="matte" id="green">
+    <rgb name="emission" value="0 0 0 "/>
+    <rgb name="reflectance" value="0.25 0.75 0.25"/>
   </material>
 
   <!-- Shapes -->
@@ -55,6 +65,16 @@
   <shape type="obj">
     <string name="filename" value="cornellbox_light.obj"/>
     <reference name="material" value="light"/>
+  </shape>
+
+  <shape type="obj">
+    <string name="filename" value="cornellbox_right.obj"/>
+    <reference name="material" value="red"/>
+  </shape>
+
+  <shape type="obj">
+    <string name="filename" value="cornellbox_left.obj"/>
+    <reference name="material" value="green"/>
   </shape>
 
 </scene>

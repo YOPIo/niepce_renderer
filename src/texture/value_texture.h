@@ -78,7 +78,7 @@ private:
 // Function for the value texture.
 // ---------------------------------------------------------------------------
 */
-auto CreateValueTexture (const Vector3f& value) -> Texture*;
+auto CreateValueTexture (const Vector3f& value) -> std::shared_ptr <Texture>;
 /*
 // ---------------------------------------------------------------------------
 */

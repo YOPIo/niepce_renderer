@@ -77,7 +77,8 @@ private:
 // Function for the image texture
 // ---------------------------------------------------------------------------
 */
-auto CreateImageTexture (const std::string& filename) -> Texture*;
+auto CreateImageTexture (const std::string& filename)
+  -> std::shared_ptr <Texture>;
 /*
 // ---------------------------------------------------------------------------
 */

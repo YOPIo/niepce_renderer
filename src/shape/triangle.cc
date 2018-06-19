@@ -195,7 +195,9 @@ auto Triangle::IsIntersect
 */
 auto Triangle::Bounds () const noexcept -> Bounds3f
 {
-  Bounds3f res (Position (0), Position (1));
+  Bounds3f res;
+  res.Merge (Position (0));
+  res.Merge (Position (1));
   res.Merge (Position (2));
   return res;
 }
@@ -217,13 +219,13 @@ auto Triangle::HasNormals () const noexcept -> bool
 */
 auto Triangle::HasTexcoords () const noexcept -> bool
 {
-  if (texcoord_indices_[0] == -1 ||
-      texcoord_indices_[1] == -1 ||
-      texcoord_indices_[2] == -1)
+  if (texcoord_indices_[0] != -1 &&
+      texcoord_indices_[1] != -1 &&
+      texcoord_indices_[2] != -1)
   {
-    return false;
+    return true;
   }
-  return true;
+  return false;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -270,18 +272,18 @@ auto CreateMesh
 )
   -> TriangleMesh*
 {
-  std::vector <Point3f> pos (positions.size () / 3);
-  for (int i = 0; i < positions.size () / 3; i += 3)
+  std::vector <Point3f> pos;
+  for (int i = 0; i < positions.size (); i += 3)
   {
     pos.push_back (Point3f (positions[i], positions[i + 1], positions[i + 2]));
   }
-  std::vector <Vector3f> nor (normals.size () / 3);
-  for (int i = 0; i < normals.size () / 3; i += 3)
+  std::vector <Vector3f> nor;
+  for (int i = 0; i < normals.size (); i += 3)
   {
     nor.push_back (Vector3f (normals[i], normals[i + 1], normals[i + 2]));
   }
-  std::vector <Point2f> tex (texcoords.size () / 2);
-  for (int i = 0; i < texcoords.size () / 2; i += 2)
+  std::vector <Point2f> tex;
+  for (int i = 0; i < texcoords.size (); i += 2)
   {
     tex.push_back (Point2f (texcoords[i], texcoords[i + 1]));
   }
@@ -294,12 +296,12 @@ auto CreateTriangle
 (
  const std::shared_ptr <TriangleMesh>& mesh,
  const std::array <int, 3> p_idx,
- const std::array <int, 3> t_idx,
- const std::array <int, 3> n_idx
+ const std::array <int, 3> n_idx,
+ const std::array <int, 3> t_idx
 )
   -> Triangle*
 {
-  return new Triangle (mesh, p_idx, n_idx, t_idx, false);
+  return new Triangle (mesh, p_idx, n_idx, t_idx, true);
 }
 /*
 // ---------------------------------------------------------------------------

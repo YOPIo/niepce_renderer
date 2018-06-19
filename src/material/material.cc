@@ -7,7 +7,7 @@
  */
 #include "material.h"
 #include "../core/attributes.h"
-#include "../core/texture_attributes.h"
+#include "../core/material_attributes.h"
 #include "../core/vector3f.h"
 #include "../core/pixel.h"
 #include "../material/matte.h"
@@ -27,7 +27,12 @@ Material::Material (const std::shared_ptr <Texture>& emission) :
 */
 auto Material::HasEmission () const noexcept -> bool
 {
-  return !emission_->IsBlack ();
+  if (emission_ != nullptr)
+  {
+    return !emission_->IsBlack ();
+  }
+  std::cout << "emission is nullptr" << std::endl;
+  return false;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -43,7 +48,8 @@ auto Material::Emission (const Point2f& uv) const noexcept -> Spectrum
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreateMaterial (const TextureAttributes& attributes) -> Material*
+auto CreateMaterial (const MaterialAttributes& attributes)
+  -> std::shared_ptr <Material>
 {
   const MaterialType& type = attributes.MaterialType ();
   if (type == MaterialType::kMatte)

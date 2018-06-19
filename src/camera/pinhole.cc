@@ -83,18 +83,19 @@ auto PinholeCamera::GenerateRay (const CameraSample& samples, Ray *ray)
 auto CreatePinholeCamera (const Attributes& attributes)
   -> std::shared_ptr <Camera>
 {
-  const Transform t = LookAt (attributes.FindPoint3f  ("origin"),
-                              attributes.FindPoint3f  ("target"),
-                              attributes.FindVector3f ("up"));
+  const auto t = LookAt (attributes.FindPoint3f  ("origin"),
+                         attributes.FindPoint3f  ("target"),
+                         attributes.FindVector3f ("up"));
 
-  const Float fov = attributes.FindFloat ("fov");
-  const Float lens_radius = attributes.FindFloat ("lens_radius");
-  const Float focus_distance = attributes.FindFloat ("focus_distance");
+  const auto fov = attributes.FindFloat ("fov");
+  const auto lens_radius = attributes.FindFloat ("lens_radius");
+  const auto focus_distance = attributes.FindFloat ("focus_distance");
 
-  const int   width    = attributes.FindInt ("width");
-  const int   height   = attributes.FindInt ("height");
-  const Float diagonal = attributes.FindFloat ("diagonal");
-  const std::string filename = attributes.FindString ("filename");
+  const auto width    = attributes.FindInt ("width");
+  const auto height   = attributes.FindInt ("height");
+  const auto diagonal = attributes.FindFloat ("diagonal");
+  const auto filename = attributes.FindString ("filename");
+
   return std::make_shared <PinholeCamera> (t,
                                            fov,
                                            lens_radius,

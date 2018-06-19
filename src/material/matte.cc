@@ -6,7 +6,7 @@
  * @details 
  */
 #include "matte.h"
-#include "../core/texture_attributes.h"
+#include "../core/material_attributes.h"
 #include "../core/attributes.h"
 #include "../core/intersection.h"
 #include "../core/memory.h"
@@ -21,8 +21,8 @@ namespace niepce
 */
 Matte::Matte
 (
- const std::shared_ptr <Texture>& reflectance,
- const std::shared_ptr <Texture>& emission
+ const std::shared_ptr <Texture>& emission,
+ const std::shared_ptr <Texture>& reflectance
 ) :
   Material     (emission),
   reflectance_ (reflectance)
@@ -37,23 +37,21 @@ auto Matte::AllocateBsdfs
 )
 const -> Bsdf* const
 {
-  const Spectrum reflectance = reflectance_->Sample (intersection.Texcoord ());
-
-  Bsdf* const bsdf_ptr = memory->Allocate <Lambert> (intersection, reflectance);
+  const auto reflectance = reflectance_->Sample (intersection.Texcoord ());
+  auto const bsdf_ptr = memory->Allocate <Lambert> (intersection, reflectance);
 
   return bsdf_ptr;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreateMatteMaterial (const TextureAttributes& attributes) -> Material*
+auto CreateMatteMaterial (const MaterialAttributes& attributes)
+  -> std::shared_ptr <Material>
 {
-  const std::shared_ptr <Texture> emission
-    = attributes.FindTexture (TextureType::kEmission);
-  const std::shared_ptr <Texture> reflectance
-    = attributes.FindTexture (TextureType::kReflectance);
+  const auto emission    = attributes.FindTexture (TextureType::kEmission);
+  const auto reflectance = attributes.FindTexture (TextureType::kReflectance);
 
-  return new Matte (emission, reflectance);
+  return std::make_shared <Matte> (emission, reflectance);
 }
 /*
 // ---------------------------------------------------------------------------

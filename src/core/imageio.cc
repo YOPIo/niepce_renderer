@@ -80,7 +80,7 @@ auto ImageIO<T>::Load (const char *filename) -> void
   // Reallocate the memory and copy image.
   AllocateMemory (width, height);
 }
-/*
+/*6
 // ---------------------------------------------------------------------------
 */
 template <>
@@ -89,6 +89,7 @@ auto ImageIO <Spectrum>::Load (const char *filename) -> void
   // File check.
   if (!IsFileExist (filename))
   {
+    std::cout << "ImageIO: ";
     std::cout << "Could not found : " << filename << std::endl;
     return ;
   }

@@ -35,6 +35,7 @@
 #include <string>
 #include <thread>
 #include <type_traits>
+#include <unordered_map>
 /*
 // ---------------------------------------------------------------------------
 */
@@ -62,11 +63,11 @@ template <typename T> class ImageIO;
 class Intersection;
 class Lambert;
 class Material;
+class MaterialAttributes;
 class MemoryArena;
 class Shape;
 class Sphere;
 class Texture;
-class TextureAttributes;
 class ThreadPool;
 class Tile;
 class Transform;

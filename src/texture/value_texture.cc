@@ -31,7 +31,7 @@ auto ValueTexture::Sample (const Point2f& uv) const noexcept -> Vector3f
 */
 auto ValueTexture::IsBlack () const noexcept -> bool
 {
-  if (value_ == Spectrum::Zero ()) { return true; }
+  if (value_ == Spectrum::Zero ()){ return true; }
   return false;
 }
 /*
@@ -39,9 +39,9 @@ auto ValueTexture::IsBlack () const noexcept -> bool
 // Function for the value texture.
 // ---------------------------------------------------------------------------
 */
-auto CreateValueTexture (const Vector3f& value) -> Texture*
+auto CreateValueTexture (const Vector3f& value) -> std::shared_ptr <Texture>
 {
-  return new ValueTexture (value);
+  return std::make_shared <ValueTexture> (value);
 }
 /*
 // ---------------------------------------------------------------------------

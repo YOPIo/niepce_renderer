@@ -51,11 +51,9 @@ auto SceneImporter::Import (const char *filename) -> void
        element = element->NextSiblingElement ())
   {
     Attributes attributes;
-    TextureAttributes texture_attributes;
-
     if (IsElementType (element, "camera"))
     {
-      const auto type = element->Attribute ("type");
+      auto type = element->Attribute ("type");
       attributes.AddString ("type", type);
       ParseRecursive (element, &attributes);
       camera_ = CreateCamera (attributes);
@@ -63,20 +61,22 @@ auto SceneImporter::Import (const char *filename) -> void
     }
     if (IsElementType (element, "texture"))
     {
+      // Parse children.
       ParseRecursive (element, &attributes);
-      const std::string id = element->Attribute ("id");
-      auto filepath = base_filepath_ + attributes.FindString ("filename");
-      std::shared_ptr <Texture> texture (CreateImageTexture (filepath));
+      // Get texture id.
+      auto id   = element->Attribute ("id");
+      auto path = base_filepath_ + attributes.FindString ("filename");
+      // Create texture
+      auto texture = CreateImageTexture (path);
       textures_.emplace (id, std::move (texture));
       continue;
     }
     if (IsElementType (element, "material"))
     {
-      ParseMaterial (element, &texture_attributes);
-      const std::string id = element->Attribute ("id");
-      auto material
-        = std::shared_ptr <Material> (CreateMaterial (texture_attributes));
-      materials_.emplace (id, material);
+      auto attrib = ParseMaterial (element);
+      auto id  = element->Attribute ("id");
+      auto mat = CreateMaterial (attrib);
+      materials_.emplace (id, mat);
       continue;
     }
     if (IsElementType (element, "shape"))
@@ -113,7 +113,7 @@ auto SceneImporter::ParseRecursive
 (
  tinyxml2::XMLElement* element,
  Attributes*           attributes
-)
+ )
   const -> void
 {
   for (auto elem = element->FirstChildElement ();
@@ -136,15 +136,13 @@ auto SceneImporter::ParseRecursive
 /*
 // ---------------------------------------------------------------------------
 */
-auto SceneImporter::ParseMaterial
-(
- tinyxml2::XMLElement* material,
- TextureAttributes*    attributes
-)
-  const -> void
+auto SceneImporter::ParseMaterial (tinyxml2::XMLElement* material)
+  const -> MaterialAttributes
 {
+  MaterialAttributes res;
+
   // Get material type.
-  attributes->SetMaterialType (MaterialType (material));
+  res.SetMaterialType (MaterialType (material));
 
   // Parse each element.
   for (auto element = material->FirstChildElement ();
@@ -164,8 +162,8 @@ auto SceneImporter::ParseMaterial
     {
       auto attrib = ParseSpectrum (element);
       auto type   = TextureType (attrib.first);
-      std::shared_ptr <Texture> texture (CreateValueTexture (attrib.second));
-      attributes->AddTexture (type, texture);
+      auto tex    = CreateValueTexture (attrib.second);
+      res.AddTexture (type, tex);
       continue;
     }
     // Reference to texture.
@@ -174,18 +172,19 @@ auto SceneImporter::ParseMaterial
       auto attrib  = ParseString (element);
       try
       {
-        auto texture = textures_.at (attrib.second);
-        auto type    = TextureType (attrib.first);
-        attributes->AddTexture (type, texture);
+        auto type = TextureType (attrib.first);
+        auto tex = textures_.at (attrib.second);
+        res.AddTexture (type, tex);
       }
       catch (const std::exception& e)
       {
-        std::cerr << "Texture could not found." << std::endl;
+        std::cerr << "Reference texture could not found." << std::endl;
       }
       continue;
     }
     std::cerr << "Ignored element : " << element->Name () << std::endl;
   }
+  return res;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -416,13 +415,13 @@ auto SceneImporter::LoadObj (const Attributes& attributes) -> void
   const int  size = p_idxs.size ();
   const auto id   = attributes.FindString ("material");
   const auto mat  = materials_.at (id);
-  std::cout << mat->HasEmission() << std::endl;
   for (int i = 0; i < size; ++i)
   {
     std::shared_ptr <Shape> shape (CreateTriangle (mesh,
                                                    p_idxs[i],
                                                    n_idxs[i],
                                                    t_idxs[i]));
+
     primitives_.push_back (CreatePrimitive (shape, mat));
   }
 }

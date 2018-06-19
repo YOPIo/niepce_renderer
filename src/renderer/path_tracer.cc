@@ -42,10 +42,10 @@ auto PathTracer::Render () -> void
   // Compute the tile bounds.
   std::vector <FilmTile> tiles;
   std::vector <std::shared_ptr <RandomSampler>> samplers;
-  constexpr static int tile_size = 128;
-  const Bounds2f resolution  = camera_->Resolution ();
-  const unsigned int width  = resolution.Width ();
-  const unsigned int height = resolution.Height ();
+  constexpr static int tile_size = 64;
+  const auto resolution = camera_->Resolution ();
+  const auto width  = resolution.Width ();
+  const auto height = resolution.Height ();
   for (int y = 0; y < height; y += tile_size)
   {
     for (int x = 0; x < width; x += tile_size)
@@ -98,7 +98,7 @@ auto PathTracer::RenderTileBounds
 {
   const Bounds2f& tile_bounds = tile->Bounds ();
 
-  static constexpr int num_sample = 8;
+  static constexpr int num_sample = 64;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 
@@ -147,7 +147,7 @@ auto PathTracer::Radiance
   MemoryArena memory;
 
   // Render the tile.
-  for (unsigned int depth = 0; depth < 10; ++depth)
+  for (unsigned int depth = 0; depth < 15; ++depth)
   {
     // -------------------------------------------------------------------------
     // Intersection test
@@ -170,7 +170,7 @@ auto PathTracer::Radiance
 
     // Russian roulette
     Float q = std::fmax (l[0], std::fmax(l[1], l[2]));
-    if (depth > 5)
+    if (depth > 10)
     {
       if (tile_sampler->SampleFloat () >= q) { return l; }
     }
