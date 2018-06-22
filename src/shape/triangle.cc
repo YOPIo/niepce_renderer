@@ -195,9 +195,7 @@ auto Triangle::IsIntersect
 */
 auto Triangle::Bounds () const noexcept -> Bounds3f
 {
-  Bounds3f res;
-  res.Merge (Position (0));
-  res.Merge (Position (1));
+  Bounds3f res (Position (0), Position (1));
   res.Merge (Position (2));
   return res;
 }

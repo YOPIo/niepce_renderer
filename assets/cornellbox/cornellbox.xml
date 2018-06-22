@@ -52,6 +52,13 @@
   </material>
 
   <!-- Shapes -->
+  <!--
+  <shape type="obj">
+    <string name="filename" value="rubiks_cube.obj"/>
+    <reference name="material" value="matte"/>
+  </shape>
+  -->
+
   <shape type="obj">
     <string name="filename" value="cornellbox.obj"/>
     <reference name="material" value="matte"/>

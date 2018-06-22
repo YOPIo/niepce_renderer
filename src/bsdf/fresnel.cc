@@ -76,7 +76,9 @@ auto FresnelDielectric::Evaluate (Float cos_theta1)
   Float ior2 = incident_ior_;
 
   // Compute the $ cos(\theta_1) $.
-  cos_theta1 = Clamp (cos_theta1, -1.0, 1.0);
+  cos_theta1 = Clamp (cos_theta1,
+                      static_cast <Float> (-1.0),
+                      static_cast <Float> (1.0));
 
   // Reflection or refraction
   bool is_entering = cos_theta1 < 0.0;

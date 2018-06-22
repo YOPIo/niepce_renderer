@@ -134,10 +134,34 @@ public:
    */
   auto SurfaceArea () const noexcept -> Float;
 
+  /*!
+   * @fn std ToString ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto ToString () const noexcept -> std::string;
+
+  /*!
+   * @fn bool IsIntersect (const)
+   * @brief 
+   * @param[in] ray
+   *    
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto IsIntersect (const Ray& ray) const noexcept -> bool;
+
 private:
   Point3f min_;
   Point3f max_;
 }; // class Bounds3f
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Union (const Bounds3f& lhs, const Bounds3f& rhs) -> Bounds3f;
 /*
 // ---------------------------------------------------------------------------
 */

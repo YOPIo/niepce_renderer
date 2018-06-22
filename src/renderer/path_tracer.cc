@@ -98,7 +98,7 @@ auto PathTracer::RenderTileBounds
 {
   const Bounds2f& tile_bounds = tile->Bounds ();
 
-  static constexpr int num_sample = 64;
+  static constexpr int num_sample = 8;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 
@@ -147,7 +147,7 @@ auto PathTracer::Radiance
   MemoryArena memory;
 
   // Render the tile.
-  for (unsigned int depth = 0; depth < 15; ++depth)
+  for (unsigned int depth = 0; depth < 10; ++depth)
   {
     // -------------------------------------------------------------------------
     // Intersection test
@@ -166,11 +166,14 @@ auto PathTracer::Radiance
 
     l = l + f * material->Emission (intersection.Texcoord ());
 
-    if (material->HasEmission ()) { return l; }
+    if (material->HasEmission ())
+    {
+      return l;
+    }
 
     // Russian roulette
     Float q = std::fmax (l[0], std::fmax(l[1], l[2]));
-    if (depth > 10)
+    if (depth > 7)
     {
       if (tile_sampler->SampleFloat () >= q) { return l; }
     }

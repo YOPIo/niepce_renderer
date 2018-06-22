@@ -70,5 +70,6 @@ int main (int argc, char* argv[])
   niepce::PathTracer pt (scene, camera);
   pt.Render ();
   niepce::Finalize ();
+
   return 0;
 }

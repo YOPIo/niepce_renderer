@@ -147,4 +147,13 @@ auto operator * (Float s, const Point3f& p) -> Point3f
 /*
 // ---------------------------------------------------------------------------
 */
+auto operator + (const Point3f& lhs, const Point3f& rhs) -> Point3f
+{
+  return Point3f (lhs.X () + rhs. X (),
+                  lhs.Y () + rhs. Y (),
+                  lhs.Z () + rhs. Z ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 } // namespace niepce

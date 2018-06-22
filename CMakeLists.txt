@@ -38,6 +38,7 @@ add_subdirectory (src/shape)
 add_subdirectory (src/primitive)
 add_subdirectory (src/texture)
 add_subdirectory (src/material)
+add_subdirectory (src/accelerator)
 add_subdirectory (src/scene)
 add_subdirectory (src/camera)
 add_subdirectory (src/core)
@@ -52,6 +53,7 @@ else () # if (BUILD_CUI_RENDERER)
   target_link_libraries (${PROJECT_NAME}
     Renderer
     Scene
+    Accelerator
     Texture
     Material
     Camera

@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
+#include "../accelerator/bvh.h"
 #include "../accelerator/aggregation.h"
 /*
 // ---------------------------------------------------------------------------
@@ -73,7 +74,8 @@ public:
   auto Load () -> void;
 
 public:
-  std::vector <std::shared_ptr<Primitive>> primitives_;
+  Bvh primitives_;
+  std::vector <std::shared_ptr <Primitive>> original_;
 }; // class Scene
 /*
 // ---------------------------------------------------------------------------

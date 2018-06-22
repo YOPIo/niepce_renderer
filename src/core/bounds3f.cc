@@ -6,6 +6,7 @@
  * @details 
  */
 #include "bounds3f.h"
+#include "ray.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -111,6 +112,54 @@ auto Bounds3f::Merge (const Point3f& p) -> void
   const Float maxz = std::fmax (max_.Z (), p.Z ());
   min_ = Point3f (minx, miny, minz);
   max_ = Point3f (maxx, maxy, maxz);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bounds3f::ToString () const noexcept -> std::string
+{
+  std::string res ("min : " + min_.ToString() + "\nmax : " + max_.ToString ());
+  return res;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bounds3f::IsIntersect (const Ray& ray) const noexcept -> bool
+{
+  Float t_max = kInfinity;
+  Float t_min = -kInfinity;
+
+  for (int i = 0; i < 3; ++i)
+  {
+    const Float t1 = (min_[i] - ray.Origin ()[i]) / ray.Direction ()[i];
+    const Float t2 = (max_[i] - ray.Origin ()[i]) / ray.Direction ()[i];
+    const Float t_near = std::fmin (t1, t2);
+    const Float t_far  = std::fmax (t1, t2);
+    t_max = std::fmin (t_max, t_far);
+    t_min = std::fmax (t_min, t_near);
+    if (t_min > t_max) { return false; }
+  }
+  return true;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Union (const Bounds3f& lhs, const Bounds3f& rhs) -> Bounds3f
+{
+  const Point3f lmin = lhs.Min ();
+  const Point3f lmax = lhs.Max ();
+  const Point3f rmin = rhs.Min ();
+  const Point3f rmax = rhs.Max ();
+
+  const Float min_x = std::fmin (lmin.X (), rmin.X ());
+  const Float min_y = std::fmin (lmin.Y (), rmin.Y ());
+  const Float min_z = std::fmin (lmin.Z (), rmin.Z ());
+  const Float max_x = std::fmax (lmax.X (), rmax.X ());
+  const Float max_y = std::fmax (lmax.Y (), rmax.Y ());
+  const Float max_z = std::fmax (lmax.Z (), rmax.Z ());
+
+  return Bounds3f (Point3f (min_x, min_y, min_z),
+                   Point3f (max_x, max_y, max_z));
 }
 /*
 // ---------------------------------------------------------------------------

@@ -38,6 +38,12 @@
 #include <unordered_map>
 /*
 // ---------------------------------------------------------------------------
+// SIMD
+// ---------------------------------------------------------------------------
+*/
+#include <xmmintrin.h>
+/*
+// ---------------------------------------------------------------------------
 */
 #include "../ext/easyloggingpp/easylogging++.h"
 /*!
@@ -93,7 +99,7 @@ class Vector3f;
  * @typedef
  * @brief Choose float or double
  */
-typedef double Float;
+typedef float Float;
 typedef Vector3f Spectrum;
 /*
 // ---------------------------------------------------------------------------
@@ -105,6 +111,8 @@ static constexpr Float kInfinity = std::numeric_limits <Float>::infinity ();
 static constexpr Float kEpsilon  = std::numeric_limits <Float>::epsilon ();
 static constexpr Float kFloatMax = std::numeric_limits <Float>::max ();
 static constexpr Float kFloatMin = std::numeric_limits <Float>::lowest ();
+static constexpr Float kOne      = 1.0;
+static constexpr Float kZero     = 0.0;
 /*
 // ---------------------------------------------------------------------------
 // Niepce renderer global function

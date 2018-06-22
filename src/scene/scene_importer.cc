@@ -19,7 +19,7 @@
 // ---------------------------------------------------------------------------
 */
 #define TINYOBJLOADER_IMPLEMENTATION
-#define TINYOBJLOADER_USE_DOUBLE
+// #define TINYOBJLOADER_USE_DOUBLE
 #include "../ext/tinyobjloader/tiny_obj_loader.h"
 /*
 // ---------------------------------------------------------------------------

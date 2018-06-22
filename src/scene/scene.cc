@@ -6,6 +6,7 @@
  * @details 
  */
 #include "scene.h"
+#include "../accelerator/bvh.h"
 #include "../material/matte.h"
 #include "../material/metal.h"
 #include "../shape/triangle.h"
@@ -23,7 +24,8 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 Scene::Scene (const std::vector <std::shared_ptr <Primitive>>& primitives) :
-  primitives_ (primitives)
+  primitives_ (primitives),
+  original_   (primitives)
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -35,20 +37,24 @@ auto Scene::IsIntersect
 )
   const noexcept -> bool
 {
-  for (const auto& primitive : primitives_)
+  /*
+  bool hit = false;
+  Intersection tmp;
+  for (const auto& p : original_)
   {
-    // Intersection test
-    Intersection tmp;
-    if (primitive->IsIntersect (ray, &tmp))
+    if (p->IsIntersect (ray, &tmp))
     {
       if (tmp.Distance () < intersection->Distance ())
       {
+        hit = true;
         *intersection = tmp;
-        intersection->MakeHitFlagTrue ();
       }
     }
   }
-  return static_cast <bool> (*intersection);
+  return hit;
+  */
+
+  return primitives_.IsIntersect (ray, intersection);
 }
 /*
 // ---------------------------------------------------------------------------

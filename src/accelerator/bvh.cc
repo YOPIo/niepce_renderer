@@ -15,201 +15,255 @@ namespace niepce
 {
 /*
 // ---------------------------------------------------------------------------
-*/
-BvhNode::BvhNode ()
-{}
-/*
+// BVH definitions
 // ---------------------------------------------------------------------------
 */
-auto BvhNode::InitializeAsLeaf
+Bvh::Bvh
 (
- const Primitives& primitives,
- const Bounds3f&   bounds
-)
--> void
+ const std::vector <std::shared_ptr <Primitive>>& primitives,
+ std::size_t max_primitives
+) :
+  primitives_     (primitives),
+  max_primitives_ (std::min (static_cast<std::size_t> (64), max_primitives)),
+  memory_ (1024 * 1024),
+  total_nodes_ (0)
 {
-  primitives_ = primitives;
-  right_ = nullptr;
-  left_  = nullptr;
-  bounds_ = bounds;
+  Build (primitives_);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BvhNode::InitializeAsInternal
-(
- const Bounds3f& bounds,
- BvhNode* right,
- BvhNode* left
-) -> void
+auto Bvh::Build (const std::vector<std::shared_ptr<Primitive>>& primitives)
+  -> void
 {
-  primitives_.clear ();
-  right_ = right;
-  left_  = left;
+  // Initialize the BvhPrimitiveInfo.
+  std::vector <PrimitiveInfo> info (primitives.size ());
+  for (int i = 0; i < primitives.size (); ++i)
+  {
+    const auto& shape = primitives[i]->Shape ();
+    info[i] = PrimitiveInfo (i, shape->Bounds ());
+  }
+
+  // Create copy of primitives.
+  std::vector <std::shared_ptr <Primitive>> tmp;
+
+  // Construct BVH structure.
+  root_ = RecursiveBuild (info, 0, primitives.size (), tmp);
+  primitives_.swap (tmp);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Bvh::Build
+auto Bvh::RecursiveBuild
 (
- Primitives&  primitives,
- MemoryArena& memory
+ std::vector <PrimitiveInfo>& info,
+ std::size_t begin,
+ std::size_t end,
+ std::vector <std::shared_ptr <Primitive>>& primitives
 )
   -> BvhNode*
 {
-  const unsigned int num_primitive = primitives.size ();
+  // All of the nodes are managed by MemoryArena.
+  auto node = memory_.Allocate <BvhNode> ();
 
-  // Compute bounding box. (aabb)
-  const Bounds3f pbounds = ComputeBoundsFromPrimitives (primitives);
+  // Incrementing the number of nodes.
+  ++total_nodes_;
 
-  // Compute the surface area for the primitive.
-  const Float parea = pbounds.SurfaceArea ();
+  // Compute bounds of all primitives.
+  Bounds3f bounds;
+  for (int i = begin; i < end; ++i) { bounds = Union (bounds, info[i].bounds); }
 
-  // Interim best cost.
-  Float best_cost = primitives.size ();
+  // Compute the number of primitive.
+  auto num_primitive = end - begin;
 
-  // Find a axis to split primitives.
-  int best_axis = -1;
-
-  // Find a index to 
-  int best_index = 0;
-
-  // If a number of primitive less than 4, create leaf node.
-  if (num_primitive <= 4)
+  // ---------------------------------------------------------------------------
+  // Function to create a leaf node.
+  // ---------------------------------------------------------------------------
+  auto create_leaf = [&] ()
   {
-    return CreateLeafNode (primitives, pbounds, memory);
+    const int offset = primitives.size ();
+    for (int i = begin; i < end; ++i)
+    {
+      const int index = info[i].primitive_index;
+      primitives.push_back (primitives_[i]);
+    }
+    node->InitializeLeaf (offset, num_primitive, bounds);
+  };
+
+  // ---------------------------------------------------------------------------
+  // Create leaf node.
+  // ---------------------------------------------------------------------------
+  if (num_primitive <= 1)
+  {
+    create_leaf ();
+    return node;
   }
 
-  for (int axis = 0; axis < 3; ++axis)
+  // ---------------------------------------------------------------------------
+  // Create interior node.
+  // ---------------------------------------------------------------------------
+
+  // Ready to compute SAH.
+  // Compute centroid bounds each.
+  Bounds3f centroid_bounds;
+  for (int i = begin; i < end; ++i) { centroid_bounds.Merge (info[i].centroid); }
+
+  // Get maximum component (x, y, or z).
+  // Primitives will be split by maximum component axis.
+  int dimension = 0;
+  const auto d = centroid_bounds.Diagonal ();
+  if (d.X () > d.Y () && d.X () > d.Z ()) { dimension = 0; }
+  else if (d.Y () > d.Z ()) { dimension = 1; }
+  else { dimension = 2; }
+
+  auto middle = (begin + end) / 2;
+  if (centroid_bounds.Max ()[middle]  == centroid_bounds.Min ()[middle])
   {
-    // Sort primitives by center position of bounds each component.
-    SortPrimitivesByAxis (&primitives, axis);
-
-    std::pair <std::vector <Float>, std::vector <Float>> area;
-    area.first.resize (num_primitive, kInfinity);
-    area.second.resize (num_primitive, kInfinity);
-
-    std::pair <Bounds3f, Bounds3f> bounds;
-    bounds.first  = Bounds3f ();
-    bounds.second = pbounds;
-
-    // Compute surface area, divide by axis.
-    for (int i = 0; i <= num_primitive; ++i)
-    {
-      int j = num_primitive - i - 1;
-      area.first[i]  = std::fabs (bounds.first.SurfaceArea ());
-      area.second[j] = std::fabs (bounds.second.SurfaceArea ());
-      if (i < num_primitive)
-      {
-        bounds.first.Merge (primitives[i]->Shape ()->Bounds ());
-        continue;
-      }
-      if (j > 0)
-      {
-        bounds.second.Merge (primitives[j]->Shape ()->Bounds ());
-      }
-    }
-
-    // Evaluate SAH cost from surface area.
-    for (int i = 0; i <= num_primitive; ++i)
-    {
-      const Float n1 = i;
-      const Float n2 = num_primitive - 1;
-      const Float cost = 2.0 + area.first[i]  / parea * n1
-                             + area.second[i] / parea * n2;
-      if (cost < best_cost)
-      {
-        best_cost  = cost;
-        best_axis  = axis;
-        best_index = i;
-      }
-    }
-  } // End of loop
-
-  if (best_axis == -1)
-  {
+    // This is a unusual case.
+    // All centroid points are at the same position.
     // Create leaf node.
-    return CreateLeafNode (primitives, pbounds, memory);
+    create_leaf ();
+    return node;
   }
-  // Continue to split.
 
-  // Sort by best axis again.
-  SortPrimitivesByAxis (&primitives, best_axis);
+  // ---------------------------------------------------------------------------
+  // Find a partition to split primitives based on SAH algorithm.
+  // ---------------------------------------------------------------------------
 
-  // Split primitives.
-  Primitives lp (primitives.cbegin (), primitives.cbegin () + best_index);
-  Primitives rp (primitives.cbegin () + best_index, primitives.cend ());
-
-  // Recall method
-  BvhNode* right = Build (lp, memory);
-  BvhNode* left  = Build (rp, memory);
-
-  // Create internal node.
-  return CreateInternalNode (pbounds, right, left, memory);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Bvh::ComputeBoundsFromPrimitives (const Primitives& primitives)
-  const noexcept -> Bounds3f
-{
-  Bounds3f res;
-  for (const auto& p : primitives)
+  // Initialize buckets.
+  static constexpr int kNumBucket = 12;
+  BvhBucket bucket[kNumBucket];
+  for (int i = begin; i < end; ++i)
   {
-    const auto& shape = p->Shape ();
-    res.Merge (shape->Bounds ());
+    const auto min = centroid_bounds.Min ();
+    const auto max = centroid_bounds.Max ();
+    const auto p   = info[i].centroid;
+
+    auto idx = static_cast <int> ((p - min)[dimension] / (max - min)[dimension]);
+    if (idx == kNumBucket) { idx = idx - 1; }
+
+    bucket[idx].count++;
+    bucket[idx].bounds = Union (bucket[i].bounds, info[i].bounds);
   }
-  return res;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Bvh::CreateLeafNode
-(
- const Primitives& primitives,
- const Bounds3f&   bounds,
- MemoryArena&      memory
-)
-  const -> BvhNode*
-{
-  BvhNode* node = memory.Allocate<BvhNode> ();
-  node->InitializeAsLeaf (primitives, bounds);
+
+  // Compute casts for splitting.
+  Float cost[kNumBucket - 1];
+  for (int i = 0; i < kNumBucket; ++i)
+  {
+    Bounds3f b1, b2;
+    int count1 = 0, count2 = 0;
+    for (int j = 0; j <= i; ++j)
+    {
+      b1 = Union (b1, bucket[j].bounds);
+      count1 += bucket[j].count;
+    }
+    for (int j = i + 1; j < kNumBucket; ++j)
+    {
+      b1 = Union (b1, bucket[j].bounds);
+      count2 += bucket[j].count;
+    }
+    cost[i] = 0.125f + (count1 * b1.SurfaceArea () + count2 * b2.SurfaceArea ())
+            / bounds.SurfaceArea ();
+  }
+
+  // Find minimum cost from buckets.
+  Float min_cost = cost[0];
+  int split_bucket_idx = 0;
+  for (int i = 1; i < kNumBucket; ++i)
+  {
+    if (cost[i] < min_cost)
+    {
+      min_cost = cost[i];
+      split_bucket_idx = i;
+    }
+  }
+
+  Float leaf_cost = num_primitive;
+  if (max_primitives_ < num_primitive || min_cost > leaf_cost)
+  {
+    // -------------------------------------------------------------------------
+    // Continue to split.
+    // -------------------------------------------------------------------------
+    auto comp = [=] (const PrimitiveInfo& info) -> bool
+    {
+      const auto min = centroid_bounds.Min ();
+      const auto max = centroid_bounds.Max ();
+      const auto p   = info.centroid;
+
+      auto idx = static_cast <int> (((p - min) / (max - min))[dimension]);
+      if (idx == kNumBucket) { idx = idx - 1; }
+
+      return idx <= split_bucket_idx;
+    };
+    auto pos = std::partition (&info[begin], &info[end - 1] + 1, comp);
+    middle = pos - &info[0];
+
+    // Initialize the node as interior node.
+    auto c1 = RecursiveBuild (info, begin,  middle, primitives);
+    auto c2 = RecursiveBuild (info, middle, end,    primitives);
+    node->InitializeInterior (c1, c2);
+    return node;
+  }
+
+  // Otherwise, create leaf node.
+  create_leaf ();
   return node;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Bvh::CreateInternalNode
-(
- const Bounds3f& bounds,
- BvhNode* right,
- BvhNode* left,
- MemoryArena& memory
-)
-  -> BvhNode*
+auto Bvh::IsIntersect (const Ray& ray, Intersection* intersection)
+  const noexcept -> bool
 {
-  BvhNode* node = memory.Allocate <BvhNode> ();
-  node->InitializeAsInternal (bounds, right, left);
-  return node;
+  return (RecursiveIsIntersect (root_, ray, intersection));
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Bvh::SortPrimitivesByAxis (Primitives *primitives, int axis)
-  const noexcept -> void
+auto Bvh::RecursiveIsIntersect
+(
+ BvhNode* node,
+ const Ray& ray,
+ Intersection* intersection
+)
+  const noexcept -> bool
 {
-  std::sort (primitives->begin (), primitives->end (),
-             [&]
-             (
-              const std::shared_ptr <Primitive>& p1,
-              const std::shared_ptr <Primitive>& p2
-             )
-             {
-               // Comparing by center position of each axis.
-               const Point3f c1 = p1->Shape ()->Bounds ().Center ();
-               const Point3f c2 = p2->Shape ()->Bounds ().Center ();
-               return c1.At (axis) < c2.At (axis);
-             });
+  // Ray intersection test with node's bounds.
+  if (node->bounds.IsIntersect (ray))
+  {
+    if (node->IsInterior ())
+    {
+      // Current node is interior node.
+      // Continue to traverse.
+      Intersection tmp1, tmp2;
+      auto t1 = RecursiveIsIntersect (node->childlen[0], ray, &tmp1);
+      auto t2 = RecursiveIsIntersect (node->childlen[1], ray, &tmp2);
+      if (!t1 && !t2) { return false; }
+      // Compute nearest intersection point from ray origin.
+      auto dist1 = tmp1.Distance (), dist2 = tmp2.Distance ();
+      if (dist1 < dist2) { *intersection = tmp1; return true; }
+      *intersection = tmp2; return true;
+    }
+    // Current node is leaf.
+    // Find the intersection point by binary search.
+    bool hit = false;
+    Intersection tmp;
+    for (int i = 0; i < node->num_primitives; ++i)
+    {
+      if (primitives_[node->offset + i]->IsIntersect (ray, &tmp))
+      {
+        if (tmp.Distance () < intersection->Distance ())
+        {
+          hit = true;
+          *intersection = tmp;
+        }
+      }
+    }
+    return hit;
+  }
+
+  // Ray does not intersect with bounds.
+  return false;
 }
 /*
 // ---------------------------------------------------------------------------

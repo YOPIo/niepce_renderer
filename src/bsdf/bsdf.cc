@@ -114,7 +114,9 @@ auto AbsTanTheta (const Vector3f& w) -> Float
 auto CosPhi (const Vector3f& w) -> Float
 {
   const Float sin_theta = SinTheta (w);
-  return (sin_theta == 0) ? 1 : Clamp (w.Z () / sin_theta, -1.0, 1.0);
+  return (sin_theta == 0) ? 1 : Clamp (w.Z () / sin_theta,
+                                       static_cast <Float> (-1.0),
+                                       static_cast <Float> (1.0));
 }
 /*
 // ---------------------------------------------------------------------------
@@ -136,7 +138,9 @@ auto AbsCosPhi (const Vector3f& w) -> Float
 auto SinPhi (const Vector3f& w) -> Float
 {
   const Float sin_theta = SinTheta (w);
-  return (sin_theta == 0) ? 0 : Clamp (w.Y () / sin_theta, -1.0, 1.0);
+  return (sin_theta == 0) ? 0 : Clamp (w.Y () / sin_theta,
+                                       static_cast <Float> (-1.0),
+                                       static_cast <Float> (1.0));
 }
 /*
 // ---------------------------------------------------------------------------
