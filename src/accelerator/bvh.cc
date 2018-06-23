@@ -231,6 +231,9 @@ auto Bvh::RecursiveIsIntersect
   // Ray intersection test with node's bounds.
   if (node->bounds.IsIntersect (ray))
   {
+    // -------------------------------------------------------------------------
+    // Interior node.
+    // -------------------------------------------------------------------------
     if (node->IsInterior ())
     {
       // Current node is interior node.
@@ -244,10 +247,14 @@ auto Bvh::RecursiveIsIntersect
       if (dist1 < dist2) { *intersection = tmp1; return true; }
       *intersection = tmp2; return true;
     }
+
+    // -------------------------------------------------------------------------
     // Current node is leaf.
-    // Find the intersection point by binary search.
+    // -------------------------------------------------------------------------
     bool hit = false;
     Intersection tmp;
+
+    // Find the intersection point by binary search.
     for (int i = 0; i < node->num_primitives; ++i)
     {
       if (primitives_[node->offset + i]->IsIntersect (ray, &tmp))

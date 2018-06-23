@@ -7,10 +7,33 @@
  */
 #ifndef _NIEPCE_H_
 #define _NIEPCE_H_
- /*
- // ---------------------------------------------------------------------------
- */
- #define NOMINMAX
+/*
+// ---------------------------------------------------------------------------
+*/
+#define NI_USE_SIMD
+/*
+// ---------------------------------------------------------------------------
+*/
+#ifdef _WIN32
+   #define NOMINMAX
+   #ifdef _WIN64
+      #define NI_BUILD_TARGET_IS_WIN64
+   #else
+      #define NI_BUILD_TARGET_IS_WIN32
+   #endif
+
+#elif __APPLE__
+   #define NI_BUILD_TARGET_IS_APPLE
+
+#elif __linux__
+   #define NI_BUILD_TARGET_IS_LINUX
+
+#elif __unix__
+   #define NI_BUILD_TARGET_IS_UNIX
+
+#else
+   #error "Unknown compiler"
+#endif
 /*
 // ---------------------------------------------------------------------------
 // Niepce renderer std includes
@@ -38,10 +61,32 @@
 #include <unordered_map>
 /*
 // ---------------------------------------------------------------------------
-// SIMD
+// Alignment definition
 // ---------------------------------------------------------------------------
 */
-#include <xmmintrin.h>
+#if defined (NI_BUILD_TARGET_IS_WINDOWS)
+   #define NI_ALIGN(bit) __declspec(align(bit))
+#else
+   #define NI_ALIGN(bit) alignas((bit))
+#endif // NI_BUILD_TARGET_IS_WINDOWS
+
+#define ALIGN16  NI_ALIGN(16)
+#define ALIGN32  NI_ALIGN(32)
+#define ALIGN64  NI_ALIGN(64)
+#define ALIGN128 NI_ALIGN(128)
+/*
+// ---------------------------------------------------------------------------
+// Niepce renderer SIMD include
+// ---------------------------------------------------------------------------
+*/
+#ifdef NI_USE_SIMD
+   #include <xmmintrin.h>
+   #include <smmintrin.h>
+#endif // NIEPCE_USE_SIMD
+/*
+// ---------------------------------------------------------------------------
+*/
+
 /*
 // ---------------------------------------------------------------------------
 */
@@ -99,14 +144,20 @@ class Vector3f;
  * @typedef
  * @brief Choose float or double
  */
+// ---------------------------------------------------------------------------
+// DO NOT CHANGE FLOAT TO DOUBLE !!
+// ---------------------------------------------------------------------------
 typedef float Float;
+/*
+// ---------------------------------------------------------------------------
+*/
 typedef Vector3f Spectrum;
 /*
 // ---------------------------------------------------------------------------
 // Niepce renderer constant values
 // ---------------------------------------------------------------------------
 */
-static constexpr Float kPi       = 3.141592653589793238462643383279502884197169399375105820974;
+static constexpr Float kPi = 3.141592653589793238462643383279502884197169399375;
 static constexpr Float kInfinity = std::numeric_limits <Float>::infinity ();
 static constexpr Float kEpsilon  = std::numeric_limits <Float>::epsilon ();
 static constexpr Float kFloatMax = std::numeric_limits <Float>::max ();

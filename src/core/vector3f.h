@@ -4,7 +4,6 @@
 // ---------------------------------------------------------------------------
 */
 #include "niepce.h"
-#include "point3f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -13,13 +12,16 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-class Vector3f
+class ALIGN32 Vector3f final
 {
 public:
   /* Constructors */
   Vector3f ();
   Vector3f (Float x, Float y , Float z);
   explicit Vector3f (Float s);
+#ifdef NI_USE_SIMD
+  explicit Vector3f (const __m128& v);
+#endif // NI_USE_SIMD
 
   ~Vector3f () = default;
 
@@ -30,13 +32,15 @@ public:
   auto operator = (const Vector3f&  v) -> Vector3f& = default;
   auto operator = (      Vector3f&& v) -> Vector3f& = default;
 
-  auto operator [] (unsigned idx) const -> Float;
-  auto operator [] (unsigned idx)       -> Float&;
+  auto operator [] (unsigned idx) const noexcept -> Float;
 
   /* Getter */
   auto X () const noexcept -> Float;
   auto Y () const noexcept -> Float;
   auto Z () const noexcept -> Float;
+#ifdef NI_USE_SIMD
+  auto Xyz () const noexcept -> __m128;
+#endif // NI_USE_SIMD
 
   /* Setter */
   auto SetX (Float x) noexcept -> void;
@@ -45,17 +49,14 @@ public:
 
   /* Methods */
   auto At (unsigned idx) const -> Float;
-  auto At (unsigned idx)       -> Float&;
 
-  auto Normalize  ()       -> Vector3f&;
-  auto Normalized () const -> Vector3f;
+  auto Normalize () noexcept -> Vector3f;
 
   auto Length ()        const -> Float;
   auto LengthSquared () const -> Float;
 
   // Check status
   auto HasNaN       () const -> bool;
-  auto IsNormalized () const -> bool;
 
   auto ToString () const -> std::string;
 
@@ -71,10 +72,10 @@ public:
 private:
   union
   {
-    std::array <Float, 3> xyz_;
-    std::array <Float, 3> rgb_;
-    struct { Float x_, y_, z_; };
-    struct { Float r_, g_, b_; };
+    struct { Float x_, y_, z_, w_; };
+#ifdef NI_USE_SIMD
+    __m128 xyzw_;
+#endif
   };
 
 }; // class Vector3f
@@ -93,8 +94,6 @@ auto operator - (const Vector3f& v) -> Vector3f;
 // ---------------------------------------------------------------------------
 */
 auto operator + (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f;
-auto operator + (const Vector3f& lhs, const Point3f&  rhs) -> Point3f;
-auto operator + (const Point3f&  lhs, const Vector3f& rhs) -> Point3f;
 auto operator - (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f;
 auto operator * (Float t, const Vector3f& v) -> Vector3f;
 auto operator * (const Vector3f& v, Float t) -> Vector3f;

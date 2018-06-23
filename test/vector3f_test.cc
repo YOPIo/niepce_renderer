@@ -2,7 +2,7 @@
 // ---------------------------------------------------------------------------
 */
 #include <gtest/gtest.h>
-#include "../src/algebra/vector3f.h"
+#include "../src/core/vector3f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -61,9 +61,7 @@ TEST_F (Vector3fTest, Setter)
   EXPECT_EQ (v.Y (), y);
   EXPECT_EQ (v.Z (), z);
 
-  v[0] = -x;
-  v[1] = -y;
-  v[2] = -z;
+  v = -v;
   EXPECT_EQ (v.X (), -x);
   EXPECT_EQ (v.Y (), -y);
   EXPECT_EQ (v.Z (), -z);
@@ -161,51 +159,11 @@ TEST_F (Vector3fTest, Length)
 TEST_F (Vector3fTest, Normalize)
 {
   Vector3f v (3.0, 3.0, 3.0);
-  const Vector3f nv1 = v.Normalized ();
+  const Vector3f nv1 = v.Normalize ();
 
   const Vector3f nv2 = v.Normalize ();
   EXPECT_EQ (nv2, v);
-  EXPECT_NEAR (v.IsNormalized (), true, 1e-5);
   EXPECT_NEAR (v.Length (), static_cast <Float> (1.0), 1e-5);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-TEST_F (Vector3fTest, NaN)
-{
-  Vector3f nan (1.0, -800, 0.0);
-  EXPECT_EQ (nan.HasNaN (), false);
-
-  nan[0] = std::asin (1.1);
-  EXPECT_EQ (nan.HasNaN (), true);
-
-  nan[1] = std::sqrt (-0.675);
-  EXPECT_EQ (nan.HasNaN (), true);
-
-  nan[2] = std::log (-1.5);
-  EXPECT_EQ (nan.HasNaN (), true);
-
-  nan[1] = -225 % 2;
-  EXPECT_EQ (nan.HasNaN (), true);
-
-  const Float n = std::asin (1.1);
-  nan[2] = n * 100;
-  EXPECT_EQ (nan.HasNaN (), true);
-
-  nan[0] = n / n;
-  EXPECT_EQ (nan.HasNaN (), true);
-
-  nan[0] = n + 100;
-  EXPECT_EQ (nan.HasNaN (), true);
-
-  nan[1] = n - 100;
-  EXPECT_EQ (nan.HasNaN (), true);
-
-  nan[2] = n * 100;
-  EXPECT_EQ (nan.HasNaN (), true);
-
-  nan[0] = n / 100;
-  EXPECT_EQ (nan.HasNaN (), true);
 }
 /*
 // ---------------------------------------------------------------------------
