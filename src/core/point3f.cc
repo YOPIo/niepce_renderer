@@ -16,43 +16,46 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 Point3f::Point3f () :
-  x_ (0),
-  y_ (0),
-  z_ (0)
-{}
-/*
-// ---------------------------------------------------------------------------
-*/
-Point3f::Point3f (Float t) :
-  x_ (t),
-  y_ (t),
-  z_ (t)
+#ifdef NI_USE_SIMD
+  xyzw_ (_mm_setzero_pd ())
+#else
+  x_ (0), y_ (0), z_ (0)
+#endif // NI_USE_SIMD
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 Point3f::Point3f (Float x, Float y, Float z) :
-  x_ (x),
-  y_ (y),
-  z_ (z)
+#ifdef NI_USE_SIMD
+  xyzw_ (_mm_set_ps (0, z, y, x))
+#else
+  x_ (x), y_ (y), z_ (z), w_ (0)
+#endif // NI_USE_SIMD
 {}
+/*
+// ---------------------------------------------------------------------------
+*/
+Point3f::Point3f (Float t) :
+#ifdef NI_USE_SIMD
+  xyzw_ (_mm_set_ps (0, t, t, t))
+#else
+  x_ (s), y_ (s), z_ (s), w_ (0)
+#endif // NI_USE_SIMD
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+#ifdef NI_USE_SIMD
+Point3f::Point3f (const __m128& p) :
+  xyzw_ (p)
+{}
+#endif // NI_USE_SIMD
 /*
 // ---------------------------------------------------------------------------
 */
 auto Point3f::operator [] (unsigned int idx) const noexcept -> Float
 {
-  if (idx == 0) { return x_; }
-  if (idx == 1) { return y_; }
-  return z_;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Point3f::operator () (unsigned int idx) const noexcept -> Float
-{
-  if (idx == 0) { return x_; }
-  if (idx == 1) { return y_; }
-  return z_;
+  return (idx == 0) ? x_ : ((idx == 1) ? y_ : z_);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -62,7 +65,7 @@ auto Point3f::At (unsigned int idx) const -> Float
   if (idx == 0) { return x_; }
   if (idx == 1) { return y_; }
   if (idx == 2) { return z_; }
-  throw std::out_of_range ("");
+  throw std::out_of_range ("Out of range in Vector3f.");
 }
 /*
 // ---------------------------------------------------------------------------
@@ -85,6 +88,15 @@ auto Point3f::Z () const noexcept -> Float
 {
   return z_;
 }
+/*
+// ---------------------------------------------------------------------------
+*/
+#ifdef NI_USE_SIMD
+auto Point3f::Xyz () const noexcept -> __m128
+{
+  return xyzw_;
+}
+#endif // NI_USE_SIMD
 /*
 // ---------------------------------------------------------------------------
 */
@@ -111,9 +123,51 @@ auto Point3f::SetZ (Float z) noexcept -> void
 */
 auto Point3f::ToString () const noexcept -> std::string
 {
-  return std::string ("[" + std::to_string (x_) + ", "
-                      + std::to_string (y_) + ", "
-                      + std::to_string (z_) + "]");
+  return std::string ("["  + std::to_string (x_) +
+                      ", " + std::to_string (y_) +
+                      ", " + std::to_string (z_) + "]");
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Point3f::Max () noexcept -> Point3f
+{
+  return Point3f (std::numeric_limits <Float>::max ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Point3f::Min () noexcept -> Point3f
+{
+  return Point3f (std::numeric_limits <Float>::min ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Point3f::Infinity () noexcept -> Point3f
+{
+  return Point3f (std::numeric_limits <Float>::infinity ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Point3f::Lowest () noexcept -> Point3f
+{
+  return Point3f (std::numeric_limits <Float>::lowest ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Point3f::One () noexcept -> Point3f
+{
+  return Point3f (1);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Point3f::Zero () noexcept -> Point3f
+{
+  return Point3f (0);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -122,36 +176,47 @@ auto Point3f::ToString () const noexcept -> std::string
 */
 auto operator - (const Point3f& lhs, const Point3f& rhs) -> Vector3f
 {
+#ifdef NI_USE_SIMD
+  return Vector3f (_mm_sub_ps (lhs.Xyz (), rhs.Xyz ()));
+#else
   return Vector3f (lhs.X () - rhs.X (),
                    lhs.Y () - rhs.Y (),
                    lhs.Z () - rhs.Z ());
+#endif // NI_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto operator * (const Point3f& p, Float s) -> Point3f
+auto operator * (const Point3f& p, Float t) -> Point3f
 {
+#ifdef NI_USE_SIMD
+  const auto s = _mm_set1_ps (t);
+  return Point3f (_mm_mul_ps (p.Xyz (), s));
+#else
   return Point3f (p.X () * s,
                   p.Y () * s,
                   p.Z () * s);
+#endif // NI_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator * (Float s, const Point3f& p) -> Point3f
 {
-  return Point3f (p.X () * s,
-                  p.Y () * s,
-                  p.Z () * s);
+  return p * s;
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator + (const Point3f& lhs, const Point3f& rhs) -> Point3f
 {
+#ifdef NI_USE_SIMD
+  return Point3f (_mm_add_ps (lhs.Xyz (), rhs.Xyz ()));
+#else
   return Point3f (lhs.X () + rhs. X (),
                   lhs.Y () + rhs. Y (),
                   lhs.Z () + rhs. Z ());
+#endif // NI_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------

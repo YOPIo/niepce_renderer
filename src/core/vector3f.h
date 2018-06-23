@@ -12,7 +12,7 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-class ALIGN32 Vector3f final
+class ALIGN16 Vector3f final
 {
 public:
   /* Constructors */
@@ -31,10 +31,11 @@ public:
   /* Operators */
   auto operator = (const Vector3f&  v) -> Vector3f& = default;
   auto operator = (      Vector3f&& v) -> Vector3f& = default;
-
   auto operator [] (unsigned idx) const noexcept -> Float;
 
-  /* Getter */
+ public:
+  auto At (unsigned idx) const -> Float;
+
   auto X () const noexcept -> Float;
   auto Y () const noexcept -> Float;
   auto Z () const noexcept -> Float;
@@ -42,25 +43,20 @@ public:
   auto Xyz () const noexcept -> __m128;
 #endif // NI_USE_SIMD
 
-  /* Setter */
   auto SetX (Float x) noexcept -> void;
   auto SetY (Float y) noexcept -> void;
   auto SetZ (Float z) noexcept -> void;
-
-  /* Methods */
-  auto At (unsigned idx) const -> Float;
 
   auto Normalize () noexcept -> Vector3f;
 
   auto Length ()        const -> Float;
   auto LengthSquared () const -> Float;
 
-  // Check status
   auto HasNaN       () const -> bool;
 
   auto ToString () const -> std::string;
 
-  /* Constant values */
+ public:
   static auto Max      () noexcept -> Vector3f;
   static auto Min      () noexcept -> Vector3f;
   static auto Infinity () noexcept -> Vector3f;
@@ -68,8 +64,7 @@ public:
   static auto One      () noexcept -> Vector3f;
   static auto Zero     () noexcept -> Vector3f;
 
-  /* Vector3f private data */
-private:
+ private:
   union
   {
     struct { Float x_, y_, z_, w_; };
@@ -77,7 +72,6 @@ private:
     __m128 xyzw_;
 #endif
   };
-
 }; // class Vector3f
 /*
 // ---------------------------------------------------------------------------

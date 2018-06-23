@@ -171,9 +171,9 @@ auto Vector3f::HasNaN () const -> bool
 */
 auto Vector3f::ToString () const -> std::string
 {
-  return std::string ("[x = "  + std::to_string (x_) +
-                      ", y = " + std::to_string (y_) +
-                      ", z = " + std::to_string (z_) + "]");
+  return std::string ("["  + std::to_string (x_) +
+                      ", " + std::to_string (y_) +
+                      ", " + std::to_string (z_) + "]");
 }
 /*
 // ---------------------------------------------------------------------------
