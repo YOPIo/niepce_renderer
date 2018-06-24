@@ -17,7 +17,7 @@ namespace niepce
 */
 Point3f::Point3f () :
 #ifdef NI_USE_SIMD
-  xyzw_ (_mm_setzero_pd ())
+  xyzw_ (_mm_setzero_ps ())
 #else
   x_ (0), y_ (0), z_ (0)
 #endif // NI_USE_SIMD
@@ -39,7 +39,7 @@ Point3f::Point3f (Float t) :
 #ifdef NI_USE_SIMD
   xyzw_ (_mm_set_ps (0, t, t, t))
 #else
-  x_ (s), y_ (s), z_ (s), w_ (0)
+  x_ (t), y_ (t), z_ (t), w_ (0)
 #endif // NI_USE_SIMD
 {}
 /*
@@ -193,9 +193,9 @@ auto operator * (const Point3f& p, Float t) -> Point3f
   const auto s = _mm_set1_ps (t);
   return Point3f (_mm_mul_ps (p.Xyz (), s));
 #else
-  return Point3f (p.X () * s,
-                  p.Y () * s,
-                  p.Z () * s);
+  return Point3f (p.X () * t,
+                  p.Y () * t,
+                  p.Z () * t);
 #endif // NI_USE_SIMD
 }
 /*
@@ -209,6 +209,19 @@ auto operator * (Float s, const Point3f& p) -> Point3f
 // ---------------------------------------------------------------------------
 */
 auto operator + (const Point3f& lhs, const Point3f& rhs) -> Point3f
+{
+#ifdef NI_USE_SIMD
+  return Point3f (_mm_add_ps (lhs.Xyz (), rhs.Xyz ()));
+#else
+  return Point3f (lhs.X () + rhs. X (),
+                  lhs.Y () + rhs. Y (),
+                  lhs.Z () + rhs. Z ());
+#endif // NI_USE_SIMD
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto operator + (const Point3f& lhs, const Vector3f& rhs) -> Point3f
 {
 #ifdef NI_USE_SIMD
   return Point3f (_mm_add_ps (lhs.Xyz (), rhs.Xyz ()));

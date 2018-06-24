@@ -5,6 +5,12 @@
  * @date 
  * @details 
  */
+// ---------------------------------------------------------------------------
+// TODO : Support SIMD
+// ---------------------------------------------------------------------------
+/*
+// ---------------------------------------------------------------------------
+*/
 #ifndef _MATRIX4X4F_H_
 #define _MATRIX4X4F_H_
 /*
@@ -98,7 +104,14 @@ public:
   static auto Identity () -> Matrix4x4f;
 
 private:
-  std::array <std::array <Float, 4>, 4> m_;
+  union
+  {
+    std::array <std::array <Float, 4>, 4> m_;
+#ifdef NI_USE_SIMD
+
+#endif // NI_USE_SIMD
+  };
+
 
 }; // class Matrix4x4f
 /*

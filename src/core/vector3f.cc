@@ -248,7 +248,7 @@ auto operator != (const Vector3f& lhs, const Vector3f& rhs) -> bool
 auto operator - (const Vector3f& v) -> Vector3f
 {
 #ifdef NI_USE_SIMD
-  static const auto mask = _mm_castsi128_ps (_mm_set1_epi32(0x80000000));
+  const auto mask = _mm_castsi128_ps (_mm_set1_epi32(0x80000000));
   return Vector3f (_mm_xor_ps (v.Xyz (), mask));
 #else
   return Vector3f (-v.X (), -v.Y (), -v.Z ());

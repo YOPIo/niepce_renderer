@@ -21,122 +21,49 @@ namespace niepce
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class Point2f final
+class ALIGN16 Point2f final
 {
 public:
-  //! The default class constructor.
-  Point2f () = default;
-
-  //! The constructor initialize all internal component by a argument.
-  explicit Point2f (Float t);
-
-  //! The constructor initialize internal component by arguments.
+  /* Constructors */
+  Point2f ();
   Point2f (Float x, Float y);
+  explicit Point2f (Float t);
+#ifdef NI_USE_SIMD
+  Point2f (const __m128& p);
+#endif // NI_USE_SIDM
 
-  //! The copy constructor of the class.
-  Point2f (const Point2f& p) = default;
+  Point2f (const Point2f&  p) = default;
+  Point2f (      Point2f&& p) = default;
 
-  //! The move constructor of the class.
-  Point2f (Point2f&& p) = default;
-
-  //! The default class destructor.
   virtual ~Point2f () = default;
 
-  //! The copy assignment operator of the class.
-  auto operator = (const Point2f& p) -> Point2f& = default;
-
-  //! The move assignment operator of the class.
-  auto operator = (Point2f&& p) -> Point2f& = default;
-
-  /*!
-   * @fn operator [unsigned int]
-   * @brief Index operator
-   * @param idx Index indicating which component to return as unsigned integer.
-   * @return X, or y component as float.
-   * @exception none
-   * @details If its argument is 0, this operator return x component. Otherwise it will return y component.
-   */
+  /* Operators */
+  auto operator = (const Point2f&  p) -> Point2f& = default;
+  auto operator = (      Point2f&& p) -> Point2f& = default;
   auto operator [] (unsigned int idx) const noexcept -> Float;
 
 public:
-  /*!
-   * @fn Float At (unsigned int idx)
-   * @brief Index operator
-   * @param idx Index indicating which component to return as unsigned integer.
-   * @return X, or y component as float.
-   * @exception Throw std::out_of_range if its argument over the 2.
-   * @details If its argument is 0, this operator return x component. Otherwise it will return y component.
-   */
   auto At (unsigned int idx) const -> Float;
-
-  //! @fn Float X ()
-  //! @brief Return x component of the point.
-  //! @return X component as float.
-  //! @exception none
   auto X () const noexcept -> Float;
-
-  //! @fn Float Y ()
-  //! @brief Return y component.
-  //! @return The component of y of the point.
-  //! @exception none
   auto Y () const noexcept -> Float;
+#ifdef NI_USE_SIMD
+  auto Xy () const noexcept -> __m128;
+#endif // NI_USE_SIMD
 
-  /*!
-   * @fn Float U ()
-   * @brief Return x component of the point.
-   * @return U component as float.
-   * @exception none
-   */
-  auto U () const noexcept -> Float;
-
-  /*!
-   * @fn Float V ()
-   * @brief Return x component of the point.
-   * @return V component as float.
-   * @exception none
-   */
-  auto V () const noexcept -> Float;
-
-  //! @fn void SetX ()
-  //! @brief Set the argument to the x component of the point
-  //! @param[in] Value that to be x component of the point.
-  //! @return none
-  //! @exception none
   auto SetX (Float x) noexcept -> void;
-
-  //! @fn void SetX ()
-  //! @brief Set the argument to the y component of the point
-  //! @param[in] Value that to be y component of the point.
-  //! @return none
-  //! @exception none
   auto SetY (Float y) noexcept -> void;
 
-  //! @fn void SetU ()
-  //! @brief Set the argument to the x component of the point
-  //! @param[in] Value that to be x component of the point.
-  //! @return none
-  //! @exception none
-  auto SetU (Float x) noexcept -> void;
-
-  //! @fn void SetX ()
-  //! @brief Set the argument to the y component of the point
-  //! @param[in] Value that to be y component of the point.
-  //! @return none
-  //! @exception none
-  auto SetV (Float y) noexcept -> void;
-
-  /*!
-   * @fn std ToString ()
-   * @brief 
-   * @return std::string
-   *    
-   * @exception none
-   * @details
-   */
   auto ToString () const noexcept -> std::string;
 
 private:
-  Float x_, y_;
+  union
+  {
+    struct { Float x_, y_, z_, w_; };
+#ifdef NI_USE_SIMD
+    __m128 xyzw_;
+#endif // NI_USE_SIMD
+  };
+
 }; // class Point2f
 /*
 // ---------------------------------------------------------------------------

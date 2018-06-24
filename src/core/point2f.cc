@@ -15,24 +15,47 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
+Point2f::Point2f () :
+#ifdef NI_USE_SIMD
+  xyzw_ (_mm_setzero_ps ())
+#else
+  x_ (0), y_ (0), z_ (0), w_ (0)
+#endif // NI_USE_SIMD
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
 Point2f::Point2f (Float t) :
-  x_ (t),
-  y_ (t)
+#ifdef NI_USE_SIMD
+  xyzw_ (_mm_set_ps (0, 0, t, t))
+#else
+  x_ (t), y_ (t)
+#endif // NI_USE_SIMD
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 Point2f::Point2f (Float x, Float y) :
-  x_ (x),
-  y_ (y)
+#ifdef NI_USE_SIMD
+  xyzw_ (_mm_set_ps (0, 0, y, x))
+#else
+  x_ (x), y_ (y)
+#endif // NI_USE_SIMD
 {}
+/*
+// ---------------------------------------------------------------------------
+*/
+#ifdef NI_USE_SIMD
+Point2f::Point2f (const __m128& p) :
+  xyzw_ (p)
+{}
+#endif // NI_USE_SIMD
 /*
 // ---------------------------------------------------------------------------
 */
 auto Point2f::operator [] (unsigned int idx) const noexcept -> Float
 {
-  if (idx == 0) { return x_; }
-  return y_;
+  return ((idx == 0) ? x_ : y_);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -41,7 +64,7 @@ auto Point2f::At (unsigned int idx) const -> Float
 {
   if (idx == 0) { return x_; }
   if (idx == 1) { return y_; }
-  throw std::out_of_range ("");
+  throw std::out_of_range ("Out of range in Point2f.");
 }
 /*
 // ---------------------------------------------------------------------------
@@ -60,17 +83,12 @@ auto Point2f::Y () const noexcept -> Float
 /*
 // ---------------------------------------------------------------------------
 */
-auto Point2f::U () const noexcept -> Float
+#ifdef NI_USE_SIMD
+auto Point2f::Xy () const noexcept -> __m128
 {
-  return x_;
+  return xyzw_;
 }
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Point2f::V () const noexcept -> Float
-{
-  return y_;
-}
+#endif // NI_USE_SIMD
 /*
 // ---------------------------------------------------------------------------
 */
@@ -88,35 +106,26 @@ auto Point2f::SetY (Float y) noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
-auto Point2f::SetU (Float u) noexcept -> void
-{
-  this->x_ = u;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Point2f::SetV (Float v) noexcept -> void
-{
-  this->y_ = v;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
 auto Point2f::ToString () const noexcept -> std::string
 {
-  return "[" + std::to_string (x_) + ", " + std::to_string(y_) + "]";
+  return "["   + std::to_string (x_)
+        + ", " + std::to_string (y_) + "]";
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator == (const Point2f& lhs, const Point2f& rhs) -> bool
 {
-  if (lhs.X () == rhs.X () &&
-      lhs.Y () == rhs.Y ())
+#ifdef NI_USE_SIMD
+  const auto mask = _mm_movemask_ps (_mm_cmpeq_ps (lhs.Xy (), rhs.Xy ()));
+  return ((mask & 0x07) == 0x07);
+#else
+  if (lhs.X () == rhs.X () && lhs.Y () == rhs.Y ())
   {
     return true;
   }
   return false;
+#endif // NI_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
@@ -130,30 +139,43 @@ auto operator != (const Point2f& lhs, const Point2f& rhs) -> bool
 */
 auto operator + (const Point2f& lhs, const Point2f& rhs) -> Point2f
 {
+#ifdef NI_USE_SIMD
+  return Point2f (_mm_add_ps (lhs.Xy (), rhs.Xy ()));
+#else
   return Point2f (lhs.X () + rhs.X (),
                   lhs.Y () + rhs.Y ());
+#endif // NI_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator - (const Point2f& lhs, const Point2f& rhs) -> Vector2f
 {
+#ifdef NI_USE_SIMD
+  return Vector2f (_mm_sub_ps (lhs.Xy(), rhs.Xy ()));
+#else
   return Vector2f (lhs.X () - rhs.X (),
                    lhs.Y () - rhs.Y ());
+#endif // NI_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator * (const Point2f& p, Float t) -> Point2f
 {
+#ifdef NI_USE_SIMD
+  const auto s = _mm_set1_ps (t);
+  return Point2f (_mm_mul_ps (p.Xy (), s));
+#else
   return Point2f (p.X () * t, p.Y () * t);
+#endif // NI_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator * (Float t, const Point2f& p) -> Point2f
 {
-  return Point2f (p.X () * t, p.Y () * t);
+  return p * t;
 }
 /*
 // ---------------------------------------------------------------------------

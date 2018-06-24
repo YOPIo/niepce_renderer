@@ -6,21 +6,22 @@
 #include "niepce.h"
 /*
 // ---------------------------------------------------------------------------
-// TODO: Support SIMD
-// ---------------------------------------------------------------------------
 */
 namespace niepce
 {
 /*
 // ---------------------------------------------------------------------------
 */
-class alignas(32) Vector2f final
+class ALIGN16 Vector2f final
 {
 public:
   /* Constructors */
   Vector2f ();
   Vector2f (Float x, Float y);
   explicit Vector2f (Float s);
+#ifdef NI_USE_SIMD
+  Vector2f (const __m128& v);
+#endif // NI_USE_SIMD
 
   ~Vector2f () = default;
 
@@ -32,34 +33,26 @@ public:
   auto operator = (const Vector2f&  p) -> Vector2f& = default;
   auto operator = (      Vector2f&& p) -> Vector2f& = default;
 
-  auto operator [] (unsigned idx) const -> Float;
-  auto operator [] (unsigned idx)       -> Float&;
+  auto operator [] (unsigned idx) const noexcept -> Float;
 
-  /* Getter */
-  auto X () const -> Float;
-  auto Y () const -> Float;
+ public:
+  auto X () const noexcept -> Float;
+  auto Y () const noexcept -> Float;
+#ifdef NI_USE_SIMD
+  auto Xy () const noexcept -> __m128;
+#endif // NI_USE_SIMD
 
-  /* Setter */
   auto SetX (Float x) -> void;
   auto SetY (Float y) -> void;
 
-
-  /* Methods */
   auto At (unsigned idx) const -> Float;
-  auto At (unsigned idx)       -> Float&;
-
-  auto Normalize  ()       -> Vector2f&;
-  auto Normalized () const -> Vector2f;
 
   auto Length        () const -> Float;
   auto LengthSquared () const -> Float;
 
-  // Check status
-  auto HasNaN       () const -> bool;
-  auto IsNormalized () const -> bool;
-
-  auto ToString () const -> std::string;
-
+  auto Normalize () noexcept -> Vector2f;
+  auto HasNaN    () const -> bool;
+  auto ToString  () const -> std::string;
 
   /* Constant values */
   static constexpr auto Max      () -> Vector2f;
@@ -69,17 +62,14 @@ public:
   static constexpr auto One      () -> Vector2f;
   static constexpr auto Zero     () -> Vector2f;
 
-
   /* Vector2f private data */
 private:
   union
   {
-    std::array <Float, 2> xy_;
-    std::array <Float, 2> uv_;
-    std::array <Float, 2> st_;
-    struct { Float x_, y_; };
-    struct { Float u_, v_; };
-    struct { Float s_, t_; };
+    struct { Float x_, y_, z_, w_; };
+#ifdef NI_USE_SIMD
+    __m128 xyzw_;
+#endif // NI_USE_SIMD
   };
 }; // struct Vector2f
 /*
@@ -103,7 +93,7 @@ auto operator /  (const Vector2f& v, Float t) -> Vector2f;
 // ---------------------------------------------------------------------------
 */
 auto Dot      (const Vector2f& lhs, const Vector2f& rhs) -> Float;
-auto Cross    (const Vector2f& lhs, const Vector2f& rhs) -> Float;
+// auto Cross    (const Vector2f& lhs, const Vector2f& rhs) -> Float;
 auto Multiply (const Vector2f& lhs, const Vector2f& rhs) -> Vector2f;
 /*
 // ---------------------------------------------------------------------------

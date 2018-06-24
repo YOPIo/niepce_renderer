@@ -8,15 +8,19 @@ set (CMAKE_CXX_FLAGS "-std=c++11 -pthread")
 
 # Build options
 # To building a plugin for autodesk maya, use "-DBUILD_MAYA_PLUGIN=on" option.
+option (NI_USE_SIMD            "Enable to use SIMD." OFF)
 option (BUILD_CUI_RENDERER     "Build a CUI renderer." ON)
 option (BUILD_MAYA_PLUGIN      "Build a plugin for autodesk maya." OFF)
 option (NIEPCE_FLOAT_IS_DOUBLE "" OFF)
-option (NIEPCE_USE_SIMD        "" OFF)
 
 # Generating a config file as "cmake_conifig.h"
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in
                 ${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h)
 
+if (USE_SIMD)
+  message (STATUS "Use SIMD.")
+  set (CMAKE_CXX_FLAGS "-msse4.1 -std=c++11 -pthread")
+endif ()
 
 if (BUILD_MAYA_PLUGIN)
   message (STATUS "Building a plugin for autodesk maya.")

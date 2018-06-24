@@ -27,7 +27,7 @@ BoolTexture::BoolTexture (const char* filename) :
 */
 auto BoolTexture::Sample (const Point2f &uv) const noexcept -> Spectrum
 {
-  if (image_->At (uv.U (), uv.V ())) { return Spectrum::One (); }
+  if (image_->At (uv.X (), uv.Y ())) { return Spectrum::One (); }
   return Vector3f::Zero ();
 }
 /*

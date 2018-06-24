@@ -98,7 +98,7 @@ auto PathTracer::RenderTileBounds
 {
   const Bounds2f& tile_bounds = tile->Bounds ();
 
-  static constexpr int num_sample = 8;
+  static constexpr int num_sample = 64;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 

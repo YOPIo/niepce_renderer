@@ -84,6 +84,7 @@ auto operator - (const Point3f& rhs, const Point3f& lhs) -> Vector3f;
 auto operator * (const Point3f& p, Float s) -> Point3f;
 auto operator * (Float s, const Point3f& p) -> Point3f;
 auto operator + (const Point3f& lhs, const Point3f& rhs) -> Point3f;
+auto operator + (const Point3f& lhs, const Vector3f& rhs) -> Point3f;
 /*
 // ---------------------------------------------------------------------------
 */
