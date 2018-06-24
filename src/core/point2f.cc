@@ -16,40 +16,40 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 Point2f::Point2f () :
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   xyzw_ (_mm_setzero_ps ())
 #else
   x_ (0), y_ (0), z_ (0), w_ (0)
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 Point2f::Point2f (Float t) :
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   xyzw_ (_mm_set_ps (0, 0, t, t))
 #else
   x_ (t), y_ (t)
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 Point2f::Point2f (Float x, Float y) :
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   xyzw_ (_mm_set_ps (0, 0, y, x))
 #else
   x_ (x), y_ (y)
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
 Point2f::Point2f (const __m128& p) :
   xyzw_ (p)
 {}
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 /*
 // ---------------------------------------------------------------------------
 */
@@ -83,12 +83,12 @@ auto Point2f::Y () const noexcept -> Float
 /*
 // ---------------------------------------------------------------------------
 */
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
 auto Point2f::Xy () const noexcept -> __m128
 {
   return xyzw_;
 }
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 /*
 // ---------------------------------------------------------------------------
 */
@@ -116,7 +116,7 @@ auto Point2f::ToString () const noexcept -> std::string
 */
 auto operator == (const Point2f& lhs, const Point2f& rhs) -> bool
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   const auto mask = _mm_movemask_ps (_mm_cmpeq_ps (lhs.Xy (), rhs.Xy ()));
   return ((mask & 0x07) == 0x07);
 #else
@@ -125,7 +125,7 @@ auto operator == (const Point2f& lhs, const Point2f& rhs) -> bool
     return true;
   }
   return false;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
@@ -139,36 +139,36 @@ auto operator != (const Point2f& lhs, const Point2f& rhs) -> bool
 */
 auto operator + (const Point2f& lhs, const Point2f& rhs) -> Point2f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return Point2f (_mm_add_ps (lhs.Xy (), rhs.Xy ()));
 #else
   return Point2f (lhs.X () + rhs.X (),
                   lhs.Y () + rhs.Y ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator - (const Point2f& lhs, const Point2f& rhs) -> Vector2f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return Vector2f (_mm_sub_ps (lhs.Xy(), rhs.Xy ()));
 #else
   return Vector2f (lhs.X () - rhs.X (),
                    lhs.Y () - rhs.Y ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator * (const Point2f& p, Float t) -> Point2f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   const auto s = _mm_set1_ps (t);
   return Point2f (_mm_mul_ps (p.Xy (), s));
 #else
   return Point2f (p.X () * t, p.Y () * t);
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------

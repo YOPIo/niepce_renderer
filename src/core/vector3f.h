@@ -19,9 +19,9 @@ public:
   Vector3f ();
   Vector3f (Float x, Float y , Float z);
   explicit Vector3f (Float s);
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   explicit Vector3f (const __m128& v);
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 
   ~Vector3f () = default;
 
@@ -39,9 +39,9 @@ public:
   auto X () const noexcept -> Float;
   auto Y () const noexcept -> Float;
   auto Z () const noexcept -> Float;
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   auto Xyz () const noexcept -> __m128;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 
   auto SetX (Float x) noexcept -> void;
   auto SetY (Float y) noexcept -> void;
@@ -68,7 +68,7 @@ public:
   union
   {
     struct { Float x_, y_, z_, w_; };
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
     __m128 xyzw_;
 #endif
   };

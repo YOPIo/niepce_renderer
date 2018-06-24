@@ -28,9 +28,9 @@ public:
   Point3f ();
   Point3f (Float x, Float y, Float z);
   explicit Point3f (Float t);
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   Point3f (const __m128& p);
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 
   ~Point3f () = default;
 
@@ -48,9 +48,9 @@ public:
   auto X () const noexcept -> Float;
   auto Y () const noexcept -> Float;
   auto Z () const noexcept -> Float;
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   auto Xyz () const noexcept -> __m128;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 
   auto SetX (Float x) noexcept -> void;
   auto SetY (Float y) noexcept -> void;
@@ -70,9 +70,9 @@ private:
   union
   {
     struct { Float x_, y_, z_, w_; };
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
     __m128 xyzw_;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
   };
 }; // class Point3f
 /*

@@ -3,13 +3,15 @@
 /*
 // ---------------------------------------------------------------------------
 */
-#include <cstddef>
-#include <cstdlib>
-#include <memory>
-#include <malloc.h>
-#include <list>
-#include <utility>
-#include <iostream>
+#include "niepce.h"
+/*
+// ---------------------------------------------------------------------------
+*/
+#ifdef NIEPCE_BUILD_TARGET_IS_APPLE
+   #include <malloc/malloc.h>
+#else
+   #include <malloc.h>
+#endif // NIEPCE_BUILD_TARGET_IS_APPLE
 /*
 // ---------------------------------------------------------------------------
 */

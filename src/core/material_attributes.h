@@ -117,7 +117,7 @@ public:
   // private:
 public:
   niepce::MaterialType type_;
-  std::unordered_map <TextureType, std::shared_ptr <Texture>> textures_;
+  std::map <TextureType, std::shared_ptr <Texture>> textures_;
 }; // class MaterialAttributes
 /*
 // ---------------------------------------------------------------------------

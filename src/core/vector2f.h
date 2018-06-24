@@ -19,9 +19,9 @@ public:
   Vector2f ();
   Vector2f (Float x, Float y);
   explicit Vector2f (Float s);
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   Vector2f (const __m128& v);
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 
   ~Vector2f () = default;
 
@@ -38,9 +38,9 @@ public:
  public:
   auto X () const noexcept -> Float;
   auto Y () const noexcept -> Float;
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   auto Xy () const noexcept -> __m128;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 
   auto SetX (Float x) -> void;
   auto SetY (Float y) -> void;
@@ -67,9 +67,9 @@ private:
   union
   {
     struct { Float x_, y_, z_, w_; };
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
     __m128 xyzw_;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
   };
 }; // struct Vector2f
 /*

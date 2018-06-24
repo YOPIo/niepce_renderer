@@ -28,9 +28,9 @@ public:
   Point2f ();
   Point2f (Float x, Float y);
   explicit Point2f (Float t);
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   Point2f (const __m128& p);
-#endif // NI_USE_SIDM
+#endif // NIEPCE_USE_SIDM
 
   Point2f (const Point2f&  p) = default;
   Point2f (      Point2f&& p) = default;
@@ -46,9 +46,9 @@ public:
   auto At (unsigned int idx) const -> Float;
   auto X () const noexcept -> Float;
   auto Y () const noexcept -> Float;
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   auto Xy () const noexcept -> __m128;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 
   auto SetX (Float x) noexcept -> void;
   auto SetY (Float y) noexcept -> void;
@@ -59,9 +59,9 @@ private:
   union
   {
     struct { Float x_, y_, z_, w_; };
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
     __m128 xyzw_;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
   };
 
 }; // class Point2f

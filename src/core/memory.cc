@@ -110,14 +110,14 @@ auto MemoryArena::TotalAllocated () const -> size_t
 // Memory Allocation Functions
 void *AllocAligned(size_t size)
 {
-#if defined(_WIN32)
-    return _aligned_malloc(size, 64);
-#elif defined(PBRT_HAVE_POSIX_MEMALIGN)
-    void *ptr;
-    if (posix_memalign(&ptr, 64, size) != 0) ptr = nullptr;
-    return ptr;
+#if defined(NIEPCE_BUILD_TARGET_IS_WIN32)
+    return _aligned_malloc(size, 16);
 #else
-    return memalign(64, size);
+    void *ptr;
+    if (posix_memalign (&ptr, 16, size) != 0) ptr = nullptr;
+    return ptr;
+    // #else
+    // return memalign(64, size);
 #endif
 }
 /*
@@ -126,10 +126,10 @@ void *AllocAligned(size_t size)
 void FreeAligned (void *ptr)
 {
   if (!ptr) return ;
-#if defined(PBRT_HAVE__ALIGNED_MALLOC)
-    _aligned_free(ptr);
+#if defined (NIEPCE_BUILD_TARGET_IS_WIN32)
+    _aligned_free (ptr);
 #else
-    free(ptr);
+    free (ptr);
 #endif
 }
 /*

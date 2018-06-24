@@ -107,9 +107,9 @@ private:
   union
   {
     std::array <std::array <Float, 4>, 4> m_;
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
 
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
   };
 
 

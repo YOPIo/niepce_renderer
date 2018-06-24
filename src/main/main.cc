@@ -63,12 +63,14 @@ auto Finalize () -> void
 int main (int argc, char* argv[])
 {
   niepce::Initialize ();
+
   niepce::SceneImporter
     importer ("/home/yopio/workspace/niepce/assets/cornellbox/cornellbox.xml");
   auto scene  = importer.ExtractScene ();
   auto camera = importer.ExtractCamera ();
   niepce::PathTracer pt (scene, camera);
   pt.Render ();
+
   niepce::Finalize ();
 
   return 0;

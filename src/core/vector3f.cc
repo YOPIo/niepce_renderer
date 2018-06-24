@@ -11,40 +11,40 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 Vector3f::Vector3f () :
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   xyzw_ (_mm_setzero_ps ())
 #else
   x_ (0), y_ (0), z_ (0), w_ (0)
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 Vector3f::Vector3f (Float x, Float y, Float z) :
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   xyzw_ (_mm_set_ps (0, z, y, x))
 #else
   x_ (x), y_ (y), z_ (z), w_ (0)
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 Vector3f::Vector3f (Float s) :
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   xyzw_ (_mm_set_ps (0, s, s, s))
 #else
   x_ (s), y_ (s), z_ (s), w_ (0)
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
 Vector3f::Vector3f (const __m128& v) :
   xyzw_ (v)
 {}
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 /*
 // ---------------------------------------------------------------------------
 */
@@ -86,12 +86,12 @@ auto Vector3f::Z () const noexcept -> Float
 /*
 // ---------------------------------------------------------------------------
 */
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
 auto Vector3f::Xyz () const noexcept -> __m128
 {
   return xyzw_;
 }
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 /*
 // ---------------------------------------------------------------------------
 */
@@ -118,7 +118,7 @@ auto Vector3f::SetZ (Float z) noexcept -> void
 */
 auto Vector3f::Normalize () noexcept -> Vector3f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   xyzw_ = _mm_div_ps (xyzw_, _mm_sqrt_ps (_mm_dp_ps (xyzw_, xyzw_, 0xFF)));
   return *this;
 #else
@@ -128,25 +128,25 @@ auto Vector3f::Normalize () noexcept -> Vector3f
   z_ *= inv_len;
   w_ *= inv_len;
   return *this;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Vector3f::Length () const -> Float
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return _mm_cvtss_f32(_mm_sqrt_ss (_mm_dp_ps (xyzw_, xyzw_, 0x71)));
 #else
   return std::sqrt (LengthSquared ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Vector3f::LengthSquared () const -> Float
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return _mm_cvtss_f32 (_mm_dp_ps (xyzw_, xyzw_, 0x71));
 #else
   return x_ * x_ + y_ * y_ + z_ * z_;
@@ -157,7 +157,7 @@ auto Vector3f::LengthSquared () const -> Float
 */
 auto Vector3f::HasNaN () const -> bool
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   const __m128 mask = _mm_cmpeq_ps (xyzw_, xyzw_);
   return (_mm_movemask_ps (mask) & 0x0F) != 0x0F;
 #else
@@ -224,7 +224,7 @@ auto Vector3f::Zero () noexcept -> Vector3f
 */
 auto operator == (const Vector3f& lhs, const Vector3f& rhs) -> bool
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   const auto mask = _mm_movemask_ps (_mm_cmpeq_ps (lhs.Xyz (), rhs.Xyz ()));
   return ((mask & 0x07) == 0x07);
 #else
@@ -233,7 +233,7 @@ auto operator == (const Vector3f& lhs, const Vector3f& rhs) -> bool
     return true;
   }
   return false;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
@@ -247,52 +247,52 @@ auto operator != (const Vector3f& lhs, const Vector3f& rhs) -> bool
 */
 auto operator - (const Vector3f& v) -> Vector3f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   const auto mask = _mm_castsi128_ps (_mm_set1_epi32(0x80000000));
   return Vector3f (_mm_xor_ps (v.Xyz (), mask));
 #else
   return Vector3f (-v.X (), -v.Y (), -v.Z ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator + (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return Vector3f (_mm_add_ps (lhs.Xyz (), rhs.Xyz ()));
 #else
   return Vector3f (lhs.X () + rhs.X (),
                    lhs.Y () + rhs.Y (),
                    lhs.Z () + rhs.Z ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator - (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return Vector3f (_mm_sub_ps (lhs.Xyz (), rhs.Xyz ()));
 #else
   return Vector3f (lhs.X () - rhs.X (),
                    lhs.Y () - rhs.Y (),
                    lhs.Z () - rhs.Z ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator * (const Vector3f& v, Float t) -> Vector3f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   const auto s = _mm_set1_ps (t);
   return Vector3f (_mm_mul_ps (v.Xyz (), s));
 #else
   return Vector3f (v.X () * t,
                    v.Y () * t,
                    v.Z () * t);
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
@@ -306,39 +306,39 @@ auto operator * (Float t, const Vector3f& v) -> Vector3f
 */
 auto operator / (const Vector3f& v, Float t) -> Vector3f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   const auto s = _mm_set1_ps (t);
   return Vector3f (_mm_div_ps (v.Xyz (), s));
 #else
   const Float inv = 1.0 / t;
   return Vector3f (v.X () * inv, v.Y () * inv, v.Z () * inv);
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator * (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return Vector3f (_mm_mul_ps (lhs.Xyz (), rhs.Xyz ()));
 #else
   return Vector3f (lhs.X () * rhs.X (),
                    lhs.Y () * rhs.Y (),
                    lhs.Z () * rhs.Z ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator / (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return Vector3f (_mm_div_ps (lhs.Xyz (), rhs.Xyz ()));
 #else
   return Vector3f (lhs.X () / rhs.X (),
                    lhs.Y () / rhs.Y (),
                    lhs.Z () / rhs.Z ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
@@ -347,18 +347,18 @@ auto operator / (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
 */
 auto Dot (const Vector3f& lhs, const Vector3f& rhs) -> Float
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return _mm_cvtss_f32 (_mm_dp_ps (lhs.Xyz (), rhs.Xyz (), 0x71));
 #else
   return lhs.X () * rhs.X () + lhs.Y () * rhs.Y () + lhs.Z () * rhs.Z ();
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Cross (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   const auto tmp0 = _mm_shuffle_ps (lhs.Xyz (), lhs.Xyz (), _MM_SHUFFLE (3, 0, 2, 1));
   const auto tmp1 = _mm_shuffle_ps (rhs.Xyz (), rhs.Xyz (), _MM_SHUFFLE (3, 1, 0, 2));
   const auto tmp2 = _mm_shuffle_ps (lhs.Xyz (), lhs.Xyz (), _MM_SHUFFLE (3, 1, 0, 2));
@@ -368,14 +368,14 @@ auto Cross (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
   return Vector3f (lhs.Y () * rhs.Z () - lhs.Z () * rhs.Y (),
                    lhs.Z () * rhs.X () - lhs.X () * rhs.Z (),
                    lhs.X () * rhs.Y () - lhs.Y () * rhs.X ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Normalize (const Vector3f& vec) -> Vector3f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   auto tmp = vec;
   auto res = tmp.Normalize ();
   return res;
@@ -388,7 +388,7 @@ auto Normalize (const Vector3f& vec) -> Vector3f
 */
 auto Multiply (const Vector3f& lhs, const Vector3f& rhs) -> Vector3f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return Vector3f (_mm_mul_ps (lhs.Xyz (), rhs.Xyz ()));
 #else
   return Vector3f (lhs.X () * rhs.X (),

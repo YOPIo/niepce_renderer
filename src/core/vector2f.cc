@@ -10,40 +10,40 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 Vector2f::Vector2f () :
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   xyzw_ (_mm_setzero_ps ())
 #else
   x_ (0), y_ (0), z_ (0), w_ (0)
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 Vector2f::Vector2f (Float x, Float y) :
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   xyzw_ (_mm_set_ps (0, 0, y, x))
 #else
   x_ (x), y_ (y), z_ (0), w_ (0)
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 Vector2f::Vector2f (Float s) :
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   xyzw_ (_mm_set_ps (0, 0, s, s))
 #else
   x_ (s), y_ (s), z_ (0), w_ (0)
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
 Vector2f::Vector2f (const __m128& v) :
   xyzw_ (v)
 {}
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 /*
 // ---------------------------------------------------------------------------
 */
@@ -77,12 +77,12 @@ auto Vector2f::Y () const noexcept -> Float
 /*
 // ---------------------------------------------------------------------------
 */
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
 auto Vector2f::Xy () const noexcept -> __m128
 {
   return xyzw_;
 }
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 /*
 // ---------------------------------------------------------------------------
 */
@@ -103,7 +103,7 @@ auto Vector2f::SetY (Float y) -> void
 */
 auto Vector2f::Normalize () noexcept -> Vector2f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   xyzw_ = _mm_div_ps (xyzw_, _mm_sqrt_ps (_mm_dp_ps (xyzw_, xyzw_, 0xFF)));
   return *this;
 #else
@@ -113,36 +113,36 @@ auto Vector2f::Normalize () noexcept -> Vector2f
   z_ = 0;
   w_ = 0;
   return *this;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Vector2f::Length () const -> Float
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return _mm_cvtss_f32 (_mm_sqrt_ss (_mm_dp_ps (xyzw_, xyzw_, 0x71)));
 #else
   return std::sqrt (LengthSquared ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Vector2f::LengthSquared () const -> Float
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return _mm_cvtss_f32 (_mm_dp_ps (xyzw_, xyzw_, 0x71));
 #else
   return x_ * x_ + y_ * y_;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Vector2f::HasNaN () const -> bool
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   const __m128 mask = _mm_cmpeq_ps (xyzw_, xyzw_);
   return (_mm_movemask_ps (mask) & 0x0F) != 0x0F;
 #else
@@ -165,7 +165,7 @@ auto Vector2f::ToString () const -> std::string
 */
 auto operator == (const Vector2f& lhs, const Vector2f& rhs) -> bool
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   const auto mask = _mm_movemask_ps (_mm_cmpeq_ps (lhs.Xy (), rhs.Xy ()));
   return ((mask & 0x07) == 0x07);
 #else
@@ -174,7 +174,7 @@ auto operator == (const Vector2f& lhs, const Vector2f& rhs) -> bool
     return true;
   }
   return false;
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
@@ -188,12 +188,12 @@ auto operator != (const Vector2f& lhs, const Vector2f& rhs) -> bool
 */
 auto operator - (const Vector2f& v) -> Vector2f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   const auto mask = _mm_castsi128_ps (_mm_set1_epi32 (0x80000000));
   return Vector2f (_mm_xor_ps (v.Xy (), mask));
 #else
 
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
   return Vector2f (-v.X (), -v.Y ());
 }
 /*
@@ -201,34 +201,34 @@ auto operator - (const Vector2f& v) -> Vector2f
 */
 auto operator + (const Vector2f& lhs, const Vector2f& rhs) -> Vector2f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return Vector2f (_mm_add_ps (lhs.Xy (), rhs.Xy ()));
 #else
   return Vector2f (lhs.X () + rhs.X (), lhs.Y () + rhs.Y ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator - (const Vector2f& lhs, const Vector2f& rhs) -> Vector2f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return Vector2f (_mm_sub_ps (lhs.Xy (), rhs.Xy ()));
 #else
   return Vector2f (lhs.X () - rhs.X (), lhs.Y () - rhs.Y ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator * (const Vector2f& v, Float t) -> Vector2f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   const auto s = _mm_set1_ps (t);
   return Vector2f (_mm_mul_ps (v.Xy (), s));
 #else
   return Vector2f (v.X () * t, v.Y () * t);
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
@@ -250,11 +250,11 @@ auto operator / (const Vector2f& v, Float t) -> Vector2f
 */
 auto Dot (const Vector2f& lhs, const Vector2f& rhs) -> Float
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return _mm_cvtss_f32 (_mm_dp_ps (lhs.Xy (), rhs.Xy (), 0x71));
 #else
   return lhs.X () * rhs.X () + lhs.Y () * rhs.Y ();
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------
@@ -270,11 +270,11 @@ auto Cross (const Vector2f& lhs, const Vector2f& rhs) -> Float
 */
 auto Multiply (const Vector2f& lhs, const Vector2f& rhs) -> Vector2f
 {
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
   return Vector2f (_mm_mul_ps (lhs.Xy (), rhs.Xy ()));
 #else
   return Vector2f (lhs.X () * rhs.X (), lhs.Y () * rhs.Y ());
-#endif // NI_USE_SIMD
+#endif // NIEPCE_USE_SIMD
 }
 /*
 // ---------------------------------------------------------------------------

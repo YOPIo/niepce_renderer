@@ -17,19 +17,19 @@
 #ifdef _WIN32
    #define NOMINMAX
    #ifdef _WIN64
-      #define NI_BUILD_TARGET_IS_WIN64
+      #define NIEPCE_BUILD_TARGET_IS_WIN64
    #else
-      #define NI_BUILD_TARGET_IS_WIN32
+      #define NIEPCE_BUILD_TARGET_IS_WIN32
    #endif
 
 #elif __APPLE__
-   #define NI_BUILD_TARGET_IS_APPLE
+   #define NIEPCE_BUILD_TARGET_IS_APPLE
 
 #elif __linux__
-   #define NI_BUILD_TARGET_IS_LINUX
+   #define NIEPCE_BUILD_TARGET_IS_LINUX
 
 #elif __unix__
-   #define NI_BUILD_TARGET_IS_UNIX
+   #define NIEPCE_BUILD_TARGET_IS_UNIX
 
 #else
    #error "Unknown compiler"
@@ -50,6 +50,7 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#include <list>
 #include <map>
 #include <memory>
 #include <queue>
@@ -64,22 +65,22 @@
 // Alignment definition
 // ---------------------------------------------------------------------------
 */
-#if defined (NI_BUILD_TARGET_IS_WINDOWS)
-   #define NI_ALIGN(bit) __declspec(align(bit))
+#if defined (NIEPCE_BUILD_TARGET_IS_WINDOWS)
+   #define NIEPCE_ALIGN(bit) __declspec(align(bit))
 #else
-   #define NI_ALIGN(bit) alignas((bit))
-#endif // NI_BUILD_TARGET_IS_WINDOWS
+   #define NIEPCE_ALIGN(bit) alignas((bit))
+#endif // NIEPCE_BUILD_TARGET_IS_WINDOWS
 
-#define ALIGN16  NI_ALIGN(16)
-#define ALIGN32  NI_ALIGN(32)
-#define ALIGN64  NI_ALIGN(64)
-#define ALIGN128 NI_ALIGN(128)
+#define ALIGN16  NIEPCE_ALIGN(16)
+#define ALIGN32  NIEPCE_ALIGN(32)
+#define ALIGN64  NIEPCE_ALIGN(64)
+#define ALIGN128 NIEPCE_ALIGN(128)
 /*
 // ---------------------------------------------------------------------------
 // Niepce renderer SIMD include
 // ---------------------------------------------------------------------------
 */
-#ifdef NI_USE_SIMD
+#ifdef NIEPCE_USE_SIMD
    #include <xmmintrin.h>
    #include <smmintrin.h>
 #endif // NIEPCE_USE_SIMD
