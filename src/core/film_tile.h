@@ -30,7 +30,7 @@ public:
   FilmTile () = delete;
 
   //! The constructor needs bounds2.
-  FilmTile (const Bounds2f& bound);
+  FilmTile (int tile_number, const Bounds2f& bound);
 
   //! The copy constructor of the class.
   FilmTile (const FilmTile& tile) = default;
@@ -75,7 +75,17 @@ public:
    */
   auto Max () const noexcept -> Point2f;
 
+  /*!
+   * @fn int TileNumber ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto TileNumber () const noexcept -> int;
+
 private:
+  const int      tile_number_;
   const Bounds2f tile_bounds_;
 }; // class FilmTile
 /*

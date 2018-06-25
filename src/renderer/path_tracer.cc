@@ -43,7 +43,8 @@ auto PathTracer::Render () -> void
   // Compute the tile bounds.
   std::vector <FilmTile> tiles;
   std::vector <std::shared_ptr <RandomSampler>> samplers;
-  constexpr static int tile_size = 64;
+  constexpr static int tile_size = 128;
+  static int tile_number = 1;
   const auto resolution = camera_->Resolution ();
   const auto width  = resolution.Width ();
   const auto height = resolution.Height ();
@@ -54,7 +55,7 @@ auto PathTracer::Render () -> void
       const int last_x = x + tile_size >= width  ? width  : x + tile_size;
       const int last_y = y + tile_size >= height ? height : y + tile_size;
       const Bounds2f tile (Point2f (x, y), Point2f (last_x, last_y));
-      tiles.push_back (FilmTile (tile));
+      tiles.push_back (FilmTile (tile_number++, tile));
       // Clone sampler for each tile.
       samplers.push_back (std::make_shared <RandomSampler> (last_x * last_y));
     }
@@ -99,7 +100,7 @@ auto PathTracer::RenderTileBounds
 {
   const Bounds2f& tile_bounds = tile->Bounds ();
 
-  static constexpr int num_sample = 8;
+  static constexpr int num_sample = 4;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 
@@ -111,7 +112,7 @@ auto PathTracer::RenderTileBounds
       for (int s = 0; s < num_sample; ++s)
       {
         const Point2f pfilm (x + tile_bounds.Min ().X (),
-                             y + tile_bounds.Max ().Y ());
+                             y + tile_bounds.Min ().Y ());
         Float weight = 0;
         Ray ray;
         while (!weight)

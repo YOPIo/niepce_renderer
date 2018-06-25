@@ -78,7 +78,7 @@ public:
   const noexcept -> bool;
 
   /*!
-   * @fn std Shape ()
+   * @fn std::shared_ptr <niepce::Shape> Shape ()
    * @brief 
    * @return 
    * @exception none
@@ -87,7 +87,7 @@ public:
   auto Shape () const noexcept -> const std::shared_ptr <niepce::Shape>;
 
   /*!
-   * @fn std Material ()
+   * @fn std::shared_ptr <niepce::Material> Material ()
    * @brief 
    * @return 
    * @exception none
@@ -96,7 +96,7 @@ public:
   auto Material () const noexcept -> const std::shared_ptr <niepce::Material>;
 
   /*!
-   * @fn const Light ()
+   * @fn std::shared_ptr <niepce::Light> Light ()
    * @brief 
    * @return 
    * @exception none
