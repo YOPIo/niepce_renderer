@@ -15,6 +15,7 @@
 #include "../material/material.h"
 #include "../shape/triangle.h"
 #include "../primitive/primitive.h"
+#include "../light/light.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -59,15 +60,28 @@ auto SceneImporter::Import (const char *filename) -> void
       camera_ = CreateCamera (attributes);
       continue;
     }
+    if (IsElementType (element, "light"))
+    {
+      // Parse child
+      ParseRecursive (element, &attributes);
+      // Get light type.
+      auto type = element->Attribute ("type");
+      attributes.AddString ("type", type);
+      // Get light id.
+      auto id = element->Attribute ("id");
+      // Compute filepath.
+      // Store light.
+      lights_.emplace (id, CreateLight (attributes));
+      continue;
+    }
     if (IsElementType (element, "texture"))
     {
       // Parse children.
       ParseRecursive (element, &attributes);
       // Get texture id.
       auto id   = element->Attribute ("id");
-      auto path = base_filepath_ + attributes.FindString ("filename");
       // Create texture
-      auto texture = CreateImageTexture (path);
+      auto texture = CreateImageTexture (attributes.FindString ("filename"));
       textures_.emplace (id, std::move (texture));
       continue;
     }
@@ -88,7 +102,7 @@ auto SceneImporter::Import (const char *filename) -> void
     }
   }
   // Construct a scene.
-  scene_.reset (CreateScene (primitives_));
+  scene_.reset (CreateScene (primitives_, lights_.at ("infinite")));
 }
 /*
 // ---------------------------------------------------------------------------
@@ -289,7 +303,13 @@ auto SceneImporter::ParseString (tinyxml2::XMLElement* element)
 {
   const std::string name  = element->Attribute ("name");
   const std::string type  = element->Parent ()->ToElement ()->Name ();
-  const std::string value = element->Attribute ("value");
+
+  std::string value = element->Attribute ("value");
+  if (name == "filename")
+  {
+    value = base_filepath_ + value;
+  }
+
   return std::make_pair (name, value);
 }
 /*
@@ -356,8 +376,7 @@ auto SceneImporter::MaterialType (tinyxml2::XMLElement* element)
 */
 auto SceneImporter::LoadObj (const Attributes& attributes) -> void
 {
-  const std::string filename
-    = base_filepath_ + attributes.FindString ("filename");
+  const std::string filename = attributes.FindString ("filename");
 
   tinyobj::attrib_t attrib;
   std::vector<tinyobj::shape_t> shapes;

@@ -30,7 +30,11 @@ public:
   Scene () = default;
 
   //! The constructor takes primitives.
-  Scene (const std::vector <std::shared_ptr <Primitive>>& primitives);
+  Scene
+  (
+   const std::vector <std::shared_ptr <Primitive>>& primitives,
+   const std::shared_ptr <niepce::Light>&   inf_light
+  );
 
   //! The copy constructor of the class.
   Scene (const Scene& scene) = default;
@@ -54,7 +58,7 @@ public:
    * @param[in] ray 
    * @param[out] intersection Ray intersected with a shape or not.
    * @return void
-   * @exception none
+   * @exception no
    * @details
    */
   auto IsIntersect
@@ -65,25 +69,32 @@ public:
   const noexcept -> bool;
 
   /*!
-   * @fn std SampleOneLight ()
+   * @fn std InfiniteLight ()
    * @brief 
-   * @param[in] sample
+   * @param[in] 
    * @return 
    * @exception none
-   * @details
+   * @details 
    */
-  auto SampleOneLight (Float sample) -> std::shared_ptr <Light>;
+  auto InfiniteLight () const noexcept -> std::shared_ptr <Light>;
+
 
 private:
   Bvh primitives_;
   std::vector <std::shared_ptr <Light>> lights_;
+
+  std::shared_ptr <niepce::Light> infinite_light_;
 
   // std::vector <std::shared_ptr <Primitive>> original_;
 }; // class Scene
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreateScene (const std::vector <std::shared_ptr <Primitive>>& p) -> Scene*;
+auto CreateScene
+(
+ const std::vector <std::shared_ptr <Primitive>>& p,
+ const std::shared_ptr <niepce::Light>&   inf_light
+) -> Scene*;
 /*
 // ---------------------------------------------------------------------------
 */

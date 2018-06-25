@@ -204,8 +204,14 @@ private:
   // Value : std::shared_ptr <Material>
   std::unordered_map <std::string, std::shared_ptr <Material>> materials_;
 
+  // Key   : Light ID
+  // Value : std::shared_ptr <Texture>
+  std::unordered_map <std::string, std::shared_ptr <Light>> lights_;
 
-  std::map <std::string, std::shared_ptr <Shape>>    shapes_;
+  // Key   : Shape ID
+  // Value : std::shared_ptr <Shape>
+  std::map <std::string, std::shared_ptr <Shape>>  shapes_;
+
   std::vector <std::shared_ptr <Primitive>> primitives_;
 
   std::shared_ptr <Camera> camera_;

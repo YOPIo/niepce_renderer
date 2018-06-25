@@ -59,6 +59,7 @@ else () # if (BUILD_CUI_RENDERER)
     Renderer
     Scene
     Accelerator
+    Light
     Texture
     Material
     Camera

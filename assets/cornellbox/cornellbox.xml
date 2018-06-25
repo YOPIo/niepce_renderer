@@ -21,6 +21,10 @@
     <float name="focus_distance" value="250" unit="m"/>
   </camera>
 
+  <light type="infinite" id="infinite">
+    <string name="filename" value="env.hdr"/>
+  </light>
+
   <texture id="texture0">
     <string name="filename" value="icon.png"/>
   </texture>

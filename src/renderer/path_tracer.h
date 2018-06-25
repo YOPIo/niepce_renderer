@@ -100,20 +100,15 @@ private:
     -> Vector3f;
 
   /*!
-   * @fn Spectrum UniformSampleOneLight ()
+   * @fn Spectrum SampleInfiniteLight ()
    * @brief 
    * @param[in] 
    * @param[out] 
    * @return 
    * @exception none
-   * @details
+   * @details 
    */
-  auto UniformSampleOneLight
-  (
-   const Intersection& intersection,
-   RandomSampler* sampler
-  )
-  const noexcept -> Spectrum;
+  auto SampleInfiniteLight (Float* pdf) -> Spectrum;
 
 private:
   std::shared_ptr <Scene>  scene_;

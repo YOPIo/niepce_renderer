@@ -23,9 +23,14 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Scene::Scene (const std::vector <std::shared_ptr <Primitive>>& primitives) :
-  primitives_ (primitives)
+Scene::Scene
+(
+ const std::vector <std::shared_ptr <Primitive>>& primitives,
+ const std::shared_ptr <niepce::Light>&   inf_light
+) :
+  primitives_ (primitives),
   // original_   (primitives)
+  infinite_light_ (inf_light)
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -59,19 +64,26 @@ auto Scene::IsIntersect
 /*
 // ---------------------------------------------------------------------------
 */
-auto Scene::SampleOneLight (Float sample) -> std::shared_ptr <Light>
+auto Scene::InfiniteLight ()
+  const noexcept -> std::shared_ptr <niepce::Light>
 {
-  int idx = std::min (static_cast <int> (lights_.size ()),
-                      static_cast <int> (sample * lights_.size ()));
-  return lights_[idx];
+  if (infinite_light_)
+  {
+    return infinite_light_;
+  }
+  return nullptr;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreateScene (const std::vector <std::shared_ptr <Primitive>>& primitives)
+auto CreateScene
+(
+ const std::vector <std::shared_ptr <Primitive>>& primitives,
+ const std::shared_ptr <niepce::Light>&   inf_light
+)
   -> Scene*
 {
-  return new Scene (primitives);
+  return new Scene (primitives, inf_light);
 }
 /*
 // ---------------------------------------------------------------------------

@@ -115,6 +115,7 @@ class Film;
 class FilmTile;
 template <typename T> class Image;
 template <typename T> class ImageIO;
+class InfiniteLight;
 class Intersection;
 class Lambert;
 class Light;

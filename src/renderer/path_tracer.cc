@@ -12,13 +12,13 @@
 #include "../core/intersection.h"
 #include "../core/point3f.h"
 #include "../core/vector3f.h"
-#include "../core/shadow_ray.h"
 #include "../bsdf/bsdf.h"
 #include "../bsdf/bsdf_record.h"
 #include "../camera/camera.h"
 #include "../core/singleton.h"
 #include "../core/film_tile.h"
 #include "../camera/camera_sample.h"
+#include "../light/infinite_light.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -140,8 +140,8 @@ auto PathTracer::Radiance
 )
   -> Vector3f
 {
-  Spectrum l = Spectrum (0);
-  Spectrum f = Spectrum (1);
+  Spectrum contribution = Spectrum (0);
+  Spectrum weight = Spectrum (1);
 
   Ray ray (first_ray);
 
@@ -159,16 +159,34 @@ auto PathTracer::Radiance
     if (!scene_->IsIntersect (ray, &intersection))
     {
       // No intersection found.
-      return l;
+      // return contribution;
+
+      // HACKME:
+      intersection.SetOutgoing (-ray.Direction ());
+
+      // Sample infinite light.
+      const auto inf_light = scene_->InfiniteLight ();
+      if (inf_light != nullptr)
+      {
+        Float pdf = 0;
+        const auto s = inf_light->Evaluate (intersection, &pdf);
+        contribution = contribution + weight * s;
+      }
+      return contribution;
     }
 
-    // Ready to generate the BSDF.
+    // Ready to generate the BSDWEIGHT.
     const auto material = intersection.Material ();
 
-    l = l + f * material->Emission (intersection.Texcoord ());
+    if (material->HasEmission ())
+    {
+      contribution = contribution + weight
+                   * material->Emission (intersection.Texcoord ());
+    }
+
 
     // -------------------------------------------------------------------------
-    // BSDF sampling
+    // Generate BSDS.
     // -------------------------------------------------------------------------
 
     // Sample incident direction.
@@ -180,22 +198,19 @@ auto PathTracer::Radiance
 
     if (bsdf->Type () != BsdfType::kSpecular)
     {
-      // -----------------------------------------------------------------------
-      // Next event estimation.
-      // -----------------------------------------------------------------------
-      const auto s = UniformSampleOneLight (intersection, tile_sampler);
-      l = l + f * s * bsdf_record.Bsdf ();
+      // NNE
     }
 
-    f = f * bsdf_record.Bsdf () * bsdf_record.CosTheta () / bsdf_record.Pdf ();
+    weight = weight
+           * bsdf_record.Bsdf () * bsdf_record.CosTheta () / bsdf_record.Pdf ();
 
-    // ---------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Russian roulette
-    // ---------------------------------------------------------------------------
-    Float q = std::fmax (l[0], std::fmax(l[1], l[2]));
+    // -------------------------------------------------------------------------
+    Float q = std::fmax (contribution[0], std::fmax(contribution[1], contribution[2]));
     if (depth > 7)
     {
-      if (tile_sampler->SampleFloat () >= q) { return l; }
+      if (tile_sampler->SampleFloat () >= q) { return contribution; }
     }
     else { q = 1.0; }
 
@@ -205,36 +220,12 @@ auto PathTracer::Radiance
     ray = Ray (intersection.Position (), incident);
   }
 
-  return l;
+  return contribution;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto PathTracer::UniformSampleOneLight
-(
- const Intersection& intersection,
- RandomSampler* sampler
-)
-  const noexcept -> Spectrum
-{
-  // 怪しい
 
-  // Get a light source from scene.
-  const auto light = scene_->SampleOneLight (sampler->SampleFloat ());
-
-  // Generate shadow ray.
-  const auto plight  = light->SamplePoint (intersection,
-                                           sampler->SamplePoint2f ());
-  const auto porigin = intersection.Position ();
-  ShadowRay ray (porigin, plight);
-  if (ray.IsVisible (*scene_))
-  {
-    Float pdf = 1;
-    const auto emission = light->Evaluate (&pdf);
-    return emission / pdf;
-  }
-  return Spectrum (0);
-}
 /*
 // ---------------------------------------------------------------------------
 */
