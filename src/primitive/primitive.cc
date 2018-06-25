@@ -20,7 +20,8 @@ Primitive::Primitive
  const std::shared_ptr <niepce::Material>& material
 ) :
   shape_prt_    (shape),
-  material_ptr_ (material)
+  material_ptr_ (material),
+  light_ptr_    (nullptr)
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -56,6 +57,20 @@ auto Primitive::Material () const noexcept
   -> const std::shared_ptr<niepce::Material>
 {
   return material_ptr_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Primitive::HasLight () const noexcept -> bool
+{
+  return (light_ptr_ != nullptr);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Primitive::HasMaterial () const noexcept -> bool
+{
+  return (material_ptr_ != nullptr);
 }
 /*
 // ---------------------------------------------------------------------------

@@ -62,6 +62,14 @@ auto SampleCosineHemisphere (const Point2f& sample) -> Vector3f
 /*
 // ---------------------------------------------------------------------------
 */
+auto SampleUniformTriangle (const Point2f& sample) -> Point2f
+{
+  const Float s = std::sqrt (sample[0]);
+  return Point2f (1 - s, sample[1] * s);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce
 /*
 // ---------------------------------------------------------------------------

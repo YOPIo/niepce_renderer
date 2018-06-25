@@ -66,6 +66,20 @@ auto Sphere::Bounds () const noexcept -> Bounds3f
 }
 /*
 // ---------------------------------------------------------------------------
+*/
+auto Sphere::Sample (const Point2f& sample) const noexcept -> Point3f
+{
+  
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Sphere::SurfaceArea () const noexcept -> Float
+{
+  return 4 * kPi * radius_ * radius_;
+}
+/*
+// ---------------------------------------------------------------------------
 // Helper function for sphere
 // ---------------------------------------------------------------------------
 */

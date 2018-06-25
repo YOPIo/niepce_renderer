@@ -30,7 +30,7 @@ public:
   Bsdf () = delete;
 
   //! Tha constructor takes intersection.
-  Bsdf (const Intersection& intersection);
+  Bsdf (BsdfType type, const Intersection& intersection);
 
   //! The copy constructor of the class.
   Bsdf (const Bsdf& bsdf) = default;
@@ -91,6 +91,15 @@ public:
   virtual auto Sample (BsdfRecord* record, const Point2f& sample)
     const noexcept -> Vector3f = 0;
 
+  /*!
+   * @fn BsdfType Type ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Type () const noexcept -> BsdfType;
+
 protected:
   /*! @fn Vector3f ToLocal (const Vector3f&)
    * @brief Transform vector in world coordiantes to BSDF coordiantes.
@@ -113,6 +122,12 @@ protected:
   auto ToWorld (const Vector3f& w) const noexcept -> Vector3f;
 
 protected:
+  /*!
+   * @brief
+   *    The type of BSDF.
+   */
+  const BsdfType type_;
+
   /*!
    * @brief
    *    The normal vector at the intersection in world coordinates.

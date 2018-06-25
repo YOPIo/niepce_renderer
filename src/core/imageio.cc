@@ -58,6 +58,12 @@ ImageIO<T>::ImageIO (const char* filename) :
 // ---------------------------------------------------------------------------
 */
 template <typename T>
+ImageIO<T>::~ImageIO ()
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
 auto ImageIO<T>::Load (const char *filename) -> void
 {
   // File check.
@@ -117,6 +123,8 @@ auto ImageIO <Spectrum>::Load (const char *filename) -> void
       SetValueAt (x, y, Spectrum (r, g, b));
     }
   }
+
+  stbi_image_free (img);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -138,6 +146,8 @@ auto ImageIO<bool>::Load (const char* filename) -> void
       SetValueAt (x, y, static_cast <bool> (img[y * width + x]));
     }
   }
+
+  stbi_image_free (img);
 }
 /*
 // ---------------------------------------------------------------------------

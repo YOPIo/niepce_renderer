@@ -20,6 +20,12 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
+enum class BsdfType : int
+{
+  kDiffuse,
+  kSpecular,
+  kUnknown
+};
 //! ----------------------------------------------------------------------------
 //! @class BsdfRecord
 //! @brief
@@ -186,6 +192,11 @@ private:
    */
   Float cos_t_;
 
+  /*!
+   * @brief
+   *    The type of sampled bsdf.
+   */
+  BsdfType type_;
 }; // class BsdfRecord
 /*
 // ---------------------------------------------------------------------------

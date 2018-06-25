@@ -38,7 +38,7 @@ public:
   Image (Image&& img) = default;
 
   //! The default class destructor.
-  virtual ~Image () = default;
+  virtual ~Image ();
 
   //! The copy assignment operator of the class.
   auto operator = (const Image& img) -> Image& = default;

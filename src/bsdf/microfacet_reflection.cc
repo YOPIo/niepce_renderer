@@ -21,7 +21,7 @@ MicrofacetReflection::MicrofacetReflection
  const BeckmannDistribution* microfacet,
  const FresnelDielectric* fresnel
 ) :
-  Bsdf (intersection),
+  Bsdf (BsdfType::kUnknown, intersection),
   reflectance_ (reflectance),
   microfacet_  (microfacet),
   fresnel_     (fresnel)

@@ -20,7 +20,7 @@ Lambert::Lambert
  const Intersection& intersection,
  const Spectrum& reflectance
 ) :
-  Bsdf (intersection),
+  Bsdf (BsdfType::kDiffuse, intersection),
   reflectance_ (reflectance)
 {}
 /*

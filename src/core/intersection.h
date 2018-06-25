@@ -157,6 +157,15 @@ public:
   auto Position () const noexcept -> Point3f;
 
   /*!
+   * @fn BsdfType SampledBsdfType ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SampledBsdfType () const noexcept -> BsdfType;
+
+  /*!
    * @fn void SetDistance (Float distance)
    * @brief Set the argument distance to internal data.
    * @param[in] distance The distance from ray origin to intersection.
@@ -251,6 +260,17 @@ public:
    */
   auto SetPosition (const Point3f& position) noexcept -> void;
 
+  /*!
+   * @fn void SetBsdfType (BsdfType)
+   * @brief Set the sampled BSDF type.
+   * @param[in] type
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SetBsdfType (BsdfType type) noexcept -> void;
+
 public:
   /*!
    * @fn Vector3f ToWorld (const Vector3f& v)
@@ -298,6 +318,9 @@ private:
 
   //! The shape what ray intersected.
   std::shared_ptr <niepce::Shape> shape_ptr_;
+
+  //! The sampled BSDF type.
+  BsdfType type_;
 
   //! The ray to the intersection in world coordinates.
   Vector3f outgoing_;

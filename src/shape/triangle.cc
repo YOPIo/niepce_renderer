@@ -8,6 +8,7 @@
 #include "triangle.h"
 #include "../core/vector2f.h"
 #include "../core/point2f.h"
+#include "../sampler/sampler.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -198,6 +199,29 @@ auto Triangle::Bounds () const noexcept -> Bounds3f
   Bounds3f res (Position (0), Position (1));
   res.Merge (Position (2));
   return res;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Triangle::Sample (const Point2f& sample) const noexcept -> Point3f
+{
+  const auto s = SampleUniformTriangle (sample);
+  const auto& p1 = Position (0);
+  const auto& p2 = Position (1);
+  const auto& p3 = Position (2);
+  return (1.0 - s[0] - s[1]) * p1 + s[0] * p2 + s[1] * p3;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Triangle::SurfaceArea () const noexcept -> Float
+{
+  // Get triangle vertex positions.
+  const auto& p1 = Position (0);
+  const auto& p2 = Position (1);
+  const auto& p3 = Position (2);
+
+  return 0.5 * Cross (p2 - p1, p3 - p1).Length ();
 }
 /*
 // ---------------------------------------------------------------------------

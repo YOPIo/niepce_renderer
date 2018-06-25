@@ -102,11 +102,14 @@ namespace niepce
 // Forward class, struct and enum declaration
 // ---------------------------------------------------------------------------
 */
+class AreaLight;
 class Attributes;
 class AssembledTiles;
 class BeckmannDistribution;
 class Bounds2f;
 class Bsdf;
+class BsdfRecord;
+enum class BsdfType;
 class Camera;
 class Film;
 class FilmTile;
@@ -114,6 +117,7 @@ template <typename T> class Image;
 template <typename T> class ImageIO;
 class Intersection;
 class Lambert;
+class Light;
 class Material;
 class MaterialAttributes;
 class MemoryArena;

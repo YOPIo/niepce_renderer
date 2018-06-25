@@ -16,7 +16,8 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Bsdf::Bsdf (const Intersection& intersection) :
+Bsdf::Bsdf (BsdfType type, const Intersection& intersection) :
+  type_   (type),
   normal_ (intersection.Normal ())
 {
   BuildOrthonormalBasis (normal_, &tangent_, &binormal_);
@@ -39,6 +40,13 @@ auto Bsdf::ToWorld (const Vector3f& w) const noexcept -> Vector3f
     (w.X () * tangent_.X () + w.Y () * binormal_.X () + w.Z () * normal_.X (),
      w.X () * tangent_.Y () + w.Y () * binormal_.Y () + w.Z () * normal_.Y (),
      w.X () * tangent_.Z () + w.Y () * binormal_.Z () + w.Z () * normal_.Z ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bsdf::Type () const noexcept -> BsdfType
+{
+  return type_;
 }
 /*
 // ---------------------------------------------------------------------------

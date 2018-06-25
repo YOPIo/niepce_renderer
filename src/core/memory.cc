@@ -37,13 +37,9 @@ MemoryArena::~MemoryArena ()
 */
 auto MemoryArena::Allocate (size_t num_bytes) -> void*
 {
-  // Round up _nBytes_ to minimum machine alignment
-#if __GNUC__ == 4 && __GNUC_MINOR__ < 9
   // gcc bug: max_align_t wasn't in std:: until 4.9.0
   const int align = alignof (::max_align_t);
-#else
-  const int align = alignof (std::max_align_t);
-#endif
+
   num_bytes = (num_bytes + align - 1) & ~(align - 1);
 
   if (current_block_position_ + num_bytes > current_allocate_size_)

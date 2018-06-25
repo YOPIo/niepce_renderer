@@ -24,5 +24,6 @@ add_library (Core STATIC
   matrix4x4f.cc
   transform.cc
   singleton.cc
+  shadow_ray.cc
   film.cc
 )

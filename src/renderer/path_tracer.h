@@ -99,6 +99,22 @@ private:
   )
     -> Vector3f;
 
+  /*!
+   * @fn Spectrum UniformSampleOneLight ()
+   * @brief 
+   * @param[in] 
+   * @param[out] 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto UniformSampleOneLight
+  (
+   const Intersection& intersection,
+   RandomSampler* sampler
+  )
+  const noexcept -> Spectrum;
+
 private:
   std::shared_ptr <Scene>  scene_;
   std::shared_ptr <Camera> camera_;

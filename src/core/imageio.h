@@ -45,7 +45,7 @@ public:
   ImageIO (ImageIO&& image) = default;
 
   //! The default class destructor.
-  virtual ~ImageIO () = default;
+  virtual ~ImageIO ();
 
   //! The copy assignment operator of the class.
   auto operator = (const ImageIO& image) -> ImageIO& = default;

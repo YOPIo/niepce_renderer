@@ -146,6 +146,24 @@ public:
   */
   auto Bounds () const noexcept -> Bounds3f override final;
 
+  /*!
+   * @fn Point3f Sample ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Sample (const Point2f& sample) const noexcept -> Point3f override final;
+
+  /*!
+   * @fn Float Surfacearea ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SurfaceArea () const noexcept -> Float override final;
+
 private:
   /*!
    * @fn bool HasTexcoords ()

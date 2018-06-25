@@ -166,6 +166,20 @@ auto Intersection::SetPosition (const Point3f& position) noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
+auto Intersection::SampledBsdfType () const noexcept -> BsdfType
+{
+  return type_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::SetBsdfType (BsdfType type) noexcept -> void
+{
+  type_ = type;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Intersection::MakeHitFlagFalse () noexcept -> void
 {
   is_hit_ = false;

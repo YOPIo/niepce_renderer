@@ -65,17 +65,20 @@ public:
   const noexcept -> bool;
 
   /*!
-   * @fn void Load ()
+   * @fn std SampleOneLight ()
    * @brief 
+   * @param[in] sample
    * @return 
    * @exception none
    * @details
    */
-  auto Load () -> void;
+  auto SampleOneLight (Float sample) -> std::shared_ptr <Light>;
 
-public:
+private:
   Bvh primitives_;
-  std::vector <std::shared_ptr <Primitive>> original_;
+  std::vector <std::shared_ptr <Light>> lights_;
+
+  // std::vector <std::shared_ptr <Primitive>> original_;
 }; // class Scene
 /*
 // ---------------------------------------------------------------------------

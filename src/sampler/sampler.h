@@ -25,10 +25,8 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 auto SampleConcentricDisk (const Point2f& sample) -> Point2f;
-/*
-// ---------------------------------------------------------------------------
-*/
 auto SampleCosineHemisphere (const Point2f& sample) -> Vector3f;
+auto SampleUniformTriangle (const Point2f& sample) -> Point2f;
 /*
 // ---------------------------------------------------------------------------
 */

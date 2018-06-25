@@ -24,8 +24,8 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 Scene::Scene (const std::vector <std::shared_ptr <Primitive>>& primitives) :
-  primitives_ (primitives),
-  original_   (primitives)
+  primitives_ (primitives)
+  // original_   (primitives)
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -55,6 +55,15 @@ auto Scene::IsIntersect
   */
 
   return primitives_.IsIntersect (ray, intersection);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Scene::SampleOneLight (Float sample) -> std::shared_ptr <Light>
+{
+  int idx = std::min (static_cast <int> (lights_.size ()),
+                      static_cast <int> (sample * lights_.size ()));
+  return lights_[idx];
 }
 /*
 // ---------------------------------------------------------------------------

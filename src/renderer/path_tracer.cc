@@ -12,6 +12,7 @@
 #include "../core/intersection.h"
 #include "../core/point3f.h"
 #include "../core/vector3f.h"
+#include "../core/shadow_ray.h"
 #include "../bsdf/bsdf.h"
 #include "../bsdf/bsdf_record.h"
 #include "../camera/camera.h"
@@ -98,7 +99,7 @@ auto PathTracer::RenderTileBounds
 {
   const Bounds2f& tile_bounds = tile->Bounds ();
 
-  static constexpr int num_sample = 64;
+  static constexpr int num_sample = 8;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 
@@ -162,22 +163,9 @@ auto PathTracer::Radiance
     }
 
     // Ready to generate the BSDF.
-    const std::shared_ptr <Material> material = intersection.Material ();
+    const auto material = intersection.Material ();
 
     l = l + f * material->Emission (intersection.Texcoord ());
-
-    if (material->HasEmission ())
-    {
-      return l;
-    }
-
-    // Russian roulette
-    Float q = std::fmax (l[0], std::fmax(l[1], l[2]));
-    if (depth > 7)
-    {
-      if (tile_sampler->SampleFloat () >= q) { return l; }
-    }
-    else { q = 1.0; }
 
     // -------------------------------------------------------------------------
     // BSDF sampling
@@ -185,18 +173,67 @@ auto PathTracer::Radiance
 
     // Sample incident direction.
     BsdfRecord bsdf_record (intersection);
-    Bsdf* bsdf = material->AllocateBsdfs (intersection, &memory);
+    auto bsdf = material->AllocateBsdfs (intersection, &memory);
 
     const Vector3f incident
       = bsdf->Sample (&bsdf_record, tile_sampler->SamplePoint2f ());
 
+    if (bsdf->Type () != BsdfType::kSpecular)
+    {
+      // -----------------------------------------------------------------------
+      // Next event estimation.
+      // -----------------------------------------------------------------------
+      const auto s = UniformSampleOneLight (intersection, tile_sampler);
+      l = l + f * s * bsdf_record.Bsdf ();
+    }
+
     f = f * bsdf_record.Bsdf () * bsdf_record.CosTheta () / bsdf_record.Pdf ();
 
+    // ---------------------------------------------------------------------------
+    // Russian roulette
+    // ---------------------------------------------------------------------------
+    Float q = std::fmax (l[0], std::fmax(l[1], l[2]));
+    if (depth > 7)
+    {
+      if (tile_sampler->SampleFloat () >= q) { return l; }
+    }
+    else { q = 1.0; }
+
+    // ---------------------------------------------------------------------------
     // Ready to trace the incident direction.
+    // ---------------------------------------------------------------------------
     ray = Ray (intersection.Position (), incident);
   }
 
   return l;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto PathTracer::UniformSampleOneLight
+(
+ const Intersection& intersection,
+ RandomSampler* sampler
+)
+  const noexcept -> Spectrum
+{
+  // 怪しい
+
+  // Get a light source from scene.
+  const auto light = scene_->SampleOneLight (sampler->SampleFloat ());
+
+  // Generate shadow ray.
+  const auto plight  = light->SamplePoint (intersection,
+                                           sampler->SamplePoint2f ());
+  const auto porigin = intersection.Position ();
+  ShadowRay ray (porigin, plight);
+  if (ray.IsVisible (*scene_))
+  {
+    Float pdf = 1;
+    const auto emission = light->Evaluate (&pdf);
+    return emission / pdf;
+  }
+  return Spectrum (0);
 }
 /*
 // ---------------------------------------------------------------------------

@@ -71,6 +71,24 @@ public:
   */
   virtual auto Bounds () const noexcept -> Bounds3f = 0;
 
+  /*!
+   * @fn Point3f Sample ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  virtual auto Sample (const Point2f& sample) const noexcept -> Point3f = 0;
+
+  /*!
+   * @fn Float SurfaceArea ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  virtual auto SurfaceArea () const noexcept -> Float = 0;
+
 protected:
   const Float kIntersectionEpsilon = 1e-4;
 }; // class Shape

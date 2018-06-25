@@ -25,6 +25,12 @@ Image<T>::Image (unsigned int width, unsigned int height) :
 // ---------------------------------------------------------------------------
 */
 template <typename T>
+Image<T>::~Image ()
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
 auto Image<T>::operator () (unsigned int x, unsigned int y)
   const noexcept -> T
 {
