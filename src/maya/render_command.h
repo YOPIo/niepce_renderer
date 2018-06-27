@@ -4,6 +4,10 @@
 // ---------------------------------------------------------------------------
 */
 #include <maya/MPxCommand.h>
+#include <maya/MGlobal.h>
+#include <maya/MDagPath.h>
+#include <maya/MFnCamera.h>
+#include <maya/MFloatMatrix.h>
 /*
 // ---------------------------------------------------------------------------
 */

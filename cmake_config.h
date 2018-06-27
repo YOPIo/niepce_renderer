@@ -1,3 +1,3 @@
-/* #undef BUILD_MAYA_PLUGIN */
-#define BUILD_CUI_RENDERER
-/* #undef NI_USE_SIMD */
+#define BUILD_MAYA_PLUGIN
+/* #undef BUILD_CUI_RENDERER */
+#define NI_USE_SIMD

@@ -26,6 +26,7 @@ namespace niepce
 */
 static constexpr char kVendorString[]  = "";
 static constexpr char kVersionString[] = "0.1.0";
+static constexpr char kCategory[]      = "niepce_maya";
 /*
 // ---------------------------------------------------------------------------
 */

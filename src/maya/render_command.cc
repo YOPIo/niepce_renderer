@@ -1,9 +1,4 @@
 #include "render_command.h"
-#include "utilities.h"
-#include <maya/MGlobal.h>
-#include <maya/MDagPath.h>
-#include <maya/MFnCamera.h>
-#include <maya/MFloatMatrix.h>
 
 #include "../core/matrix4x4f.h"
 #include "../core/transform.h"
@@ -25,7 +20,8 @@ auto RenderCommand::Creator () -> void*
 auto RenderCommand::doIt (const MArgList& args) -> MStatus
 {
     MStatus status;
-        
+
+    /*
     // Find a camera for using rendering.
     MDagPath path;
     status = FindRenderableCamera (&path);
@@ -37,7 +33,7 @@ auto RenderCommand::doIt (const MArgList& args) -> MStatus
     // Get Camera DAG node.
     MFnCamera camera (path);
     MFloatMatrix matrix = camera.projectionMatrix (&status);
-
+    */        
 
     return MStatus::kSuccess;
 }

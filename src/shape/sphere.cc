@@ -69,7 +69,7 @@ auto Sphere::Bounds () const noexcept -> Bounds3f
 */
 auto Sphere::Sample (const Point2f& sample) const noexcept -> Point3f
 {
-  
+    return Point3f ();
 }
 /*
 // ---------------------------------------------------------------------------

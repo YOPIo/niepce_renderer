@@ -1,5 +1,5 @@
-#include "camera_exporter.h"
-#include "attribute_utils.h"
+#ifndef _EXTENSION_ATTRIBUTES_H_
+#define _EXTENSION_ATTRIBUTES_H_
 /*
 // ---------------------------------------------------------------------------
 */
@@ -8,17 +8,11 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-
+auto RegisterCameraExtensionAttributes () -> void;
 /*
 // ---------------------------------------------------------------------------
 */
-auto CameraExporter::IsRenderable (const MDagPath& path) -> bool
-{
-    bool is_renderable = false;
-    // MStatus status = GetAttribute (path.node (), "renderable", &is_renderable);
-    // TODO: Error check
-    return is_renderable;
-}
+auto RegisterExtensionAttributes () -> void;
 /*
 // ---------------------------------------------------------------------------
 */
@@ -26,3 +20,4 @@ auto CameraExporter::IsRenderable (const MDagPath& path) -> bool
 /*
 // ---------------------------------------------------------------------------
 */
+#endif // _EXTENSION_ATTRIBUTES_H_

@@ -106,14 +106,14 @@ auto MemoryArena::TotalAllocated () const -> size_t
 // Memory Allocation Functions
 void *AllocAligned(size_t size)
 {
-#if defined(NIEPCE_BUILD_TARGET_IS_WIN32)
+#ifdef NIEPCE_BUILD_TARGET_IS_WIN64
     return _aligned_malloc(size, 16);
-#else
+#else    
     void *ptr;
     if (posix_memalign (&ptr, 16, size) != 0) ptr = nullptr;
     return ptr;
-    // #else
     // return memalign(64, size);
+    return _aligned_malloc(size, 16);
 #endif
 }
 /*

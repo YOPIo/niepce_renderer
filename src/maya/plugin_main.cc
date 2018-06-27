@@ -2,12 +2,9 @@
 /*
 // ---------------------------------------------------------------------------
 */
-#ifdef BUILD_MAYA_PLUGIN
-/*
-// ---------------------------------------------------------------------------
-*/
 #include "plugin_core.h"
 #include "render_command.h"
+#include "extension attributes.h"
 #include <maya/MFnPlugin.h>
 /*
 // ---------------------------------------------------------------------------
@@ -17,14 +14,11 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-
-/*
-// ---------------------------------------------------------------------------
-*/
 MStatus initializePlugin (MObject obj)
 {
     MStatus status;
 
+    /*
     // Register the niepce plugin for maya.
     MFnPlugin plugin (obj, kVendorString, kVersionString, "Any", &status);
     NIEPCE_CHECK_MSTATUS (status, "MFnPlugin error.");
@@ -46,23 +40,28 @@ MStatus initializePlugin (MObject obj)
         MGlobal::displayError ("Failed to register the niepce renderer.");
         return status;
     }
+    */
 
-    return status;
+    RegisterCameraExtensionAttributes ();
+    // RegisterExtensionAttributes ();
+
+    return MStatus::kSuccess;
 }
 /*
 // ---------------------------------------------------------------------------
 */
 MStatus uninitializePlugin (MObject obj)
 {
+    /*
     // Unregister renderer via python command
     MString cmd ("registerNiepceRenderer.unregisterRenderer ()");
-    return MGlobal::executePythonCommand (cmd);  
+    auto res = MGlobal::executePythonCommand (cmd);
+    */
+
+
+    return MStatus::kSuccess;
 }
 /*
 // ---------------------------------------------------------------------------
 */
 } // namespace maya
-/*
-// ---------------------------------------------------------------------------
-*/
-#endif // BUILD_MAYA_PLUGIN
