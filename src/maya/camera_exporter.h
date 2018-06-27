@@ -4,13 +4,19 @@
 // ---------------------------------------------------------------------------
 */
 #include <maya/MDagPath.h>
+#include <maya/MItDependencyNodes.h>
+#include <maya/MFnCamera.h>
+#include <maya/MGlobal.h>
+#include <maya/MSelectionList.h>
+/*
+// ---------------------------------------------------------------------------
+*/
+#include "../core/bounds2f.h"
+#include "../ext/tinyxml2/tinyxml2.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
-/*
-// ---------------------------------------------------------------------------
-*/
 {
 /*
 // ---------------------------------------------------------------------------
@@ -19,7 +25,7 @@ class CameraExporter
 {
  public:    
     //! The default constructor.
-    CameraExporter () = default;
+    CameraExporter (const MString& filename);
 
     //! The copy constructor.
     CameraExporter (const CameraExporter& exporter) = default;
@@ -37,8 +43,15 @@ class CameraExporter
     auto operator = (CameraExporter&& exporter) -> CameraExporter& = default;
 
  public:
-     static auto IsRenderable (const MDagPath& path) -> bool;
+    //! 
+    auto Export () -> MStatus;
 
+ public:     
+     static auto FindRenderableCamera (MDagPath* dag_path) -> MStatus;
+     static auto Resolution () -> Bounds2f;
+
+ private:
+    tinyxml2::XMLDocument document_;
 };
 /*
 // ---------------------------------------------------------------------------

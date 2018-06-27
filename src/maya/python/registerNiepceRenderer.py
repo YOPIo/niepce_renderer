@@ -17,11 +17,7 @@ def registerRenderer ():
         #  - Batch render is not support
         mc.renderer ("niepce",
                      edit = True,
-                     renderProcedure = "nStartRendering",
-                     commandRenderProcedure = "",
-                     renderRegionProcedure = "",
-                     batchRenderProcedure = "",
-                     cancelBatchRenderProcedure = "")
+                     renderProcedure = "niStartRendering")
     except:
         om.MGlobal.displayError ("Faild to register renderer.")
 

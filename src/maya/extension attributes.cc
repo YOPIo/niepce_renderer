@@ -24,8 +24,8 @@ auto RegisterCameraExtensionAttributes () -> void
     
     // Create enum attribute, pinhole or realistic camera.
     MFnEnumAttribute enum_attr;
-    attr = enum_attr.create ("niCameraEnum", // Full name  
-                             "niCameraEnum", // Brief name
+    attr = enum_attr.create ("niCameraType", // Full name  
+                             "niCameraType", // Brief name
                              0,              // Default
                              &status);
     enum_attr.addField ("Pinhole", 0);

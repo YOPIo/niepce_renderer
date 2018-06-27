@@ -18,14 +18,14 @@ MStatus initializePlugin (MObject obj)
 {
     MStatus status;
 
-    /*
     // Register the niepce plugin for maya.
     MFnPlugin plugin (obj, kVendorString, kVersionString, "Any", &status);
     NIEPCE_CHECK_MSTATUS (status, "MFnPlugin error.");
 
     // Register a command for preparing to begin rendering as "nStartRendering".
-    plugin.registerCommand ("nStartRendering", RenderCommand::Creator);
+    plugin.registerCommand ("niStartRendering", RenderCommand::Creator);
 
+    /*   
     // Import python module to register the renderer.
     const MString cmd ("import registerNiepceRenderer");
     if (MGlobal::executePythonCommand (cmd) != MStatus::kSuccess)
