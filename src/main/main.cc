@@ -62,16 +62,19 @@ auto Finalize () -> void
 */
 int main (int argc, char* argv[])
 {
-  niepce::Initialize ();
-
-  niepce::SceneImporter
-    importer ("/home/yopio/workspace/niepce/assets/cornellbox/cornellbox.xml");
+  if (argc != 2)
+  {
+    std::cout << "Input filename." << std::endl;
+    return 0;
+  }
+  std::cout << "the number of avaliable threads : "
+	    << std::thread::hardware_concurrency () << std::endl;
+  niepce::Initialize ();  
+  niepce::SceneImporter importer (argv[1]);
   auto scene  = importer.ExtractScene ();
   auto camera = importer.ExtractCamera ();
   niepce::PathTracer pt (scene, camera);
   pt.Render ();
-
   niepce::Finalize ();
-
   return 0;
 }

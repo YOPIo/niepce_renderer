@@ -20,7 +20,7 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-enum class TextureType : int
+enum class TextureType : uint8_t
 {
   kEmission,
   kReflectance,

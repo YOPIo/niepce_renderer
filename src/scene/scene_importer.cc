@@ -9,6 +9,7 @@
 #include "../core/vector3f.h"
 #include "../core/film.h"
 #include "../core/transform.h"
+#include "../core/material_attributes.h"
 #include "../camera/camera.h"
 #include "../texture/image_texture.h"
 #include "../texture/value_texture.h"
@@ -22,9 +23,6 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 // #define TINYOBJLOADER_USE_DOUBLE
 #include "../ext/tinyobjloader/tiny_obj_loader.h"
-/*
-// ---------------------------------------------------------------------------
-*/
 /*
 // ---------------------------------------------------------------------------
 */
@@ -368,8 +366,8 @@ auto SceneImporter::MaterialType (tinyxml2::XMLElement* element)
   const noexcept -> niepce::MaterialType
 {
   const std::string type = element->Attribute ("type");
-  if (type == "matte") { return MaterialType::kMatte; }
-  return MaterialType::kUnknown;
+  if (type == "matte") { return niepce::MaterialType::kMatte; }
+  return niepce::MaterialType::kUnknown;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -450,9 +448,9 @@ auto SceneImporter::LoadObj (const Attributes& attributes) -> void
 auto SceneImporter::TextureType (const std::string& type)
   const noexcept -> niepce::TextureType
 {
-  if (type == "emission")    { return TextureType::kEmission; }
-  if (type == "reflectance") { return TextureType::kReflectance; }
-  return TextureType::kUnknown;
+  if (type == "emission")    { return niepce::TextureType::kEmission; }
+  if (type == "reflectance") { return niepce::TextureType::kReflectance; }
+  return niepce::TextureType::kUnknown;
 }
 /*
 // ---------------------------------------------------------------------------

@@ -108,6 +108,17 @@ void *AllocAligned(size_t size)
 {
 #ifdef NIEPCE_BUILD_TARGET_IS_WIN64
     return _aligned_malloc(size, 16);
+
+#elif defined (NIEPCE_BUILD_TARGET_IS_LINUX)
+    void *ptr;
+    if (posix_memalign (&ptr, 16, size) != 0) ptr = nullptr;
+    return ptr;
+    
+#elif defined (NIEPCE_BUILD_TARGET_IS_UNIX)
+    void *ptr;
+    if (posix_memalign (&ptr, 16, size) != 0) ptr = nullptr;
+    return ptr;
+
 #else    
     void *ptr;
     if (posix_memalign (&ptr, 16, size) != 0) ptr = nullptr;

@@ -3,7 +3,7 @@ cmake_minimum_required (VERSION 2.8)
 # Project name
 project (niepce)
 
-# Use c++17 global options
+# Use c++11 global options
 set (CMAKE_CXX_FLAGS "-std=c++11 -pthread")
 
 # Build options

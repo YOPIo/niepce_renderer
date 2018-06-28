@@ -20,7 +20,7 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-enum MaterialType
+enum class MaterialType : uint8_t
 {
   kMatte,
   kUnknown
