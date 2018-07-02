@@ -26,9 +26,11 @@ namespace niepce
 Scene::Scene
 (
  const std::vector <std::shared_ptr <Primitive>>& primitives,
- const std::shared_ptr <niepce::Light>&   inf_light
+ const std::vector <std::shared_ptr <Light>>&     lights,
+ const std::shared_ptr <niepce::InfiniteLight>&   inf_light
 ) :
   primitives_ (primitives),
+  lights_     (lights),
   // original_   (primitives)
   infinite_light_ (inf_light)
 {}
@@ -65,7 +67,7 @@ auto Scene::IsIntersect
 // ---------------------------------------------------------------------------
 */
 auto Scene::InfiniteLight ()
-  const noexcept -> std::shared_ptr <niepce::Light>
+  const noexcept -> std::shared_ptr <niepce::InfiniteLight>
 {
   if (infinite_light_)
   {
@@ -79,11 +81,12 @@ auto Scene::InfiniteLight ()
 auto CreateScene
 (
  const std::vector <std::shared_ptr <Primitive>>& primitives,
- const std::shared_ptr <niepce::Light>&   inf_light
+ const std::vector <std::shared_ptr <Light>>&     lights,
+ const std::shared_ptr <niepce::InfiniteLight>&   inf_light
 )
   -> Scene*
 {
-  return new Scene (primitives, inf_light);
+  return new Scene (primitives, lights, inf_light);
 }
 /*
 // ---------------------------------------------------------------------------

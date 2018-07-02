@@ -263,6 +263,7 @@ auto Bvh::RecursiveIsIntersect
         {
           hit = true;
           *intersection = tmp;
+          intersection->SetPrimitive (primitives_[node->offset + i]);
         }
       }
     }

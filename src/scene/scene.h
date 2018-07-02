@@ -33,7 +33,8 @@ public:
   Scene
   (
    const std::vector <std::shared_ptr <Primitive>>& primitives,
-   const std::shared_ptr <niepce::Light>&   inf_light
+   const std::vector <std::shared_ptr <Light>>&     lights,
+   const std::shared_ptr <niepce::InfiniteLight>&   inf_light
   );
 
   //! The copy constructor of the class.
@@ -76,14 +77,14 @@ public:
    * @exception none
    * @details 
    */
-  auto InfiniteLight () const noexcept -> std::shared_ptr <Light>;
+  auto InfiniteLight () const noexcept -> std::shared_ptr <InfiniteLight>;
 
 
 private:
   Bvh primitives_;
   std::vector <std::shared_ptr <Light>> lights_;
 
-  std::shared_ptr <niepce::Light> infinite_light_;
+  std::shared_ptr <niepce::InfiniteLight> infinite_light_;
 
   // std::vector <std::shared_ptr <Primitive>> original_;
 }; // class Scene
@@ -93,7 +94,8 @@ private:
 auto CreateScene
 (
  const std::vector <std::shared_ptr <Primitive>>& p,
- const std::shared_ptr <niepce::Light>&   inf_light
+ const std::vector <std::shared_ptr <Light>>&     lights,
+ const std::shared_ptr <niepce::InfiniteLight>&   inf_light
 ) -> Scene*;
 /*
 // ---------------------------------------------------------------------------

@@ -157,6 +157,15 @@ public:
   auto Position () const noexcept -> Point3f;
 
   /*!
+   * @fn std::shared_ptr <Primitive> Primitive ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Primitive () const noexcept -> std::shared_ptr <niepce::Primitive>;
+
+  /*!
    * @fn BsdfType SampledBsdfType ()
    * @brief 
    * @return 
@@ -231,6 +240,17 @@ public:
    * @details
    */
   auto SetTexcoord (const Point2f& texcoord) noexcept -> void;
+
+  /*!
+   * @fn void SetPrimitive (const)
+   * @brief 
+   * @param[in] primitive
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SetPrimitive (const std::shared_ptr <niepce::Primitive> &primitive)
+    noexcept -> void;
 
   //! @fn vodi MakeHitFlagTrue ()
   //! @brief 
@@ -318,6 +338,9 @@ private:
 
   //! The shape what ray intersected.
   std::shared_ptr <niepce::Shape> shape_ptr_;
+
+  //! The primitive
+  std::shared_ptr <niepce::Primitive> primitive_;
 
   //! The sampled BSDF type.
   BsdfType type_;

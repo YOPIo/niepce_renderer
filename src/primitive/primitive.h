@@ -34,8 +34,9 @@ public:
   //! The constructor takes shape pointer and material pointer.
   Primitive
   (
-   const std::shared_ptr <Shape>&    shape,
-   const std::shared_ptr <Material>& material
+   const std::shared_ptr <Shape>&     shape,
+   const std::shared_ptr <Material>&  material,
+   const std::shared_ptr <AreaLight>& light
   );
 
   //! The constructor takes shape and light.
@@ -134,8 +135,9 @@ private:
 */
 auto CreatePrimitive
 (
- const std::shared_ptr <Shape>&    shape,
- const std::shared_ptr <Material>& material
+ const std::shared_ptr <Shape>&     shape,
+ const std::shared_ptr <Material>&  material,
+ const std::shared_ptr <AreaLight>& light
 )
   -> std::shared_ptr <Primitive>;
 /*

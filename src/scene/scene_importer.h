@@ -79,6 +79,16 @@ public:
    */
   auto ExtractScene () const noexcept -> std::shared_ptr <Scene>;
 
+  // Todo: delete
+  auto GetShapebyId (const std::string& id) const noexcept
+    -> std::vector <std::shared_ptr <Shape>> ;
+
+  auto Material (const std::string& key) const noexcept
+    -> std::shared_ptr <Material>;
+
+  auto Light (const std::string& key) const noexcept
+    -> std::shared_ptr <AreaLight>;
+
 private:
   /*!
    * @fn void ParseRecursive (tinyxml2)
@@ -190,23 +200,35 @@ private:
    */
   auto TextureType (const std::string& type) const noexcept -> niepce::TextureType;
 
+  /*!
+   * @fn niepce LightType (const)
+   * @brief 
+   * @param[in] type
+   *     
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto LightType (const std::string& type) const noexcept -> niepce::LightType;
+
 private:
-  std::string base_filepath_;
+  std::string filepath_;
 
   tinyxml2::XMLDocument xml_;
   tinyxml2::XMLElement* root_;
 
   // Key   : Texture ID
   // Value : std::shared_ptr <Textrue>
-  std::unordered_map <std::string, std::shared_ptr <Texture>>  textures_;
+  std::unordered_map <std::string, std::shared_ptr <Texture>> textures_;
 
   // Key   : Material ID
   // Value : std::shared_ptr <Material>
-  std::unordered_map <std::string, std::shared_ptr <Material>> materials_;
+  std::unordered_map <std::string, std::shared_ptr <niepce::Material>> materials_;
 
   // Key   : Light ID
-  // Value : std::shared_ptr <Texture>
-  std::unordered_map <std::string, std::shared_ptr <Light>> lights_;
+  // Value : std::shared_ptr <AreaLight>
+  std::unordered_map <std::string, std::shared_ptr <AreaLight>> lights_;
+  std::shared_ptr <InfiniteLight> inf_lights_;
 
   // Key   : Shape ID
   // Value : std::shared_ptr <Shape>

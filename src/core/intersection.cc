@@ -111,6 +111,14 @@ auto Intersection::Position () const noexcept -> Point3f
 /*
 // ---------------------------------------------------------------------------
 */
+auto Intersection::Primitive () const noexcept
+  -> std::shared_ptr <niepce::Primitive>
+{
+  return primitive_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Intersection::SetDistance (Float distance) noexcept -> void
 {
   this->distance_ = distance;
@@ -176,6 +184,14 @@ auto Intersection::SampledBsdfType () const noexcept -> BsdfType
 auto Intersection::SetBsdfType (BsdfType type) noexcept -> void
 {
   type_ = type;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::SetPrimitive (const std::shared_ptr<niepce::Primitive> &primitive)
+  noexcept -> void
+{
+  primitive_ = primitive;
 }
 /*
 // ---------------------------------------------------------------------------

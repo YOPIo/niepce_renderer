@@ -69,7 +69,7 @@ int main (int argc, char* argv[])
   }
   std::cout << "the number of avaliable threads : "
 	    << std::thread::hardware_concurrency () << std::endl;
-  niepce::Initialize ();  
+  niepce::Initialize ();
   niepce::SceneImporter importer (argv[1]);
   auto scene  = importer.ExtractScene ();
   auto camera = importer.ExtractCamera ();

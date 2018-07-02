@@ -24,7 +24,8 @@ enum class LightType : int
 {
   kPointLight,
   kAreaLight,
-  kInfiniteLight
+  kInfiniteLight,
+  kUnknow
 };
 //! ----------------------------------------------------------------------------
 //! @class Light
@@ -75,7 +76,12 @@ protected:
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreateLight (const Attributes& attributes) -> std::shared_ptr <Light>;
+auto CreateLight
+(
+ const LightType&  type,
+ const Attributes& attributes
+)
+  -> std::shared_ptr <Light>;
 /*
 // ---------------------------------------------------------------------------
 */

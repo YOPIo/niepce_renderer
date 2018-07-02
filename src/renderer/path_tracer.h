@@ -111,6 +111,18 @@ private:
   auto SampleInfiniteLight (Float* pdf) -> Spectrum;
 
 private:
+  /*!
+   * @fn std::shared_ptr <AreaLight> SampleOneLight (const Point2f&)
+   * @brief 
+   * @param[in] sample
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SampleOneLight (const Point2f& sample) -> std::shared_ptr <AreaLight>;
+
+private:
   std::shared_ptr <Scene>  scene_;
   std::shared_ptr <Camera> camera_;
 }; // class PathTracer

@@ -21,10 +21,16 @@
     <float name="focus_distance" value="250" unit="m"/>
   </camera>
 
+  <!-- Lights -->
   <light type="infinite" id="infinite">
     <string name="filename" value="env.hdr"/>
   </light>
 
+  <light type="area" id="area_light">
+    <rgb name="emission" value="12 12 12"/>
+  </light>
+
+  <!-- Textures -->
   <texture id="texture0">
     <string name="filename" value="icon.png"/>
   </texture>
@@ -63,27 +69,28 @@
   </shape>
   -->
 
-  <shape type="obj">
+  <shape type="obj" id="body">
     <string name="filename" value="cornellbox.obj"/>
     <reference name="material" value="matte"/>
   </shape>
 
-  <shape type="obj">
+  <shape type="obj" id="front">
     <string name="filename" value="cornellbox_front.obj"/>
     <reference name="material" value="tex_matte"/>
   </shape>
 
-  <shape type="obj">
+  <shape type="obj" id="light">
     <string name="filename" value="cornellbox_light.obj"/>
-    <reference name="material" value="light"/>
+    <reference name="light" value="area_light"/>
+    <!-- <reference name="material" value="light"/> -->
   </shape>
 
-  <shape type="obj">
+  <shape type="obj" id="right">
     <string name="filename" value="cornellbox_right.obj"/>
     <reference name="material" value="red"/>
   </shape>
 
-  <shape type="obj">
+  <shape type="obj" id="left">
     <string name="filename" value="cornellbox_left.obj"/>
     <reference name="material" value="green"/>
   </shape>

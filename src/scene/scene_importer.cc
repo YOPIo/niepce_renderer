@@ -17,6 +17,8 @@
 #include "../shape/triangle.h"
 #include "../primitive/primitive.h"
 #include "../light/light.h"
+#include "../light/area_light.h"
+#include "../light/infinite_light.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -40,7 +42,7 @@ SceneImporter::SceneImporter (const char* filename)
 */
 auto SceneImporter::Import (const char *filename) -> void
 {
-  GetFileDirectory (filename, &base_filepath_);
+  GetFileDirectory (filename, &filepath_);
   xml_.LoadFile (filename);
   root_ = xml_.RootElement ();
 
@@ -63,13 +65,24 @@ auto SceneImporter::Import (const char *filename) -> void
       // Parse child
       ParseRecursive (element, &attributes);
       // Get light type.
-      auto type = element->Attribute ("type");
-      attributes.AddString ("type", type);
-      // Get light id.
-      auto id = element->Attribute ("id");
-      // Compute filepath.
-      // Store light.
-      lights_.emplace (id, CreateLight (attributes));
+      auto type = LightType (element->Attribute ("type"));
+
+      if (type == niepce::LightType::kInfiniteLight)
+      {
+        inf_lights_ = CreateInfiniteLight (attributes);
+        continue;
+      }
+      if (type == niepce::LightType::kAreaLight)
+      {
+        auto res = CreateAreaLight (attributes);
+        if (res == nullptr)
+        {
+          std::cout << "res is nullptr" << std::endl;
+        }
+        lights_.emplace (element->Attribute ("id"), res);
+        continue;
+      }
+      std::cerr << "Faild to create light" << std::endl;
       continue;
     }
     if (IsElementType (element, "texture"))
@@ -93,14 +106,19 @@ auto SceneImporter::Import (const char *filename) -> void
     }
     if (IsElementType (element, "shape"))
     {
+      const auto id = element->Attribute("id");
+      attributes.AddString ("id", id);
       ParseRecursive (element, &attributes);
       // Only .obj type is support.
       LoadObj (attributes);
       continue;
     }
   }
+
   // Construct a scene.
-  scene_.reset (CreateScene (primitives_, lights_.at ("infinite")));
+  std::vector <std::shared_ptr <niepce::Light>> lights;
+  for (const auto& light : lights_) { lights.push_back (light.second); }
+  scene_.reset (CreateScene (primitives_, lights, inf_lights_));
 }
 /*
 // ---------------------------------------------------------------------------
@@ -117,6 +135,24 @@ auto SceneImporter::ExtractCamera () const noexcept -> std::shared_ptr <Camera>
 {
   if (camera_) { return camera_; }
   return nullptr;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::Material (const std::string &key) const noexcept
+  -> std::shared_ptr <niepce::Material>
+{
+  try { return materials_.at (key); }
+  catch (const std::exception& e) { return nullptr; }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::Light (const std::string &key) const noexcept
+  -> std::shared_ptr <AreaLight>
+{
+  try { return lights_.at (key); }
+  catch (const std::exception& e) { return nullptr; }
 }
 /*
 // ---------------------------------------------------------------------------
@@ -182,6 +218,7 @@ auto SceneImporter::ParseMaterial (tinyxml2::XMLElement* material)
     if (IsElementType (element, "reference"))
     {
       auto attrib  = ParseString (element);
+      const auto name = element->Attribute ("name");
       try
       {
         auto type = TextureType (attrib.first);
@@ -372,6 +409,16 @@ auto SceneImporter::MaterialType (tinyxml2::XMLElement* element)
 /*
 // ---------------------------------------------------------------------------
 */
+auto SceneImporter::LightType (const std::string& type) const noexcept
+  -> niepce::LightType
+{
+  if (type == "infinite") { return niepce::LightType::kInfiniteLight; }
+  if (type == "area")     { return niepce::LightType::kAreaLight; }
+  return niepce::LightType::kUnknow;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto SceneImporter::LoadObj (const Attributes& attributes) -> void
 {
   const std::string filename = attributes.FindString ("filename");
@@ -428,18 +475,30 @@ auto SceneImporter::LoadObj (const Attributes& attributes) -> void
     }
   }
 
+  // Get shape ID.
+  auto sid = attributes.FindString ("id");
+
   // Construct triangle face.
   const int  size = p_idxs.size ();
-  const auto id   = attributes.FindString ("material");
-  const auto mat  = materials_.at (id);
+  const auto mat_id   = attributes.FindString ("material");
+  const auto light_id = attributes.FindString ("light");
+  const auto mat   = Material (mat_id);
+  const auto light = Light (light_id);
+
+  if (mat == nullptr && light == nullptr)
+  {
+    std::cout << "both nullptr" << std::endl;
+  }
+
   for (int i = 0; i < size; ++i)
   {
     std::shared_ptr <Shape> shape (CreateTriangle (mesh,
                                                    p_idxs[i],
                                                    n_idxs[i],
                                                    t_idxs[i]));
+    shapes_.emplace (sid, shape);
 
-    primitives_.push_back (CreatePrimitive (shape, mat));
+    primitives_.push_back (CreatePrimitive (shape, mat, light));
   }
 }
 /*
@@ -451,6 +510,22 @@ auto SceneImporter::TextureType (const std::string& type)
   if (type == "emission")    { return niepce::TextureType::kEmission; }
   if (type == "reflectance") { return niepce::TextureType::kReflectance; }
   return niepce::TextureType::kUnknown;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::GetShapebyId (const std::string& id) const noexcept
+  -> std::vector <std::shared_ptr <Shape>>
+{
+  const auto cnt = shapes_.count (id);
+  std::vector <std::shared_ptr <Shape>> res (cnt);
+  const auto shapes = shapes_.equal_range (id);
+  int i = 0;
+  for (auto it = shapes.first; it != shapes.second; ++it)
+  {
+    res[i++] = it->second;
+  }
+  return res;
 }
 /*
 // ---------------------------------------------------------------------------

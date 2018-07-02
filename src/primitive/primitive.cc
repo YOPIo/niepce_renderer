@@ -16,12 +16,13 @@ namespace niepce
 */
 Primitive::Primitive
 (
- const std::shared_ptr <niepce::Shape>&    shape,
- const std::shared_ptr <niepce::Material>& material
+ const std::shared_ptr <niepce::Shape>&     shape,
+ const std::shared_ptr <niepce::Material>&  material,
+ const std::shared_ptr <niepce::AreaLight>& light
 ) :
   shape_prt_    (shape),
   material_ptr_ (material),
-  light_ptr_    (nullptr)
+  light_ptr_    (light)
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -78,12 +79,13 @@ auto Primitive::HasMaterial () const noexcept -> bool
 */
 auto CreatePrimitive
 (
- const std::shared_ptr <Shape>&    shape,
- const std::shared_ptr <Material>& material
+ const std::shared_ptr <Shape>&     shape,
+ const std::shared_ptr <Material>&  material,
+ const std::shared_ptr <AreaLight>& light
 )
   -> std::shared_ptr <Primitive>
 {
-  auto primitive = std::make_shared <Primitive> (shape, material);
+  auto primitive = std::make_shared <Primitive> (shape, material, light);
   return std::move (primitive);
 }
 /*
