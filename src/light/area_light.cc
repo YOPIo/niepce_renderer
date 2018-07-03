@@ -51,6 +51,13 @@ auto AreaLight::Evaluate (Float* pdf) -> Spectrum
 /*
 // ---------------------------------------------------------------------------
 */
+auto AreaLight::Pdf () const noexcept -> Float
+{
+  return 1.0 / shape_->SurfaceArea ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto AreaLight::Sample
 (
  const Intersection& intersection,
@@ -66,7 +73,14 @@ auto AreaLight::Sample
 auto AreaLight::SamplePosition (const Point2f &sample)
   const noexcept -> Point3f
 {
-  
+  if (shape_ == nullptr)
+  {
+    std::cerr << "Error::AreaLight::SamplePosition Shape is nullptr" << std::endl;
+    return Point3f::Zero ();
+  }
+
+  // Sample a point on shape surface, return it.
+  return shape_->Sample (sample);
 }
 /*
 // ---------------------------------------------------------------------------

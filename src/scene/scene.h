@@ -112,22 +112,6 @@ private:
 /*
 // ---------------------------------------------------------------------------
 */
-auto Scene::Light (unsigned int idx)
-  const noexcept -> std::shared_ptr <niepce::Light>
-{
-  idx = std::min (idx, static_cast <unsigned int> (lights_.size () - 1));
-  return lights_[idx];
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Scene::NumLight () const noexcept -> unsigned int
-{
-  return lights_.size ();
-}
-/*
-// ---------------------------------------------------------------------------
-*/
 auto CreateScene
 (
  const std::vector <std::shared_ptr <Primitive>>& p,

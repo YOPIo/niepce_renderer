@@ -87,6 +87,16 @@ public:
   )
     const noexcept -> Spectrum;
 
+  /*!
+   * @fn Float Pdf ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto Pdf () const noexcept -> Float override final;
+
+
 private:
   std::shared_ptr <ImageIO <Spectrum>> image_;
 }; // class InfiniteLight

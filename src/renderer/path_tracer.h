@@ -112,13 +112,13 @@ private:
 
 private:
   /*!
-   * @fn  SampleDirectOneLight ()
+   * @fn Spectrum DirectSampleOneLight ()
    * @brief 
    * @return 
    * @exception none
    * @details
    */
-  auto SampleDirectOneLight
+  auto DirectSampleOneLight
   (
    const Intersection& intersection,
    const Point2f&      sample

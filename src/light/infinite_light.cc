@@ -67,6 +67,14 @@ auto InfiniteLight::Evaluate (const Intersection &intersection, Float* pdf)
 /*
 // ---------------------------------------------------------------------------
 */
+auto InfiniteLight::Pdf () const noexcept -> Float
+{
+  std::cerr << "Error::InfiniteLight::Pdf was called." << std::endl;
+  return 1;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto CreateInfiniteLight (const Attributes& attributes)
   -> std::shared_ptr <InfiniteLight>
 {

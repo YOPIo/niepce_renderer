@@ -81,6 +81,15 @@ public:
     const noexcept -> Point3f override final;
 
   /*!
+   * @fn Float Pdf ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto Pdf () const noexcept -> Float override final;
+
+  /*!
    * @fn Spectrum Evaluate (Float*)
    * @brief 
    * @return 

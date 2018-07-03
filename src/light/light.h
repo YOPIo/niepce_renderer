@@ -75,6 +75,15 @@ public:
   virtual auto SamplePosition (const Point2f& sample)
     const noexcept -> Point3f = 0;
 
+  /*!
+   * @fn Float Pdf ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  virtual auto Pdf () const noexcept -> Float = 0;
+
 protected:
 
 }; // class Light
