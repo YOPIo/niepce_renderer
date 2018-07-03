@@ -70,6 +70,27 @@ public:
   const noexcept -> bool;
 
   /*!
+   * @fn std Light (int)
+   * @brief 
+   * @param[in] idx
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Light (unsigned int idx)
+    const noexcept -> std::shared_ptr <niepce::Light>;
+
+  /*!
+   * @fn unsigned NumLight ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto NumLight () const noexcept -> unsigned int;
+
+  /*!
    * @fn std InfiniteLight ()
    * @brief 
    * @param[in] 
@@ -82,12 +103,28 @@ public:
 
 private:
   Bvh primitives_;
-  std::vector <std::shared_ptr <Light>> lights_;
+  std::vector <std::shared_ptr <niepce::Light>> lights_;
 
   std::shared_ptr <niepce::InfiniteLight> infinite_light_;
 
   // std::vector <std::shared_ptr <Primitive>> original_;
 }; // class Scene
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Scene::Light (unsigned int idx)
+  const noexcept -> std::shared_ptr <niepce::Light>
+{
+  idx = std::min (idx, static_cast <unsigned int> (lights_.size () - 1));
+  return lights_[idx];
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Scene::NumLight () const noexcept -> unsigned int
+{
+  return lights_.size ();
+}
 /*
 // ---------------------------------------------------------------------------
 */

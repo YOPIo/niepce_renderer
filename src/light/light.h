@@ -55,20 +55,25 @@ public:
 
 public:
   /*!
-   * @fn Spectrum Evaluate (const)
+   * @fn Return Function (Param)
    * @brief 
-   * @param[in] intersection
+   * @return 
+   * @exception none
+   * @details
+   */
+  virtual auto Emission () const noexcept -> Spectrum = 0;
+
+  /*!
+   * @fn Point3f SamplePosition (const Point2f&)
+   * @brief 
+   * @param[in] sample
    *    
    * @return 
    * @exception none
-   * @details 
+   * @details
    */
-  virtual auto Evaluate
-  (
-   const Intersection& intersection,
-   Float* pdf
-  )
-    const noexcept -> Spectrum = 0;
+  virtual auto SamplePosition (const Point2f& sample)
+    const noexcept -> Point3f = 0;
 
 protected:
 

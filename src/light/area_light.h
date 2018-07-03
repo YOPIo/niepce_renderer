@@ -1,17 +1,17 @@
 /*!
- * @file infinite_light.h
+ * @file area_light.h
  * @brief 
  * @author Masashi Yoshida
  * @date 
  * @details 
  */
-#ifndef _INFINITE_LIGHT_H_
-#define _INFINITE_LIGHT_H_
+#ifndef _AREA_LIGHT_H_
+#define _AREA_LIGHT_H_
 /*
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
-#include "../core/imageio.h"
+#include "../core/vector3f.h"
 #include "light.h"
 /*
 // ---------------------------------------------------------------------------
@@ -19,33 +19,42 @@
 namespace niepce
 {
 //! ----------------------------------------------------------------------------
-//! @class InfiniteLight
+//! @class AreaLight
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class InfiniteLight final : public Light
+class AreaLight : public Light
 {
 public:
   //! The default class constructor.
-  InfiniteLight () = delete;
+  AreaLight () = delete;
 
-  //! The constructor takes transform matrix and filename.
-  InfiniteLight (const Transform& light_to_world, const char* filename);
+  //! The constructor takes shape and emission.
+  AreaLight
+  (
+   const std::shared_ptr <Shape>& shape,
+   const Spectrum&                emission
+  );
+
+  //! The constructor takes emission.
+  AreaLight (const Spectrum& emission);
+
+  //! The constructor takes shape.
 
   //! The copy constructor of the class.
-  InfiniteLight (const InfiniteLight& light) = default;
+  AreaLight (const AreaLight& light) = default;
 
   //! The move constructor of the class.
-  InfiniteLight (InfiniteLight&& light) = default;
+  AreaLight (AreaLight&& light) = default;
 
   //! The default class destructor.
-  virtual ~InfiniteLight () = default;
+  virtual ~AreaLight () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const InfiniteLight& light) -> InfiniteLight& = default;
+  auto operator = (const AreaLight& light) -> AreaLight& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (InfiniteLight&& light) -> InfiniteLight& = default;
+  auto operator = (AreaLight&& light) -> AreaLight& = default;
 
 public:
   /*!
@@ -68,39 +77,56 @@ public:
    * @exception none
    * @details
    */
-  auto SamplePosition (const Point2f &sample)
+  auto SamplePosition (const Point2f& sample)
     const noexcept -> Point3f override final;
 
   /*!
-   * @fn Spectrum Evaluate (const)
+   * @fn Spectrum Evaluate (Float*)
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Evaluate (Float* pdf) -> Spectrum;
+
+  /*!
+   * @fn Point3f Sample (const Intersection&, const Point2f&)
    * @brief 
    * @param[in] intersection
    *    
+   * @param[in] sample
+   *    
    * @return 
    * @exception none
-   * @details 
+   * @details
    */
-  auto Evaluate
+  auto Sample
   (
    const Intersection& intersection,
-   Float* pdf
+   const Point2f&      sample
   )
-    const noexcept -> Spectrum;
+  const noexcept -> Point3f;
 
 private:
-  std::shared_ptr <ImageIO <Spectrum>> image_;
-}; // class InfiniteLight
+  const std::shared_ptr <Shape> shape_;
+  Spectrum emission_;
+}; // class AreaLight
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreateInfiniteLight (const Attributes& attributes)
-  -> std::shared_ptr <InfiniteLight>;
+auto CreateAreaLight (const Attributes& attrib) -> std::shared_ptr <AreaLight>;
+auto CreateAreaLight
+(
+ const Attributes& attrib,
+ const std::shared_ptr <Shape>& shape
+)
+  -> std::shared_ptr <AreaLight>;
 /*
 // ---------------------------------------------------------------------------
 */
-} // namespace niepce
+}  // namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-#endif // _INFINITE_LIGHT_H_
+#endif // _AREA_LIGHT_H_
 

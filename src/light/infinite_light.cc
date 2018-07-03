@@ -29,6 +29,22 @@ InfiniteLight::InfiniteLight
 /*
 // ---------------------------------------------------------------------------
 */
+auto InfiniteLight::Emission () const noexcept -> Spectrum
+{
+  return Spectrum::Zero ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto InfiniteLight::SamplePosition (const Point2f &sample) const noexcept
+  -> Point3f
+{
+  std::cerr << "InfiniteLight::SamplePosition was called." << std::endl;
+  return Point3f::Zero ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto InfiniteLight::Evaluate (const Intersection &intersection, Float* pdf)
   const noexcept -> Spectrum
 {

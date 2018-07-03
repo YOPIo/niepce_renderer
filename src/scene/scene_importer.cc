@@ -74,12 +74,7 @@ auto SceneImporter::Import (const char *filename) -> void
       }
       if (type == niepce::LightType::kAreaLight)
       {
-        auto res = CreateAreaLight (attributes);
-        if (res == nullptr)
-        {
-          std::cout << "res is nullptr" << std::endl;
-        }
-        lights_.emplace (element->Attribute ("id"), res);
+        light_attrs_.emplace (element->Attribute ("id"), attributes);
         continue;
       }
       std::cerr << "Faild to create light" << std::endl;
@@ -116,9 +111,7 @@ auto SceneImporter::Import (const char *filename) -> void
   }
 
   // Construct a scene.
-  std::vector <std::shared_ptr <niepce::Light>> lights;
-  for (const auto& light : lights_) { lights.push_back (light.second); }
-  scene_.reset (CreateScene (primitives_, lights, inf_lights_));
+  scene_.reset (CreateScene (primitives_, lights_, inf_lights_));
 }
 /*
 // ---------------------------------------------------------------------------
@@ -143,15 +136,6 @@ auto SceneImporter::Material (const std::string &key) const noexcept
   -> std::shared_ptr <niepce::Material>
 {
   try { return materials_.at (key); }
-  catch (const std::exception& e) { return nullptr; }
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto SceneImporter::Light (const std::string &key) const noexcept
-  -> std::shared_ptr <AreaLight>
-{
-  try { return lights_.at (key); }
   catch (const std::exception& e) { return nullptr; }
 }
 /*
@@ -342,7 +326,7 @@ auto SceneImporter::ParseString (tinyxml2::XMLElement* element)
   std::string value = element->Attribute ("value");
   if (name == "filename")
   {
-    value = base_filepath_ + value;
+    value = filepath_ + value;
   }
 
   return std::make_pair (name, value);
@@ -483,20 +467,23 @@ auto SceneImporter::LoadObj (const Attributes& attributes) -> void
   const auto mat_id   = attributes.FindString ("material");
   const auto light_id = attributes.FindString ("light");
   const auto mat   = Material (mat_id);
-  const auto light = Light (light_id);
-
-  if (mat == nullptr && light == nullptr)
-  {
-    std::cout << "both nullptr" << std::endl;
-  }
 
   for (int i = 0; i < size; ++i)
   {
+    // Create triangle.
     std::shared_ptr <Shape> shape (CreateTriangle (mesh,
                                                    p_idxs[i],
                                                    n_idxs[i],
                                                    t_idxs[i]));
     shapes_.emplace (sid, shape);
+
+    // Construct area light if present.
+    std::shared_ptr <AreaLight> light = nullptr;
+    if (!light_id.empty ())
+    {
+      light = CreateAreaLight (light_attrs_.at (light_id), shape);
+      lights_.push_back (light);
+    }
 
     primitives_.push_back (CreatePrimitive (shape, mat, light));
   }
@@ -510,22 +497,6 @@ auto SceneImporter::TextureType (const std::string& type)
   if (type == "emission")    { return niepce::TextureType::kEmission; }
   if (type == "reflectance") { return niepce::TextureType::kReflectance; }
   return niepce::TextureType::kUnknown;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto SceneImporter::GetShapebyId (const std::string& id) const noexcept
-  -> std::vector <std::shared_ptr <Shape>>
-{
-  const auto cnt = shapes_.count (id);
-  std::vector <std::shared_ptr <Shape>> res (cnt);
-  const auto shapes = shapes_.equal_range (id);
-  int i = 0;
-  for (auto it = shapes.first; it != shapes.second; ++it)
-  {
-    res[i++] = it->second;
-  }
-  return res;
 }
 /*
 // ---------------------------------------------------------------------------

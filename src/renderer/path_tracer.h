@@ -112,15 +112,18 @@ private:
 
 private:
   /*!
-   * @fn std::shared_ptr <AreaLight> SampleOneLight (const Point2f&)
+   * @fn  SampleDirectOneLight ()
    * @brief 
-   * @param[in] sample
-   *    
    * @return 
    * @exception none
    * @details
    */
-  auto SampleOneLight (const Point2f& sample) -> std::shared_ptr <AreaLight>;
+  auto SampleDirectOneLight
+  (
+   const Intersection& intersection,
+   const Point2f&      sample
+  )
+    const noexcept -> Spectrum;
 
 private:
   std::shared_ptr <Scene>  scene_;

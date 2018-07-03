@@ -18,6 +18,8 @@
 #include "../core/singleton.h"
 #include "../core/film_tile.h"
 #include "../camera/camera_sample.h"
+#include "../light/light.h"
+#include "../light/area_light.h"
 #include "../light/infinite_light.h"
 /*
 // ---------------------------------------------------------------------------
@@ -180,15 +182,19 @@ auto PathTracer::Radiance
     if (primitive->HasLight ())
     {
       // Hit light
-      contribution = contribution + weight;
-      // * material->Emission (intersection.Texcoord ());
+      contribution = contribution + weight
+                   * primitive->Light ()->Emission ();
       break;
     }
 
+    // -------------------------------------------------------------------------
+    // Next Event Estimation
+    // -------------------------------------------------------------------------
+
+
+
     // Ready to generate the BSDF.
     const auto& material = intersection.Material ();
-    if (material == nullptr) { break; }
-
     if (material->HasEmission ())
     {
       contribution = contribution + weight
@@ -236,7 +242,19 @@ auto PathTracer::Radiance
 /*
 // ---------------------------------------------------------------------------
 */
+auto PathTracer::SampleDirectOneLight
+(
+ const Intersection& intersection,
+ const Point2f&      sample
+)
+  const noexcept -> Spectrum
+{
+  // Choose one light in the scene.
+  const auto idx = scene_->NumLight () * sample[0];
+  const auto &light = scene_->Light (idx);
 
+
+}
 /*
 // ---------------------------------------------------------------------------
 */

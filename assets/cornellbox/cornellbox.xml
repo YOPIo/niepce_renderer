@@ -27,7 +27,7 @@
   </light>
 
   <light type="area" id="area_light">
-    <rgb name="emission" value="12 12 12"/>
+    <rgb name="emission" value="5 4.15 3"/>
   </light>
 
   <!-- Textures -->
@@ -82,7 +82,6 @@
   <shape type="obj" id="light">
     <string name="filename" value="cornellbox_light.obj"/>
     <reference name="light" value="area_light"/>
-    <!-- <reference name="material" value="light"/> -->
   </shape>
 
   <shape type="obj" id="right">

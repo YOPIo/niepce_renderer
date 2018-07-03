@@ -79,10 +79,6 @@ public:
    */
   auto ExtractScene () const noexcept -> std::shared_ptr <Scene>;
 
-  // Todo: delete
-  auto GetShapebyId (const std::string& id) const noexcept
-    -> std::vector <std::shared_ptr <Shape>> ;
-
   auto Material (const std::string& key) const noexcept
     -> std::shared_ptr <Material>;
 
@@ -227,7 +223,8 @@ private:
 
   // Key   : Light ID
   // Value : std::shared_ptr <AreaLight>
-  std::unordered_map <std::string, std::shared_ptr <AreaLight>> lights_;
+  std::unordered_map <std::string, Attributes> light_attrs_;
+  std::vector <std::shared_ptr <niepce::Light>> lights_;
   std::shared_ptr <InfiniteLight> inf_lights_;
 
   // Key   : Shape ID

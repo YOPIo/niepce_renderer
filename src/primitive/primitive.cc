@@ -61,6 +61,14 @@ auto Primitive::Material () const noexcept
 /*
 // ---------------------------------------------------------------------------
 */
+auto Primitive::Light () const noexcept
+  -> const std::shared_ptr <niepce::AreaLight>
+{
+  return light_ptr_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Primitive::HasLight () const noexcept -> bool
 {
   return (light_ptr_ != nullptr);
