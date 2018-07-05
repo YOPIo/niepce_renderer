@@ -16,9 +16,6 @@
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-*/
 //! ----------------------------------------------------------------------------
 //! @class TrowbridgeReitzDistribution
 //! @brief
@@ -75,6 +72,52 @@ public:
    * @details
    */
   auto Distribution (const Vector3f &half_vector) const noexcept -> Float;
+
+  /*!
+   * @fn Float ShadowMasking (const Vector3f &, const Vector3f &)
+   * @brief The shadow masking function gives the fraction of microfacets in a
+   *        differential area that are visible from a direction.
+   * @param[in] v
+   *
+   * @param[in] half
+   *
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto ShadowMasking (const Vector3f &v, const Vector3f &half)
+    const noexcept -> Float;
+
+  /*!
+   * @fn Float GeometricAttenuation (const Vector3f &, const Vector3f &)
+   * @brief The geometric attenuation function gives the fraction of microfacets
+   *        in a differential area that are visible from both direction outgoing
+   *        and incident.
+   * @param[in] incident
+   *
+   * @param[in] outgoing
+   *
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto GeometricAttenuation
+  (
+   const Vector3f &incident,
+   const Vector3f &outgoing
+  )
+  const noexcept -> Float;
+
+  /*!
+   * @fn Float Lambda (const)
+   * @brief 
+   * @param[in] 
+   * @param[out] 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto Lambda (const Vector3f &v) const noexcept -> Float;
 
 private:
   Float alphax_, alphay_;
