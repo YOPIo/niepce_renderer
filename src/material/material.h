@@ -23,6 +23,7 @@ namespace niepce
 enum class MaterialType : uint8_t
 {
   kMatte,
+  kMetal,
   kUnknown
 };
 //! ----------------------------------------------------------------------------

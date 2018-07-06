@@ -19,6 +19,15 @@
 */
 namespace niepce
 {
+/*
+// ---------------------------------------------------------------------------
+*/
+enum class ShapeType : uint8_t
+{
+ kTriangleMesh,
+ kSphere,
+ kUnknown
+};
 //! ----------------------------------------------------------------------------
 //! @class Shape
 //! @brief The fundamental class, all shape class should inherit this class.

@@ -6,6 +6,8 @@
  * @details 
  */
 #include "metal.h"
+#include "../core/attributes.h"
+#include "../core/material_attributes.h"
 #include "../bsdf/beckmann_distribution.h"
 #include "../bsdf/trowbridge_reitz_distribution.h"
 #include "../bsdf/fresnel.h"
@@ -23,14 +25,13 @@ namespace niepce
 */
 Metal::Metal
 (
- const std::shared_ptr <Texture>& reflectance,
+ const std::shared_ptr <Texture>& absorption,
  const std::shared_ptr <Texture>& roughness_u,
  const std::shared_ptr <Texture>& roughness_v,
- const std::shared_ptr <Texture>& ior,
- const std::shared_ptr <Texture>& emission
+ const std::shared_ptr <Texture>& ior
 ) :
-  Material (emission),
-  reflectance_ (reflectance),
+  Material (nullptr),
+  absorption_  (absorption),
   roughness_u_ (roughness_u),
   roughness_v_ (roughness_v),
   ior_ (ior)
@@ -45,26 +46,19 @@ auto Metal::AllocateBsdfs
 )
 const -> Bsdf* const
 {
-  const Point2f uv = intersection.Texcoord ();
+  return nullptr;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateMetalMaterial (const MaterialAttributes& attrs)
+  -> std::shared_ptr <Material>
+{
+  const auto absorption = attrs.FindTexture (TextureType::kAbsorption);
+  const auto roughness_u = attrs.FindTexture (TextureType::kRoughnessU);
+  const auto roughness_v = attrs.FindTexture (TextureType::kRoughnessV);
 
-  // Allocate distribution model
-  const Float roughness_u = RgbToMonochrome (roughness_u_->Sample (uv));
-  const Float roughness_v = RgbToMonochrome (roughness_v_->Sample (uv));
-  const auto* distribution
-    = memory->Allocate <TrowbridgeReitzDistribution> (roughness_u,
-                                                      roughness_v,
-                                                      false);
-  // Allocate fresnel model
-  const Float ior = RgbToMonochrome (ior_->Sample (uv));
-  FresnelDielectric* fresnel = memory->Allocate <FresnelDielectric> (1.0, ior);
-
-  // Allocate microfacet BRDF
-  Bsdf* const metal
-    = memory->Allocate <MicrofacetReflection> (intersection,
-                                               reflectance_->Sample(uv),
-                                               distribution,
-                                               fresnel);
-  return metal;
+  return nullptr;
 }
 /*
 // ---------------------------------------------------------------------------

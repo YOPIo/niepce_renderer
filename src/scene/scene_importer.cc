@@ -13,6 +13,7 @@
 #include "../camera/camera.h"
 #include "../texture/image_texture.h"
 #include "../texture/value_texture.h"
+#include "../texture/float_texture.h"
 #include "../material/material.h"
 #include "../shape/triangle.h"
 #include "../primitive/primitive.h"
@@ -101,11 +102,28 @@ auto SceneImporter::Import (const char *filename) -> void
     }
     if (IsElementType (element, "shape"))
     {
+      // Get shape type
+      const auto type = ShapeType (element->Attribute ("type"));
       const auto id = element->Attribute("id");
       attributes.AddString ("id", id);
       ParseRecursive (element, &attributes);
-      // Only .obj type is support.
-      LoadObj (attributes);
+      if (type == ShapeType::kTriangleMesh)
+      {
+        LoadObj (attributes);
+        continue;
+      }
+      if (type == ShapeType::kSphere)
+      {
+        const auto p = attributes.FindPoint3f ("position");
+        const auto r = attributes.FindFloat ("radius");
+        const auto id = attributes.FindString ("material");
+        const auto sphere = CreateSphere (p, r);
+        const auto mat    = this->Material (id);
+        if (mat == nullptr) { std::cerr << "shape sphere error" << std::endl;}
+        primitives_.push_back (CreatePrimitive (sphere, mat, nullptr));
+        continue;
+      }
+      std::cerr << "Shape element was ignored." << std::endl;
       continue;
     }
   }
@@ -198,6 +216,15 @@ auto SceneImporter::ParseMaterial (tinyxml2::XMLElement* material)
       res.AddTexture (type, tex);
       continue;
     }
+    if (IsElementType (element, "float"))
+    {
+      // Create float texture.
+      auto value = ParseFloat (element);
+      auto type  = TextureType (value.first);
+      auto tex   = CreateFloatTexture (value.second);
+      res.AddTexture (type, tex);
+      continue;
+    }
     // Reference to texture.
     if (IsElementType (element, "reference"))
     {
@@ -218,6 +245,25 @@ auto SceneImporter::ParseMaterial (tinyxml2::XMLElement* material)
     std::cerr << "Ignored element : " << element->Name () << std::endl;
   }
   return res;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::ParseShape (tinyxml2::XMLElement* elements) const -> Attributes
+{
+  Attributes attrs;
+  for (auto e = elements->FirstChildElement ();
+       e != nullptr;
+       e = e->NextSiblingElement ())
+  {
+    if (e->NoChildren ())
+    {
+      std::cerr << "Ignored element in shape";
+      continue;
+    }
+    ParseElement (e, &attrs);
+  }
+  return attrs;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -308,7 +354,8 @@ auto SceneImporter::ParseFloat (tinyxml2::XMLElement* element)
 {
   const std::string name = element->Attribute ("name");
   Float value = element->DoubleAttribute ("value");
-  if (std::strcmp (element->Attribute ("unit"), "mm") == 0)
+  const auto unit = element->Attribute ("unit");
+  if (unit != nullptr && std::strcmp (unit, "mm") == 0)
   {
     value *= 0.001;
   }
@@ -379,26 +426,6 @@ auto SceneImporter::IsElementType
 {
   if (std::strcmp (element->Name (), type) == 0) { return true; }
   return false;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto SceneImporter::MaterialType (tinyxml2::XMLElement* element)
-  const noexcept -> niepce::MaterialType
-{
-  const std::string type = element->Attribute ("type");
-  if (type == "matte") { return niepce::MaterialType::kMatte; }
-  return niepce::MaterialType::kUnknown;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto SceneImporter::LightType (const std::string& type) const noexcept
-  -> niepce::LightType
-{
-  if (type == "infinite") { return niepce::LightType::kInfiniteLight; }
-  if (type == "area")     { return niepce::LightType::kAreaLight; }
-  return niepce::LightType::kUnknow;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -491,12 +518,49 @@ auto SceneImporter::LoadObj (const Attributes& attributes) -> void
 /*
 // ---------------------------------------------------------------------------
 */
+auto SceneImporter::MaterialType (tinyxml2::XMLElement* element)
+  const noexcept -> niepce::MaterialType
+{
+  const std::string type = element->Attribute ("type");
+  if (type == "matte") { return niepce::MaterialType::kMatte; }
+  if (type == "metal") { return niepce::MaterialType::kMetal; }
+  return niepce::MaterialType::kUnknown;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::LightType (const std::string& type) const noexcept
+  -> niepce::LightType
+{
+  if (type == "infinite") { return niepce::LightType::kInfiniteLight; }
+  if (type == "area")     { return niepce::LightType::kAreaLight; }
+  return niepce::LightType::kUnknow;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto SceneImporter::TextureType (const std::string& type)
   const noexcept -> niepce::TextureType
 {
   if (type == "emission")    { return niepce::TextureType::kEmission; }
   if (type == "reflectance") { return niepce::TextureType::kReflectance; }
+  if (type == "absorption")  { return niepce::TextureType::kAbsorption; }
+  if (type == "roughness")   { return niepce::TextureType::kRoughness; }
+  if (type == "roughness_u") { return niepce::TextureType::kRoughnessU; }
+  if (type == "roughness_v") { return niepce::TextureType::kRoughnessV; }
+  if (type == "ior")         { return niepce::TextureType::kIndexOfRefraction; }
+
   return niepce::TextureType::kUnknown;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::ShapeType (const std::string &str)
+  const noexcept -> niepce::ShapeType
+{
+  if (str == "obj")    { return ShapeType::kTriangleMesh; }
+  if (str == "sphere") { return ShapeType::kSphere;       }
+  return ShapeType::kUnknown;
 }
 /*
 // ---------------------------------------------------------------------------

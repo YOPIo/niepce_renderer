@@ -22,9 +22,14 @@ namespace niepce
 */
 enum class TextureType : uint8_t
 {
-  kEmission,
-  kReflectance,
-  kUnknown
+ kAbsorption,
+ kEmission,
+ kReflectance,
+ kRoughness,
+ kRoughnessU,
+ kRoughnessV,
+ kIndexOfRefraction,
+ kUnknown
 };
 //! ----------------------------------------------------------------------------
 //! @class MaterialAttributes

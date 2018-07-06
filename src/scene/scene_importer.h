@@ -115,6 +115,17 @@ private:
   auto ParseMaterial (tinyxml2::XMLElement* element) const -> MaterialAttributes;
 
   /*!
+   * @fn Attributes ParseShape (tinyxml2)
+   * @brief 
+   * @param[in] element
+   *
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto ParseShape (tinyxml2::XMLElement* element) const -> Attributes;
+
+  /*!
    * @fn std::pair <std::string, T> ParseElement (tinyxml2::XMLElement*)
    * @brief 
    * @param[in] element
@@ -206,6 +217,17 @@ private:
    * @details
    */
   auto LightType (const std::string& type) const noexcept -> niepce::LightType;
+
+  /*!
+   * @fn niepce ShapeType (const std::string&)
+   * @brief 
+   * @param[in] type
+   *    
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto ShapeType (const std::string &type) const noexcept -> niepce::ShapeType;
 
 private:
   std::string filepath_;

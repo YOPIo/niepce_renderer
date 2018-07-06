@@ -11,6 +11,7 @@
 #include "../core/vector3f.h"
 #include "../core/pixel.h"
 #include "../material/matte.h"
+#include "../material/metal.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -55,6 +56,10 @@ auto CreateMaterial (const MaterialAttributes& attributes)
   if (type == MaterialType::kMatte)
   {
     return CreateMatteMaterial (attributes);
+  }
+  if (type == MaterialType::kMetal)
+  {
+    return CreateMetalMaterial (attributes);
   }
   std::cerr << "Unknown material type detected." << std::endl;
   return nullptr;
