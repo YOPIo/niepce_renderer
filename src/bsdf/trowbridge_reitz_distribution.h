@@ -74,6 +74,20 @@ public:
   auto Distribution (const Vector3f &half_vector) const noexcept -> Float;
 
   /*!
+   * @fn Vector3f SampleMicrofacetNormal (const)
+   * @brief Sample a microfacet orientation vector.
+   * @param[in] outgoing
+   *
+   * @param[in] sample
+   *
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SampleMicrofacetNormal (const Vector3f &outgoing, const Point2f &sample)
+    const noexcept -> Vector3f;
+
+  /*!
    * @fn Float ShadowMasking (const Vector3f &, const Vector3f &)
    * @brief The shadow masking function gives the fraction of microfacets in a
    *        differential area that are visible from a direction.
@@ -119,9 +133,24 @@ public:
    */
   auto Lambda (const Vector3f &v) const noexcept -> Float;
 
+  /*!
+   * @fn Float Pdf (const)
+   * @brief 
+   * @param[in] outgoing
+   *     
+   * @param[in] incident
+   *     
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Pdf (const Vector3f &outgoing, const Vector3f &half)
+    const noexcept -> Float;
+
+
 private:
-  Float alphax_, alphay_;
-  bool  sample_visible_;
+  const Float alphax_, alphay_;
+  const bool  sample_visible_;
 
 }; // class TrowbridgeReitzDistribution
 /*

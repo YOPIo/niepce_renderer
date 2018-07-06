@@ -43,6 +43,56 @@ auto TrowbridgeReitzDistribution::Distribution (const Vector3f &w)
 /*
 // ---------------------------------------------------------------------------
 */
+auto TrowbridgeReitzDistribution::SampleMicrofacetNormal
+(
+ const Vector3f &outgoing,
+ const Point2f  &sample
+)
+  const noexcept -> Vector3f
+{
+  if (!sample_visible_)
+  {
+    // Sample full distribution of normals.
+    Float tan2_theta, phi;
+    if (alphax_ == alphay_)
+    {
+      // Isotropic case
+      Float alpha = alphax_;
+      tan2_theta = alpha * alpha * sample[0] / (1.0 - sample[1]);
+      phi = 2.0 * kPi * sample[1];
+    }
+    else
+    {
+      phi = std::atan(alphay_ / alphax_
+                      * std::tan (2.0 * kPi * sample[1] + 0.5 * kPi));
+      if (sample[1] > 0.5) { phi += kPi; }
+
+      Float sin_phi = std::sin(phi);
+      Float cos_phi = std::cos(phi);
+      Float alphax2 = alphax_ * alphax_;
+      Float alphay2 = alphay_ * alphay_;
+      Float alpha2 = 1.0
+                   / (cos_phi * cos_phi / alphax2 + sin_phi * sin_phi / alphay2);
+      tan2_theta = sample[0] / (1.0 - sample[0]) * alpha2;
+    }
+
+    // Compute normal direction from angle.
+    Float cos_theta = 1.0 / std::sqrt(1.0 + tan2_theta);
+    Float sin_theta = std::sqrt(std::max(0.0, 1.0 - cos_theta * cos_theta));
+    auto wm = Vector3f (sin_theta * std::cos(phi), sin_theta * std::sin(phi), cos_theta);
+
+    if (wm.Z () < 0.0) { wm = -wm; }
+
+    return wm;
+  }
+
+  std::cerr << "TrowbridgeReitsDistricution::SampleMicrofacetNormal::Unimplementation" << std::endl;
+  // Sample visible area of normals.
+  return Vector3f (0, 1, 0);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto TrowbridgeReitzDistribution::GeometricAttenuation
 (
  const Vector3f &incident,
@@ -77,6 +127,23 @@ auto TrowbridgeReitzDistribution::Lambda (const Vector3f &v)
                                + bsdf::Sin2Phi (v) * alphay_ * alphay_);
   const Float e = (alpha * abs_tan_theta) * (alpha * abs_tan_theta);
   return (-1 + std::sqrt (1 + e)) * 0.5;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto TrowbridgeReitzDistribution::Pdf
+(
+ const Vector3f &outgoing,
+ const Vector3f &half
+)
+  const noexcept -> Float
+{
+  if (!sample_visible_)
+  {
+    return Distribution (half) * bsdf::AbsCosTheta (half);
+  }
+  std::cerr << "TrowbridgeReitzDistribution::Pdf was called" << std::endl;
+  return 1;
 }
 /*
 // ---------------------------------------------------------------------------

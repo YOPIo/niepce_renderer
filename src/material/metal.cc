@@ -7,6 +7,7 @@
  */
 #include "metal.h"
 #include "../bsdf/beckmann_distribution.h"
+#include "../bsdf/trowbridge_reitz_distribution.h"
 #include "../bsdf/fresnel.h"
 #include "../bsdf/microfacet_reflection.h"
 #include "../core/memory.h"
@@ -49,10 +50,10 @@ const -> Bsdf* const
   // Allocate distribution model
   const Float roughness_u = RgbToMonochrome (roughness_u_->Sample (uv));
   const Float roughness_v = RgbToMonochrome (roughness_v_->Sample (uv));
-  BeckmannDistribution* distribution
-    = memory->Allocate <BeckmannDistribution> (roughness_u,
-                                               roughness_v,
-                                               false);
+  const auto* distribution
+    = memory->Allocate <TrowbridgeReitzDistribution> (roughness_u,
+                                                      roughness_v,
+                                                      false);
   // Allocate fresnel model
   const Float ior = RgbToMonochrome (ior_->Sample (uv));
   FresnelDielectric* fresnel = memory->Allocate <FresnelDielectric> (1.0, ior);
