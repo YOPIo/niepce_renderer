@@ -31,7 +31,7 @@
   </light>
 
   <!-- Textures -->
-  <texture id="texture0">
+  <texture type="image_spectrum" id="texture0">
     <string name="filename" value="icon.png"/>
   </texture>
 

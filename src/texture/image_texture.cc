@@ -11,6 +11,8 @@
 #include "../core/point2f.h"
 #include "../core/vector3f.h"
 #include "../core/pixel.h"
+#include "../core/intersection.h"
+#include "../core/attributes.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -19,13 +21,15 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-ImageTexture::ImageTexture (const char* filename) :
-  image_ (new ImageIO <Spectrum> (filename))
+template <typename T>
+ImageTexture<T>::ImageTexture (const char* filename) :
+  image_ (new ImageIO <T> (filename))
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-auto ImageTexture::Sample (const Point2f& uv) const noexcept -> Spectrum
+template <typename T>
+auto ImageTexture<T>::Evaluate (const Intersection &isect) const noexcept -> T
 {
   if (image_)
   {
@@ -33,20 +37,21 @@ auto ImageTexture::Sample (const Point2f& uv) const noexcept -> Spectrum
     const int height = static_cast <int> (image_->Height ());
 
     // Convert to integer.
+    const auto& uv = isect.Texcoord ();
     int x = static_cast <unsigned int> (uv[0] * width);
     int y = static_cast <unsigned int> (uv[1] * height);
     x = Clamp (x, 0, width - 1);
     y = Clamp (y, 0, height - 1);
 
-    const Spectrum s = image_->At (x, y);
-    return Vector3f (s.X (), s.Y (), s.Z ());
+    return image_->At (x, y);
   }
-  return Vector3f::Zero ();
+  return T (0);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto ImageTexture::IsBlack () const noexcept -> bool
+template <typename T>
+auto ImageTexture<T>::IsBlack () const noexcept -> bool
 {
   const auto& width  = image_->Width ();
   const auto& height = image_->Height ();
@@ -54,7 +59,7 @@ auto ImageTexture::IsBlack () const noexcept -> bool
   {
     for (int x = 0; x < width; ++x)
     {
-      if (image_->At (x, y) != Spectrum::Zero ()) { return false; }
+      if (image_->At (x, y) != T (0)) { return false; }
     }
   }
   return true;
@@ -62,11 +67,24 @@ auto ImageTexture::IsBlack () const noexcept -> bool
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreateImageTexture (const std::string& filename)
-  -> std::shared_ptr <Texture>
+template <typename T>
+auto CreateImageTexture (const Attributes &attrs)
+  -> std::shared_ptr <Texture <T>>
 {
-  return std::make_shared <ImageTexture> (filename.c_str ());
+  // Get filename.
+  const auto filename = attrs.FindString ("filename");
+  return std::make_shared <ImageTexture <T>> (filename.c_str ());
 }
+/*
+// ---------------------------------------------------------------------------
+*/
+template class ImageTexture <Float>;
+template class ImageTexture <Spectrum>;
+
+template auto CreateImageTexture <Float> (const Attributes&)
+  -> std::shared_ptr <Texture <Float>>;
+template auto CreateImageTexture <Spectrum> (const Attributes&)
+  -> std::shared_ptr <Texture <Spectrum>>;
 /*
 // ---------------------------------------------------------------------------
 */

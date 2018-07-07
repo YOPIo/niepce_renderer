@@ -38,7 +38,7 @@ public:
   Material () = delete;
 
   //! The constructor takes emission texture.
-  Material (const std::shared_ptr <Texture>& emission);
+  Material (const std::shared_ptr <Texture <Spectrum>>& emission);
 
   //! The constructor takes underlying surface intersection.
   Material (const Intersection& intersection);
@@ -96,10 +96,10 @@ public:
    * @exception none
    * @details
    */
-  virtual auto Emission (const Point2f& uv) const noexcept -> Spectrum;
+  virtual auto Emission (const Intersection& isect) const noexcept -> Spectrum;
 
 protected:
-  std::shared_ptr <Texture> emission_;
+  std::shared_ptr <Texture <Spectrum>> emission_;
 }; // class Material
 /*
 // ---------------------------------------------------------------------------

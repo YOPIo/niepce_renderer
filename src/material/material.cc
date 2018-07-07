@@ -20,7 +20,7 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Material::Material (const std::shared_ptr <Texture>& emission) :
+Material::Material (const std::shared_ptr <Texture <Spectrum>>& emission) :
   emission_ (emission)
 {}
 /*
@@ -32,17 +32,16 @@ auto Material::HasEmission () const noexcept -> bool
   {
     return !emission_->IsBlack ();
   }
-  std::cout << "emission is nullptr" << std::endl;
   return false;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Material::Emission (const Point2f& uv) const noexcept -> Spectrum
+auto Material::Emission (const Intersection& isect) const noexcept -> Spectrum
 {
   if (emission_)
   {
-    return emission_->Sample (uv);
+    return emission_->Evaluate (isect);
   }
   return Vector3f (0);
 }

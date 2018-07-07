@@ -16,29 +16,50 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-auto FresnelConductor::Evaluate (Float cos_theta1)
-  const noexcept -> Float
+FresnelConductor::FresnelConductor
+(
+ const Spectrum &ior_i,
+ const Spectrum &ior_t,
+ const Spectrum &absorption
+) :
+  ior_incident_ (ior_i),
+  ior_transmit_ (ior_t),
+  absorption_   (absorption)
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto FresnelConductor::Evaluate (Float cos_theta_i)
+  const noexcept -> Spectrum
 {
-  /*!
-                    normal
-                       |    /
-                       |   /
-                       |  / outgoing
-                       |-/
-                       |/ \theta_1     index of refraction 1 (ior_o)
-             ---------------------
-             \theta_2 /|               index of refraction 2 (ior_i)
-                     /-|
-                    /  |
-                   /   |
-                  /    |
-          incident  -normal
+  // Follow just fresnel equation.
 
-    Snell's law
-    $ n_1 * sin(\theta_1) = n_2 * sin(\theta_2) $
-   */
+  // Compute cos(\theta_i)
+  cos_theta_i = Clamp (cos_theta_i, 0.f, 1.f);
 
-  return 1;
+  const auto ior    = ior_transmit_ / ior_incident_;
+  const auto absorp = absorption_ / ior_incident_;
+
+  // cos^(2)(\theta_i)
+  const Float cti2 = cos_theta_i * cos_theta_i;
+  // sin^(2)(\theta_i)
+  const Float sti2 = 1.0 - cti2;
+
+  const auto ior2    = ior * ior;
+  const auto absorp2 = absorp * absorp;
+
+  const auto ab       = ior2 - absorp2 - Spectrum (sti2); // ???
+  const auto a2plugb2 = Sqrt (ab * ab + 4.0 * ior2 * absorp2);
+  const auto a        = Sqrt (0.5f * (a2plugb2 + ab));
+  const auto t1       = a2plugb2 + Spectrum (cti2);
+  const auto t2       = 2.0 * cos_theta_i * a;
+  const auto vertical = (t1 - t2) / (t1 + t2);
+
+  const auto t3       = cti2 * a2plugb2 + Spectrum (sti2) * Spectrum (sti2);
+  const auto t4       = t2 * sti2;
+  const auto parallel = vertical * (t3 - t4) / (t3 + t4);
+
+  return 0.5 * (vertical * parallel);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -51,7 +72,7 @@ FresnelDielectric::FresnelDielectric (Float outgoing_ior, Float incident_ior) :
 // ---------------------------------------------------------------------------
 */
 auto FresnelDielectric::Evaluate (Float cos_theta1)
-  const noexcept -> Float
+  const noexcept -> Spectrum
 {
   /*!
                     normal
@@ -99,7 +120,7 @@ auto FresnelDielectric::Evaluate (Float cos_theta1)
   if (sin_theta2 >= 1)
   {
     // Total reflection has occurred.
-    return 1.0;
+    return Spectrum (1.0);
   }
 
   const Float cos_theta2
@@ -111,7 +132,7 @@ auto FresnelDielectric::Evaluate (Float cos_theta1)
   const Float r_vertical
     = (cos_theta1 - ior * cos_theta2) / (cos_theta1 + ior * cos_theta2);
 
-  return 0.5 * (r_parallel * r_parallel + r_vertical * r_vertical);
+  return Spectrum (0.5) * (r_parallel * r_parallel + r_vertical * r_vertical);
 }
 /*
 // ---------------------------------------------------------------------------

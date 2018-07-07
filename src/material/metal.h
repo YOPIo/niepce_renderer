@@ -33,10 +33,10 @@ public:
   //! The constructor takes reflectance and emission textures.
   Metal
   (
-   const std::shared_ptr <Texture>& absorption,
-   const std::shared_ptr <Texture>& ior,
-   const std::shared_ptr <Texture>& roughness_u,
-   const std::shared_ptr <Texture>& roughness_v
+   const std::shared_ptr <Texture <Spectrum>>& absorption,
+   const std::shared_ptr <Texture <Float>>& ior,
+   const std::shared_ptr <Texture <Float>>& roughness_u,
+   const std::shared_ptr <Texture <Float>>& roughness_v
   );
 
   //! The copy constructor of the class.
@@ -74,10 +74,10 @@ public:
   const -> Bsdf* const override final;
 
 private:
-  const std::shared_ptr <Texture> absorption_;
-  const std::shared_ptr <Texture> roughness_u_;
-  const std::shared_ptr <Texture> roughness_v_;
-  const std::shared_ptr <Texture> ior_;
+  const std::shared_ptr <Texture <Spectrum>> absorption_;
+  const std::shared_ptr <Texture <Float>>    roughness_u_;
+  const std::shared_ptr <Texture <Float>>    roughness_v_;
+  const std::shared_ptr <Texture <Float>>    ior_;
 
 }; // class Metal
 /*

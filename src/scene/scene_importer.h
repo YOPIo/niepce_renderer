@@ -15,6 +15,7 @@
 #include "../core/attributes.h"
 #include "../core/material_attributes.h"
 #include "../material/material.h"
+#include "../texture/texture.h"
 #include "scene.h"
 /*
 // ---------------------------------------------------------------------------
@@ -28,6 +29,26 @@ namespace niepce
 //! ----------------------------------------------------------------------------
 class SceneImporter
 {
+public:
+  enum class ElementType
+  {
+   kInt,
+   kFloat,
+   kString,
+   kPoint3,
+   kVector3,
+   kRgb,
+   kSpectrum,
+   // Camera components
+   kCamera,
+   kLookAt,
+   kFilm,
+   kTexture,
+   kMaterial,
+   kLight,
+   kShape,
+   kUnknown
+  };
 public:
   //! The default class constructor.
   SceneImporter () = delete;
@@ -196,38 +217,21 @@ private:
    */
   auto LoadObj (const Attributes& attributes) -> void;
 
-  /*!
-   * @fn TextureType AttributeType (const)
-   * @brief 
-   * @param[in] type
-   *    
-   * @return 
-   * @exception none
-   * @details
-   */
   auto TextureType (const std::string& type) const noexcept -> niepce::TextureType;
-
-  /*!
-   * @fn niepce LightType (const)
-   * @brief 
-   * @param[in] type
-   *     
-   * @return 
-   * @exception none
-   * @details
-   */
   auto LightType (const std::string& type) const noexcept -> niepce::LightType;
+  auto ShapeType (const std::string &type) const noexcept -> niepce::ShapeType;
 
   /*!
-   * @fn niepce ShapeType (const std::string&)
+   * @fn ElementType DetectElementType (tinyxml2)
    * @brief 
-   * @param[in] type
+   * @param[in] elem
    *    
    * @return 
    * @exception none
    * @details 
    */
-  auto ShapeType (const std::string &type) const noexcept -> niepce::ShapeType;
+  auto DetectElementType (tinyxml2::XMLElement* elem)
+    const noexcept -> ElementType;
 
 private:
   std::string filepath_;
@@ -237,7 +241,8 @@ private:
 
   // Key   : Texture ID
   // Value : std::shared_ptr <Textrue>
-  std::unordered_map <std::string, std::shared_ptr <Texture>> textures_;
+  std::unordered_map <std::string, std::shared_ptr <Texture <Float>>> float_textures_;
+  std::unordered_map <std::string, std::shared_ptr <Texture <Spectrum>>> spectrum_textures_;
 
   // Key   : Material ID
   // Value : std::shared_ptr <Material>

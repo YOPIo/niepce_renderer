@@ -105,9 +105,9 @@ public:
     const noexcept -> Spectrum override final;
 
 private:
-  const TrowbridgeReitzDistribution* distribution_;
-  const FresnelDielectric*           fresnel_;
   const Spectrum                     reflectance_;
+  const TrowbridgeReitzDistribution* distribution_;
+  const Fresnel*                     fresnel_;
 
 }; // class MicrofacetReflection
 /*

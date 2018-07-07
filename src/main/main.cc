@@ -22,7 +22,6 @@
 #include "../core/singleton.h"
 #include "../core/memory.h"
 #include "../camera/pinhole.h"
-#include "../texture/bool_texture.h"
 #include "../texture/value_texture.h"
 #include "../scene/scene_importer.h"
 #include "../core/attributes.h"
@@ -76,5 +75,8 @@ int main (int argc, char* argv[])
   niepce::PathTracer pt (scene, camera);
   pt.Render ();
   niepce::Finalize ();
+
+  // fresnel test ??
+
   return 0;
 }

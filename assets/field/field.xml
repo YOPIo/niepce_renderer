@@ -1,8 +1,9 @@
 <scene>
 
+  <!-- Camera -->
   <camera type="pinhole">
     <lookat>
-      <point3 name="origin" value="0 10 30"/>
+      <point3 name="origin" value="20 20 20"/>
       <point3 name="target" value="0 3 0"/>
       <vector3 name="up" value="0 1 0"/>
     </lookat>
@@ -19,8 +20,9 @@
     <float name="focus_distance" value="250" unit="m"/>
   </camera>
 
+  <!-- Lights -->
   <light type="area" id="light">
-    <rgb name="emission" value="3 3 3"/>
+    <rgb name="emission" value="7 7 7"/>
   </light>
 
   <!-- Materials -->
@@ -47,15 +49,20 @@
     <reference name="material" value="white"/>
   </shape>
 
-  <shape type="obj" id="light">
-    <string name="filename" value="light.obj"/>
+  <shape type="obj" id="light1">
+    <string name="filename" value="field_light1.obj"/>
+    <reference name="light" value="light"/>
+  </shape>
+
+  <shape type="obj" id="light2">
+    <string name="filename" value="field_light2.obj"/>
     <reference name="light" value="light"/>
   </shape>
 
   <shape type="sphere" id="s">
     <float name="radius" value="3.0"/>
     <point3 name="position" value="0 3 0"/>
-    <reference name="material" value="red"/>
+    <reference name="material" value="metal"/>
   </shape>
 
 </scene>

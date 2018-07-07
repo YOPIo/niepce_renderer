@@ -16,11 +16,23 @@
 */
 namespace niepce
 {
+/*
+// ---------------------------------------------------------------------------
+*/
+enum class TextureType : uint8_t
+{
+ kValueFloat,
+ kValueSpectrum,
+ kImageFloat,
+ kImageSpectrum,
+ kUnknown
+};
 //! ----------------------------------------------------------------------------
 //! @class Texture
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
+template <typename T>
 class Texture
 {
 public:
@@ -44,15 +56,14 @@ public:
 
 public:
   /*!
-   * @fn Spectrum Sample (Float)
-   * @brief Sample the pixel.
-   * @param[in] uv
-   *    UV-parameter [0, 1]
-   * @return Pixel
+   * @fn T Evaluate (const Intersection &)
+   * @brief 
+   * @param[in] isect
+   * @return 
    * @exception none
-   * @details
+   * @details 
    */
-  virtual auto Sample (const Point2f& uv) const noexcept -> Vector3f = 0;
+  virtual auto Evaluate (const Intersection &isect) const noexcept -> T = 0;
 
   /*!
    * @fn bool IsBlack ()
@@ -63,6 +74,15 @@ public:
    */
   virtual auto IsBlack () const noexcept -> bool = 0;
 }; // class Texture
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
+auto CreateTexture
+(
+ const Attributes &attrs
+)
+-> std::shared_ptr <Texture <T>>;
 /*
 // ---------------------------------------------------------------------------
 */

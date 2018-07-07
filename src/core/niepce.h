@@ -124,7 +124,7 @@ class MaterialAttributes;
 class MemoryArena;
 class Shape;
 class Sphere;
-class Texture;
+template <typename T> class Texture;
 class ThreadPool;
 class Tile;
 class Transform;

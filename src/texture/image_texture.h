@@ -24,7 +24,8 @@ namespace niepce
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class ImageTexture : public Texture
+template <typename T>
+class ImageTexture : public Texture <T>
 {
 public:
   //! The default class constructor.
@@ -50,15 +51,14 @@ public:
 
 public:
   /*!
-   * @fn Pixel Sample (Float)
-   * @brief Sample the pixel.
-   * @param[in] uv
-   *    UV-parameter [0, 1]
-   * @return Pixel
+   * @fn T Evaluate (const)
+   * @brief 
+   * @param[in] 
+   * @return 
    * @exception none
-   * @details
+   * @details 
    */
-  auto Sample (const Point2f& uv) const noexcept -> Spectrum override final;
+  auto Evaluate (const Intersection& isect) const noexcept -> T override final;
 
   /*!
    * @fn bool IsBlack ()
@@ -70,15 +70,16 @@ public:
   auto IsBlack () const noexcept -> bool override final;
 
 private:
-  std::shared_ptr <ImageIO <Spectrum>> image_;
+  std::shared_ptr <ImageIO <T>> image_;
 }; // class ImageTexture
 /*
 // ---------------------------------------------------------------------------
 // Function for the image texture
 // ---------------------------------------------------------------------------
 */
-auto CreateImageTexture (const std::string& filename)
-  -> std::shared_ptr <Texture>;
+template <typename T>
+auto CreateImageTexture (const Attributes &attrs)
+  -> std::shared_ptr <Texture <T>>;
 /*
 // ---------------------------------------------------------------------------
 */

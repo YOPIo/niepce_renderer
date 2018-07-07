@@ -22,14 +22,15 @@ namespace niepce
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class ValueTexture : public Texture
+template <typename T>
+class ValueTexture : public Texture <T>
 {
 public:
   //! The default class constructor.
   ValueTexture () = default;
 
   //! The constructor takes filename.
-  ValueTexture (const Vector3f& value);
+  ValueTexture (const T& value);
 
   //! The copy constructor of the class.
   ValueTexture (const ValueTexture& texture) = default;
@@ -48,15 +49,14 @@ public:
 
 public:
   /*!
-   * @fn Pixel Sample (Float)
-   * @brief Sample the pixel.
-   * @param[in] uv
-   *    UV-parameter [0, 1]
-   * @return Pixel
+   * @fn T Evaluate (const)
+   * @brief 
+   * @param[in] isect
+   * @return 
    * @exception none
-   * @details
+   * @details 
    */
-  auto Sample (const Point2f& uv) const noexcept -> Vector3f override final;
+  auto Evaluate (const Intersection &isect) const noexcept -> T override final;
 
   /*!
    * @fn bool IsBlack ()
@@ -68,14 +68,15 @@ public:
   auto IsBlack () const noexcept -> bool override final;
 
 private:
-  Vector3f value_;
+  const T value_;
 }; // class ValueTexture
 /*
 // ---------------------------------------------------------------------------
 // Function for the value texture.
 // ---------------------------------------------------------------------------
 */
-auto CreateValueTexture (const Vector3f& value) -> std::shared_ptr <Texture>;
+template <typename T>
+auto CreateValueTexture (const T& valu) -> std::shared_ptr <Texture <T>>;
 /*
 // ---------------------------------------------------------------------------
 */

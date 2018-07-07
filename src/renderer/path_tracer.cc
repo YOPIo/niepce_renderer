@@ -102,7 +102,7 @@ auto PathTracer::RenderTileBounds
 {
   const Bounds2f& tile_bounds = tile->Bounds ();
 
-  static constexpr int num_sample = 8;
+  static constexpr int num_sample = 16;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 
@@ -196,6 +196,7 @@ auto PathTracer::Radiance
     // -------------------------------------------------------------------------
     if (depth > 1 && bsdf->Type () != BsdfType::kSpecular)
     {
+      /*
       const auto value = DirectSampleOneLight (intersection,
                                                tile_sampler->SamplePoint2f ());
       if (value != Spectrum::Zero ())
@@ -204,6 +205,7 @@ auto PathTracer::Radiance
         bsdf->Sample (&record, tile_sampler->SamplePoint2f ());
         contribution = contribution + weight * value * record.Bsdf ();
       }
+      */
     }
 
     // Ready to generate the BSDF.
@@ -211,7 +213,7 @@ auto PathTracer::Radiance
     if (material->HasEmission ())
     {
       contribution = contribution + weight
-                   * material->Emission (intersection.Texcoord ());
+                   * material->Emission (intersection);
     }
 
     // -------------------------------------------------------------------------

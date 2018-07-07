@@ -23,8 +23,6 @@ namespace niepce
 //! ----------------------------------------------------------------------------
 class Attributes
 {
-  typedef std::shared_ptr <Texture> TexturePtr;
-
 public:
   //! The default class constructor.
   Attributes () = default;

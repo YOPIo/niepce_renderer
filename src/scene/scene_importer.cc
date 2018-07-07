@@ -13,7 +13,6 @@
 #include "../camera/camera.h"
 #include "../texture/image_texture.h"
 #include "../texture/value_texture.h"
-#include "../texture/float_texture.h"
 #include "../material/material.h"
 #include "../shape/triangle.h"
 #include "../primitive/primitive.h"
@@ -85,12 +84,31 @@ auto SceneImporter::Import (const char *filename) -> void
     {
       // Parse children.
       ParseRecursive (element, &attributes);
+      // Get texture type.
+      auto type = TextureType (element->Attribute ("type"));
       // Get texture id.
-      auto id   = element->Attribute ("id");
-      // Create texture
-      auto texture = CreateImageTexture (attributes.FindString ("filename"));
-      textures_.emplace (id, std::move (texture));
-      continue;
+      auto id = element->Attribute ("id");
+      if (type == TextureType::kImageFloat)
+      {
+        std::cerr << "unsupporting now" << std::endl;
+        continue;
+      }
+      if (type == TextureType::kImageSpectrum)
+      {
+        auto tex = CreateImageTexture <Spectrum> (attributes);
+        spectrum_textures_.emplace (id, tex);
+        continue;
+      }
+      if (type == TextureType::kValueFloat)
+      {
+        std::cerr << "unsupporting now" << std::endl;
+        continue;
+      }
+      if (type == TextureType::kValueSpectrum)
+      {
+        std::cerr << "unsupporting now" << std::endl;
+        continue;
+      }
     }
     if (IsElementType (element, "material"))
     {
@@ -211,30 +229,41 @@ auto SceneImporter::ParseMaterial (tinyxml2::XMLElement* material)
     if (IsElementType (element, "rgb"))
     {
       auto attrib = ParseSpectrum (element);
-      auto type   = TextureType (attrib.first);
-      auto tex    = CreateValueTexture (attrib.second);
-      res.AddTexture (type, tex);
+      auto type   = MaterialAttributes::DetectType (attrib.first);
+      auto tex    = CreateValueTexture <Spectrum> (attrib.second);
+      res.AddSpectrumTexture (type, tex);
       continue;
     }
     if (IsElementType (element, "float"))
     {
       // Create float texture.
       auto value = ParseFloat (element);
-      auto type  = TextureType (value.first);
-      auto tex   = CreateFloatTexture (value.second);
-      res.AddTexture (type, tex);
+      auto type   = MaterialAttributes::DetectType (value.first);
+      auto tex   = CreateValueTexture <Float> (value.second);
+      res.AddFloatTexture (type, tex);
       continue;
     }
     // Reference to texture.
     if (IsElementType (element, "reference"))
     {
-      auto attrib  = ParseString (element);
+      auto attrib = ParseString (element);
       const auto name = element->Attribute ("name");
       try
       {
-        auto type = TextureType (attrib.first);
-        auto tex = textures_.at (attrib.second);
-        res.AddTexture (type, tex);
+        auto type = MaterialAttributes::DetectType (attrib.first);
+        if (IsFloatTexture (type))
+        {
+          auto tex = float_textures_.at (attrib.second);
+          res.AddFloatTexture (type, tex);
+          continue;
+        }
+        if (IsSpectrumTexture (type))
+        {
+          auto tex = spectrum_textures_.at (attrib.second);
+          res.AddSpectrumTexture (type, tex);
+          continue;
+        }
+        std::cerr << "Scene::Importer Unknow texture type was found." << std::endl;
       }
       catch (const std::exception& e)
       {
@@ -518,6 +547,18 @@ auto SceneImporter::LoadObj (const Attributes& attributes) -> void
 /*
 // ---------------------------------------------------------------------------
 */
+auto SceneImporter::TextureType (const std::string &type)
+  const noexcept -> niepce::TextureType
+{
+  if (type == "image_spectrum") { return TextureType::kImageSpectrum; }
+  if (type == "image_float")    { return TextureType::kImageFloat;    }
+  if (type == "value_spectrum") { return TextureType::kValueSpectrum; }
+  if (type == "value_float")    { return TextureType::kValueFloat;    }
+  return TextureType::kUnknown;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto SceneImporter::MaterialType (tinyxml2::XMLElement* element)
   const noexcept -> niepce::MaterialType
 {
@@ -539,28 +580,35 @@ auto SceneImporter::LightType (const std::string& type) const noexcept
 /*
 // ---------------------------------------------------------------------------
 */
-auto SceneImporter::TextureType (const std::string& type)
-  const noexcept -> niepce::TextureType
-{
-  if (type == "emission")    { return niepce::TextureType::kEmission; }
-  if (type == "reflectance") { return niepce::TextureType::kReflectance; }
-  if (type == "absorption")  { return niepce::TextureType::kAbsorption; }
-  if (type == "roughness")   { return niepce::TextureType::kRoughness; }
-  if (type == "roughness_u") { return niepce::TextureType::kRoughnessU; }
-  if (type == "roughness_v") { return niepce::TextureType::kRoughnessV; }
-  if (type == "ior")         { return niepce::TextureType::kIndexOfRefraction; }
-
-  return niepce::TextureType::kUnknown;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
 auto SceneImporter::ShapeType (const std::string &str)
   const noexcept -> niepce::ShapeType
 {
   if (str == "obj")    { return ShapeType::kTriangleMesh; }
   if (str == "sphere") { return ShapeType::kSphere;       }
   return ShapeType::kUnknown;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::DetectElementType (tinyxml2::XMLElement* elem)
+  const noexcept -> ElementType
+{
+  const auto name = elem->Name ();
+  if (std::strcmp (name, "int"))      { return ElementType::kInt; }
+  if (std::strcmp (name, "float"))    { return ElementType::kFloat; }
+  if (std::strcmp (name, "string"))   { return ElementType::kString; }
+  if (std::strcmp (name, "point3"))   { return ElementType::kPoint3; }
+  if (std::strcmp (name, "vector3"))  { return ElementType::kVector3; }
+  if (std::strcmp (name, "rgb"))      { return ElementType::kRgb; }
+  if (std::strcmp (name, "spectrum")) { return ElementType::kSpectrum; }
+  if (std::strcmp (name, "camera"))   { return ElementType::kCamera; }
+  if (std::strcmp (name, "lookat"))   { return ElementType::kLookAt; }
+  if (std::strcmp (name, "film"))     { return ElementType::kFilm; }
+  if (std::strcmp (name, "texture"))  { return ElementType::kTexture; }
+  if (std::strcmp (name, "material")) { return ElementType::kMaterial; }
+  if (std::strcmp (name, "light"))    { return ElementType::kLight; }
+  if (std::strcmp (name, "shape"))    { return ElementType::kShape; }
+  return ElementType::kUnknown;
 }
 /*
 // ---------------------------------------------------------------------------

@@ -8,6 +8,8 @@
 #include "value_texture.h"
 #include "../core/vector3f.h"
 #include "../core/pixel.h"
+#include "../core/attributes.h"
+#include "../core/material_attributes.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -16,22 +18,25 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-ValueTexture::ValueTexture (const Vector3f& value) :
+template <typename T>
+ValueTexture<T>::ValueTexture (const T& value) :
   value_ (value)
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-auto ValueTexture::Sample (const Point2f& uv) const noexcept -> Vector3f
+template <typename T>
+auto ValueTexture<T>::Evaluate (const Intersection& isect) const noexcept -> T
 {
   return value_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto ValueTexture::IsBlack () const noexcept -> bool
+template <typename T>
+auto ValueTexture<T>::IsBlack () const noexcept -> bool
 {
-  if (value_ == Spectrum::Zero ()){ return true; }
+  if (value_ == T (0)){ return true; }
   return false;
 }
 /*
@@ -39,10 +44,21 @@ auto ValueTexture::IsBlack () const noexcept -> bool
 // Function for the value texture.
 // ---------------------------------------------------------------------------
 */
-auto CreateValueTexture (const Vector3f& value) -> std::shared_ptr <Texture>
+template <typename T>
+auto CreateValueTexture (const T &value) -> std::shared_ptr <Texture <T>>
 {
-  return std::make_shared <ValueTexture> (value);
+  return std::make_shared <ValueTexture <T>> (value);
 }
+/*
+// ---------------------------------------------------------------------------
+*/
+template class ValueTexture <Float>;
+template class ValueTexture <Spectrum>;
+
+template auto CreateValueTexture <Float> (const Float &)
+  -> std::shared_ptr <Texture <Float>>;
+template auto CreateValueTexture <Spectrum> (const Spectrum &)
+  -> std::shared_ptr <Texture <Spectrum>>;
 /*
 // ---------------------------------------------------------------------------
 */

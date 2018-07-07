@@ -66,9 +66,9 @@ auto MicrofacetReflection::Evaluate (const BsdfRecord &record)
     return Spectrum (0);
   }
 
-  const Float fresnel    = fresnel_->Evaluate (Dot (wh, incident));
-  const Float distribute = distribution_->Distribution (wh);
-  const Float gaf        = distribution_->GeometricAttenuation (incident, outgoing);
+  const auto fresnel    = fresnel_->Evaluate (Dot (wh, incident));
+  const auto distribute = distribution_->Distribution (wh);
+  const auto gaf        = distribution_->GeometricAttenuation (incident, outgoing);
 
   const Spectrum bsdf =(reflectance_ * distribute * fresnel)
     / (4.0 * bsdf::AbsCosTheta (outgoing) * bsdf::AbsSinTheta (incident));

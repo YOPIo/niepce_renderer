@@ -31,8 +31,8 @@ public:
   //! The constructor takes reflectance texture.
   Matte
   (
-   const std::shared_ptr <Texture>& emission,
-   const std::shared_ptr <Texture>& reflectance
+   const std::shared_ptr <Texture <Spectrum>>& emission,
+   const std::shared_ptr <Texture <Spectrum>>& reflectance
   );
 
   //! The move constructor of the class.
@@ -68,7 +68,7 @@ public:
 
 private:
   //! @brief The reflectance of matte surface.
-  std::shared_ptr <Texture> reflectance_;
+  std::shared_ptr <Texture <Spectrum>> reflectance_;
 }; // class Matte
 /*
 // ---------------------------------------------------------------------------

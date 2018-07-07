@@ -55,7 +55,7 @@ public:
   //! @exception none
   //! @details 
   virtual auto Evaluate (Float cos_theta1)
-    const noexcept -> Float = 0;
+    const noexcept -> Spectrum = 0;
 
 }; // class Fresnel
 /*
@@ -70,7 +70,18 @@ class FresnelConductor final : public Fresnel
 {
 public:
   //! The default class constructor.
-  FresnelConductor () = default;
+  FresnelConductor () = delete;
+
+  /*! The constructor takes indices of refraction (first argument is incident
+   *  direction, second argument is transmitted direction) and absorption
+   *  coefficient.
+   */
+  FresnelConductor
+  (
+   const Spectrum &ior_i,
+   const Spectrum &ior_t,
+   const Spectrum &absorption
+  );
 
   //! The copy constructor of the class.
   FresnelConductor (const FresnelConductor& conductor) = default;
@@ -97,11 +108,12 @@ public:
   //! @exception none
   //! @details 
   auto Evaluate (Float cos_theta1)
-    const noexcept -> Float override final;
+    const noexcept -> Spectrum override final;
 
 private:
-  Spectrum incident_ior_;
-  Spectrum outgoing_ior_;
+  Spectrum ior_incident_;
+  Spectrum ior_transmit_;
+  Spectrum absorption_;
 
 }; // class FresnelConductor
 //! ----------------------------------------------------------------------------
@@ -144,7 +156,7 @@ public:
   //! @exception none
   //! @details 
   auto Evaluate (Float cos_theta1)
-    const noexcept -> Float override final;
+    const noexcept -> Spectrum override final;
 
 private:
   Float outgoing_ior_;

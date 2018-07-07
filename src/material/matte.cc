@@ -21,8 +21,8 @@ namespace niepce
 */
 Matte::Matte
 (
- const std::shared_ptr <Texture>& emission,
- const std::shared_ptr <Texture>& reflectance
+ const std::shared_ptr <Texture <Spectrum>>& emission,
+ const std::shared_ptr <Texture <Spectrum>>& reflectance
 ) :
   Material     (emission),
   reflectance_ (reflectance)
@@ -37,9 +37,8 @@ auto Matte::AllocateBsdfs
 )
 const -> Bsdf* const
 {
-  const auto reflectance = reflectance_->Sample (intersection.Texcoord ());
+  const auto reflectance = reflectance_->Evaluate (intersection);
   auto const bsdf_ptr = memory->Allocate <Lambert> (intersection, reflectance);
-
   return bsdf_ptr;
 }
 /*
@@ -48,8 +47,10 @@ const -> Bsdf* const
 auto CreateMatteMaterial (const MaterialAttributes& attributes)
   -> std::shared_ptr <Material>
 {
-  const auto emission    = attributes.FindTexture (TextureType::kEmission);
-  const auto reflectance = attributes.FindTexture (TextureType::kReflectance);
+  const auto emission
+    = attributes.FindSpectrumTextureOrNullPtr (MaterialAttributes::Type::kEmission);
+  const auto reflectance
+    = attributes.FindSpectrumTextureOrNullPtr (MaterialAttributes::Type::kReflectance);
 
   return std::make_shared <Matte> (emission, reflectance);
 }

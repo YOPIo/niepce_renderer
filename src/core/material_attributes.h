@@ -17,20 +17,6 @@
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-*/
-enum class TextureType : uint8_t
-{
- kAbsorption,
- kEmission,
- kReflectance,
- kRoughness,
- kRoughnessU,
- kRoughnessV,
- kIndexOfRefraction,
- kUnknown
-};
 //! ----------------------------------------------------------------------------
 //! @class MaterialAttributes
 //! @brief
@@ -38,6 +24,19 @@ enum class TextureType : uint8_t
 //! ----------------------------------------------------------------------------
 class MaterialAttributes
 {
+public:
+  enum class Type : uint8_t
+  {
+   kAbsorption,
+   kEmission,
+   kReflectance,
+   kRoughness,
+   kRoughnessU,
+   kRoughnessV,
+   kIndexOfRefraction,
+   kUnknown
+  };
+
 public:
   //! The default class constructor.
   MaterialAttributes () = default;
@@ -61,32 +60,63 @@ public:
 
 public:
   /*!
-   * @Fn Return AddEmissionTexture ()
+   * @fn  AddFloatTexture ()
+   * @brief 
+   * @param[in] type
+   *
+   * @param[in] texture
+   *
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto AddFloatTexture
+  (
+   MaterialAttributes::Type type,
+   const std::shared_ptr <Texture <Float>>& texture
+  )
+    noexcept -> void;
+
+  /*!
+   * @fn void AddSpectrumTexture ()
+   * @brief 
+   * @param[in] type
+   *    
+   * @param[in] texture
+   *    
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto AddSpectrumTexture
+  (
+   MaterialAttributes::Type type,
+   const std::shared_ptr <Texture <Spectrum>>& texture
+  )
+    noexcept -> void;
+
+  /*!
+   * @fn std::shared_ptr <Texture <Float>> FindFloatTextureOrNullPtr (TextureType)
+   * @brief 
+   * @param[in] type
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto FindFloatTextureOrNullPtr (MaterialAttributes::Type type)
+    const noexcept -> std::shared_ptr <Texture <Float>>;
+
+  /*!
+   * @fn  FindSpectrumTexture (TextureType)
    * @brief 
    * @param[in] 
    * @param[out] 
    * @return 
    * @exception none
-   * @details
+   * @details 
    */
-  auto AddTexture
-  (
-   TextureType attribute,
-   const std::shared_ptr <Texture>& texture
-  )
-    -> void;
-
-  /*!
-   * @fn std FindTexture (const)
-   * @brief 
-   * @param[in] name
-   *    
-   * @return 
-   * @exception none
-   * @details
-   */
-  auto FindTexture (TextureType attribute)
-    const noexcept -> std::shared_ptr <Texture>;
+  auto FindSpectrumTextureOrNullPtr (MaterialAttributes::Type type)
+    const noexcept -> std::shared_ptr <Texture <Spectrum>>;
 
   /*!
    * @fn void SetMaterialType (std)
@@ -119,11 +149,19 @@ public:
    */
   auto Clear () -> void;
 
-  // private:
 public:
+  static auto DetectType (const std::string &name) -> Type;
+
+private:
   niepce::MaterialType type_;
-  std::map <TextureType, std::shared_ptr <Texture>> textures_;
+  std::map <Type, std::shared_ptr <Texture <Float>>> float_textures_;
+  std::map <Type, std::shared_ptr <Texture <Spectrum>>> spectrum_textures_;
 }; // class MaterialAttributes
+/*
+// ---------------------------------------------------------------------------
+*/
+auto IsFloatTexture (MaterialAttributes::Type type) -> bool;
+auto IsSpectrumTexture (MaterialAttributes::Type type) -> bool;
 /*
 // ---------------------------------------------------------------------------
 */

@@ -15,7 +15,6 @@
 #include "../core/point3f.h"
 #include "../core/vector2f.h"
 #include "../core/vector3f.h"
-#include "../texture/bool_texture.h"
 /*
 // ---------------------------------------------------------------------------
 */
