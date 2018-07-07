@@ -12,7 +12,7 @@
 */
 #include "../core/niepce.h"
 #include "beckmann_distribution.h"
-#include "trowbridge_reitz_distribution.h"
+#include "trowbridge_reitz.h"
 #include "bsdf.h"
 #include "fresnel.h"
 /*
@@ -35,10 +35,10 @@ public:
   //! The constructor takes reflectance and roughness.
   MicrofacetReflection
   (
-   const Intersection&                intersection,
-   const Spectrum&                    reflectance,
-   const TrowbridgeReitzDistribution* distribution,
-   const FresnelDielectric*           fresnel
+   const Intersection&    intersection,
+   const Spectrum&        reflectance,
+   const TrowbridgeReitz* distribution,
+   const Fresnel*         fresnel
   );
 
   //! The copy constructor of the class.
@@ -105,9 +105,9 @@ public:
     const noexcept -> Spectrum override final;
 
 private:
-  const Spectrum                     reflectance_;
-  const TrowbridgeReitzDistribution* distribution_;
-  const Fresnel*                     fresnel_;
+  const Spectrum         reflectance_;
+  const TrowbridgeReitz* distribution_;
+  const Fresnel*         fresnel_;
 
 }; // class MicrofacetReflection
 /*

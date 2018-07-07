@@ -224,11 +224,6 @@ auto PathTracer::Radiance
     const Vector3f incident
       = bsdf->Sample (&bsdf_record, tile_sampler->SamplePoint2f ());
 
-    if (bsdf->Type () != BsdfType::kSpecular)
-    {
-      // NNE
-    }
-
     weight = weight
            * bsdf_record.Bsdf () * bsdf_record.CosTheta () / bsdf_record.Pdf ();
 

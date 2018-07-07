@@ -61,6 +61,11 @@ auto Finalize () -> void
 */
 int main (int argc, char* argv[])
 {
+  niepce::Vector3f in (1, -1, 0);
+  niepce::Vector3f n  (0, 1, 0);
+  auto out = niepce::bsdf::Reflect (-in, n);
+  std::cout << out.ToString() << std::endl;
+
   if (argc != 2)
   {
     std::cout << "Input filename." << std::endl;
@@ -75,8 +80,6 @@ int main (int argc, char* argv[])
   niepce::PathTracer pt (scene, camera);
   pt.Render ();
   niepce::Finalize ();
-
-  // fresnel test ??
 
   return 0;
 }

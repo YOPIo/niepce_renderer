@@ -11,10 +11,10 @@ include (GoogleTest)
 
 if (GTEST_FOUND)
   add_executable (${PROJECT_NAME}
-    vector2f_test.cc
     vector3f_test.cc
+    test_fresnel.cc
     ../src/core/vector3f.cc
-    ../src/core/vector2f.cc)
+    ../src/bsdf/fresnel.cc)
   target_link_libraries (${PROJECT_NAME} GTest::GTest GTest::Main)
   include_directories (${PROJECT_SOURCE_DIR}/src ${GTEST_INCLUDE_DIRS})
   gtest_add_tests (TARGET ${PROJECT_NAME})

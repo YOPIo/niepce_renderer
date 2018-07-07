@@ -6,10 +6,11 @@
  * @details 
  */
 #include "metal.h"
+#include "../core/intersection.h"
 #include "../core/attributes.h"
 #include "../core/material_attributes.h"
 #include "../bsdf/beckmann_distribution.h"
-#include "../bsdf/trowbridge_reitz_distribution.h"
+#include "../bsdf/trowbridge_reitz.h"
 #include "../bsdf/fresnel.h"
 #include "../bsdf/microfacet_reflection.h"
 #include "../core/memory.h"
@@ -46,23 +47,22 @@ auto Metal::AllocateBsdfs
 )
 const -> Bsdf* const
 {
-  /*
   const auto& uv = isect.Texcoord ();
 
   const auto distribution
-    = memory->Allocate <TrowbridgeReitzDistribution> (roughness_u_->Evaluate (isect),
-                                                      roughness_v_->Evaluate (isect),
-                                                      false);
+    = memory->Allocate <TrowbridgeReitz> (roughness_u_->Evaluate (isect),
+                                          roughness_v_->Evaluate (isect),
+                                          false);
   const auto fresnel
-    = memory->Allocate <FresnelConductor>  (1.0, 1.5, absorption_->Evaluate (isect));
+    = memory->Allocate <FresnelConductor> (Spectrum (1.0),
+                                           Spectrum (1.5),
+                                           absorption_->Evaluate (isect));
 
   Bsdf* const bsdf = memory->Allocate <MicrofacetReflection> (isect,
                                                               Spectrum (1.0),
                                                               distribution,
                                                               fresnel);
   return bsdf;
-  */
-  return nullptr;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -78,6 +78,9 @@ auto CreateMetalMaterial (const MaterialAttributes& attrs)
     = attrs.FindFloatTextureOrNullPtr (MaterialAttributes::Type::kRoughnessV);
   const auto ior
     = attrs.FindFloatTextureOrNullPtr (MaterialAttributes::Type::kIndexOfRefraction);
+
+  Intersection isect;
+  isect.SetTexcoord (Point2f (0, 0));
 
   return std::make_shared <Metal> (absorption,
                                    roughness_u,

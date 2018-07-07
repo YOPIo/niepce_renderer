@@ -5,7 +5,7 @@ add_library (Bsdf STATIC
   bsdf_record.cc
   lambert.cc
   beckmann_distribution.cc
-  trowbridge_reitz_distribution.cc
+  trowbridge_reitz.cc
   fresnel.cc
   microfacet_reflection.cc
   )
