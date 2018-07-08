@@ -157,6 +157,10 @@ public:
   auto SetCosTheta (Float cos_theta) noexcept -> void;
 
 private:
+  auto ToLocal (const Vector3f &v) -> Vector3f;
+  auto ToWorld (const Vector3f &v) -> Vector3f;
+
+private:
   /*!
    * @brief The reference to the underlying surface intersection.
    */

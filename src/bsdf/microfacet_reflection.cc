@@ -41,7 +41,7 @@ auto MicrofacetReflection::Pdf (const BsdfRecord &record)
     // Sampled incident refracted.
     return 0.0;
   }
-
+  const auto pdf = distribution_->Pdf (outgoing, half);
   return distribution_->Pdf (outgoing, half) / (4.0 * Dot (outgoing, half));
 }
 /*
@@ -96,11 +96,11 @@ auto MicrofacetReflection::Sample
     = distribution_->SampleMicrofacetNormal (outgoing, sample);
 
   // Compute incident direction.
-  const auto incident = ToWorld (bsdf::Reflect (outgoing, half));
+  const auto incident = bsdf::Reflect (outgoing, half);
   record->SetIncident (incident);
 
   // Error handle
-  if (!bsdf::HasSameHemisphere (outgoing, incident)) { return Spectrum (0); }
+  if (!bsdf::HasSameHemisphere (outgoing, incident)) { Spectrum (0); }
 
   // Compute the pdf
   const Float pdf = Pdf (*record);
@@ -113,6 +113,9 @@ auto MicrofacetReflection::Sample
   // Compute $ cos(\theta) $
   const Float cos_t = Dot (half, incident);
   record->SetCosTheta (cos_t);
+
+  // HACKME:
+  record->SetIncident (ToWorld (incident));
 
   return ToWorld (incident);
 }

@@ -16,6 +16,8 @@
 #include "../core/memory.h"
 #include "../core/intersection.h"
 #include "../core/utilities.h"
+
+#include "../bsdf/microfacet_reflection_pbrt.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -62,6 +64,19 @@ const -> Bsdf* const
                                                               Spectrum (1.0),
                                                               distribution,
                                                               fresnel);
+
+  const auto d
+    = memory->Allocate <pbrt::TrowbridgeReitzDistribution>
+    (roughness_u_->Evaluate (isect),
+     roughness_v_->Evaluate (isect),
+     false);
+
+
+  const auto f
+    = memory->Allocate <FresnelConductor> (Spectrum (1.0),
+                                           Spectrum (1.5),
+                                           absorption_->Evaluate (isect));
+
   return bsdf;
 }
 /*

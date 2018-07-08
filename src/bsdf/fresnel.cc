@@ -35,7 +35,7 @@ auto FresnelConductor::Evaluate (Float cos_theta_i)
   // Follow just fresnel equation.
 
   // Compute cos(\theta_i)
-  cos_theta_i = Clamp (cos_theta_i, 0.f, 1.f);
+  cos_theta_i = Clamp (cos_theta_i, -1.f, 1.f);
 
   const auto ior    = ior_transmit_ / ior_incident_;
   const auto absorp = absorption_ / ior_incident_;
@@ -59,7 +59,7 @@ auto FresnelConductor::Evaluate (Float cos_theta_i)
   const auto t4       = t2 * sti2;
   const auto parallel = vertical * (t3 - t4) / (t3 + t4);
 
-  return 0.5 * (vertical * parallel);
+  return 0.5 * (vertical + parallel);
 }
 /*
 // ---------------------------------------------------------------------------
