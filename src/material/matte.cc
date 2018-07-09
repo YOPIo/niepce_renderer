@@ -11,6 +11,7 @@
 #include "../core/intersection.h"
 #include "../core/memory.h"
 #include "../bsdf/lambert.h"
+#include "../bsdf/oren_nayar.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -40,7 +41,8 @@ const -> Bsdf* const
   Bsdf* const bsdf = memory->Allocate <Bsdf> (intersection);
 
   const auto reflectance = reflectance_->Evaluate (intersection);
-  bsdf->AddBxdf (memory->Allocate <Lambert> (reflectance));
+  // bsdf->AddBxdf (memory->Allocate <Lambert> (reflectance));
+  bsdf->AddBxdf (memory->Allocate <OrenNayar> (reflectance, 20));
 
   return bsdf;
 }

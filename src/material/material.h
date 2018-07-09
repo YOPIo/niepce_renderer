@@ -24,6 +24,7 @@ enum class MaterialType : uint8_t
 {
   kMatte,
   kMetal,
+  kPlastic,
   kUnknown
 };
 //! ----------------------------------------------------------------------------
@@ -77,6 +78,7 @@ public:
   )
     const -> Bsdf* const = 0;
 
+public:
   /*!
    * @fn bool HasEmission ()
    * @brief Return the surface has emission or not.

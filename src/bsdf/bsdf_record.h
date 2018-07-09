@@ -13,7 +13,6 @@
 #include "../core/niepce.h"
 #include "../core/vector3f.h"
 #include "bxdf.h"
-#include "bsdfs.h"
 /*
 // ---------------------------------------------------------------------------
 */

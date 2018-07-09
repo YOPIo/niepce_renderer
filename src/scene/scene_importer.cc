@@ -563,8 +563,9 @@ auto SceneImporter::MaterialType (tinyxml2::XMLElement* element)
   const noexcept -> niepce::MaterialType
 {
   const std::string type = element->Attribute ("type");
-  if (type == "matte") { return niepce::MaterialType::kMatte; }
-  if (type == "metal") { return niepce::MaterialType::kMetal; }
+  if (type == "matte")   { return niepce::MaterialType::kMatte;   }
+  if (type == "metal")   { return niepce::MaterialType::kMetal;   }
+  if (type == "plastic") { return niepce::MaterialType::kPlastic; }
   return niepce::MaterialType::kUnknown;
 }
 /*

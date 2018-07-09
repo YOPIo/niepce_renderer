@@ -5,6 +5,7 @@ add_library (Bsdf STATIC
   bsdf.cc
   bsdf_record.cc
   lambert.cc
+  oren_nayar.cc
   # beckmann_distribution.cc
   trowbridge_reitz.cc
   fresnel.cc
