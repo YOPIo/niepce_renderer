@@ -85,22 +85,22 @@ auto MicrofacetReflection::Sample
 )
   const noexcept -> Vector3f
 {
+  // Get outgoing direction in bsdf coordinate.
   const auto outgoing = record->Outgoing ();
-  if (outgoing.Z () == 0)
-  {
-    return Spectrum (0);
-  }
+  if (outgoing.Z () == 0) { return Spectrum (0); }
 
   // Sample the microfacet normal.
-  const auto& half
-    = distribution_->SampleMicrofacetNormal (outgoing, sample);
+  const auto half = distribution_->SampleMicrofacetNormal (outgoing, sample);
 
-  // Compute incident direction.
+  // Compute incident direction in bsdf coordinate system.
   const auto incident = bsdf::Reflect (outgoing, half);
   record->SetIncident (incident);
 
   // Error handle
-  if (!bsdf::HasSameHemisphere (outgoing, incident)) { Spectrum (0); }
+  if (!bsdf::HasSameHemisphere (outgoing, incident))
+  {
+    Spectrum (0);
+  }
 
   // Compute the pdf
   const Float pdf = Pdf (*record);
@@ -111,11 +111,8 @@ auto MicrofacetReflection::Sample
   record->SetBsdf (bsdf);
 
   // Compute $ cos(\theta) $
-  const Float cos_t = Dot (half, incident);
+  const Float cos_t = std::fabs (Dot (normal_, incident));
   record->SetCosTheta (cos_t);
-
-  // HACKME:
-  record->SetIncident (ToWorld (incident));
 
   return ToWorld (incident);
 }

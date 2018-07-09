@@ -25,7 +25,6 @@
 #include "../texture/value_texture.h"
 #include "../scene/scene_importer.h"
 #include "../core/attributes.h"
-#include "../bsdf/microfacet_reflection_pbrt.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -40,7 +39,7 @@ namespace niepce
 */
 auto Initialize () -> void
 {
-  auto& stop_watch = Singleton<StopWatch>::Instance ();
+  auto& stop_watch = Singleton <StopWatch>::Instance ();
   stop_watch.Start ();
 }
 /*
@@ -48,7 +47,7 @@ auto Initialize () -> void
 */
 auto Finalize () -> void
 {
-  auto& stop_watch = Singleton<StopWatch>::Instance ();
+  auto& stop_watch = Singleton <StopWatch>::Instance ();
   auto time = stop_watch.Stop ();
   std::cout << time.ToString () << std::endl;
   SingletonFinalizer::Finalize ();
@@ -62,51 +61,6 @@ auto Finalize () -> void
 */
 int main (int argc, char* argv[])
 {
-  using Spectrum = niepce::Spectrum;
-
-  niepce::Point2f sample (0.1352134, 0.7291491);
-  niepce::Vector3f in (1, 0, -1);
-  in.Normalize ();
-  niepce::Vector3f n (0, 0, 1);
-
-  // ---------------------------------------------------------------------------
-  // niepce
-  // ---------------------------------------------------------------------------
-  auto i = niepce::Intersection ();
-  i.SetPosition (niepce::Point3f (0, 0, 0));
-  i.SetNormal (n);
-  i.SetOutgoing (-in);
-
-  auto nf = new niepce::FresnelConductor (Spectrum (1.0),
-                                         Spectrum (1.5),
-                                         Spectrum (0.3, 0.3, 0.45));
-  auto nd = new niepce::TrowbridgeReitz (0.5, 0.5, false);
-  auto nm = niepce::MicrofacetReflection (i, Spectrum (1.0), nd, nf);
-
-  niepce::BsdfRecord record (i);
-  auto no = nm.Sample (&record, sample);
-
-  // ---------------------------------------------------------------------------
-  // pbrt
-  // ---------------------------------------------------------------------------
-  auto pf = new pbrt::FresnelConductor (Spectrum (1.0),
-                                        Spectrum (1.5),
-                                        Spectrum (0.3, 0.3, 0.45));
-  auto pd = new pbrt::TrowbridgeReitzDistribution (0.5, 0.5, false);
-  auto pm = pbrt::MicrofacetReflection (Spectrum (1.0), pd, pf);
-
-  niepce::Vector3f wi;
-  niepce::Float pdf;
-  pbrt::BxDFType type;
-  auto po = pm.Sample_f (-in, &wi, sample, &pdf, &type);
-
-  // return 0;
-
-  /*
-  // ---------------------------------------------------------------------------
-  */
-
-
   if (argc != 2)
   {
     std::cout << "Input filename." << std::endl;

@@ -3,7 +3,7 @@
   <!-- Camera -->
   <camera type="pinhole">
     <lookat>
-      <point3 name="origin" value="10 20 10"/>
+      <point3 name="origin" value="0 3 15"/>
       <point3 name="target" value="0 3 0"/>
       <vector3 name="up" value="0 1 0"/>
     </lookat>
@@ -41,10 +41,10 @@
   </material>
 
   <material type="metal" id="metal">
-    <rgb name="absorption" value="0.3 0.2 0.3"/>
-    <float name="ior" value="1.3"/>
-    <float name="roughness_u" value="0.3"/>
-    <float name="roughness_v" value="0.3"/>
+    <rgb name="absorption" value="10 10 10"/>
+    <float name="ior" value="1.1"/>
+    <float name="roughness_u" value="0.4"/>
+    <float name="roughness_v" value="0.4"/>
   </material>
 
   <!-- Shapes -->
@@ -53,6 +53,7 @@
     <reference name="material" value="white"/>
   </shape>
 
+  <!--
   <shape type="obj" id="light1">
     <string name="filename" value="field_light1.obj"/>
     <reference name="light" value="light0"/>
@@ -62,6 +63,7 @@
     <string name="filename" value="field_light2.obj"/>
     <reference name="light" value="light0"/>
   </shape>
+  -->
 
   <shape type="sphere" id="s">
     <float name="radius" value="3.0"/>

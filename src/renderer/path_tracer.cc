@@ -102,7 +102,7 @@ auto PathTracer::RenderTileBounds
 {
   const Bounds2f& tile_bounds = tile->Bounds ();
 
-  static constexpr int num_sample = 16;
+  static constexpr int num_sample = 8;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 
@@ -224,13 +224,25 @@ auto PathTracer::Radiance
     const Vector3f incident
       = bsdf->Sample (&bsdf_record, tile_sampler->SamplePoint2f ());
 
+    if (bsdf_record.Pdf () == 0 || bsdf_record.Bsdf () == Spectrum (0))
+    {
+      // std::cerr << "PDF is zero." << std::endl;
+      break;
+    }
+
     weight = weight
            * bsdf_record.Bsdf () * bsdf_record.CosTheta () / bsdf_record.Pdf ();
+    /*
+    weight = weight * bsdf_record.Bsdf ()
+           * std::fabs (Dot (incident, intersection.Normal ()))
+           / bsdf_record.Pdf ();
+    */
 
     // -------------------------------------------------------------------------
     // Russian roulette
     // -------------------------------------------------------------------------
-    Float q = std::fmax (contribution[0], std::fmax(contribution[1], contribution[2]));
+    Float q = std::fmax (contribution[0],
+                         std::fmax(contribution[1], contribution[2]));
     if (depth > 7)
     {
       if (tile_sampler->SampleFloat () >= q) { return contribution; }

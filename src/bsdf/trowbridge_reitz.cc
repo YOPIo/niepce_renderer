@@ -53,43 +53,39 @@ auto TrowbridgeReitz::SampleMicrofacetNormal
   if (!sample_visible_)
   {
     // Sample full distribution of normals.
-    Float tan2_theta, phi;
+    Float cos_theta = 0;
+    Float phi = 2.0 * kPi * sample[1];
     if (alphax_ == alphay_)
     {
       // Isotropic case
-      tan2_theta = alphax_ * alphay_ * sample[0] / (1.0 - sample[0]);
-      phi = 2.0 * kPi * sample[1];
+      Float tan2_theta = alphax_ * alphay_ * sample[0] / (1.0 - sample[0]);
+      cos_theta = 1.0 / std::sqrt (1 + tan2_theta);
     }
     else
     {
       phi = std::atan (alphay_ / alphax_
-                      * std::tan (2.0 * kPi * sample[1] + 0.5 * kPi));
+                       * std::tan (2.0 * kPi * sample[1] + 0.5 * kPi));
       if (sample[1] > 0.5) { phi += kPi; }
-
-      Float sin_phi = std::sin (phi);
-      Float cos_phi = std::cos (phi);
-      Float alphax2 = alphax_ * alphax_;
-      Float alphay2 = alphay_ * alphay_;
-      Float alpha2 = 1.0
-                   / (cos_phi * cos_phi / alphax2 + sin_phi * sin_phi / alphay2);
-      tan2_theta = sample[0] / (1.0 - sample[0]) * alpha2;
+      const Float sin_phi = std::sin (phi);
+      const Float cos_phi = std::cos (phi);
+      const Float alphax2 = alphax_ * alphax_;
+      const Float alphay2 = alphay_ * alphay_;
+      const Float alpha2 = 1.0 / (cos_phi * cos_phi / alphax2
+                                  + sin_phi * sin_phi / alphay2);
+      const Float tan2_theta = alpha2 * sample[0] / (1.0 - sample[0]);
+      cos_theta = 1.0 / std::sqrt (1 + tan2_theta);
     }
-
-    // Compute normal direction from angle.
-    Float cos_theta = 1.0 / std::sqrt (1.0 + tan2_theta);
-    Float sin_theta = std::sqrt (std::max(0.0, 1.0 - cos_theta * cos_theta));
-    auto wm = Vector3f (sin_theta * std::cos (phi),
-                        sin_theta * std::sin (phi),
-                        cos_theta);
-
-    if (wm.Z () < 0.0) { wm = -wm; }
-
-    return wm;
+    const Float sin_theta = std::sqrt (std::fmax (0.0, 1.0 - cos_theta * cos_theta));
+    auto half = Vector3f (sin_theta * std::cos (phi),
+                          sin_theta * std::sin (phi),
+                          cos_theta);
+    if (!bsdf::HasSameHemisphere (outgoing, half)) { half = -half; }
+    return half;
   }
 
   std::cerr << "TrowbridgeReits::SampleMicrofacetNormal::Unimplementation" << std::endl;
   // Sample visible area of normals.
-  return Vector3f (0, 1, 0);
+  return Vector3f (0, 0, 1);
 }
 /*
 // ---------------------------------------------------------------------------
