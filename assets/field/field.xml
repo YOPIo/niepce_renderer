@@ -53,12 +53,12 @@
     <reference name="material" value="white"/>
   </shape>
 
-  <!--
   <shape type="obj" id="light1">
     <string name="filename" value="field_light1.obj"/>
     <reference name="light" value="light0"/>
   </shape>
 
+o  <!--
   <shape type="obj" id="light2">
     <string name="filename" value="field_light2.obj"/>
     <reference name="light" value="light0"/>

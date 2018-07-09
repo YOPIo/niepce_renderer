@@ -24,18 +24,14 @@ namespace niepce
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class Lambert : public Bsdf
+class Lambert : public Bxdf
 {
 public:
   //! The default class constructor.
   Lambert () = delete;
 
   //! The constructor takes reflectance.
-  Lambert
-  (
-   const Intersection& intersection,
-   const Spectrum& reflectance
-  );
+  Lambert (const Spectrum& reflectance);
 
   //! The copy constructor of the class.
   Lambert (const Lambert& lambert) = default;

@@ -7,6 +7,7 @@
  */
 #include "trowbridge_reitz.h"
 #include "bsdf.h"
+#include "../core/point2f.h"
 /*
 // ---------------------------------------------------------------------------
 */

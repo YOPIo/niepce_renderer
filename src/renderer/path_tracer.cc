@@ -162,7 +162,7 @@ auto PathTracer::Radiance
     if (!scene_->IsIntersect (ray, &intersection))
     {
       // No intersection found.
-      // return contribution;
+      return contribution;
 
       // HACKME:
       intersection.SetOutgoing (-ray.Direction ());
@@ -194,7 +194,7 @@ auto PathTracer::Radiance
     // -------------------------------------------------------------------------
     // Next Event Estimation (Direct light sampling)
     // -------------------------------------------------------------------------
-    if (depth > 1 && bsdf->Type () != BsdfType::kSpecular)
+    // if (depth > 1 && bsdf->Type () != BsdfType::kSpecular)
     {
       /*
       const auto value = DirectSampleOneLight (intersection,
@@ -221,22 +221,18 @@ auto PathTracer::Radiance
     // -------------------------------------------------------------------------
     // Sample incident direction.
     BsdfRecord bsdf_record (intersection);
-    const Vector3f incident
-      = bsdf->Sample (&bsdf_record, tile_sampler->SamplePoint2f ());
+    bsdf_record.SetSamplingTarget (niepce::Bxdf::Type::kAll);
+    bsdf_record.SetOutgoing (-ray.Direction (), bsdf::Coordinate::kWorld);
+
+    const auto f = bsdf->Sample (&bsdf_record, tile_sampler->SamplePoint2f ());
 
     if (bsdf_record.Pdf () == 0 || bsdf_record.Bsdf () == Spectrum (0))
     {
-      // std::cerr << "PDF is zero." << std::endl;
       break;
     }
 
-    weight = weight
-           * bsdf_record.Bsdf () * bsdf_record.CosTheta () / bsdf_record.Pdf ();
-    /*
-    weight = weight * bsdf_record.Bsdf ()
-           * std::fabs (Dot (incident, intersection.Normal ()))
+    weight = weight * bsdf_record.Bsdf () * bsdf_record.CosWeight ()
            / bsdf_record.Pdf ();
-    */
 
     // -------------------------------------------------------------------------
     // Russian roulette
@@ -252,6 +248,7 @@ auto PathTracer::Radiance
     // ---------------------------------------------------------------------------
     // Ready to trace the incident direction.
     // ---------------------------------------------------------------------------
+    const auto incident = bsdf_record.Incident (bsdf::Coordinate::kWorld);
     ray = Ray (intersection.Position (), incident);
   }
 

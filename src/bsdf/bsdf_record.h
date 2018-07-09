@@ -11,21 +11,14 @@
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
-#include "../core/intersection.h"
+#include "../core/vector3f.h"
+#include "bxdf.h"
+#include "bsdfs.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-*/
-enum class BsdfType : int
-{
-  kDiffuse,
-  kSpecular,
-  kUnknown
-};
 //! ----------------------------------------------------------------------------
 //! @class BsdfRecord
 //! @brief
@@ -62,7 +55,7 @@ public:
    * @exception none
    * @details
    */
-  auto CosTheta () const noexcept -> Float;
+  auto CosWeight () const noexcept -> Float;
 
   /*!
    * @fn Vector3f Outgoing ()
@@ -72,7 +65,7 @@ public:
    * @exception none
    * @details
    */
-  auto Outgoing () const noexcept -> Vector3f;
+  auto Outgoing (bsdf::Coordinate coordinate) const noexcept -> Vector3f;
 
   /*!
    * @fn Vector3f Incident ()
@@ -82,7 +75,7 @@ public:
    * @exception none
    * @details
    */
-  auto Incident () const noexcept -> Vector3f;
+  auto Incident (bsdf::Coordinate coordinate) const noexcept -> Vector3f;
 
   /*!
    * @fn Vector3f Bsdf ()
@@ -103,6 +96,15 @@ public:
   auto Pdf () const noexcept -> Float;
 
   /*!
+   * @fn niepce SamplingTarget ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SamplingTarget () const noexcept -> niepce::Bxdf::Type;
+
+  /*!
    * @fn void SetOutgoing ()
    * @brief Set the outgoing direction to internal data.
    * @param[in] outgoing
@@ -111,7 +113,12 @@ public:
    * @exception none
    * @details
    */
-  auto SetOutgoing (const Vector3f& outgoing) noexcept -> void;
+  auto SetOutgoing
+  (
+   const Vector3f   &outgoing,
+   bsdf::Coordinate coordinate
+  )
+  noexcept -> void;
 
   /*!
    * @fn void SetIncident (const)
@@ -122,7 +129,12 @@ public:
    * @exception none
    * @details
    */
-  auto SetIncident (const Vector3f& incident) noexcept -> void;
+  auto SetIncident
+  (
+   const Vector3f  &incident,
+   bsdf::Coordinate coordinate
+  )
+  noexcept -> void;
 
   /*!
    * @fn void SetBsdfValue (const)
@@ -154,11 +166,27 @@ public:
    * @exception none
    * @details 
    */
-  auto SetCosTheta (Float cos_theta) noexcept -> void;
+  auto SetCosWeight (Float cos_theta) noexcept -> void;
 
-private:
-  auto ToLocal (const Vector3f &v) -> Vector3f;
-  auto ToWorld (const Vector3f &v) -> Vector3f;
+  /*!
+   * @fn void SetSamplingTarget (niepce)
+   * @brief 
+   * @param[in] type
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SetSamplingTarget (niepce::Bxdf::Type type) noexcept -> void;
+
+  /*!
+   * @fn void SetSampledBsdfType (niepce)
+   * @brief 
+   * @param[in] type
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SetSampledBsdfType (niepce::Bxdf::Type type) noexcept -> void;
 
 private:
   /*!
@@ -170,13 +198,25 @@ private:
    * @brief
    *   The normalized outgoint direction in BSDF coordinates.
    */
-  Vector3f outgoing_;
+  Vector3f local_outgoing_;
+
+  /*!
+   * @brief
+   *   The normalized outgoint direction in world coordinates.
+   */
+  Vector3f world_outgoing_;
 
   /*!
    * @brief
    *   The normalized incident direction in BSDF coordinates.
    */
-  Vector3f incident_;
+  Vector3f local_incident_;
+
+  /*!
+   * @brief
+   *   The normalized incident direction in world coordinates.
+   */
+  Vector3f world_incident_;
 
   /*!
    * @brief
@@ -200,7 +240,13 @@ private:
    * @brief
    *    The type of sampled bsdf.
    */
-  BsdfType type_;
+  niepce::Bxdf::Type sampled_type_;
+
+  /*!
+   * @brief
+   *    The sampling target type of BSDF.
+   */
+  niepce::Bxdf::Type target_type_;
 }; // class BsdfRecord
 /*
 // ---------------------------------------------------------------------------

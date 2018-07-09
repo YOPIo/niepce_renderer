@@ -6,6 +6,7 @@
  * @details 
  */
 #include "bsdf_record.h"
+#include "../core/intersection.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -15,18 +16,9 @@ namespace niepce
 // ---------------------------------------------------------------------------
 */
 BsdfRecord::BsdfRecord (const Intersection& intersection) :
-  intersection_ (intersection)
-{
-  // Ready to transform outgoing direction to BSDF coordinates.
-  const Vector3f n = intersection.Normal ();
-  const Vector3f s = intersection.Tangent ();
-  const Vector3f t = intersection.Binormal ();
-  const Vector3f outgoing = Normalize (intersection.Outgoing ());
-
-  // From normal, tangent and binormal vectors, transform ray outgoing direction
-  // to BSDF coordinates.
-  this->outgoing_ = intersection_.ToLocal (outgoing);
-}
+  intersection_ (intersection),
+  world_outgoing_ (intersection.Outgoing ())
+{}
 /*
 // ---------------------------------------------------------------------------
 */
@@ -37,24 +29,31 @@ auto BsdfRecord::Bsdf () const noexcept -> Vector3f
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::CosTheta () const noexcept -> Float
+auto BsdfRecord::CosWeight () const noexcept -> Float
 {
   return cos_t_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::Incident () const noexcept -> Vector3f
+auto BsdfRecord::Incident (bsdf::Coordinate coordinate) const noexcept -> Vector3f
 {
-  // Return the incident direction in BSDF coordinates.
-  return incident_;
+  if (coordinate == niepce::bsdf::Coordinate::kLocal)
+  {
+    return local_incident_;
+  }
+  return world_incident_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::Outgoing () const noexcept -> Vector3f
+auto BsdfRecord::Outgoing (bsdf::Coordinate coordinate) const noexcept -> Vector3f
 {
-  return outgoing_;
+  if (coordinate == niepce::bsdf::Coordinate::kLocal)
+  {
+    return local_outgoing_;
+  }
+  return world_outgoing_;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -66,6 +65,13 @@ auto BsdfRecord::Pdf () const noexcept -> Float
 /*
 // ---------------------------------------------------------------------------
 */
+auto BsdfRecord::SamplingTarget () const noexcept -> niepce::Bxdf::Type
+{
+  return target_type_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto BsdfRecord::SetBsdf (const Spectrum& basf_value) noexcept -> void
 {
   this->bsdf_ = basf_value;
@@ -73,30 +79,64 @@ auto BsdfRecord::SetBsdf (const Spectrum& basf_value) noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::SetCosTheta (Float cos_theta) noexcept -> void
+auto BsdfRecord::SetCosWeight (Float cos_theta) noexcept -> void
 {
   this->cos_t_ = cos_theta;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::SetIncident (const Vector3f& incident) noexcept -> void
+auto BsdfRecord::SetIncident
+(
+ const Vector3f   &incident,
+ bsdf::Coordinate coordinate
+)
+  noexcept -> void
 {
-  this->incident_ = incident;
+  if (coordinate == niepce::bsdf::Coordinate::kLocal)
+  {
+    local_incident_ = incident;
+    return ;
+  }
+  world_incident_ = incident;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto BsdfRecord::SetOutgoing (const Vector3f& outgoing) noexcept -> void
+auto BsdfRecord::SetOutgoing
+(
+ const Vector3f   &outgoing,
+ bsdf::Coordinate coordinate
+)
+  noexcept -> void
 {
-  this->outgoing_ = outgoing;
+  if (coordinate == niepce::bsdf::Coordinate::kLocal)
+  {
+    local_outgoing_ = outgoing;
+    return ;
+  }
+  world_outgoing_ = outgoing;
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto BsdfRecord::SetPdf (Float pdf) noexcept -> void
 {
-  this->pdf_ = pdf;
+  pdf_ = pdf;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto BsdfRecord::SetSamplingTarget (niepce::Bxdf::Type type) noexcept -> void
+{
+  target_type_ = type;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto BsdfRecord::SetSampledBsdfType (niepce::Bxdf::Type type) noexcept -> void
+{
+  sampled_type_ = type;
 }
 /*
 // ---------------------------------------------------------------------------

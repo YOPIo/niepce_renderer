@@ -9,8 +9,8 @@
     </lookat>
     <film>
       <!-- Resolution -->
-      <int name="width"  value="720"/>
-      <int name="height" value="480"/>
+      <int name="width"  value="360"/>
+      <int name="height" value="240"/>
       <!-- Film size -->
       <float name="diagonal" value="43.2666153056" unit="mm"/>
       <string name="filename" value="output.ppm"/>
@@ -110,10 +110,12 @@
     <reference name="material" value="green"/>
   </shape>
 
+  <!--
   <shape type="sphere" id="sphere">
     <float name="radius" value="15"/>
     <point3 name="position" value="50 15 50"/>
     <reference name="material" value="metal"/>
   </shape>
+  -->
 
 </scene>

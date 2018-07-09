@@ -15,12 +15,8 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Lambert::Lambert
-(
- const Intersection& intersection,
- const Spectrum& reflectance
-) :
-  Bsdf (BsdfType::kDiffuse, intersection),
+Lambert::Lambert (const Spectrum &reflectance) :
+  Bxdf (Type (Type::kDiffuse | Type::kReflection)),
   reflectance_ (reflectance)
 {}
 /*
@@ -29,8 +25,7 @@ Lambert::Lambert
 auto Lambert::Pdf (const BsdfRecord& record)
   const noexcept -> Float
 {
-  const Vector3f incident = record.Incident ();
-
+  const Vector3f incident = record.Incident (niepce::bsdf::Coordinate::kWorld);
   //! Lambert PDF : $ cos\theta / \pi $
   const Float pdf = std::fabs (bsdf::CosTheta (incident) / kPi);
   return pdf;
@@ -49,9 +44,9 @@ auto Lambert::Evaluate (const BsdfRecord& record) const noexcept -> Spectrum
 auto Lambert::Sample (BsdfRecord *record, const Point2f &sample)
   const noexcept -> Vector3f
 {
-  // Sample the incident direction in BRDF coordinates.
-  const Vector3f incident = SampleCosineHemisphere (sample);
-  record->SetIncident (Normalize (incident));
+  // Sample the incident direction in BSDf space.
+  const auto wi = SampleCosineHemisphere (sample);
+  record->SetIncident (Normalize (wi), niepce::bsdf::Coordinate::kLocal);
 
   // Compute the PDF.
   const Float pdf = Pdf (*record);
@@ -61,11 +56,9 @@ auto Lambert::Sample (BsdfRecord *record, const Point2f &sample)
   const Spectrum brdf = Evaluate (*record);
   record->SetBsdf (brdf);
 
-  // Compute the $ cos(\theta) $
-  const Float cos_t = bsdf::Dot (incident);
-  record->SetCosTheta (cos_t);
+  return brdf;
 
-  return this->ToWorld (incident);
+  return Spectrum (0);
 }
 /*
 // ---------------------------------------------------------------------------

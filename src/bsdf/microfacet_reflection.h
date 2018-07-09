@@ -11,7 +11,6 @@
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
-#include "beckmann_distribution.h"
 #include "trowbridge_reitz.h"
 #include "bsdf.h"
 #include "fresnel.h"
@@ -26,7 +25,7 @@ namespace niepce
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class MicrofacetReflection : public Bsdf
+class MicrofacetReflection : public Bxdf
 {
 public:
   //! The default class constructor.
@@ -35,7 +34,6 @@ public:
   //! The constructor takes reflectance and roughness.
   MicrofacetReflection
   (
-   const Intersection&    intersection,
    const Spectrum&        reflectance,
    const TrowbridgeReitz* distribution,
    const Fresnel*         fresnel

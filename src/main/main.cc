@@ -25,6 +25,9 @@
 #include "../texture/value_texture.h"
 #include "../scene/scene_importer.h"
 #include "../core/attributes.h"
+#include "../bsdf/bsdf_record.h"
+#include "../bsdf/bsdf.h"
+#include "../bsdf/bxdf.h"
 /*
 // ---------------------------------------------------------------------------
 */

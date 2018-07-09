@@ -37,9 +37,12 @@ auto Matte::AllocateBsdfs
 )
 const -> Bsdf* const
 {
+  Bsdf* const bsdf = memory->Allocate <Bsdf> (intersection);
+
   const auto reflectance = reflectance_->Evaluate (intersection);
-  auto const bsdf_ptr = memory->Allocate <Lambert> (intersection, reflectance);
-  return bsdf_ptr;
+  bsdf->AddBxdf (memory->Allocate <Lambert> (reflectance));
+
+  return bsdf;
 }
 /*
 // ---------------------------------------------------------------------------

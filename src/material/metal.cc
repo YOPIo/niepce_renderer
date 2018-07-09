@@ -16,7 +16,6 @@
 #include "../core/memory.h"
 #include "../core/intersection.h"
 #include "../core/utilities.h"
-#include "../bsdf/microfacet_reflection_pbrt.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -50,6 +49,8 @@ const -> Bsdf* const
 {
   const auto& uv = isect.Texcoord ();
 
+  Bsdf* const bsdf = memory->Allocate <Bsdf> (isect);
+
   const auto distribution
     = memory->Allocate <TrowbridgeReitz> (roughness_u_->Evaluate (isect),
                                           roughness_v_->Evaluate (isect),
@@ -59,10 +60,11 @@ const -> Bsdf* const
                                            Spectrum (1.5),
                                            absorption_->Evaluate (isect));
 
-  Bsdf* const bsdf = memory->Allocate <MicrofacetReflection> (isect,
-                                                              Spectrum (1.0),
-                                                              distribution,
-                                                              fresnel);
+  const auto microfacet = memory->Allocate <MicrofacetReflection> (Spectrum (1.0),
+                                                                   distribution,
+                                                                   fresnel);
+
+  bsdf->AddBxdf (microfacet);
 
   return bsdf;
 }

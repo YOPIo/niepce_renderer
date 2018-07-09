@@ -6,6 +6,7 @@
  * @details 
  */
 #include "microfacet_reflection.h"
+#include "bsdf_record.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -16,12 +17,11 @@ namespace niepce
 */
 MicrofacetReflection::MicrofacetReflection
 (
- const Intersection&    intersection,
  const Spectrum&        reflectance,
  const TrowbridgeReitz* distribution,
  const Fresnel*         fresnel
 ) :
-  Bsdf (BsdfType::kSpecular, intersection),
+  Bxdf (Type (Type::kSpecular | Type::kReflection)),
   reflectance_  (reflectance),
   distribution_ (distribution),
   fresnel_      (fresnel)
@@ -32,8 +32,8 @@ MicrofacetReflection::MicrofacetReflection
 auto MicrofacetReflection::Pdf (const BsdfRecord &record)
   const noexcept -> Float
 {
-  const auto& outgoing = record.Outgoing ();
-  const auto& incident = record.Incident ();
+  const auto& outgoing = record.Outgoing (niepce::bsdf::Coordinate::kLocal);
+  const auto& incident = record.Incident (niepce::bsdf::Coordinate::kLocal);
   const auto  half     = Normalize (outgoing + incident);
 
   if (!bsdf::HasSameHemisphere (outgoing, incident))
@@ -50,8 +50,8 @@ auto MicrofacetReflection::Pdf (const BsdfRecord &record)
 auto MicrofacetReflection::Evaluate (const BsdfRecord &record)
   const noexcept -> Spectrum
 {
-  const Vector3f& outgoing = record.Outgoing ();
-  const Vector3f& incident = record.Incident ();
+  const Vector3f& outgoing = record.Outgoing (niepce::bsdf::Coordinate::kLocal);
+  const Vector3f& incident = record.Incident (niepce::bsdf::Coordinate::kLocal);
   const Vector3f  half = Normalize (outgoing + incident);
 
   const Float cto = bsdf::AbsCosTheta (outgoing);
@@ -86,7 +86,8 @@ auto MicrofacetReflection::Sample
   const noexcept -> Vector3f
 {
   // Get outgoing direction in bsdf coordinate.
-  const auto outgoing = record->Outgoing ();
+  const auto outgoing = record->Outgoing (niepce::bsdf::Coordinate::kLocal);
+
   if (outgoing.Z () == 0) { return Spectrum (0); }
 
   // Sample the microfacet normal.
@@ -94,7 +95,7 @@ auto MicrofacetReflection::Sample
 
   // Compute incident direction in bsdf coordinate system.
   const auto incident = bsdf::Reflect (outgoing, half);
-  record->SetIncident (incident);
+  record->SetIncident (incident, niepce::bsdf::Coordinate::kLocal);
 
   // Error handle
   if (!bsdf::HasSameHemisphere (outgoing, incident))
@@ -110,11 +111,7 @@ auto MicrofacetReflection::Sample
   const Spectrum bsdf = Evaluate (*record);
   record->SetBsdf (bsdf);
 
-  // Compute $ cos(\theta) $
-  const Float cos_t = std::fabs (Dot (normal_, incident));
-  record->SetCosTheta (cos_t);
-
-  return ToWorld (incident);
+  return bsdf;
 }
 /*
 // ---------------------------------------------------------------------------

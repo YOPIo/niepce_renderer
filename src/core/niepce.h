@@ -107,6 +107,8 @@ class Attributes;
 class AssembledTiles;
 class BeckmannDistribution;
 class Bounds2f;
+class Bxdf;
+class Bsdfs;
 class Bsdf;
 class BsdfRecord;
 enum class BsdfType;

@@ -1,11 +1,12 @@
 /*!
- * @file bsdf.cc
+ * @file bsdfs.h
  * @brief 
  * @author Masashi Yoshida
  * @date 
  * @details 
  */
 #include "bsdf.h"
+#include "bsdf_record.h"
 #include "../core/intersection.h"
 #include "../core/vector3f.h"
 /*
@@ -16,233 +17,183 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Bsdf::Bsdf (BsdfType type, const Intersection& intersection) :
-  type_   (type),
-  normal_ (intersection.Normal ())
-{
-  BuildOrthonormalBasis (normal_, &tangent_, &binormal_);
-}
+Bsdf::Bsdf (const Intersection &isect) :
+  isect_ (isect),
+  Bxdf (niepce::Bxdf::Type::kUnknown)
+{}
 /*
 // ---------------------------------------------------------------------------
 */
-auto Bsdf::ToLocal (const Vector3f& w) const noexcept -> Vector3f
+auto Bsdf::Sample (BsdfRecord *record, const Point2f &sample)
+  const noexcept -> Spectrum
 {
-  return Vector3f (Dot (w, tangent_),
-                   Dot (w, binormal_),
-                   Dot (w, normal_));
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Bsdf::ToWorld (const Vector3f& w) const noexcept -> Vector3f
-{
-  return Vector3f
-    (w.X () * tangent_.X () + w.Y () * binormal_.X () + w.Z () * normal_.X (),
-     w.X () * tangent_.Y () + w.Y () * binormal_.Y () + w.Z () * normal_.Y (),
-     w.X () * tangent_.Z () + w.Y () * binormal_.Z () + w.Z () * normal_.Z ());
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Bsdf::Type () const noexcept -> BsdfType
-{
-  return type_;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-namespace bsdf
-{
-/*
-// ---------------------------------------------------------------------------
-*/
-auto CosTheta (const Vector3f& w) -> Float
-{
-  return w.Z ();
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Cos2Theta (const Vector3f& w) -> Float
-{
-  return w.Z () * w.Z ();
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto AbsCosTheta (const Vector3f& w) -> Float
-{
-  return std::abs (w.Z ());
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto SinTheta (const Vector3f& w) -> Float
-{
-  return std::sqrt (Sin2Theta (w));
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Sin2Theta (const Vector3f& w) -> Float
-{
-  return std::fmax (0.0, 1.0 - Cos2Theta (w));
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto AbsSinTheta (const Vector3f& w) -> Float
-{
-  return SinTheta (w);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto TanTheta (const Vector3f& w) -> Float
-{
-  return SinTheta (w) / CosTheta (w);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Tan2Theta (const Vector3f& w) -> Float
-{
-  return Sin2Theta(w) / Cos2Theta(w);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto AbsTanTheta (const Vector3f& w) -> Float
-{
-  return std::abs (TanTheta (w));
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto CosPhi (const Vector3f& w) -> Float
-{
-  const Float sin_theta = SinTheta (w);
-  return (sin_theta == 0) ? 1 : Clamp (w.Z () / sin_theta,
-                                       static_cast <Float> (-1.0),
-                                       static_cast <Float> (1.0));
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Cos2Phi (const Vector3f& w) -> Float
-{
-  return CosPhi (w) * CosPhi (w);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto AbsCosPhi (const Vector3f& w) -> Float
-{
-  return std::fabs (CosPhi (w));
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto SinPhi (const Vector3f& w) -> Float
-{
-  const Float sin_theta = SinTheta (w);
-  return (sin_theta == 0) ? 0 : Clamp (w.Y () / sin_theta,
-                                       static_cast <Float> (-1.0),
-                                       static_cast <Float> (1.0));
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Sin2Phi (const Vector3f& w) -> Float
-{
-  return SinPhi (w) * SinPhi (w);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto AbsSinPhi (const Vector3f& w) -> Float
-{
-  return std::fabs (SinPhi (w));
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto TanPhi (const Vector3f& w) -> Float
-{
-  return SinPhi (w) / CosPhi (w);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Tan2Phi (const Vector3f& w) -> Float
-{
-  return TanPhi (w) * TanPhi (w);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto AbsTanPhi (const Vector3f& w) -> Float
-{
-  return std::fabs (TanPhi (w));
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Dot (const Vector3f& v) -> Float
-{
-  return v.Z ();
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto HasSameHemisphere (const Vector3f& lhs, const Vector3f& rhs) -> bool
-{
-  return lhs.Z () * rhs.Z () > 0;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Reflect (const Vector3f& v, const Vector3f& normal) -> Vector3f
-{
-  return -v + 2.0 * Dot (v, normal) * normal;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Refract
-(
- const Vector3f& in,
- const Vector3f& normal,
- Float ior1,
- Float ior2,
- Vector3f* refract
-)
-  -> bool
-{
-  const Float ior = ior1 / ior2;
+  // ---------------------------------------------------------------------------
+  // Ready for sample.
+  // ---------------------------------------------------------------------------
+  // Get the type of sampleing bsdf type.
+  const auto &type = record->SamplingTarget ();
 
-  // Compute $ cos(\theta) $ using Snells's law.
-  const Float cos_theta1  = Dot (normal, in);
-  const Float sin2_theta1 = std::fmax (0.0, (1.0 - cos_theta1 * cos_theta1));
-  const Float sin2_theta2 = ior * ior * sin2_theta2;
+  // Transform outgoing direction in world space into bsdf space and store it.
+  const auto &wwo = record->Outgoing (bsdf::Coordinate::kWorld);
+  record->SetOutgoing (WorldToLocal (wwo), bsdf::Coordinate::kLocal);
 
-  if (sin2_theta2 >= 1)
+  const auto num_bxdf = bxdfs_.size ();
+  if (num_bxdf == 0)
   {
-    // Total reflection
-    return false;
-      // return Reflect (in, normal);
+    // Handle case, no BxDFs are stored.
+    record->SetPdf (0);
+    record->SetBsdf (Spectrum (0));
+    record->SetCosWeight (0);
+    record->SetSampledBsdfType (niepce::Bxdf::Type::kUnknown);
+    return Spectrum (0);
   }
 
-  const Float cos_theta2 = std::sqrt (1.0 - sin2_theta2);
+  // ---------------------------------------------------------------------------
+  // Choose BxDF randomly to sample the incident.
+  // ---------------------------------------------------------------------------
+  auto idx = std::min (static_cast <std::size_t> (sample[0] * num_bxdf),
+                       num_bxdf - 1);
+  Bxdf* bxdf = nullptr;
+  for (int i = 0; i < num_bxdf; ++i)
+  {
+    if (bxdfs_[i]->FulFill (type) && idx-- == 0)
+    {
+      bxdf = bxdfs_[i];
+      break;
+    }
+  }
+  if (bxdf == nullptr)
+  {
+    record->SetPdf (0);
+    record->SetBsdf (Spectrum (0));
+    record->SetCosWeight (0);
+    record->SetSampledBsdfType (niepce::Bxdf::Type::kUnknown);
+    return Spectrum (0);
+  }
 
-  *refract = ior * -in + (ior * cos_theta1 - cos_theta2) * normal;
+  // ---------------------------------------------------------------------------
+  // Sample the incident direction, pdf, bsdf and cos weight from chosen BxDF.
+  // ---------------------------------------------------------------------------
+  // Sample the incident direction.
+  const auto f = bxdf->Sample (record, sample);
+  const auto wi  = record->Incident (bsdf::Coordinate::kLocal);
+  const auto wwi = LocalToWorld (wi);
+  record->SetIncident (wwi, bsdf::Coordinate::kWorld);
 
-  return true;
+  // Compute the pdf.
+  const auto pdf = Pdf (*record);
+  record->SetPdf (pdf);
+
+  // Compute the evaluated bsdf.
+  const auto bsdf = Evaluate (*record);
+  record->SetBsdf (bsdf);
+
+  // Compute the cos weight.
+  const auto weight = std::fabs (Dot (wwi, isect_.Normal ()));
+  record->SetCosWeight (weight);
+
+  return bsdf;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-}  // namespace bsdf
+auto Bsdf::Evaluate (const BsdfRecord &record) const noexcept -> Spectrum
+{
+  // Get outgoing and incident directions in bsdf space.
+  const auto &wo = record.Outgoing (bsdf::Coordinate::kLocal);
+  const auto &wi = record.Incident (bsdf::Coordinate::kWorld);
+
+  // Handle case
+  if (wo.Z () == 0) { return Spectrum (0); }
+
+  // Get outgoing, incident directions and shading normal in world space.
+  const auto &wwo = record.Outgoing (bsdf::Coordinate::kWorld);
+  const auto &wwi = record.Incident (bsdf::Coordinate::kWorld);
+  const auto &n = isect_.Normal ();
+
+  // Confirm reflection or refraction.
+  bool reflect = Dot (wwo, n) * Dot (wwi, n) > 0;
+
+  // Get the type of BSDF sampling target.
+  const auto &sampling_type = record.SamplingTarget ();
+
+  // Loop for bxdfs in this class.
+  Spectrum f (0);
+  for (const auto & bxdf : bxdfs_)
+  {
+    bool require = (reflect && (this->type_ & niepce::Bxdf::Type::kReflection))
+                || (!reflect && (this->type_ & niepce::Bxdf::Type::kTransmittion));
+    if (require && bxdf->FulFill (sampling_type))
+    {
+      f = f + bxdf->Evaluate (record);
+    }
+  }
+  return f;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bsdf::Pdf (const BsdfRecord &record) const noexcept -> Float
+{
+  // If no bxdf in this class, return 0.
+  if (bxdfs_.empty ()) { return 0.0; }
+
+  // Get outgoing and incident directions in bsdf space.
+  const auto &wo = record.Outgoing (bsdf::Coordinate::kLocal);
+  const auto &wi = record.Incident (bsdf::Coordinate::kLocal);
+
+  // Handle case, ray parallel to delta surface.
+  if (wo.Z () == 0) { return 0.0; }
+
+  // Get the type of sampling bsdf type.
+  const auto &type = record.SamplingTarget ();
+
+  // Compute the pdf. (Sum of all BxDF)
+  Float pdf = 0;
+  int   num_sampled = 0;
+  for (const auto &bxdf : bxdfs_)
+  {
+    if (bxdf->FulFill (type))
+    {
+      pdf += bxdf->Pdf (record);
+      ++num_sampled;
+    }
+  }
+
+  return num_sampled > 0 ? pdf / num_sampled : 0.0;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bsdf::AddBxdf (Bxdf *bxdf) noexcept -> void
+{
+  // bxdfs_.push_back (std::move (bxdf));
+  bxdfs_.push_back (bxdf);
+
+  // Update the type of BSDF.
+  this->type_ = niepce::Bxdf::Type (this->type_ | bxdf->BsdfType ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bsdf::WorldToLocal (const Vector3f &v) const noexcept -> Vector3f
+{
+  return Vector3f (Dot (v, isect_.Tangent ()),
+                   Dot (v, isect_.Binormal ()),
+                   Dot (v, isect_.Normal ()));
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bsdf::LocalToWorld (const Vector3f &v) const noexcept -> Vector3f
+{
+  const auto &n = isect_.Normal ();
+  const auto &s = isect_.Tangent ();
+  const auto &t = isect_.Binormal ();
+  return Vector3f (v.X () * s.X () + v.Y () * t.X () + v.Z () * n.X (),
+                   v.X () * s.Y () + v.Y () * t.Y () + v.Z () * n.Y (),
+                   v.X () * s.Z () + v.Y () * t.Z () + v.Z () * n.Z ());
+}
 /*
 // ---------------------------------------------------------------------------
 */
