@@ -55,6 +55,7 @@ public:
   auto HasNaN       () const -> bool;
 
   auto ToString () const -> std::string;
+  auto IsBlack  () const -> bool;
 
  public:
   static auto Max      () noexcept -> Vector3f;

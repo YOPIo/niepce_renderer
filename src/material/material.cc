@@ -12,6 +12,7 @@
 #include "../core/pixel.h"
 #include "../material/matte.h"
 #include "../material/metal.h"
+#include "../material/plastic.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -62,8 +63,7 @@ auto CreateMaterial (const MaterialAttributes& attributes)
   }
   if (type == MaterialType::kPlastic)
   {
-    std::cout << "create plastic material" << std::endl;
-    return nullptr;
+    return CreatePlasticMaterial (attributes);
   }
   std::cerr << "Unknown material type detected." << std::endl;
   return nullptr;
