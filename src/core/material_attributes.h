@@ -30,6 +30,7 @@ public:
    kAbsorption,
    kEmission,
    kReflectance,
+   kSpecular,
    kRoughness,
    kRoughnessU,
    kRoughnessV,

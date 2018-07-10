@@ -92,6 +92,7 @@ auto MaterialAttributes::DetectType (const std::string &name) -> Type
 {
   if (name == "emission")    { return Type::kEmission; }
   if (name == "reflectance") { return Type::kReflectance; }
+  if (name == "specular")    { return Type::kSpecular; }
   if (name == "absorption")  { return Type::kAbsorption; }
   if (name == "roughness_u") { return Type::kRoughnessU; }
   if (name == "roughness_v") { return Type::kRoughnessV; }
@@ -128,7 +129,7 @@ auto IsSpectrumTexture (MaterialAttributes::Type type) -> bool
 /*
 // ---------------------------------------------------------------------------
 */
-}  // namespace niepce
+} // namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */

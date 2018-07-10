@@ -180,7 +180,7 @@ auto Vector3f::ToString () const -> std::string
 */
 auto Vector3f::IsBlack () const -> bool
 {
-  return (x_ != 0) && (y_ != 0) && (z_ != 0);
+  return (x_ == 0) && (y_ == 0) && (z_ == 0);
 }
 /*
 // ---------------------------------------------------------------------------

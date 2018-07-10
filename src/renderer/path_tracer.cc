@@ -102,7 +102,7 @@ auto PathTracer::RenderTileBounds
 {
   const Bounds2f& tile_bounds = tile->Bounds ();
 
-  static constexpr int num_sample = 128;
+  static constexpr int num_sample = 8;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 
@@ -162,7 +162,7 @@ auto PathTracer::Radiance
     if (!scene_->IsIntersect (ray, &intersection))
     {
       // No intersection found.
-      return contribution;
+      // return contribution;
 
       // HACKME:
       intersection.SetOutgoing (-ray.Direction ());

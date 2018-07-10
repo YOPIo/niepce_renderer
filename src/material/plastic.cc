@@ -8,11 +8,13 @@
 #include "plastic.h"
 #include "../core/memory.h"
 #include "../core/intersection.h"
+#include "../core/material_attributes.h"
 #include "../bsdf/bsdf.h"
 #include "../bsdf/microfacet_reflection.h"
 #include "../bsdf/fresnel.h"
 #include "../bsdf/trowbridge_reitz.h"
 #include "../bsdf/oren_nayar.h"
+#include "../bsdf/lambert.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -49,15 +51,14 @@ auto Plastic::AllocateBsdfs
   const auto reflectance = reflectance_->Evaluate (isect);
   if (!reflectance.IsBlack ())
   {
-    std::cout << "hoge" << std::endl;
-    bsdf->AddBxdf (memory->Allocate <OrenNayar> (reflectance, 15.0));
+    // bsdf->AddBxdf (memory->Allocate <OrenNayar> (reflectance, 15.0));
+    bsdf->AddBxdf (memory->Allocate <Lambert> (reflectance));
   }
 
   // Initialize specular component of plastic.
   const auto specular = specular_->Evaluate (isect);
   if (!specular.IsBlack ())
   {
-    std::cout << "piyo" << std::endl;
     // Generate fresnel.
     const auto f = memory->Allocate <FresnelDielectric> (1.0, 1.5);
     // Generate microfacet distribution.
@@ -74,7 +75,14 @@ auto Plastic::AllocateBsdfs
 auto CreatePlasticMaterial (const MaterialAttributes &attrs)
   -> std::shared_ptr <Material>
 {
-  const auto &
+  const auto reflectance
+    = attrs.FindSpectrumTextureOrNullPtr (MaterialAttributes::Type::kReflectance);
+  const auto specular
+    = attrs.FindSpectrumTextureOrNullPtr (MaterialAttributes::Type::kSpecular);
+  const auto rough
+    = attrs.FindFloatTextureOrNullPtr (MaterialAttributes::Type::kRoughness);
+
+  return std::make_shared <Plastic> (reflectance, specular, rough);
 }
 /*
 // ---------------------------------------------------------------------------
