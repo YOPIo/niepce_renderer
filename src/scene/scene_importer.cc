@@ -88,23 +88,23 @@ auto SceneImporter::Import (const char *filename) -> void
       auto type = TextureType (element->Attribute ("type"));
       // Get texture id.
       auto id = element->Attribute ("id");
-      if (type == TextureType::kImageFloat)
+      if (type == niepce::TextureType::kImageFloat)
       {
         std::cerr << "unsupporting now" << std::endl;
         continue;
       }
-      if (type == TextureType::kImageSpectrum)
+      if (type == niepce::TextureType::kImageSpectrum)
       {
         auto tex = CreateImageTexture <Spectrum> (attributes);
         spectrum_textures_.emplace (id, tex);
         continue;
       }
-      if (type == TextureType::kValueFloat)
+      if (type == niepce::TextureType::kValueFloat)
       {
         std::cerr << "unsupporting now" << std::endl;
         continue;
       }
-      if (type == TextureType::kValueSpectrum)
+      if (type == niepce::TextureType::kValueSpectrum)
       {
         std::cerr << "unsupporting now" << std::endl;
         continue;
@@ -125,12 +125,12 @@ auto SceneImporter::Import (const char *filename) -> void
       const auto id = element->Attribute("id");
       attributes.AddString ("id", id);
       ParseRecursive (element, &attributes);
-      if (type == ShapeType::kTriangleMesh)
+      if (type == niepce::ShapeType::kTriangleMesh)
       {
         LoadObj (attributes);
         continue;
       }
-      if (type == ShapeType::kSphere)
+      if (type == niepce::ShapeType::kSphere)
       {
         const auto p = attributes.FindPoint3f ("position");
         const auto r = attributes.FindFloat ("radius");
@@ -550,11 +550,11 @@ auto SceneImporter::LoadObj (const Attributes& attributes) -> void
 auto SceneImporter::TextureType (const std::string &type)
   const noexcept -> niepce::TextureType
 {
-  if (type == "image_spectrum") { return TextureType::kImageSpectrum; }
-  if (type == "image_float")    { return TextureType::kImageFloat;    }
-  if (type == "value_spectrum") { return TextureType::kValueSpectrum; }
-  if (type == "value_float")    { return TextureType::kValueFloat;    }
-  return TextureType::kUnknown;
+  if (type == "image_spectrum") { return niepce::TextureType::kImageSpectrum; }
+  if (type == "image_float")    { return niepce::TextureType::kImageFloat;    }
+  if (type == "value_spectrum") { return niepce::TextureType::kValueSpectrum; }
+  if (type == "value_float")    { return niepce::TextureType::kValueFloat;    }
+  return niepce::TextureType::kUnknown;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -584,9 +584,9 @@ auto SceneImporter::LightType (const std::string& type) const noexcept
 auto SceneImporter::ShapeType (const std::string &str)
   const noexcept -> niepce::ShapeType
 {
-  if (str == "obj")    { return ShapeType::kTriangleMesh; }
-  if (str == "sphere") { return ShapeType::kSphere;       }
-  return ShapeType::kUnknown;
+  if (str == "obj")    { return niepce::ShapeType::kTriangleMesh; }
+  if (str == "sphere") { return niepce::ShapeType::kSphere;       }
+  return niepce::ShapeType::kUnknown;
 }
 /*
 // ---------------------------------------------------------------------------

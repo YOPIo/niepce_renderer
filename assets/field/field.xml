@@ -9,8 +9,8 @@
     </lookat>
 
     <film>
-      <int name="width" value="360"/>
-      <int name="height" value="240"/>
+      <int name="width" value="720"/>
+      <int name="height" value="480"/>
       <float name="diagonal" value="43.2666153056" unit="mm"/>
       <string name="filename" value="output.ppm"/>
     </film>

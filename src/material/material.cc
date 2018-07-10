@@ -12,7 +12,6 @@
 #include "../core/pixel.h"
 #include "../material/matte.h"
 #include "../material/metal.h"
-#include "../material/plastic.h"
 /*
 // ---------------------------------------------------------------------------
 */
