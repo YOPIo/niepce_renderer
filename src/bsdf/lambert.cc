@@ -25,7 +25,7 @@ Lambert::Lambert (const Spectrum &reflectance) :
 auto Lambert::Pdf (const BsdfRecord& record)
   const noexcept -> Float
 {
-  const Vector3f incident = record.Incident (niepce::bsdf::Coordinate::kWorld);
+  const Vector3f incident = record.Incident (niepce::bsdf::Coordinate::kLocal);
   //! Lambert PDF : $ cos\theta / \pi $
   const Float pdf = std::fabs (bsdf::CosTheta (incident) / kPi);
   return pdf;

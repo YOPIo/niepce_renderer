@@ -51,9 +51,14 @@ const -> Bsdf* const
 
   Bsdf* const bsdf = memory->Allocate <Bsdf> (isect);
 
+  const auto rough_u
+    = TrowbridgeReitz::RoughnessToAlpha (roughness_u_->Evaluate (isect));
+  const auto rough_v
+    = TrowbridgeReitz::RoughnessToAlpha (roughness_v_->Evaluate (isect));
+
   const auto distribution
-    = memory->Allocate <TrowbridgeReitz> (roughness_u_->Evaluate (isect),
-                                          roughness_v_->Evaluate (isect),
+    = memory->Allocate <TrowbridgeReitz> (rough_u,
+                                          rough_v,
                                           false);
   const auto fresnel
     = memory->Allocate <FresnelConductor> (Spectrum (1.0),

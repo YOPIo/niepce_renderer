@@ -62,7 +62,8 @@ auto Plastic::AllocateBsdfs
     // Generate fresnel.
     const auto f = memory->Allocate <FresnelDielectric> (1.0, 1.5);
     // Generate microfacet distribution.
-    const auto rough = roughness_->Evaluate (isect);
+    const auto rough
+      = TrowbridgeReitz::RoughnessToAlpha (roughness_->Evaluate (isect));
     const auto d = memory->Allocate <TrowbridgeReitz> (rough, rough, false);
     // Generate microfacet reflection.
     bsdf->AddBxdf (memory->Allocate <MicrofacetReflection> (specular, d, f));

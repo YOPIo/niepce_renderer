@@ -28,7 +28,7 @@ OrenNayar::OrenNayar (const Spectrum &reflectance, Float degree) :
 */
 auto OrenNayar::Pdf (const BsdfRecord &record) const noexcept -> Float
 {
-  const Vector3f incident = record.Incident (niepce::bsdf::Coordinate::kWorld);
+  const Vector3f incident = record.Incident (niepce::bsdf::Coordinate::kLocal);
   //! Lambert PDF : $ cos\theta / \pi $
   const Float pdf = std::fabs (bsdf::CosTheta (incident) / kPi);
   return pdf;

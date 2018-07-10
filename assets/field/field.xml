@@ -25,9 +25,11 @@
     <rgb name="emission" value="7 7 7"/>
   </light>
 
+<!--
   <light type="infinite" id="light1">
     <string name="filename" value="infinite.hdr"/>
   </light>
+-->
 
   <!-- Materials -->
   <material type="matte" id="white">
@@ -48,8 +50,8 @@
   </material>
 
   <material type="plastic" id="plastic">
-    <rgb name="reflectance" value="0.8 0.2 0.2"/>
-    <rgb name="specular" value="0.8 0.2 0.2"/>
+    <rgb name="reflectance" value="0.8 0.8 0.2"/>
+    <rgb name="specular" value="1 1 1"/>
     <float name="roughness" value="0.25"/>
   </material>
 

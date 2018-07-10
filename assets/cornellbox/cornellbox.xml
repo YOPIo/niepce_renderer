@@ -23,7 +23,7 @@
 
   <!-- Lights -->
   <light type="infinite" id="infinite">
-    <string name="filename" value="infinite.hdr"/>
+    <string name="filename" value="env.hdr"/>
   </light>
 
   <light type="area" id="area_light">
@@ -36,7 +36,7 @@
   </texture>
 
   <!-- Materials -->
-  <material type="matte" id="matte">
+  <material type="matte" id="white">
     <rgb name="emission" value="0 0 0"/>
     <rgb name="reflectance" value="0.75 0.75 0.75"/>
   </material>
@@ -44,11 +44,6 @@
   <material type="matte" id="tex_matte">
     <rgb name="emission" value="0 0 0"/>
     <reference name="reflectance" value="texture0"/>
-  </material>
-
-  <material type="matte" id="light">
-    <rgb name="emission" value="12 12 12"/>
-    <rgb name="reflectance" value="0 0 0"/>
   </material>
 
   <material type="matte" id="red">
@@ -70,7 +65,7 @@
 
   <material type="plastic" id="plastic">
     <rgb name="reflectance" value="0.8 0.65 0.65"/>
-    <rgb name="specular" value="0.8 0.8 0.8"/>
+    <rgb name="specular" value="1 1 1"/>
     <float name="roughness" value="0.3"/>
   </material>
 
@@ -84,7 +79,7 @@
 
   <shape type="obj" id="body">
     <string name="filename" value="cornellbox.obj"/>
-    <reference name="material" value="matte"/>
+    <reference name="material" value="white"/>
   </shape>
 
   <shape type="obj" id="front">
@@ -107,10 +102,12 @@
     <reference name="material" value="green"/>
   </shape>
 
+  <!--
   <shape type="sphere" id="sphere">
     <float name="radius" value="15"/>
     <point3 name="position" value="50 15 50"/>
     <reference name="material" value="plastic"/>
   </shape>
+  -->
 
 </scene>
