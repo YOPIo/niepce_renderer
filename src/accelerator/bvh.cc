@@ -29,6 +29,7 @@ Bvh::Bvh
   total_nodes_ (0)
 {
   Build (primitives_);
+  std::cout << "done." << std::endl;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -139,11 +140,12 @@ auto Bvh::RecursiveBuild
     const auto max = centroid_bounds.Max ();
     const auto p   = info[i].centroid;
 
-    auto idx = static_cast <int> ((p - min)[dimension] / (max - min)[dimension]);
-    if (idx == kNumBucket) { idx = idx - 1; }
+    auto idx = static_cast <int> (kNumBucket
+                                  * (p - min)[dimension] / (max - min)[dimension]);
+    if (idx >= kNumBucket) { idx = kNumBucket - 1; }
 
     bucket[idx].count++;
-    bucket[idx].bounds = Union (bucket[i].bounds, info[i].bounds);
+    bucket[idx].bounds = Union (bucket[idx].bounds, info[i].bounds);
   }
 
   // Compute casts for splitting.
@@ -190,13 +192,17 @@ auto Bvh::RecursiveBuild
       const auto max = centroid_bounds.Max ();
       const auto p   = info.centroid;
 
-      auto idx = static_cast <int> (((p - min) / (max - min))[dimension]);
-      if (idx == kNumBucket) { idx = idx - 1; }
+      auto idx = static_cast <int> (kNumBucket
+                                    * ((p - min) / (max - min))[dimension]);
+      if (idx >= kNumBucket) { idx = kNumBucket - 1; }
 
       return idx <= split_bucket_idx;
     };
+
     auto pos = std::partition (&info[begin], &info[end - 1] + 1, comp);
     middle = pos - &info[0];
+
+    std::cout << middle << std::endl;
 
     // Initialize the node as interior node.
     auto c1 = RecursiveBuild (info, begin,  middle, primitives);

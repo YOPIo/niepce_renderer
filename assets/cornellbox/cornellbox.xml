@@ -69,11 +69,10 @@
     <float name="roughness" value="0.2"/>
   </material>
 
-  <!-- Shapes -->
-  <!--
-  <shape type="obj">
+  <!-- Shapes
+  <shape type="obj" id="rubiks">
     <string name="filename" value="rubiks_cube.obj"/>
-    <reference name="material" value="matte"/>
+    <reference name="material" value="white"/>
   </shape>
   -->
 

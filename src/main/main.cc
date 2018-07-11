@@ -76,7 +76,7 @@ int main (int argc, char* argv[])
   auto scene  = importer.ExtractScene ();
   auto camera = importer.ExtractCamera ();
   niepce::PathTracer pt (scene, camera);
-  pt.Render ();
+  // pt.Render ();
   niepce::Finalize ();
 
   return 0;

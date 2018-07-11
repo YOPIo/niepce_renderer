@@ -86,7 +86,7 @@ struct BvhNode
 struct BvhBucket
 {
   int count = 0;
-  Bounds3f bounds;
+  Bounds3f bounds = Bounds3f ();
 };
 /*
 // ---------------------------------------------------------------------------

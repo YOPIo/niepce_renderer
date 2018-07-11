@@ -35,7 +35,7 @@ public:
   Bvh
   (
    const std::vector <std::shared_ptr <Primitive>>& primitives,
-   std::size_t max_primitives = 16
+   std::size_t max_primitives = 4
   );
 
   //! The copy constructor of the class.
