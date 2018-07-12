@@ -31,7 +31,7 @@ Scene::Scene
 ) :
   primitives_ (primitives),
   lights_     (lights),
-  // original_   (primitives)
+  original_   (primitives),
   infinite_light_ (inf_light)
 {}
 /*
@@ -55,6 +55,7 @@ auto Scene::IsIntersect
       {
         hit = true;
         *intersection = tmp;
+        intersection->SetPrimitive (p);
       }
     }
   }

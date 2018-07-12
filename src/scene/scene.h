@@ -107,7 +107,7 @@ private:
 
   std::shared_ptr <niepce::InfiniteLight> infinite_light_;
 
-  // std::vector <std::shared_ptr <Primitive>> original_;
+  std::vector <std::shared_ptr <Primitive>> original_;
 }; // class Scene
 /*
 // ---------------------------------------------------------------------------

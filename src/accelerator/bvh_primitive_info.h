@@ -31,7 +31,7 @@ struct PrimitiveInfo
   {}
 
   PrimitiveInfo (const PrimitiveInfo& info) = default;
-  PrimitiveInfo (PrimitiveInfo&&) = default;
+  PrimitiveInfo (PrimitiveInfo&& info) = default;
 
   auto operator = (const PrimitiveInfo& info) -> PrimitiveInfo& = default;
   auto operator = (PrimitiveInfo&& info) -> PrimitiveInfo& = default;

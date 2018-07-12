@@ -29,7 +29,6 @@ Bvh::Bvh
   total_nodes_ (0)
 {
   Build (primitives_);
-  std::cout << "done." << std::endl;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -50,6 +49,7 @@ auto Bvh::Build (const std::vector<std::shared_ptr<Primitive>>& primitives)
 
   // Construct BVH structure.
   root_ = RecursiveBuild (info, 0, primitives.size (), tmp);
+
   primitives_.swap (tmp);
 }
 /*
@@ -72,10 +72,10 @@ auto Bvh::RecursiveBuild
 
   // Compute bounds of all primitives.
   Bounds3f bounds;
-  for (int i = begin; i < end; ++i) { bounds = Union (bounds, info[i].bounds); }
+  for (const auto &pi : info) { bounds = Union (bounds, pi.bounds); }
 
   // Compute the number of primitive.
-  auto num_primitive = end - begin;
+  auto num_primitive = info.size ();
 
   // ---------------------------------------------------------------------------
   // Function to create a leaf node.
@@ -83,136 +83,90 @@ auto Bvh::RecursiveBuild
   auto create_leaf = [&] ()
   {
     const int offset = primitives.size ();
-    for (int i = begin; i < end; ++i)
+    for (int i = 0; i < num_primitive; ++i)
     {
-      const int index = info[i].primitive_index;
-      primitives.push_back (primitives_[i]);
+      const auto idx = info[i].primitive_index;
+      primitives.push_back (primitives_[idx]);
     }
     node->InitializeLeaf (offset, num_primitive, bounds);
   };
 
-  // ---------------------------------------------------------------------------
-  // Create leaf node.
-  // ---------------------------------------------------------------------------
-  if (num_primitive <= 1)
+  if (num_primitive <= 4)
   {
     create_leaf ();
     return node;
   }
 
   // ---------------------------------------------------------------------------
-  // Create interior node.
+  // Compute SAH costs.
   // ---------------------------------------------------------------------------
-
-  // Ready to compute SAH.
-  // Compute centroid bounds each.
-  Bounds3f centroid_bounds;
-  for (int i = begin; i < end; ++i) { centroid_bounds.Merge (info[i].centroid); }
-
-  // Get maximum component (x, y, or z).
-  // Primitives will be split by maximum component axis.
-  int dimension = 0;
-  const auto d = centroid_bounds.Diagonal ();
-  if (d.X () > d.Y () && d.X () > d.Z ()) { dimension = 0; }
-  else if (d.Y () > d.Z ()) { dimension = 1; }
-  else { dimension = 2; }
-
-  auto middle = (begin + end) / 2;
-  if (centroid_bounds.Max ()[middle]  == centroid_bounds.Min ()[middle])
+  // The lambda to sort by split axis.
+  int axis = 0;
+  static auto sort_info = [&]
+  (
+   const PrimitiveInfo &lhs,
+   const PrimitiveInfo &rhs
+  )
+    -> bool
   {
-    // This is a unusual case.
-    // All centroid points are at the same position.
+    return lhs.centroid[axis] < rhs.centroid[axis];
+  };
+
+
+  std::vector <Float> left (info.size () + 1), right (info.size () + 1);
+  Bounds3f bl, br = bounds;
+  // Find the split index.
+  Float best_cost = kInfinity;
+  int   best_axis = 0;
+  int   split     = -1;
+
+  for (axis = 0; axis < 3; ++axis)
+  {
+    std::sort (info.begin (), info.end (), sort_info);
+
+    for (int i = 0; i <= info.size (); ++i)
+    {
+      int j = info.size () - i;
+      left[i]  = bl.SurfaceArea () * i; // surface area * num polygon
+      right[j] = br.SurfaceArea () * i; // surface area * num polygon
+
+      bl = i < info.size () ? Union (bl, info[i].bounds)     : bl;
+      br = j > 0            ? Union (br, info[j - 1].bounds) : br;
+    }
+    auto  area      = bounds.SurfaceArea ();
+    for (int i = 1; i < info.size (); ++i)
+    {
+      const auto cost = 2 + (left[i] + right[i]) / area;
+      if (cost < best_cost)
+      {
+        split     = i;
+        best_cost = cost;
+        best_axis = axis;
+      }
+    }
+  }
+
+  // Checks.
+  Float leaf_cost = num_primitive / 2;
+  if (split == -1 || best_cost < leaf_cost)
+  {
+    // Could not find the split index.
     // Create leaf node.
     create_leaf ();
     return node;
   }
 
   // ---------------------------------------------------------------------------
-  // Find a partition to split primitives based on SAH algorithm.
+  // Continue to split. Split info, and call this function again.
   // ---------------------------------------------------------------------------
+  std::sort (info.begin (), info.end (), sort_info);
 
-  // Initialize buckets.
-  static constexpr int kNumBucket = 12;
-  BvhBucket bucket[kNumBucket];
-  for (int i = begin; i < end; ++i)
-  {
-    const auto min = centroid_bounds.Min ();
-    const auto max = centroid_bounds.Max ();
-    const auto p   = info[i].centroid;
+  std::vector <PrimitiveInfo> left_info  (info.begin (), info.begin () + split);
+  std::vector <PrimitiveInfo> right_info (info.begin () + split, info.end ());
 
-    auto idx = static_cast <int> (kNumBucket
-                                  * (p - min)[dimension] / (max - min)[dimension]);
-    if (idx >= kNumBucket) { idx = kNumBucket - 1; }
-
-    bucket[idx].count++;
-    bucket[idx].bounds = Union (bucket[idx].bounds, info[i].bounds);
-  }
-
-  // Compute casts for splitting.
-  Float cost[kNumBucket - 1];
-  for (int i = 0; i < kNumBucket; ++i)
-  {
-    Bounds3f b1, b2;
-    int count1 = 0, count2 = 0;
-    for (int j = 0; j <= i; ++j)
-    {
-      b1 = Union (b1, bucket[j].bounds);
-      count1 += bucket[j].count;
-    }
-    for (int j = i + 1; j < kNumBucket; ++j)
-    {
-      b1 = Union (b1, bucket[j].bounds);
-      count2 += bucket[j].count;
-    }
-    cost[i] = 0.125f + (count1 * b1.SurfaceArea () + count2 * b2.SurfaceArea ())
-            / bounds.SurfaceArea ();
-  }
-
-  // Find minimum cost from buckets.
-  Float min_cost = cost[0];
-  int split_bucket_idx = 0;
-  for (int i = 1; i < kNumBucket; ++i)
-  {
-    if (cost[i] < min_cost)
-    {
-      min_cost = cost[i];
-      split_bucket_idx = i;
-    }
-  }
-
-  Float leaf_cost = num_primitive;
-  if (max_primitives_ < num_primitive || min_cost > leaf_cost)
-  {
-    // -------------------------------------------------------------------------
-    // Continue to split.
-    // -------------------------------------------------------------------------
-    auto comp = [=] (const PrimitiveInfo& info) -> bool
-    {
-      const auto min = centroid_bounds.Min ();
-      const auto max = centroid_bounds.Max ();
-      const auto p   = info.centroid;
-
-      auto idx = static_cast <int> (kNumBucket
-                                    * ((p - min) / (max - min))[dimension]);
-      if (idx >= kNumBucket) { idx = kNumBucket - 1; }
-
-      return idx <= split_bucket_idx;
-    };
-
-    auto pos = std::partition (&info[begin], &info[end - 1] + 1, comp);
-    middle = pos - &info[0];
-
-    std::cout << middle << std::endl;
-
-    // Initialize the node as interior node.
-    auto c1 = RecursiveBuild (info, begin,  middle, primitives);
-    auto c2 = RecursiveBuild (info, middle, end,    primitives);
-    node->InitializeInterior (c1, c2);
-    return node;
-  }
-
-  // Otherwise, create leaf node.
-  create_leaf ();
+  const auto left_node  = RecursiveBuild (left_info,  begin, split, primitives);
+  const auto right_node = RecursiveBuild (right_info, split + 1, end, primitives);
+  node->InitializeInterior (left_node, right_node);
   return node;
 }
 /*
@@ -247,11 +201,24 @@ auto Bvh::RecursiveIsIntersect
       Intersection tmp1, tmp2;
       auto t1 = RecursiveIsIntersect (node->childlen[0], ray, &tmp1);
       auto t2 = RecursiveIsIntersect (node->childlen[1], ray, &tmp2);
-      if (!t1 && !t2) { return false; }
+
+      if (!t1 && !t2)
+      {
+        return false;
+      }
+
       // Compute nearest intersection point from ray origin.
-      auto dist1 = tmp1.Distance (), dist2 = tmp2.Distance ();
-      if (dist1 < dist2) { *intersection = tmp1; return true; }
-      *intersection = tmp2; return true;
+      auto dist1 = tmp1.Distance ();
+      auto dist2 = tmp2.Distance ();
+      if (dist1 < dist2)
+      {
+        *intersection = tmp1;
+        return true;
+      }
+
+      // Only ray intersect with childlen 1.
+      *intersection = tmp2;
+      return true;
     }
 
     // -------------------------------------------------------------------------
@@ -259,7 +226,6 @@ auto Bvh::RecursiveIsIntersect
     // -------------------------------------------------------------------------
     bool hit = false;
     Intersection tmp;
-
     // Find the intersection point by binary search.
     for (int i = 0; i < node->num_primitives; ++i)
     {
