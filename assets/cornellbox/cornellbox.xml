@@ -71,7 +71,7 @@
 
   <!-- Shapes -->
   <shape type="obj" id="rubiks">
-    <string name="filename" value="rubiks_cube.obj"/>
+    <string name="filename" value="cube.obj"/>
     <reference name="material" value="white"/>
   </shape>
 
@@ -100,10 +100,12 @@
     <reference name="material" value="green"/>
   </shape>
 
+  <!--
   <shape type="sphere" id="sphere">
     <float name="radius" value="15"/>
     <point3 name="position" value="50 15 50"/>
     <reference name="material" value="metal"/>
   </shape>
+  -->
 
 </scene>

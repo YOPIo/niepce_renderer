@@ -112,7 +112,7 @@ auto ImageIO <Spectrum>::Load (const char *filename) -> void
 
   // Reallocate the memory and copy image.
   AllocateMemory (width, height);
-  for (int y = 0; y < height; ++y)
+  for (int y = height - 1; y >= 0; --y)
   {
     for (int x = 0; x < width; ++x)
     {
@@ -120,7 +120,7 @@ auto ImageIO <Spectrum>::Load (const char *filename) -> void
       const Float r = to_float (img[idx * 4 + 0]);
       const Float g = to_float (img[idx * 4 + 1]);
       const Float b = to_float (img[idx * 4 + 2]);
-      SetValueAt (x, y, Spectrum (r, g, b));
+      SetValueAt (x, height - y - 1, Spectrum (r, g, b));
     }
   }
 
@@ -139,11 +139,11 @@ auto ImageIO<bool>::Load (const char* filename) -> void
   // Reallocate memory
   AllocateMemory (width, height);
   std::cout << width << " " << height << std::endl;
-  for (int y = 0; y < height; ++y)
+  for (int y = height - 1; y >= 0; --y)
   {
     for (int x = 0; x < width; ++x)
     {
-      SetValueAt (x, y, static_cast <bool> (img[y * width + x]));
+      SetValueAt (x, height - y - 1, static_cast <bool> (img[y * width + x]));
     }
   }
 

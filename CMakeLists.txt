@@ -4,7 +4,7 @@ cmake_minimum_required (VERSION 2.8)
 project (niepce)
 
 # Use c++11 global options
-set (CMAKE_CXX_FLAGS "-std=c++11 -pthread -O2")
+set (CMAKE_CXX_FLAGS "-std=c++11 -pthread -O3")
 
 # Build options
 # To building a plugin for autodesk maya, use "-DBUILD_MAYA_PLUGIN=on" option.
@@ -19,7 +19,7 @@ configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in
 
 if (USE_SIMD)
   message (STATUS "Use SIMD.")
-  set (CMAKE_CXX_FLAGS "-msse4.1 -std=c++11 -pthread -O2")
+  set (CMAKE_CXX_FLAGS "-msse4.1 -std=c++11 -pthread -O3")
 endif ()
 
 if (BUILD_MAYA_PLUGIN)

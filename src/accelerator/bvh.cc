@@ -49,7 +49,6 @@ auto Bvh::Build (const std::vector<std::shared_ptr<Primitive>>& primitives)
 
   // Construct BVH structure.
   root_ = RecursiveBuild (info, 0, primitives.size (), tmp);
-
   primitives_.swap (tmp);
 }
 /*

@@ -226,10 +226,7 @@ auto PathTracer::Radiance
 
     const auto f = bsdf->Sample (&bsdf_record, tile_sampler->SamplePoint2f ());
 
-    if (bsdf_record.Pdf () == 0 || bsdf_record.Bsdf () == Spectrum (0))
-    {
-      break;
-    }
+    if (bsdf_record.Pdf () == 0) { break; }
 
     weight = weight * bsdf_record.Bsdf () * bsdf_record.CosWeight ()
            / bsdf_record.Pdf ();
@@ -245,9 +242,9 @@ auto PathTracer::Radiance
     }
     else { q = 1.0; }
 
-    // ---------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Ready to trace the incident direction.
-    // ---------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     const auto incident = bsdf_record.Incident (bsdf::Coordinate::kWorld);
     ray = Ray (intersection.Position (), incident);
   }

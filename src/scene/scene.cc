@@ -61,7 +61,6 @@ auto Scene::IsIntersect
   }
   return hit;
   */
-
   return primitives_.IsIntersect (ray, intersection);
 }
 /*

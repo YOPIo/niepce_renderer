@@ -54,7 +54,9 @@ auto CreateValueTexture (const T &value) -> std::shared_ptr <Texture <T>>
 */
 template class ValueTexture <Float>;
 template class ValueTexture <Spectrum>;
-
+/*
+// ---------------------------------------------------------------------------
+*/
 template auto CreateValueTexture <Float> (const Float &)
   -> std::shared_ptr <Texture <Float>>;
 template auto CreateValueTexture <Spectrum> (const Spectrum &)

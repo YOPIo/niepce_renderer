@@ -69,6 +69,7 @@ auto Image<T>::SetValueAt
     data_.get ()[y * width_ + x] = value;
     return ;
   }
+  std::cout << "out of range in image.cc" << std::endl;
   std::cout << x << ", " << y <<std::endl;
 }
 /*
