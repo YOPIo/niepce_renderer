@@ -90,4 +90,16 @@ auto Ray::ToString () const noexcept -> std::string
 /*
 // ---------------------------------------------------------------------------
 */
+auto operator == (const Ray &lhs, const Ray &rhs) -> bool
+{
+  if (lhs.Origin ()    == rhs.Origin () &&
+      lhs.Direction () == rhs.Direction () )
+  {
+    return true;
+  }
+  return false;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce

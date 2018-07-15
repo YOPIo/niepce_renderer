@@ -174,6 +174,22 @@ auto Point3f::Zero () noexcept -> Point3f
 // Global operator difinition
 // ---------------------------------------------------------------------------
 */
+auto operator == (const Point3f &lhs, const Point3f &rhs) -> bool
+{
+#ifdef NIEPCE_USE_SIMD
+  const auto mask = _mm_movemask_ps (_mm_cmpeq_ps (lhs.Xyz (), rhs.Xyz ()));
+  return ((mask & 0x07) == 0x07);
+#else
+  if (lhs.X () == rhs.X () && lhs.Y () == rhs.Y () && lhs.Z () == rhs.Z () )
+  {
+    return true;
+  }
+  return false;
+#endif // NIEPCE_USE_SIMD
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto operator - (const Point3f& lhs, const Point3f& rhs) -> Vector3f
 {
 #ifdef NIEPCE_USE_SIMD

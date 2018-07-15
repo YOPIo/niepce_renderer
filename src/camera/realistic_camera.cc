@@ -29,7 +29,8 @@ namespace niepce
 RealisticCamera::RealisticCamera
 (
    const Transform& camera_to_world,
-   const char* filename,
+   const char* output,
+   const char* background,
    unsigned int width,
    unsigned int height,
    Float diagonal,             // [m]
@@ -38,7 +39,7 @@ RealisticCamera::RealisticCamera
    Float aperture_diameter,    // [m]
    bool  simple_weighting
 ) :
-  Camera (camera_to_world, filename, width, height, diagonal),
+  Camera (camera_to_world, output, background, width, height, diagonal),
   simple_weighting_  (simple_weighting)
 {
   // Load a lens system file.

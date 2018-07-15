@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
+#include "../core/render_settings.h"
 #include "../ext/tinyxml2/tinyxml2.h"
 #include "../core/attributes.h"
 #include "../core/material_attributes.h"
@@ -238,6 +239,8 @@ private:
 
   tinyxml2::XMLDocument xml_;
   tinyxml2::XMLElement* root_;
+
+  RenderSettings settings_;
 
   // Key   : Texture ID
   // Value : std::shared_ptr <Textrue>

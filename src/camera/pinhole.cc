@@ -24,13 +24,15 @@ PinholeCamera::PinholeCamera
  Float            fov,
  Float            lens_radius,
  Float            focus_distance,
- const char*      filename,
+ const char*      output,
+ const char*      background,
  unsigned int     resolution_width,
  unsigned int     resolution_height,
  Float            diagonal
 ) :
   Camera (camera_to_wrold,
-          filename,
+          output,
+          background,
           resolution_width,
           resolution_height,
           diagonal),
@@ -94,13 +96,15 @@ auto CreatePinholeCamera (const Attributes& attributes)
   const auto width    = attributes.FindInt ("width");
   const auto height   = attributes.FindInt ("height");
   const auto diagonal = attributes.FindFloat ("diagonal");
-  const auto filename = attributes.FindString ("filename");
+  const auto output   = attributes.FindString ("output");
+  const auto back     = attributes.FindString ("background");
 
   return std::make_shared <PinholeCamera> (t,
                                            fov,
                                            lens_radius,
                                            focus_distance,
-                                           filename.c_str (),
+                                           output.c_str (),
+                                           back.c_str (),
                                            width,
                                            height,
                                            diagonal);

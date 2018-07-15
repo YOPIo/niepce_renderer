@@ -94,10 +94,11 @@ private:
    */
   auto Radiance
   (
-   const Ray& ray,
-   RandomSampler* sampler
+   const Ray     &ray,
+   RandomSampler *sampler,
+   Spectrum      *radiance
   )
-    -> Vector3f;
+    -> bool;
 
   /*!
    * @fn Spectrum SampleInfiniteLight ()

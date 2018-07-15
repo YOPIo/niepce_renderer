@@ -101,7 +101,7 @@ auto PathTracer::RenderTileBounds
 {
   const Bounds2f& tile_bounds = tile->Bounds ();
 
-  static constexpr int num_sample = 4;
+  static constexpr int num_sample = 1;
   const Float width  = static_cast <Float> (camera_->Width ());
   const Float height = static_cast <Float> (camera_->Height ());
 
@@ -109,11 +109,16 @@ auto PathTracer::RenderTileBounds
   {
     auto super_sampling = [&] (int sx, int sy) -> void
     {
+      Float inv = 1.0 / (Float)num_sample;
       Spectrum r (0);
+      bool hit = false;
+      int tx, ty;
       for (int s = 0; s < num_sample; ++s)
       {
         const Point2f pfilm (x + tile_bounds.Min ().X (),
                              y + tile_bounds.Min ().Y ());
+        tx = pfilm.X ();
+        ty = pfilm.Y ();
         Float weight = 0;
         Ray ray;
         while (!weight)
@@ -121,12 +126,22 @@ auto PathTracer::RenderTileBounds
           CameraSample cs (pfilm, tile_sampler->SamplePoint2f ());
           weight = camera_->GenerateRay (cs, &ray);
         }
-        r = r + Radiance (ray, tile_sampler) / (Float)num_sample;
+        Spectrum radiance;
+        hit = Radiance (ray, tile_sampler, &radiance) | hit;
+        r = r + radiance * inv;
       }
-      const Spectrum s = tile->At (x, y) + Spectrum (Clamp (r. X ()),
-                                                     Clamp (r. Y ()),
-                                                     Clamp (r. Z ())) * 0.25;
-      tile->SetValueAt (x, y, s);
+      if (hit)
+      {
+        const auto s = tile->At (x, y) + Spectrum (Clamp (r.X ()),
+                                                   Clamp (r.Y ()),
+                                                   Clamp (r.Z ())) * 0.25;
+        tile->SetValueAt (x, y, s);
+      }
+      else
+      {
+        const auto s = camera_->Background (tx, ty);
+        tile->SetValueAt (x, y, s);
+      }
     };
     For2 (super_sampling, 2, 2);
   };
@@ -137,10 +152,11 @@ auto PathTracer::RenderTileBounds
 */
 auto PathTracer::Radiance
 (
- const Ray& first_ray,
- RandomSampler* tile_sampler
+ const Ray     &first_ray,
+ RandomSampler *tile_sampler,
+ Spectrum      *radiance
 )
-  -> Vector3f
+  -> bool
 {
   Spectrum contribution = Spectrum (0);
   Spectrum weight = Spectrum (1);
@@ -161,7 +177,10 @@ auto PathTracer::Radiance
     if (!scene_->IsIntersect (ray, &intersection))
     {
       // No intersection found.
-      // return contribution;
+      if (depth == 0)
+      {
+        return false;
+      }
 
       // HACKME:
       intersection.SetOutgoing (-ray.Direction ());
@@ -174,7 +193,7 @@ auto PathTracer::Radiance
         const auto s = inf_light->Evaluate (intersection, &pdf);
         contribution = contribution + weight * s;
       }
-      return contribution;
+      break;
     }
 
     // If ray hit with light.
@@ -235,9 +254,9 @@ auto PathTracer::Radiance
     // -------------------------------------------------------------------------
     Float q = std::fmax (contribution[0],
                          std::fmax(contribution[1], contribution[2]));
-    if (depth > 7)
+    if (depth > 5)
     {
-      if (tile_sampler->SampleFloat () >= q) { return contribution; }
+      if (tile_sampler->SampleFloat () >= q) { break; }
     }
     else { q = 1.0; }
 
@@ -248,7 +267,8 @@ auto PathTracer::Radiance
     ray = Ray (intersection.Position (), incident);
   }
 
-  return contribution;
+  *radiance = contribution;
+  return true;
 }
 /*
 // ---------------------------------------------------------------------------

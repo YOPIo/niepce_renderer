@@ -39,7 +39,8 @@ public:
    Float            fov,
    Float            lens_radius,    // [mm]
    Float            focus_distance, // [m]
-   const char*      filename,
+   const char*      output,
+   const char*      background,
    unsigned int     resolution_width,
    unsigned int     resolution_height,
    Float            diagonal

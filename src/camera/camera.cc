@@ -10,6 +10,7 @@
 #include "realistic_camera.h"
 #include "../core/attributes.h"
 #include "../core/bounds2f.h"
+#include "../core/point2f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -21,14 +22,25 @@ namespace niepce
 Camera::Camera
 (
  const Transform& t,
- const char* filename,
+ const char*  output,
+ const char*  background,
  unsigned int width,
  unsigned int height,
  Float diagonal
 ) :
-  Film (filename, width, height, diagonal),
+  Film (output, width, height, diagonal),
+  background_ (background),
   camera_to_world_ (t)
 {}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Camera::Background (int x, int y) const -> Spectrum
+{
+  int sx = x * (background_.Width  () / (Float)this->Width  ());
+  int sy = y * (background_.Height () / (Float)this->Height ());
+  return background_.At (sx, sy);
+}
 /*
 // ---------------------------------------------------------------------------
 */

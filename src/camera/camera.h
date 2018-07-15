@@ -35,7 +35,8 @@ public:
   Camera
   (
    const Transform& t,
-   const char*  filename,
+   const char*  output,
+   const char*  backgound,
    unsigned int width,   // Resolution
    unsigned int height,  // Resolution
    Float        diagonal // Physical length [m]
@@ -71,11 +72,22 @@ public:
   )
   const -> Float = 0;
 
+  /*!
+   * @fn Spectrum Background (const)
+   * @brief 
+   * @param[in] xy
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto Background (int x, int y) const -> Spectrum;
+
 protected:
   /*!
    * @brief Matrix that transform camera coordinate to world coordinates.
    */
   Transform camera_to_world_;
+  ImageIO <Spectrum> background_;
 }; // class Camera
 /*
 // ---------------------------------------------------------------------------

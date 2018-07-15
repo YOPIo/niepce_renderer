@@ -57,7 +57,8 @@ public:
   RealisticCamera
   (
    const Transform& camera_to_world,
-   const char*  filename,
+   const char*  output,
+   const char*  background,
    unsigned int width,
    unsigned int height,
    Float diagonal, // [m]

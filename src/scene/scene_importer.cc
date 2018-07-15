@@ -144,6 +144,11 @@ auto SceneImporter::Import (const char *filename) -> void
       std::cerr << "Shape element was ignored." << std::endl;
       continue;
     }
+    if (IsElementType (element, "settings"))
+    {
+      // ParseRecursive (element, &attributes);
+      // settings_.AddItem (attributes.FindString ("filename"));
+    }
   }
 
   // Construct a scene.
@@ -400,7 +405,8 @@ auto SceneImporter::ParseString (tinyxml2::XMLElement* element)
   const std::string type  = element->Parent ()->ToElement ()->Name ();
 
   std::string value = element->Attribute ("value");
-  if (name == "filename")
+  // HACKME:
+  if (name == "filename" || name == "background")
   {
     value = filepath_ + value;
   }

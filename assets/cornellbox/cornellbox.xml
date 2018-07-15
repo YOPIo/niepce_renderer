@@ -1,5 +1,10 @@
 <scene>
 
+  <!-- Rendering settings  -->
+  <settings>
+    <int name="spp" value="8"/>
+  </settings>
+
   <camera type="pinhole">
     <!-- Camera transformation  -->
     <lookat>
@@ -13,12 +18,14 @@
       <int name="height" value="240"/>
       <!-- Film size -->
       <float name="diagonal" value="43.2666153056" unit="mm"/>
-      <string name="filename" value="output.ppm"/>
+      <string name="output" value="output.ppm"/>
     </film>
     <!-- Pinhole camera parameters -->
     <float name="lens_radius" value="50" unit="mm"/>
     <float name="fov" value="75" unit="degree"/>
     <float name="focus_distance" value="250" unit="m"/>
+    <!-- Background -->
+    <string name="background" value="background.png"/>
   </camera>
 
   <!-- Lights -->
@@ -65,27 +72,17 @@
     <reference name="light" value="area_light"/>
   </shape>
 
-  <!--
-  <shape type="obj" id="box">
-    <string name="filename" value="closed_cornellobox.obj"/>
-    <reference name="material" value="white"/>
-  </shape>
-  -->
-
-  <shape type="obj" id="cube1">
-    <string name="filename" value="cube.obj"/>
-    <reference name="material" value="red"/>
-  </shape>
-
   <shape type="obj" id="body">
     <string name="filename" value="cornellbox.obj"/>
     <reference name="material" value="white"/>
   </shape>
 
+  <!--
   <shape type="obj" id="front">
     <string name="filename" value="cornellbox_front.obj"/>
     <reference name="material" value="white"/>
   </shape>
+  -->
 
   <shape type="obj" id="right">
     <string name="filename" value="cornellbox_right.obj"/>
@@ -96,13 +93,5 @@
     <string name="filename" value="cornellbox_left.obj"/>
     <reference name="material" value="green"/>
   </shape>
-
-  <!--
-  <shape type="sphere" id="sphere">
-    <float name="radius" value="15"/>
-    <point3 name="position" value="50 15 50"/>
-    <reference name="material" value="metal"/>
-  </shape>
-  -->
 
 </scene>
