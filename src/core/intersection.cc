@@ -20,7 +20,10 @@ Intersection::Intersection () :
   material_ptr_ (nullptr),
   shape_ptr_    (nullptr),
   position_     (),
-  is_hit_       (false)
+  is_hit_       (false),
+  shading_normal_   (),
+  shading_tangent_  (),
+  shading_binormal_ ()
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -78,6 +81,35 @@ auto Intersection::Binormal () const noexcept -> Vector3f
 auto Intersection::Tangent () const noexcept -> Vector3f
 {
   return tangent_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::HasShadingNormal () const noexcept -> bool
+{
+  // HACKME:
+  return shading_normal_ != Vector3f::Zero ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::ShadingNormal () const noexcept -> Vector3f
+{
+  return shading_normal_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::ShadingTangent () const noexcept -> Vector3f
+{
+  return shading_tangent_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::ShadingBinormal () const noexcept -> Vector3f
+{
+  return shading_binormal_;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -188,10 +220,19 @@ auto Intersection::SetBsdfType (BsdfType type) noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
-auto Intersection::SetPrimitive (const std::shared_ptr<niepce::Primitive> &primitive)
+auto Intersection::SetPrimitive
+(const std::shared_ptr<niepce::Primitive> &primitive)
   noexcept -> void
 {
   primitive_ = primitive;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Intersection::SetShadingNormal (const Vector3f &sn) noexcept -> void
+{
+  shading_normal_ = sn;
+  BuildOrthonormalBasis (sn, &shading_tangent_, &shading_binormal_);
 }
 /*
 // ---------------------------------------------------------------------------

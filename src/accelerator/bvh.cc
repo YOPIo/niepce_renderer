@@ -230,7 +230,8 @@ auto Bvh::RecursiveIsIntersect
     {
       if (primitives_[node->offset + i]->IsIntersect (ray, &tmp))
       {
-        if (tmp.Distance () < intersection->Distance ())
+        if (tmp.Distance () > kEpsilon &&
+            tmp.Distance () < intersection->Distance ())
         {
           hit = true;
           *intersection = tmp;

@@ -121,6 +121,45 @@ public:
   auto Binormal () const noexcept -> Vector3f;
 
   /*!
+   * @fn bool HasShadingNormal ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto HasShadingNormal () const noexcept -> bool;
+
+  /*!
+   * @fn Vector3f ShadingNormal ()
+   * @brief Return the shading normal vector if present. You need to call
+   *        HasShadingNormal () before calling this method.
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto ShadingNormal () const noexcept -> Vector3f;
+
+  /*!
+   * @fn Vector3f ShadingTangent ()
+   * @brief Return the shading tangent vector if present. You need to call
+   *        HasShadingNormal () before calling this method.
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto ShadingTangent () const noexcept -> Vector3f;
+
+  /*!
+   * @fn Vector3f ShadingBinormal ()
+   * @brief Return the shading normal vector if present. You need to call
+   *        HasShadingNormal () before calling this method.
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto ShadingBinormal () const noexcept -> Vector3f;
+
+  /*!
    * @fn Ray Outgoing ()
    * @brief Return the outgoing ray
    * @return The ray to the intersection.
@@ -291,6 +330,17 @@ public:
    */
   auto SetBsdfType (BsdfType type) noexcept -> void;
 
+  /*!
+   * @fn void SetShadingNormal (const)
+   * @brief 
+   * @param[in] Vector3f normal
+   *    
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto SetShadingNormal (const Vector3f &sn) noexcept -> void;
+
 public:
   /*!
    * @fn Vector3f ToWorld (const Vector3f& v)
@@ -329,6 +379,15 @@ private:
 
   //! The binormal vector at the intersection.
   Vector3f binormal_;
+
+  //! Shading geometry normal.
+  Vector3f shading_normal_;
+
+  //! Shading geometry tangent.
+  Vector3f shading_tangent_;
+
+  //! Shading geometry binormal.
+  Vector3f shading_binormal_;
 
   //! The texture coordinate at the intersection.
   Point2f texcoord_;

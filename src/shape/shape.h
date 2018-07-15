@@ -99,7 +99,7 @@ public:
   virtual auto SurfaceArea () const noexcept -> Float = 0;
 
 protected:
-  const Float kIntersectionEpsilon = 1e-4;
+  const Float kIntersectionEpsilon = 1e-3;
 }; // class Shape
 /*
 // ---------------------------------------------------------------------------

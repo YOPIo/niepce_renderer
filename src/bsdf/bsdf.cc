@@ -20,7 +20,13 @@ namespace niepce
 Bsdf::Bsdf (const Intersection &isect) :
   isect_ (isect),
   Bxdf (niepce::Bxdf::Type::kUnknown)
-{}
+{
+  // Override the normal, tangent and binormal if shading normal present.
+  if (isect_.HasShadingNormal ())
+  {
+    isect_.SetNormal (isect_.ShadingNormal ());
+  }
+}
 /*
 // ---------------------------------------------------------------------------
 */
@@ -109,7 +115,7 @@ auto Bsdf::Evaluate (const BsdfRecord &record) const noexcept -> Spectrum
   // Get outgoing, incident directions and shading normal in world space.
   const auto &wwo = record.Outgoing (bsdf::Coordinate::kWorld);
   const auto &wwi = record.Incident (bsdf::Coordinate::kWorld);
-  const auto &n = isect_.Normal ();
+  auto n = isect_.Normal ();
 
   // Confirm reflection or refraction.
   bool reflect = Dot (wwo, n) * Dot (wwi, n) > 0;

@@ -164,6 +164,28 @@ auto Union (const Bounds3f& lhs, const Bounds3f& rhs) -> Bounds3f
 /*
 // ---------------------------------------------------------------------------
 */
+auto Union (const Bounds3f& lhs, const Point3f&  rhs) -> Bounds3f
+{
+  const Float min_x = std::fmin (lhs.Min ().X (), rhs.X ());
+  const Float min_y = std::fmin (lhs.Min ().Y (), rhs.Y ());
+  const Float min_z = std::fmin (lhs.Min ().Z (), rhs.Z ());
+  const Float max_x = std::fmax (lhs.Max ().X (), rhs.X ());
+  const Float max_y = std::fmax (lhs.Max ().Y (), rhs.Y ());
+  const Float max_z = std::fmax (lhs.Max ().Z (), rhs.Z ());
+
+  return Bounds3f (Point3f (min_x, min_y, min_z),
+                   Point3f (max_x, max_y, max_z));
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Union (const Point3f&  lhs, const Bounds3f& rhs) -> Bounds3f
+{
+  return Union (rhs, lhs);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 } // namespace niepce
 /*
 // ---------------------------------------------------------------------------

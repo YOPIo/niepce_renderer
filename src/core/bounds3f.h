@@ -162,6 +162,8 @@ private:
 // ---------------------------------------------------------------------------
 */
 auto Union (const Bounds3f& lhs, const Bounds3f& rhs) -> Bounds3f;
+auto Union (const Bounds3f& lhs, const Point3f&  rhs) -> Bounds3f;
+auto Union (const Point3f&  lhs, const Bounds3f& rhs) -> Bounds3f;
 /*
 // ---------------------------------------------------------------------------
 */

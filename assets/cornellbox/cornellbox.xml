@@ -3,7 +3,7 @@
   <camera type="pinhole">
     <!-- Camera transformation  -->
     <lookat>
-      <point3  name="origin" value="50 50 180"/>
+      <point3  name="origin" value="50 50 200"/>
       <point3  name="target" value="50 50 50"/>
       <vector3 name="up" value="0 1 0"/>
     </lookat>
@@ -30,24 +30,14 @@
     <rgb name="emission" value="5 4.2 3"/>
   </light>
 
-  <!-- Textures -->
-  <texture type="image_spectrum" id="texture0">
-    <string name="filename" value="icon.png"/>
-  </texture>
-
   <!-- Materials -->
   <material type="matte" id="white">
     <rgb name="emission" value="0 0 0"/>
     <rgb name="reflectance" value="0.75 0.75 0.75"/>
   </material>
 
-  <material type="matte" id="tex_matte">
-    <rgb name="emission" value="0 0 0"/>
-    <reference name="reflectance" value="texture0"/>
-  </material>
-
   <material type="matte" id="red">
-    <rgb name="emission" value="0 0 0 "/>
+    <rgb name="emission" value="0 0 0"/>
     <rgb name="reflectance" value="0.75 0.25 0.25"/>
   </material>
 
@@ -70,9 +60,21 @@
   </material>
 
   <!-- Shapes -->
-  <shape type="obj" id="rubiks">
-    <string name="filename" value="cube.obj"/>
+  <shape type="obj" id="light">
+    <string name="filename" value="cornellbox_light.obj"/>
+    <reference name="light" value="area_light"/>
+  </shape>
+
+  <!--
+  <shape type="obj" id="box">
+    <string name="filename" value="closed_cornellobox.obj"/>
     <reference name="material" value="white"/>
+  </shape>
+  -->
+
+  <shape type="obj" id="cube1">
+    <string name="filename" value="cube.obj"/>
+    <reference name="material" value="red"/>
   </shape>
 
   <shape type="obj" id="body">
@@ -82,12 +84,7 @@
 
   <shape type="obj" id="front">
     <string name="filename" value="cornellbox_front.obj"/>
-    <reference name="material" value="tex_matte"/>
-  </shape>
-
-  <shape type="obj" id="light">
-    <string name="filename" value="cornellbox_light.obj"/>
-    <reference name="light" value="area_light"/>
+    <reference name="material" value="white"/>
   </shape>
 
   <shape type="obj" id="right">

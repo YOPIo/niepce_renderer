@@ -83,41 +83,42 @@ auto Triangle::IsIntersect
   const noexcept -> bool
 {
   // Get the positions
-  const Point3f& pos0 = Position (0);
-  const Point3f& pos1 = Position (1);
-  const Point3f& pos2 = Position (2);
+  const auto& pos0 = Position (0);
+  const auto& pos1 = Position (1);
+  const auto& pos2 = Position (2);
 
   // Find vectors for two edges sharing position 0.
-  const Vector3f edge1 = pos1 - pos0;
-  const Vector3f edge2 = pos2 - pos0;
+  const auto edge1 = pos1 - pos0;
+  const auto edge2 = pos2 - pos0;
 
   // Begin calculation determinant also used to calculate U parameter.
-  const Vector3f pvec = Cross (ray.Direction (), edge2);
+  const auto pvec = Cross (ray.Direction (), edge2);
 
   // If determinant is near zero, ray lies in plane of triangle.
   Float det = Dot (edge1, pvec);
   Float inv_det = 1.0 / det;
 
-  // UV parameter.
+  // UV parameters.
   Float u = 0;
   Float v = 0;
 
   // Distance parameter
   Float t = kInfinity;
 
+  // if (false)
   if (backface_culling_)
   {
     if (det < kIntersectionEpsilon) { return false; }
 
     // Calculate distance from position 0 to ray origin.
-    const Vector3f tvec = ray.Origin () - pos0;
+    const auto tvec = ray.Origin () - pos0;
 
     // Calculate U parameter and test bounds
     u = Dot (tvec, pvec);
     if (u < 0.0 || u > det) { return false; }
 
     // Prepare to test V parameter.
-    const Vector3f qvec = Cross (tvec, edge1);
+    const auto qvec = Cross (tvec, edge1);
 
     // Calculate V parameter and test bounds
     v = Dot (ray.Direction (), qvec);
@@ -130,6 +131,14 @@ auto Triangle::IsIntersect
 
     // Calculate the normal.
     const Vector3f normal = Normalize (Cross (edge1, edge2));
+    if (HasNormals ())
+    {
+      const auto &n1 = Normal (0);
+      const auto &n2 = Normal (1);
+      const auto &n3 = Normal (2);
+      const auto &sn = Normalize ((1.0 - u - v) * n1 + u * n1 + v * n2);
+      intersection->SetShadingNormal (sn);
+    }
 
     // calculate the texture coordinates if present.
     Point2f uv;
@@ -153,14 +162,14 @@ auto Triangle::IsIntersect
     if (std::fabs (det) < kIntersectionEpsilon) { return false; }
 
     // Calculate distance from pos0 to ray origin
-    const Vector3f tvec = ray.Origin () - pos0;
+    const auto tvec = ray.Origin () - pos0;
 
     // Calculate U parameter and test bounds
     u = Dot (tvec, pvec) * inv_det;
     if (u < 0.0 || u > 1.0) { return false; }
 
     // Prepare to test V parameter
-    const Vector3f qvec = Cross (tvec, edge1);
+    const auto qvec = Cross (tvec, edge1);
 
     // Calculate V parameter and test bounds
     v = Dot (ray.Direction (), qvec) * inv_det;
@@ -169,8 +178,16 @@ auto Triangle::IsIntersect
     // Calculate t scale parameters ray intersects triangle.
     t = Dot (edge2, qvec) * inv_det;
 
-    // Calculate the normal
-    const Vector3f normal = Normalize (Cross (edge1, edge2));
+    // Calculate the normal and shading normal.
+    const auto normal = Normalize (Cross (edge1, edge2));
+    if (HasNormals ())
+    {
+      const auto &n1 = Normal (0);
+      const auto &n2 = Normal (1);
+      const auto &n3 = Normal (2);
+      const auto &sn = Normalize ((1.0 - u - v) * n1 + u * n1 + v * n2);
+      intersection->SetShadingNormal (sn);
+    }
 
     // calculate the texture coordinates if present.
     Point2f uv;

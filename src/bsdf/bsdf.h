@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
+#include "../core/intersection.h"
 #include "bxdf.h"
 /*
 // ---------------------------------------------------------------------------
@@ -127,7 +128,7 @@ public:
 
 private:
   std::vector <Bxdf*> bxdfs_;
-  const Intersection& isect_;
+  Intersection  isect_;
 }; // class Bsdf
 /*
 // ---------------------------------------------------------------------------
