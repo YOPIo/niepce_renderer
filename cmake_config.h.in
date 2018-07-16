@@ -1,3 +1,3 @@
 #cmakedefine BUILD_MAYA_PLUGIN
 #cmakedefine BUILD_CUI_RENDERER
-#cmakedefine NI_USE_SIMD
+#cmakedefine NIEPCE_USE_SIMD
