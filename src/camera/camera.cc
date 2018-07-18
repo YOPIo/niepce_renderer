@@ -28,7 +28,7 @@ Camera::Camera
  unsigned int height,
  Float diagonal
 ) :
-  Film (output, width, height, diagonal),
+  film_ (output, width, height, diagonal),
   background_ (background),
   camera_to_world_ (t)
 {}
@@ -37,9 +37,30 @@ Camera::Camera
 */
 auto Camera::Background (int x, int y) const -> Spectrum
 {
-  int sx = x * (background_.Width  () / (Float)this->Width  ());
-  int sy = y * (background_.Height () / (Float)this->Height ());
+  int sx = x * (background_.Width  () / (Float)film_.Width  ());
+  int sy = y * (background_.Height () / (Float)film_.Height ());
   return background_.At (sx, sy);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Camera::FilmResolution () const noexcept -> Bounds2f
+{
+  return film_.Resolution ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Camera::UpdateFilmTile (const FilmTile &tile) -> void
+{
+  film_.AddFilmTile (tile);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Camera::Save () const noexcept -> void
+{
+  film_.Save ();
 }
 /*
 // ---------------------------------------------------------------------------

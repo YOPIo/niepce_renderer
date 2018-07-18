@@ -25,7 +25,7 @@ namespace niepce
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class Camera : public Film
+class Camera
 {
 public:
   //! The default class constructor.
@@ -82,12 +82,41 @@ public:
    */
   auto Background (int x, int y) const -> Spectrum;
 
+  /*!
+   * @fn  FilmResolution ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto FilmResolution () const noexcept -> Bounds2f;
+
+  /*!
+   * @fn void UpdateFilmTile (FilmTile&)
+   * @brief 
+   * @param[in] tile
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto UpdateFilmTile (const FilmTile &tile) -> void;
+
+  /*!
+   * @fn void Save ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto Save () const noexcept -> void;
+
 protected:
   /*!
    * @brief Matrix that transform camera coordinate to world coordinates.
    */
   Transform camera_to_world_;
   ImageIO <Spectrum> background_;
+  Film film_;
 }; // class Camera
 /*
 // ---------------------------------------------------------------------------

@@ -136,7 +136,7 @@ auto Triangle::IsIntersect
       const auto &n1 = Normal (0);
       const auto &n2 = Normal (1);
       const auto &n3 = Normal (2);
-      const auto &sn = Normalize ((1.0 - u - v) * n1 + u * n1 + v * n2);
+      const auto &sn = Normalize ((1.0 - u - v) * n1 + u * n2 + v * n3);
       intersection->SetShadingNormal (sn);
     }
 
@@ -185,7 +185,7 @@ auto Triangle::IsIntersect
       const auto &n1 = Normal (0);
       const auto &n2 = Normal (1);
       const auto &n3 = Normal (2);
-      const auto &sn = Normalize ((1.0 - u - v) * n1 + u * n1 + v * n2);
+      const auto &sn = Normalize ((1.0 - u - v) * n1 + u * n2 + v * n3);
       intersection->SetShadingNormal (sn);
     }
 

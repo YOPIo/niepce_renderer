@@ -61,7 +61,7 @@ RealisticCamera::RealisticCamera
   std::vector <std::future<Bounds2f>> futures (kSamples);
   for (int i = 0; i < kSamples; ++i)
   {
-    const Float diagonal = Diagonal ();
+    const Float diagonal = film_.Diagonal ();
     const Float begin = static_cast <Float> (i) / kSamples * diagonal / 2.0;
     const Float end   = static_cast <Float> (i + 1) / kSamples * diagonal / 2.0;
     auto func = std::bind (&RealisticCamera::PrecomputeExitPupilBounds,
@@ -91,10 +91,10 @@ auto RealisticCamera::GenerateRay
   const -> Float
 {
   // Compute pixle position on film from sample.
-  const Bounds2f& film_resolution = Resolution ();
+  const Bounds2f& film_resolution = film_.Resolution ();
   const Point2f s (samples.film_.X () / film_resolution.Width (),
                    samples.film_.Y () / film_resolution.Height ());
-  const Point2f p = PhysicalBounds ().Lerp (s);
+  const Point2f p = film_.PhysicalBounds ().Lerp (s);
   const Point3f film (-p.X (), p.Y (), 0);
 
   // Sample point on exit pupil.
@@ -518,7 +518,7 @@ auto RealisticCamera::SampleExitPupil
 
   // Compute index of exit pupil bounds.
   int index
-    = static_cast <int> (distance / (Diagonal () / 2.0) * exit_pupils_.size ());
+    = static_cast <int> (distance / (film_.Diagonal () / 2.0) * exit_pupils_.size ());
   index = std::min (index, static_cast <int> (exit_pupils_.size () - 1));
 
   // Get exit pupil bound
@@ -553,7 +553,7 @@ auto RealisticCamera::FocusOn (Float focus_distance) -> void
 
   // Generate a ray parallel to z-axis to find the focus point where height x
   // equal to zero.
-  const Float x = Diagonal () * 0.001;
+  const Float x = film_.Diagonal () * 0.001;
   Ray ray1 (Point3f  (x, 0, LensRear () - 1), // Origin
             Vector3f (0, 0, 1));              // Direction
   Ray out1;

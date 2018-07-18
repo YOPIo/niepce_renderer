@@ -47,7 +47,7 @@ auto PathTracer::Render () -> void
   std::vector <std::shared_ptr <RandomSampler>> samplers;
   constexpr static int tile_size = 64;
   static int tile_number = 1;
-  const auto resolution = camera_->Resolution ();
+  const auto resolution = camera_->FilmResolution ();
   const auto width  = resolution.Width ();
   const auto height = resolution.Height ();
   for (int y = 0; y < height; y += tile_size)
@@ -84,7 +84,7 @@ auto PathTracer::Render () -> void
   for (const auto& tile : tiles)
   {
     // tile.SaveAs ((std::to_string(i++) + ".ppm").c_str ());
-    camera_->AddFilmTile (tile);
+    camera_->UpdateFilmTile (tile);
   }
 
   camera_->Save ();
@@ -101,9 +101,10 @@ auto PathTracer::RenderTileBounds
 {
   const Bounds2f& tile_bounds = tile->Bounds ();
 
-  static constexpr int num_sample = 1;
-  const Float width  = static_cast <Float> (camera_->Width ());
-  const Float height = static_cast <Float> (camera_->Height ());
+  static constexpr int num_sample = 64;
+  const auto resolution = camera_->FilmResolution ();
+  const Float width  = static_cast <Float> (resolution.Width ());
+  const Float height = static_cast <Float> (resolution.Height ());
 
   auto func = [&] (int x, int y) -> void
   {

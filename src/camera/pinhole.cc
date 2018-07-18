@@ -42,7 +42,7 @@ PinholeCamera::PinholeCamera
   // Compute the distance from camera position to film.
   const Float theta = ToRadian (fov * 0.5);
   focal_distance_
-    = std::fabs ((PhysicalBounds ().Width () * 0.5) / std::tan (theta));
+    = std::fabs ((film_.PhysicalBounds ().Width () * 0.5) / std::tan (theta));
 }
 /*
 // ---------------------------------------------------------------------------
@@ -51,10 +51,10 @@ auto PinholeCamera::GenerateRay (const CameraSample& samples, Ray *ray)
   const -> Float
 {
   // Sample a point on film plane.
-  const Bounds2f& resolution = Resolution ();
+  const Bounds2f& resolution = film_.Resolution ();
   const Point2f s (samples.film_.X () / resolution.Width (),
                    samples.film_.Y () / resolution.Height ());
-  const Point2f p = PhysicalBounds ().Lerp (s);
+  const Point2f p = film_.PhysicalBounds ().Lerp (s);
   const Point3f pfilm = Point3f (-p.X (), p.Y (), -focal_distance_);
 
   // Generate a ray from 0 to point on film plane.
