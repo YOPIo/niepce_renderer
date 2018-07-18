@@ -6,6 +6,7 @@
  * @details 
  */
 #include "sampler.h"
+#include "../camera/camera_sample.h"
 #include "../core/imageio.h"
 /*
 // ---------------------------------------------------------------------------
@@ -67,6 +68,12 @@ auto SampleUniformTriangle (const Point2f& sample) -> Point2f
   const Float s = std::sqrt (sample[0]);
   return Point2f (1 - s, sample[1] * s);
 }
+/*
+// ---------------------------------------------------------------------------
+*/
+Sampler::Sampler (int spp) :
+  spp_ (spp)
+{}
 /*
 // ---------------------------------------------------------------------------
 */

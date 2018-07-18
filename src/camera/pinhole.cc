@@ -51,9 +51,9 @@ auto PinholeCamera::GenerateRay (const CameraSample& samples, Ray *ray)
   const -> Float
 {
   // Sample a point on film plane.
-  const Bounds2f& resolution = film_.Resolution ();
-  const Point2f s (samples.film_.X () / resolution.Width (),
-                   samples.film_.Y () / resolution.Height ());
+  const auto &resolution = film_.Resolution ();
+  const auto s = Point2f (samples.film_.X () / (Float)resolution.Width (),
+                          samples.film_.Y () / (Float)resolution.Height ());
   const Point2f p = film_.PhysicalBounds ().Lerp (s);
   const Point3f pfilm = Point3f (-p.X (), p.Y (), -focal_distance_);
 

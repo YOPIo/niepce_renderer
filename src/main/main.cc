@@ -28,6 +28,7 @@
 #include "../bsdf/bsdf_record.h"
 #include "../bsdf/bsdf.h"
 #include "../bsdf/bxdf.h"
+#include "../sampler/low_discrepancy_sequence.h"
 /*
 // ---------------------------------------------------------------------------
 */

@@ -113,6 +113,7 @@ class Bsdf;
 class BsdfRecord;
 enum class BsdfType;
 class Camera;
+struct CameraSample;
 class Film;
 class FilmTile;
 template <typename T> class Image;

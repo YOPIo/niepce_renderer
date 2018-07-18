@@ -21,6 +21,8 @@
 #include "../light/light.h"
 #include "../light/area_light.h"
 #include "../light/infinite_light.h"
+#include "../sampler/hammersley.h"
+#include "../sampler/low_discrepancy_sequence.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -99,8 +101,40 @@ auto PathTracer::RenderTileBounds
 )
   noexcept -> void
 {
-  const Bounds2f& tile_bounds = tile->Bounds ();
+  int spp = 256;
 
+  const auto &tile_bounds = tile->Bounds ();
+  const auto begin_y = tile_bounds.Min ().Y ();
+  const auto end_y   = tile_bounds.Max ().Y ();
+  const auto begin_x = tile_bounds.Min ().X ();
+  const auto end_x   = tile_bounds.Max ().X ();
+
+  for (int s = 0; s < spp; ++s)
+  {
+    for (int y = begin_y; y < end_y; ++y)
+    {
+      for (int x = begin_x; x < end_x; ++x)
+      {
+        // TODO : Use better sampling.
+        const auto offset = Point2f ((Float)s / spp, RadicalInverse (2, s));
+        const auto pfilm = Point2f (x, y) + offset;
+        const auto plens = tile_sampler->SamplePoint2f ();
+        const auto cs    = CameraSample (pfilm, plens);
+
+        Ray ray;
+        const auto weight = camera_->GenerateRay (cs, &ray);
+
+        Spectrum radiance;
+        auto hit = Radiance (ray, tile_sampler, &radiance);
+
+        auto s = tile->At (x - begin_x, y - begin_y) + radiance / (Float)spp;
+        tile->SetValueAt (x - begin_x, y - begin_y, s);
+      }
+    }
+  }
+
+  /*
+  const auto& tile_bounds = tile->Bounds ();
   static constexpr int num_sample = 64;
   const auto resolution = camera_->FilmResolution ();
   const Float width  = static_cast <Float> (resolution.Width ());
@@ -147,6 +181,7 @@ auto PathTracer::RenderTileBounds
     For2 (super_sampling, 2, 2);
   };
   For2 (func, tile->Width (), tile->Height ());
+  */
 }
 /*
 // ---------------------------------------------------------------------------

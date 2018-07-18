@@ -1,66 +1,56 @@
 /*!
- * @file sampler.h
+ * @file hammersley.h
  * @brief 
  * @author Masashi Yoshida
  * @date 
  * @details 
  */
-#ifndef _SAMPLER_H_
-#define _SAMPLER_H_
+#ifndef _HAMMERSLEY_H_
+#define _HAMMERSLEY_H_
 /*
 // ---------------------------------------------------------------------------
 */
-#include "../core/niepce.h"
-#include "../core/point2f.h"
-#include "../core/point3f.h"
-#include "../core/vector2f.h"
-#include "../core/vector3f.h"
+#include "sampler.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-*/
-auto SampleConcentricDisk (const Point2f& sample) -> Point2f;
-auto SampleCosineHemisphere (const Point2f& sample) -> Vector3f;
-auto SampleUniformTriangle (const Point2f& sample) -> Point2f;
 //! ----------------------------------------------------------------------------
-//! @class Sampler
+//! @class HammersleySampler
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class Sampler
+class HammersleySampler : public Sampler
 {
 public:
   //! The default class constructor.
-  Sampler (int spp);
+  HammersleySampler (int num_samples);
 
   //! The copy constructor of the class.
-  Sampler (const Sampler& sampler) = default;
+  HammersleySampler (const HammersleySampler& s) = default;
 
   //! The move constructor of the class.
-  Sampler (Sampler&& sampler) = default;
+  HammersleySampler (HammersleySampler&& s) = default;
 
   //! The default class destructor.
-  virtual ~Sampler () = default;
+  virtual ~HammersleySampler () = default;
 
   //! The copy assignment operator of the class.
-  auto operator = (const Sampler& sampler) -> Sampler& = default;
+  auto operator = (const HammersleySampler& s) -> HammersleySampler& = default;
 
   //! The move assignment operator of the class.
-  auto operator = (Sampler&& sampler) -> Sampler& = default;
+  auto operator = (HammersleySampler&& s) -> HammersleySampler& = default;
 
 public:
   /*!
-   * @fn Float Next1D ()
+   * @fn Float Next1f ()
    * @brief 
    * @return 
    * @exception none
    * @details 
    */
-  virtual auto Next1f () -> Float = 0;
+  auto Next1f () -> Float override;
 
   /*!
    * @fn Point2f Next2f ()
@@ -69,16 +59,20 @@ public:
    * @exception none
    * @details 
    */
-  virtual auto Next2f () -> Point2f = 0;
+  auto Next2f () -> Point2f override;
 
-protected:
-  const int spp_; // Sample per pixel
-}; // class Sampler
+private:
+  int num_samples_;
+  int n1_;
+  int n2_;
+
+}; // class HammersleySampler
 /*
 // ---------------------------------------------------------------------------
 */
-}  // namespace niepce
+} // namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-#endif // _SAMPLER_H_
+#endif // _HAMMERSLEY_H_
+
