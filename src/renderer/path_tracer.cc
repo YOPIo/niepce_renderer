@@ -101,7 +101,7 @@ auto PathTracer::RenderTileBounds
 )
   noexcept -> void
 {
-  int spp = 256;
+  int spp = 64;
 
   const auto &tile_bounds = tile->Bounds ();
   const auto begin_y = tile_bounds.Min ().Y ();
@@ -131,56 +131,6 @@ auto PathTracer::RenderTileBounds
       }
     }
   }
-
-  /*
-  const auto& tile_bounds = tile->Bounds ();
-  static constexpr int num_sample = 64;
-  const auto resolution = camera_->FilmResolution ();
-  const Float width  = static_cast <Float> (resolution.Width ());
-  const Float height = static_cast <Float> (resolution.Height ());
-
-  auto func = [&] (int x, int y) -> void
-  {
-    auto super_sampling = [&] (int sx, int sy) -> void
-    {
-      Float inv = 1.0 / (Float)num_sample;
-      Spectrum r (0);
-      bool hit = false;
-      int tx, ty;
-      for (int s = 0; s < num_sample; ++s)
-      {
-        const Point2f pfilm (x + tile_bounds.Min ().X (),
-                             y + tile_bounds.Min ().Y ());
-        tx = pfilm.X ();
-        ty = pfilm.Y ();
-        Float weight = 0;
-        Ray ray;
-        while (!weight)
-        {
-          CameraSample cs (pfilm, tile_sampler->SamplePoint2f ());
-          weight = camera_->GenerateRay (cs, &ray);
-        }
-        Spectrum radiance;
-        hit = Radiance (ray, tile_sampler, &radiance) | hit;
-        r = r + radiance * inv;
-      }
-      if (hit)
-      {
-        const auto s = tile->At (x, y) + Spectrum (Clamp (r.X ()),
-                                                   Clamp (r.Y ()),
-                                                   Clamp (r.Z ())) * 0.25;
-        tile->SetValueAt (x, y, s);
-      }
-      else
-      {
-        const auto s = camera_->Background (tx, ty);
-        tile->SetValueAt (x, y, s);
-      }
-    };
-    For2 (super_sampling, 2, 2);
-  };
-  For2 (func, tile->Width (), tile->Height ());
-  */
 }
 /*
 // ---------------------------------------------------------------------------
@@ -212,10 +162,12 @@ auto PathTracer::Radiance
     if (!scene_->IsIntersect (ray, &intersection))
     {
       // No intersection found.
+      /*
       if (depth == 0)
       {
         return false;
       }
+      */
 
       // HACKME:
       intersection.SetOutgoing (-ray.Direction ());

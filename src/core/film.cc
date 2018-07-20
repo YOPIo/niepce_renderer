@@ -98,16 +98,16 @@ auto Film::ApplyToneMapping (Float key_value) -> void
 */
 auto Film::ApplyDenoising () -> void
 {
-  const auto src = *this;
-  const auto kernel_size = 5;
-  const auto search_size = 13;
+  const auto src = Film(*this);
+  const auto kernel_size = 3;
+  const auto search_size = 5;
   const auto half_kernel_size = kernel_size / 2;
   const auto half_search_size = search_size / 2;
   const auto &width  = Width ();
   const auto &height = Height ();
 
-  const auto h     = 0.5;
-  const auto sigma = 0.5;
+  const auto h     = 0.08;
+  const auto sigma = 0.08;
 
   // Get a kernel window.
   auto GetKernel = [&]
@@ -143,7 +143,9 @@ auto Film::ApplyDenoising () -> void
       for (int x = 0; x < kernel_size; ++x)
       {
         const auto tmp = lhs.At (x, y) - rhs.At (x, y);
-        sum += tmp.Length ();
+        sum += tmp.X () * tmp.X ();
+        sum += tmp.Y () * tmp.Y ();
+        sum += tmp.Z () * tmp.Z ();
       }
     }
     return sum;
@@ -175,11 +177,11 @@ auto Film::ApplyDenoising () -> void
 
           // Get kernel.
           Image search_kernel (kernel_size, kernel_size);
-          GetKernel (sx, sy, &search_kernel);
+          GetKernel (tx, ty, &search_kernel);
 
           const auto norm   = L2Norm (target_kernel, search_kernel);
           const auto tmp    = std::fmax (norm * norm - 2.0 * sigma * sigma, 0.0);
-          const auto weight = std::exp (tmp / h * h);
+          const auto weight = std::exp (-tmp / h * h);
 
           sum_weight += weight;
           sum_pixel  =  sum_pixel + src.At (tx, ty) * weight;
