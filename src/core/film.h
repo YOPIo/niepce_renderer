@@ -101,6 +101,15 @@ public:
    */
   auto ApplyToneMapping (Float key_value) -> void;
 
+  /*!
+   * @fn void ApplyDenoising ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto ApplyDenoising () -> void;
+
 private:
   //! @brief
   const Bounds2f bounds_;

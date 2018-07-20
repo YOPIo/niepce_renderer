@@ -101,7 +101,7 @@ auto PathTracer::RenderTileBounds
 )
   noexcept -> void
 {
-  int spp = 64;
+  int spp = 256;
 
   const auto &tile_bounds = tile->Bounds ();
   const auto begin_y = tile_bounds.Min ().Y ();
