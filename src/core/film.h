@@ -92,6 +92,15 @@ public:
    */
   auto AddFilmTile (const FilmTile& tile) noexcept -> void;
 
+  /*!
+   * @fn void ApplyToneMapping (Float)
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto ApplyToneMapping (Float key_value) -> void;
+
 private:
   //! @brief
   const Bounds2f bounds_;

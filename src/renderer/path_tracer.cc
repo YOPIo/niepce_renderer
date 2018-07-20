@@ -101,7 +101,7 @@ auto PathTracer::RenderTileBounds
 )
   noexcept -> void
 {
-  int spp = 256;
+  int spp = 64;
 
   const auto &tile_bounds = tile->Bounds ();
   const auto begin_y = tile_bounds.Min ().Y ();
@@ -127,9 +127,6 @@ auto PathTracer::RenderTileBounds
         Spectrum radiance;
         auto hit = Radiance (ray, tile_sampler, &radiance);
         auto s = tile->At (x - begin_x, y - begin_y) + radiance / (Float)spp;
-        s = Spectrum (Clamp (s.X ()),
-                      Clamp (s.Y ()),
-                      Clamp (s.Z ()));
         tile->SetValueAt (x - begin_x, y - begin_y, s);
       }
     }

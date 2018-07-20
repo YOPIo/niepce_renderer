@@ -73,8 +73,30 @@ auto Film::AddFilmTile (const FilmTile& tile) noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
+auto Film::ApplyToneMapping (Float key_value) -> void
+{
+  auto RgbToLuminance = [] (const Spectrum &rgb)
+  {
+    return 0.2126729 * rgb.X () + 0.7151522 * rgb.Y () + 0.0721750 * rgb.Z ();
+  };
+
+  for (int y = 0; y < Height (); ++y)
+  {
+    for (int x = 0; x < Width (); ++x)
+    {
+      const auto l     = RgbToLuminance (this->At (x, y));
+      const auto scale = l != 0 ? (1.0f - std::exp(-l)) / l: 0.0f;
+      const auto r     = std::fmin (scale * this->At (x, y).X (), 1.0);
+      const auto g     = std::fmin (scale * this->At (x, y).Y (), 1.0);
+      const auto b     = std::fmin (scale * this->At (x, y).Z (), 1.0);
+      this->SetValueAt (x, y, Spectrum (r, g, b));
+    }
+  }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 } // namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-

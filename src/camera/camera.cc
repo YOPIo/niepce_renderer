@@ -58,8 +58,9 @@ auto Camera::UpdateFilmTile (const FilmTile &tile) -> void
 /*
 // ---------------------------------------------------------------------------
 */
-auto Camera::Save () const noexcept -> void
+auto Camera::Save () noexcept -> void
 {
+  film_.ApplyToneMapping (0.18);
   film_.Save ();
 }
 /*

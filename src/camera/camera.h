@@ -108,7 +108,7 @@ public:
    * @exception none
    * @details 
    */
-  auto Save () const noexcept -> void;
+  auto Save () noexcept -> void;
 
 protected:
   /*!
