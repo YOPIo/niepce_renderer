@@ -126,8 +126,10 @@ auto PathTracer::RenderTileBounds
 
         Spectrum radiance;
         auto hit = Radiance (ray, tile_sampler, &radiance);
-
         auto s = tile->At (x - begin_x, y - begin_y) + radiance / (Float)spp;
+        s = Spectrum (Clamp (s.X ()),
+                      Clamp (s.Y ()),
+                      Clamp (s.Z ()));
         tile->SetValueAt (x - begin_x, y - begin_y, s);
       }
     }
