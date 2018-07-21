@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
+#include "../core/transform.h"
 #include "../core/ray.h"
 #include "../core/intersection.h"
 #include "../core/bounds3f.h"
@@ -37,7 +38,10 @@ class Shape
 {
 public:
   //! The default class constructor.
-  Shape () = default;
+  Shape ();
+
+  //! The constructor takes transform matrix.
+  Shape (const Transform &world_to_local);
 
   //! The copy constructor of the class.
   Shape (const Shape& shape) = default;
@@ -99,7 +103,9 @@ public:
   virtual auto SurfaceArea () const noexcept -> Float = 0;
 
 protected:
-  const Float kIntersectionEpsilon = 1e-3;
+  const Float kIntersectionEpsilon = 1e-5;
+  const Transform world_to_local_;
+  const Transform local_to_world_;
 }; // class Shape
 /*
 // ---------------------------------------------------------------------------

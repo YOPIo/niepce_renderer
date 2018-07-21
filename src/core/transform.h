@@ -147,6 +147,9 @@ auto Perspective (Float fov, Float near, Float far) -> Transform;
 */
 auto Scale (Float x, Float y, Float z) -> Transform;
 auto Translate (const Vector3f& delta) -> Transform;
+auto RotateX (Float theta) -> Transform;
+auto RotateY (Float theta) -> Transform;
+auto RotateZ (Float theta) -> Transform;
 /*
 // ---------------------------------------------------------------------------
 */

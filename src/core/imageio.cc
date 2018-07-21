@@ -66,25 +66,8 @@ ImageIO<T>::~ImageIO ()
 template <typename T>
 auto ImageIO<T>::Load (const char *filename) -> void
 {
-  // File check.
-  if (!IsFileExist (filename))
-  {
-    std::cout << "Could not found : " << filename << std::endl;
-    return ;
-  }
-
-  // Load a image via stbi.
-  int width, height, n;
-  unsigned char* data = stbi_load (filename, &width, &height, &n, 1);
-
-  auto to_float = [] (unsigned char c) -> Float
-  {
-    Float x = int (c) / 255.0;
-    return Clamp (x);
-  };
-
-  // Reallocate the memory and copy image.
-  AllocateMemory (width, height);
+  std::cout << "No supported type image" << std::endl;
+  std::exit (1);
 }
 /*6
 // ---------------------------------------------------------------------------
@@ -100,27 +83,28 @@ auto ImageIO <Spectrum>::Load (const char *filename) -> void
     return ;
   }
 
+  if (FileExtension (filename) == ".hdr")
+  {
+    // Load .hdr file.
+  }
+
   // Load a image via stbi.
   int width, height, n;
-  unsigned char* img = stbi_load (filename, &width, &height, &n, 4);
-
-  auto to_float = [] (unsigned char c) -> Float
-  {
-    Float x = int (c) / 255.0;
-    return Clamp (x);
-  };
+  unsigned char *img = stbi_load (filename, &width, &height, &n, 4);
 
   // Reallocate the memory and copy image.
   AllocateMemory (width, height);
-  for (int y = height - 1; y >= 0; --y)
+
+  for (int y = 0; y < height; ++y)
   {
     for (int x = 0; x < width; ++x)
     {
-      const unsigned int idx = y * width + x;
-      const Float r = to_float (img[idx * 4 + 0]);
-      const Float g = to_float (img[idx * 4 + 1]);
-      const Float b = to_float (img[idx * 4 + 2]);
-      SetValueAt (x, height - y - 1, Spectrum (r, g, b));
+      const auto idx = y * width + x;
+      const auto r = Uint8ToFloat (img[idx * 4 + 0]); // R
+      const auto g = Uint8ToFloat (img[idx * 4 + 1]); // G
+      const auto b = Uint8ToFloat (img[idx * 4 + 2]); // B
+      const auto a = Uint8ToFloat (img[idx * 4 + 3]); // A
+      SetValueAt (x, y, Spectrum (r, g, b));
     }
   }
 

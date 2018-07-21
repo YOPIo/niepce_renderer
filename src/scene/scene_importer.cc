@@ -51,6 +51,7 @@ auto SceneImporter::Import (const char *filename) -> void
        element != nullptr;
        element = element->NextSiblingElement ())
   {
+    // std::cout << element->Name() << std::endl;
     Attributes attributes;
     if (IsElementType (element, "camera"))
     {
@@ -132,10 +133,12 @@ auto SceneImporter::Import (const char *filename) -> void
       }
       if (type == niepce::ShapeType::kSphere)
       {
-        const auto p = attributes.FindPoint3f ("position");
-        const auto r = attributes.FindFloat ("radius");
+        const auto radius = attributes.FindFloat ("radius");
+        const auto t      = attributes.FindTransform ("transform");
+
+        const auto sphere = CreateSphere (t, radius);
+
         const auto id = attributes.FindString ("material");
-        const auto sphere = CreateSphere (p, r);
         const auto mat    = this->Material (id);
         if (mat == nullptr) { std::cerr << "shape sphere error" << std::endl;}
         primitives_.push_back (CreatePrimitive (sphere, mat, nullptr));
@@ -146,8 +149,11 @@ auto SceneImporter::Import (const char *filename) -> void
     }
     if (IsElementType (element, "settings"))
     {
-      // ParseRecursive (element, &attributes);
-      // settings_.AddItem (attributes.FindString ("filename"));
+      ParseRecursive (element, &attributes);
+      settings_.AddItem (RenderSettings::Item::kNumSamples,
+                         attributes.FindInt ("spp"));
+      settings_.AddItem (RenderSettings::Item::kPTMaxDepth,
+                         attributes.FindInt ("max_depth"));
     }
   }
 
@@ -198,6 +204,11 @@ auto SceneImporter::ParseRecursive
     {
       ParseRecursive (elem, attributes);
       continue;
+    }
+    if (IsElementType (elem, "transform"))
+    {
+      const auto t = ParseTransform (elem);
+      attributes->AddTransform (t.first, t.second);
     }
     if (elem->NoChildren ())
     {
@@ -448,6 +459,40 @@ auto SceneImporter::ParseSpectrum (tinyxml2::XMLElement* element)
   std::vector <Float> v (std::istream_iterator <Float> {ss},
                          std::istream_iterator <Float> ());
   return std::make_pair (name, Spectrum (v[0], v[1], v[2]));
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::ParseTransform (tinyxml2::XMLElement* element)
+  const noexcept -> std::pair <std::string, Transform>
+{
+  Vector3f translate, rotate, scale;
+  for (auto e = element->FirstChildElement (); e != nullptr;
+       e = e->NextSiblingElement())
+  {
+    if (std::strcmp (e->Attribute ("name"), "translate") == 0)
+    {
+      const auto t = ParseVector3f (e);
+      translate = t.second;
+      continue;
+    }
+    if (std::strcmp (e->Attribute ("name"), "rotate") == 0)
+    {
+      const auto r = ParseVector3f (e);
+      rotate = r.second;
+      continue;
+    }
+    if (std::strcmp (e->Attribute ("name"), "scale") == 0)
+    {
+      const auto s = ParseVector3f (e);
+      scale = s.second;
+      continue;
+    }
+  }
+  const auto t = Translate (translate);
+  const auto s = Scale (scale.X (), scale.Y (), scale. Z());
+  const auto r = RotateX (rotate.X ());
+  return std::make_pair ("transform", r);
 }
 /*
 // ---------------------------------------------------------------------------

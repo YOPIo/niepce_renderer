@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "shape.h"
+#include "../core/transform.h"
 #include "../core/niepce.h"
 #include "../core/point3f.h"
 /*
@@ -30,7 +31,7 @@ public:
   Sphere () = delete;
 
   //! The constructor takes radius and position.
-  Sphere (Float radius, const Point3f& p);
+  Sphere (const Transform &world_to_local, Float radius);
 
   //! The copy constructor of the class.
   Sphere (const Sphere& sphere) = default;
@@ -92,8 +93,7 @@ public:
   auto SurfaceArea () const noexcept -> Float override final;
 
 private:
-  Float   radius_;
-  Point3f center_;
+  Float radius_;
 }; // class Sphere
 /*
 // ---------------------------------------------------------------------------
@@ -102,7 +102,7 @@ private:
 */
 auto CreateSphere
 (
- const Point3f& position,
+ const Transform &transform,
  Float radius
 )
 -> std::shared_ptr <Shape>;

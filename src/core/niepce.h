@@ -254,6 +254,14 @@ inline auto ReverseBits64 (uint64_t n) -> uint64_t
 /*
 // ---------------------------------------------------------------------------
 */
+inline auto FileExtension (const std::string &filepath) -> std::string
+{
+  const char *ext = std::strrchr (filepath.c_str (), '.');
+  return std::string (ext);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 inline auto FloatToInt (Float x) -> uint8_t
 {
   uint8_t res = static_cast <uint8_t> (x * 255 - 1.0 + 0.5);
@@ -272,6 +280,13 @@ inline auto ToDegree (Float radian) -> Float
 inline auto ToRadian (Float degree) -> Float
 {
   return degree * kPi / 180.0;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto Uint8ToFloat (uint8_t val) -> Float
+{
+  return Clamp (static_cast <Float> (val) / 256.0f, 0.0f, 1.0f);
 }
 /*
 // ---------------------------------------------------------------------------

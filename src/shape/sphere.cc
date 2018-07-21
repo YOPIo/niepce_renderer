@@ -7,6 +7,7 @@
  */
 #include "sphere.h"
 #include "../core/ray.h"
+#include "../core/point2f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -15,9 +16,9 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Sphere::Sphere (Float radius, const Point3f& position) :
-  radius_ (radius),
-  center_ (position)
+Sphere::Sphere (const Transform &local_to_world, Float radius) :
+  Shape   (local_to_world),
+  radius_ (radius)
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -29,25 +30,34 @@ auto Sphere::IsIntersect
 )
   const noexcept -> bool
 {
-  const Vector3f op = center_ - ray.Origin ();
-  const Float    b  = Dot (op, ray.Direction ());
-  const Float    c  = b * b - Dot (op, op) + radius_ * radius_;
+  const auto local_ray = world_to_local_ * ray;
+
+  const auto op = Point3f::Zero () - local_ray.Origin ();
+  const auto b  = Dot (op, local_ray.Direction ());
+  const auto c  = b * b - Dot (op, op) + radius_ * radius_;
 
   if (c < 0.0) { return false; }
 
-  const Float sqrt_c = std::sqrt (c);
-  const Float t1 = b - sqrt_c;
-  const Float t2 = b + sqrt_c;
+  const auto sqrt_c = std::sqrt (c);
+  const auto t1 = b - sqrt_c;
+  const auto t2 = b + sqrt_c;
 
   if (t1 < kIntersectionEpsilon && t2 < kIntersectionEpsilon) { return false; }
 
-  const Float    distance = t1 > kIntersectionEpsilon ? t1 : t2;
-  const Point3f  position = ray.IntersectAt (distance);
-  const Vector3f normal   = Normalize (position - center_);
+  const auto t = t1 > kIntersectionEpsilon ? t1 : t2;
 
-  intersection->SetDistance (distance);
-  intersection->SetNormal   (normal);
-  intersection->SetPosition (position);
+  // Compute hit position and normal in local coordinate.
+  const auto position = local_ray.IntersectAt (t);
+  const auto normal   = Normalize (position - Point3f::Zero ());
+
+  // Spherical mapping.
+  const auto u = std::atan2 (normal.X (), normal.Z ()) / (2.0 * kPi) + 0.5;
+  const auto v = 1.0 - (std::acos (normal.Y () / radius_) / kPi);
+
+  intersection->SetDistance ((local_to_world_ * position - ray.Origin ()).Length ());
+  intersection->SetNormal   (local_to_world_ * normal);
+  intersection->SetPosition (local_to_world_ * position);
+  intersection->SetTexcoord (Point2f (u, v));
 
   return true;
 }
@@ -56,12 +66,8 @@ auto Sphere::IsIntersect
 */
 auto Sphere::Bounds () const noexcept -> Bounds3f
 {
-  const Point3f min (center_.X () - radius_,
-                     center_.Y () - radius_,
-                     center_.Z () - radius_);
-  const Point3f max (center_.X () + radius_,
-                     center_.Y () + radius_,
-                     center_.Z () + radius_);
+  const auto min = local_to_world_ * Point3f (-radius_, -radius_, -radius_);
+  const auto max = local_to_world_ * Point3f ( radius_,  radius_,  radius_);
   return Bounds3f (min, max);
 }
 /*
@@ -85,12 +91,12 @@ auto Sphere::SurfaceArea () const noexcept -> Float
 */
 auto CreateSphere
 (
- const Point3f& position,
+ const Transform &transform,
  Float radius
 )
   -> std::shared_ptr <Shape>
 {
-  std::shared_ptr <Shape> sphere (new Sphere (radius, position));
+  std::shared_ptr <Shape> sphere (new Sphere (transform, radius));
   return std::move (sphere);
 }
 /*

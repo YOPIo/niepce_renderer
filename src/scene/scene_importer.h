@@ -184,6 +184,9 @@ private:
   auto ParseSpectrum (tinyxml2::XMLElement* element)
     const noexcept -> std::pair <std::string, Spectrum>;
 
+  auto ParseTransform (tinyxml2::XMLElement* element)
+    const noexcept -> std::pair <std::string, Transform>;
+
   /*!
    * @fn bool IsElementType (tinyxml2)
    * @brief 

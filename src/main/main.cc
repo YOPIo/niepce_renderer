@@ -65,20 +65,6 @@ auto Finalize () -> void
 */
 int main (int argc, char* argv[])
 {
-  /*
-  niepce::Film film ("filter_test.ppm", 0, 0, 5);
-  film.Load ("original.png");
-  film.ApplyDenoising ();
-  film.Save ();
-  return 0;
-
-  if (argc != 2)
-  {
-    std::cout << "Input filename." << std::endl;
-    return 0;
-  }
-  */
-
   std::cout << "the number of avaliable threads : "
 	    << std::thread::hardware_concurrency () << std::endl;
   niepce::Initialize ();

@@ -66,6 +66,7 @@ Triangle::Triangle
  const std::array <int, 3>& texcoord_indices,
  bool backface_culling
 ) :
+  Shape (),
   mesh_ (mesh),
   position_indices_ (position_indices),
   normal_indices_   (normal_indices),

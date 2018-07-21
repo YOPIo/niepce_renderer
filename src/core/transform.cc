@@ -6,6 +6,7 @@
  * @details 
  */
 #include "transform.h"
+#include "matrix4x4f.h"
 #include "ray.h"
 #include "point3f.h"
 #include "vector3f.h"
@@ -276,6 +277,46 @@ auto Translate (const Vector3f& delta) -> Transform
                   0, 0, 1, -delta.Z (),
                   0, 0, 0,           1);
   return Transform (mat, inv);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto RotateX (Float degree) -> Transform
+{
+  const auto radian = ToRadian (degree);
+  const auto sin_t  = std::sin (radian);
+  const auto cos_t  = std::cos (radian);
+  const Matrix4x4f m (1.0,   0.0,    0.0, 0.0,
+                      0.0, cos_t, -sin_t, 0.0,
+                      0.0, sin_t,  cos_t, 0.0,
+                      0.0,   0.0,    0.0, 1.0);
+  return Transform (m, Transpose (m));
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto RotateY (Float degree) -> Transform
+{
+  const auto sin_t = std::sin (ToRadian (degree));
+  const auto cos_t = std::cos (ToRadian (degree));
+  const Matrix4x4f m ( cos_t, 0.0, sin_t, 0.0,
+                         0.0, 1.0,   0.0, 0.0,
+                      -sin_t, 1.0, cos_t, 0.0,
+                         0.0, 0.0,   0.0, 1.0);
+  return Transform (m, Transpose (m));
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto RotateZ (Float degree) -> Transform
+{
+  const auto sin_t = std::sin (ToRadian (degree));
+  const auto cos_t = std::cos (ToRadian (degree));
+  const Matrix4x4f m (cos_t, -sin_t, 0.0, 0.0,
+                      sin_t,  cos_t, 0.0, 0.0,
+                        0.0,    0.0, 1.0, 0.0,
+                        0.0,    0.0, 0.0, 1.0);
+  return Transform (m, Transpose (m));
 }
 /*
 // ---------------------------------------------------------------------------

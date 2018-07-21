@@ -8,6 +8,7 @@
 #include "attributes.h"
 #include "vector3f.h"
 #include "point3f.h"
+#include "transform.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -69,6 +70,14 @@ auto Attributes::AddSpectrum (const std::string& name, const Spectrum& value)
 /*
 // ---------------------------------------------------------------------------
 */
+auto Attributes::AddTransform (const std::string &name, const Transform &t)
+  -> void
+{
+  transforms_.emplace (name, t);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto Attributes::FindBool (const std::string& name) const -> bool
 {
   try { return bools_.at (name); }
@@ -121,6 +130,14 @@ auto Attributes::FindSpectrum (const std::string& name) const -> Spectrum
 {
   try { return spectrums_.at (name); }
   catch (const std::exception& e) { return Spectrum::Zero (); }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Attributes::FindTransform (const std::string &name) const -> Transform
+{
+  try { return transforms_.at (name); }
+  catch (const std::exception &e) { return Transform (); }
 }
 /*
 // ---------------------------------------------------------------------------
