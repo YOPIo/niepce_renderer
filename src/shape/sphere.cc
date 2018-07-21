@@ -52,11 +52,11 @@ auto Sphere::IsIntersect
 
   // Spherical mapping.
   const auto u = std::atan2 (normal.X (), normal.Z ()) / (2.0 * kPi) + 0.5;
-  const auto v = 1.0 - (std::acos (normal.Y () / radius_) / kPi);
+  const auto v = 1.0 - (std::acos (normal.Y ()) / kPi);
 
-  intersection->SetDistance ((local_to_world_ * position - ray.Origin ()).Length ());
   intersection->SetNormal   (local_to_world_ * normal);
   intersection->SetPosition (local_to_world_ * position);
+  intersection->SetDistance ((position - local_ray.Origin ()).Length ());
   intersection->SetTexcoord (Point2f (u, v));
 
   return true;

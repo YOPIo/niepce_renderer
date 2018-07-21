@@ -24,7 +24,7 @@ Shape::Shape () :
 */
 Shape::Shape (const Transform &local_to_world) :
   local_to_world_ (local_to_world),
-  world_to_local_ (Inverse (local_to_world))
+  world_to_local_ (local_to_world.InverseMatrix ())
 {}
 /*
 // ---------------------------------------------------------------------------

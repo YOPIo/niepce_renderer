@@ -103,7 +103,7 @@ public:
   virtual auto SurfaceArea () const noexcept -> Float = 0;
 
 protected:
-  const Float kIntersectionEpsilon = 1e-5;
+  const Float kIntersectionEpsilon = 1e-4;
   const Transform world_to_local_;
   const Transform local_to_world_;
 }; // class Shape
