@@ -491,8 +491,9 @@ auto SceneImporter::ParseTransform (tinyxml2::XMLElement* element)
   }
   const auto t = Translate (translate);
   const auto s = Scale (scale.X (), scale.Y (), scale. Z());
-  const auto r = RotateX (rotate.X ());
-  return std::make_pair ("transform", r);
+  const auto r = RotateZ (rotate.Z ()) * RotateX (rotate.X ())
+               * RotateY (rotate.Y ());
+  return std::make_pair ("transform", t * s * r);
 }
 /*
 // ---------------------------------------------------------------------------

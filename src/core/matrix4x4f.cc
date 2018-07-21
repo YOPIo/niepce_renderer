@@ -120,7 +120,7 @@ auto operator * (const Matrix4x4f& mat, Float s) -> Matrix4x4f
   {
     for (int j = 0; j < 4; ++j)
     {
-      res.SetFloat (i, j, mat (i, j));
+      res.SetFloat (i, j, mat (i, j) * s);
     }
   }
   return res;
@@ -135,7 +135,7 @@ auto operator * (Float s, const Matrix4x4f& mat) -> Matrix4x4f
   {
     for (int j = 0; j < 4; ++j)
     {
-      res.SetFloat (i, j, mat (i, j));
+      res.SetFloat (i, j, s * mat (i, j));
     }
   }
   return res;

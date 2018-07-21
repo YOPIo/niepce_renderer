@@ -277,9 +277,9 @@ inline auto ToDegree (Float radian) -> Float
 /*
 // ---------------------------------------------------------------------------
 */
-inline auto ToRadian (Float degree) -> Float
+inline auto DegreeToRadian (Float degree) -> Float
 {
-  return degree * kPi / 180.0;
+  return degree / 180.0 * kPi;
 }
 /*
 // ---------------------------------------------------------------------------

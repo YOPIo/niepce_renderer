@@ -40,7 +40,7 @@ PinholeCamera::PinholeCamera
   object_distance_ (focus_distance)
 {
   // Compute the distance from camera position to film.
-  const Float theta = ToRadian (fov * 0.5);
+  const Float theta = DegreeToRadian (fov * 0.5);
   focal_distance_
     = std::fabs ((film_.PhysicalBounds ().Width () * 0.5) / std::tan (theta));
 }

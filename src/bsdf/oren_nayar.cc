@@ -19,7 +19,7 @@ namespace niepce
 OrenNayar::OrenNayar (const Spectrum &reflectance, Float degree) :
   Bxdf (Type (Type::kReflection | Type::kDiffuse)),
   reflectance_ (reflectance),
-  radians_     (ToRadian (degree)),
+  radians_     (DegreeToRadian (degree)),
   a_ (1.0 - (radians_ * radians_) / (2.0 * (radians_ * radians_ + 0.33))),
   b_ ((0.45 * radians_ * radians_) / (radians_ * radians_ + 0.09))
 {}

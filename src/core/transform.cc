@@ -139,14 +139,14 @@ auto operator * (Float s, const Transform& t) -> Transform
 */
 auto operator * (const Transform& t, const Point3f& p) -> Point3f
 {
-  const Float x = p.X ();
-  const Float y = p.Y ();
-  const Float z = p.Z ();
+  const auto &x = p.X ();
+  const auto &y = p.Y ();
+  const auto &z = p.Z ();
 
-  const Float xp = t (0, 0) * x + t (0, 1) * y + t (0, 2) * z + t (0, 3);
-  const Float yp = t (1, 0) * x + t (1, 1) * y + t (1, 2) * z + t (1, 3);
-  const Float zp = t (2, 0) * x + t (2, 1) * y + t (2, 2) * z + t (2, 3);
-  const Float wp = t (3, 0) * x + t (3, 1) * y + t (3, 2) * z + t (3, 3);
+  const auto xp = t (0, 0) * x + t (0, 1) * y + t (0, 2) * z + t (0, 3);
+  const auto yp = t (1, 0) * x + t (1, 1) * y + t (1, 2) * z + t (1, 3);
+  const auto zp = t (2, 0) * x + t (2, 1) * y + t (2, 2) * z + t (2, 3);
+  const auto wp = t (3, 0) * x + t (3, 1) * y + t (3, 2) * z + t (3, 3);
 
   if (wp == 1) { return Point3f (xp, yp, zp); }
   return Point3f (xp, yp, zp) * (1.0 / wp);
@@ -156,10 +156,9 @@ auto operator * (const Transform& t, const Point3f& p) -> Point3f
 */
 auto operator * (const Transform& t, const Vector3f& v) -> Vector3f
 {
-  const Float x = v.X ();
-  const Float y = v.Y ();
-  const Float z = v.Z ();
-
+  const auto &x = v.X ();
+  const auto &y = v.Y ();
+  const auto &z = v.Z ();
   return Vector3f (t (0, 0) * x + t (0, 1) * y + t (0, 2) * z,
                    t (1, 0) * x + t (1, 1) * y + t (1, 2) * z,
                    t (2, 0) * x + t (2, 1) * y + t (2, 2) * z);
@@ -245,7 +244,7 @@ auto Perspective (Float fov, Float n, Float f) -> Transform
                     0, 1,           0,                0,
                     0, 0, f / (f - n), -f * n / (f - n),
                     0, 0,           1,                0);
-  const Float inv_tan = 1.0 / std::tan (ToRadian (fov) * 0.5);
+  const Float inv_tan = 1.0 / std::tan (DegreeToRadian (fov) * 0.5);
   return Scale (inv_tan, inv_tan, 1) * Transform (persp);
 }
 /*
@@ -283,7 +282,7 @@ auto Translate (const Vector3f& delta) -> Transform
 */
 auto RotateX (Float degree) -> Transform
 {
-  const auto radian = ToRadian (degree);
+  const auto radian = DegreeToRadian (degree);
   const auto sin_t  = std::sin (radian);
   const auto cos_t  = std::cos (radian);
   const Matrix4x4f m (1.0,   0.0,    0.0, 0.0,
@@ -297,11 +296,12 @@ auto RotateX (Float degree) -> Transform
 */
 auto RotateY (Float degree) -> Transform
 {
-  const auto sin_t = std::sin (ToRadian (degree));
-  const auto cos_t = std::cos (ToRadian (degree));
+  const auto radian = DegreeToRadian (degree);
+  const auto sin_t  = std::sin (radian);
+  const auto cos_t  = std::cos (radian);
   const Matrix4x4f m ( cos_t, 0.0, sin_t, 0.0,
                          0.0, 1.0,   0.0, 0.0,
-                      -sin_t, 1.0, cos_t, 0.0,
+                      -sin_t, 0.0, cos_t, 0.0,
                          0.0, 0.0,   0.0, 1.0);
   return Transform (m, Transpose (m));
 }
@@ -310,8 +310,9 @@ auto RotateY (Float degree) -> Transform
 */
 auto RotateZ (Float degree) -> Transform
 {
-  const auto sin_t = std::sin (ToRadian (degree));
-  const auto cos_t = std::cos (ToRadian (degree));
+  const auto radian = DegreeToRadian (degree);
+  const auto sin_t  = std::sin (radian);
+  const auto cos_t  = std::cos (radian);
   const Matrix4x4f m (cos_t, -sin_t, 0.0, 0.0,
                       sin_t,  cos_t, 0.0, 0.0,
                         0.0,    0.0, 1.0, 0.0,
