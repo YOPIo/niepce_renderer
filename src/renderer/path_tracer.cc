@@ -101,7 +101,7 @@ auto PathTracer::RenderTileBounds
 )
   noexcept -> void
 {
-  int spp = 64;
+  int spp = 32;
 
   const auto &tile_bounds = tile->Bounds ();
   const auto begin_y = tile_bounds.Min ().Y ();
@@ -196,24 +196,6 @@ auto PathTracer::Radiance
 
     // Generate BSDF.
     auto bsdf = intersection.Material ()->AllocateBsdfs (intersection, &memory);
-    // -------------------------------------------------------------------------
-    // Next Event Estimation (Direct light sampling)
-    // -------------------------------------------------------------------------
-    // if (depth > 1 && bsdf->Type () != BsdfType::kSpecular)
-    {
-      /*
-      const auto value = DirectSampleOneLight (intersection,
-                                               tile_sampler->SamplePoint2f ());
-      if (value != Spectrum::Zero ())
-      {
-        BsdfRecord record (intersection);
-        bsdf->Sample (&record, tile_sampler->SamplePoint2f ());
-        contribution = contribution + weight * value * record.Bsdf ();
-      }
-      */
-    }
-
-    // Ready to generate the BSDF.
     const auto& material = intersection.Material ();
     if (material->HasEmission ())
     {
@@ -224,7 +206,7 @@ auto PathTracer::Radiance
     // -------------------------------------------------------------------------
     // BSDF sampling.
     // -------------------------------------------------------------------------
-    // Sample incident direction.
+    // Ready for the sample incident direction and evaluating the BSDF.
     BsdfRecord bsdf_record (intersection);
     bsdf_record.SetSamplingTarget (niepce::Bxdf::Type::kAll);
     bsdf_record.SetOutgoing (-ray.Direction (), bsdf::Coordinate::kWorld);
@@ -233,8 +215,39 @@ auto PathTracer::Radiance
 
     if (bsdf_record.Pdf () == 0) { break; }
 
+    /*
+    if (bsdf->BsdfType () != Bsdf::Type (Bsdf::Type::kSpecular))
+    {
+      // Next event estimation
+      const auto value = DirectSampleOneLight (intersection,
+                                               tile_sampler->SamplePoint2f());
+      contribution = contribution + weight * bsdf_record.Bsdf () * value;
+    }
+    */
+
+    // Update the weight.
     weight = weight * bsdf_record.Bsdf () * bsdf_record.CosWeight ()
            / bsdf_record.Pdf ();
+
+    /*
+
+      // TODO Delete
+
+    // -------------------------------------------------------------------------
+    // Next Event Estimation (Direct light sampling)
+    // -------------------------------------------------------------------------
+    if (depth > 1 && bsdf->BsdfType() != Bsdf::Type::kSpecular)
+    {
+      const auto value = DirectSampleOneLight (intersection,
+                                               tile_sampler->SamplePoint2f ());
+      if (value != Spectrum::Zero ())
+      {
+        BsdfRecord record (intersection);
+        bsdf->Sample (&record, tile_sampler->SamplePoint2f ());
+        contribution = contribution + weight * value * record.Bsdf ();
+      }
+    }
+    */
 
     // -------------------------------------------------------------------------
     // Russian roulette
@@ -262,23 +275,24 @@ auto PathTracer::Radiance
 */
 auto PathTracer::DirectSampleOneLight
 (
- const Intersection& intersection,
+ const Intersection& isect,
  const Point2f&      sample
 )
   const noexcept -> Spectrum
 {
   // Choose one light in the scene.
-  const auto idx = scene_->NumLight () * sample[0];
+  auto idx = scene_->NumLight () * sample[0];
+  if (idx >= scene_->NumLight ()) { idx = scene_->NumLight () - 1; }
   const auto &light = scene_->Light (idx);
 
-  // Sample on shape surface.
-  const auto pos = light->SamplePosition (sample);
+  // Sample a position on the light.
+  const auto target = light->SamplePosition (sample);
 
   // Get intersection point.
-  const auto &ori = intersection.Position ();
+  const auto &ori = isect.Position ();
 
-  // Compute shadow ray direction.
-  const Ray shadow_ray (intersection.Position (), (pos - ori));
+  // Create shadow ray.
+  const Ray shadow_ray (ori, (target - ori));
 
   // Find obstacle.
   Intersection tmp;
@@ -286,24 +300,26 @@ auto PathTracer::DirectSampleOneLight
   {
     // Unexpected case.
     // Shadow ray was not intersect with any shape.
+    // std::cerr << "In Pathtracer::DirectSampleOneLight" << std::endl;
     return Spectrum::Zero ();
   }
 
   // Compare the length
-  static constexpr Float kShadowRayEpsilon = 0.001;
-  const Float len = (pos - ori).Length ();
-  const Float res = (tmp.Position () - ori).Length ();
+  static constexpr auto kShadowRayEpsilon = 0.05;
+  const auto len = (target - ori).Length ();
+  const auto res = (tmp.Position () - ori).Length ();
 
   if (std::fabs (len - res) < kShadowRayEpsilon)
   {
-    return light->Emission();
-    // There was/were no obstacle(s) between intersection point and sampled
-    // point on area light.
-    const auto g = Dot (shadow_ray.Direction (), intersection.Normal ())
+    // There were not obstacle objects between intersection point and sampled
+    // position on the light.
+    // return light->Emission();
+
+    const auto g = Dot (shadow_ray.Direction (), isect.Normal ())
                  * Dot (-shadow_ray.Direction(), tmp.Normal ());
     return light->Emission () * g / light->Pdf ();
   }
-  // Obstacle is exist.
+  // Obstacle object was found.
   return Spectrum::Zero ();
 }
 /*

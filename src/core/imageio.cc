@@ -203,6 +203,10 @@ template <>
 auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
 {
   std::ofstream os (filename);
+  if (!os)
+  {
+    std::cerr << "Could not open " << filename << std::endl;
+  }
   std::cout << filename << std::endl;
   os << "P3\n" << width_ << " " << height_ << "\n255\n";
   auto func = [&] (int x, int y) -> void

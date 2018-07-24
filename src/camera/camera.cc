@@ -61,7 +61,7 @@ auto Camera::UpdateFilmTile (const FilmTile &tile) -> void
 auto Camera::Save () noexcept -> void
 {
   film_.ApplyToneMapping (0.18);
-  film_.ApplyDenoising ();
+  // film_.ApplyDenoising ();
   film_.Save ();
 }
 /*
