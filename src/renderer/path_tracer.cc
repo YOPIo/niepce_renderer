@@ -101,7 +101,7 @@ auto PathTracer::RenderTileBounds
 )
   noexcept -> void
 {
-  int spp = 32;
+  int spp = 512;
 
   const auto &tile_bounds = tile->Bounds ();
   const auto begin_y = tile_bounds.Min ().Y ();
@@ -215,39 +215,20 @@ auto PathTracer::Radiance
 
     if (bsdf_record.Pdf () == 0) { break; }
 
-    /*
     if (bsdf->BsdfType () != Bsdf::Type (Bsdf::Type::kSpecular))
     {
       // Next event estimation
       const auto value = DirectSampleOneLight (intersection,
                                                tile_sampler->SamplePoint2f());
-      contribution = contribution + weight * bsdf_record.Bsdf () * value;
+      if (value != Spectrum::Zero ())
+      {
+        contribution = contribution + weight * bsdf_record.Bsdf () * value;
+      }
     }
-    */
 
     // Update the weight.
     weight = weight * bsdf_record.Bsdf () * bsdf_record.CosWeight ()
            / bsdf_record.Pdf ();
-
-    /*
-
-      // TODO Delete
-
-    // -------------------------------------------------------------------------
-    // Next Event Estimation (Direct light sampling)
-    // -------------------------------------------------------------------------
-    if (depth > 1 && bsdf->BsdfType() != Bsdf::Type::kSpecular)
-    {
-      const auto value = DirectSampleOneLight (intersection,
-                                               tile_sampler->SamplePoint2f ());
-      if (value != Spectrum::Zero ())
-      {
-        BsdfRecord record (intersection);
-        bsdf->Sample (&record, tile_sampler->SamplePoint2f ());
-        contribution = contribution + weight * value * record.Bsdf ();
-      }
-    }
-    */
 
     // -------------------------------------------------------------------------
     // Russian roulette
@@ -305,18 +286,15 @@ auto PathTracer::DirectSampleOneLight
   }
 
   // Compare the length
-  static constexpr auto kShadowRayEpsilon = 0.05;
+  static constexpr auto kShadowRayEpsilon = 0.1;
   const auto len = (target - ori).Length ();
   const auto res = (tmp.Position () - ori).Length ();
 
   if (std::fabs (len - res) < kShadowRayEpsilon)
   {
-    // There were not obstacle objects between intersection point and sampled
-    // position on the light.
-    // return light->Emission();
-
-    const auto g = Dot (shadow_ray.Direction (), isect.Normal ())
-                 * Dot (-shadow_ray.Direction(), tmp.Normal ());
+    const auto g = std::fabs (Dot (shadow_ray.Direction (), isect.Normal ()))
+                 * std::fabs (Dot (-shadow_ray.Direction(), tmp.Normal ()))
+                 / (target - ori).LengthSquared ();
     return light->Emission () * g / light->Pdf ();
   }
   // Obstacle object was found.

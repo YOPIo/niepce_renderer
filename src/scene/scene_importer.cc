@@ -46,6 +46,12 @@ auto SceneImporter::Import (const char *filename) -> void
   xml_.LoadFile (filename);
   root_ = xml_.RootElement ();
 
+  if (!root_)
+  {
+    std::cout << "Could not found " << filename << std::endl;
+    return ;
+  }
+
   // Loop for each element.
   for (auto element = root_->FirstChildElement ();
        element != nullptr;
