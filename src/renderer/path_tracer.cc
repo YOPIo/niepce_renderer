@@ -101,7 +101,7 @@ auto PathTracer::RenderTileBounds
 )
   noexcept -> void
 {
-  int spp = 128;
+  const int spp = 64;
 
   std::cout << tile->TileNumber() << std::endl;
 
@@ -156,7 +156,7 @@ auto PathTracer::Radiance
   MemoryArena memory;
 
   // Render the tile.
-  for (unsigned int depth = 0; depth < 10; ++depth)
+  for (unsigned int depth = 0; depth < 15; ++depth)
   {
     // -------------------------------------------------------------------------
     // Intersection test
@@ -233,7 +233,7 @@ auto PathTracer::Radiance
       */
     }
 
-    //contribution = Normalize (Spectrum (0.5) + intersection.Normal());
+    // contribution = Normalize ((Spectrum (1) + intersection.Normal()) * 0.5);
     // break;
 
     // Update the weight.
@@ -245,7 +245,7 @@ auto PathTracer::Radiance
     // -------------------------------------------------------------------------
     Float q = std::fmax (contribution[0],
                          std::fmax(contribution[1], contribution[2]));
-    if (depth > 5)
+    if (depth > 12)
     {
       if (tile_sampler->SampleFloat () >= q) { break; }
     }

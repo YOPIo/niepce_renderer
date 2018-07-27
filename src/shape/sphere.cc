@@ -30,6 +30,38 @@ auto Sphere::IsIntersect
 )
   const noexcept -> bool
 {
+  const auto center = local_to_world_ * Point3f::Zero ();
+
+  const auto op = center - ray.Origin ();
+  const auto b  = Dot (op, ray.Direction ());
+  const auto c  = b * b - Dot (op, op) + radius_ * radius_;
+
+  if (c < 0.0) { return false; }
+
+  const auto sqrt_c = std::sqrt (c);
+  const auto t1 = b - sqrt_c;
+  const auto t2 = b + sqrt_c;
+
+  if (t1 < kIntersectionEpsilon && t2 < kIntersectionEpsilon) { return false; }
+
+  const auto t = t1 > kIntersectionEpsilon ? t1 : t2;
+
+  // Compute hit position and normal in local coordinate.
+  const auto position = ray.IntersectAt (t);
+  const auto normal   = Normalize (position - center);
+
+  // Spherical mapping.
+  const auto u = std::atan2 (normal.X (), normal.Z ()) / (2.0 * kPi) + 0.5;
+  const auto v = 1.0 - (std::acos (normal.Y ()) / kPi);
+
+  intersection->SetDistance (t);
+  intersection->SetPosition (position);
+  intersection->SetNormal   (normal);
+  intersection->SetTexcoord (Point2f (u, v));
+
+  return true;
+
+  /*
   const auto local_ray = world_to_local_ * ray;
 
   const auto op = Point3f::Zero () - local_ray.Origin ();
@@ -47,20 +79,20 @@ auto Sphere::IsIntersect
   const auto t = t1 > kIntersectionEpsilon ? t1 : t2;
 
   // Compute hit position and normal in local coordinate.
-  const auto center   = local_to_world_ * Point3f::Zero ();
-  const auto position = local_to_world_ * local_ray.IntersectAt (t);
-  const auto normal   = Normalize (position - center);
+  const auto position = local_ray.IntersectAt (t);
+  const auto normal   = Normalize (position - Point3f::Zero ());
 
   // Spherical mapping.
   const auto u = std::atan2 (normal.X (), normal.Z ()) / (2.0 * kPi) + 0.5;
   const auto v = 1.0 - (std::acos (normal.Y ()) / kPi);
 
-  intersection->SetDistance ((position - ray.Origin ()).Length ());
-  intersection->SetPosition (position);
-  intersection->SetNormal   (Normalize (position - center));
+  intersection->SetDistance ((position - local_ray.Origin ()).Length ());
+  intersection->SetPosition (local_to_world_ * position);
+  intersection->SetNormal   (Normalize (normal));
   intersection->SetTexcoord (Point2f (u, v));
 
   return true;
+  */
 }
 /*
 // ---------------------------------------------------------------------------
