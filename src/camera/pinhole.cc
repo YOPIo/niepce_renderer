@@ -26,6 +26,7 @@ PinholeCamera::PinholeCamera
  Float            focus_distance,
  const char*      output,
  const char*      background,
+ const char*      aperture,
  unsigned int     resolution_width,
  unsigned int     resolution_height,
  Float            diagonal
@@ -36,8 +37,9 @@ PinholeCamera::PinholeCamera
           resolution_width,
           resolution_height,
           diagonal),
+  object_distance_ (focus_distance),
   lens_radius_     (lens_radius),
-  object_distance_ (focus_distance)
+  aperture_        (aperture)
 {
   // Compute the distance from camera position to film.
   const Float theta = DegreeToRadian (fov * 0.5);
@@ -54,8 +56,8 @@ auto PinholeCamera::GenerateRay (const CameraSample& samples, Ray *ray)
   const auto &resolution = film_.Resolution ();
   const auto s = Point2f (samples.film_.X () / (Float)resolution.Width (),
                           samples.film_.Y () / (Float)resolution.Height ());
-  const Point2f p = film_.PhysicalBounds ().Lerp (s);
-  const Point3f pfilm = Point3f (-p.X (), p.Y (), -focal_distance_);
+  const auto p = film_.PhysicalBounds ().Lerp (s);
+  const auto pfilm = Point3f (-p.X (), p.Y (), -focal_distance_);
 
   // Generate a ray from 0 to point on film plane.
   *ray = Ray (Point3f::Zero (), Point3f::Zero () - pfilm);
@@ -63,12 +65,13 @@ auto PinholeCamera::GenerateRay (const CameraSample& samples, Ray *ray)
   if (lens_radius_ > 0)
   {
     // Sample a point on lens
-    const Point2f s = SampleConcentricDisk (samples.lens_);
-    const Point3f plens = lens_radius_ * Point3f (s.X (), s.Y (), 0);
+    // const auto s     = SampleConcentricDisk (samples.lens_);
+    const auto s = SampleOnApertureByImage (samples.lens_);
+    const auto plens = lens_radius_ * Point3f (s.X (), s.Y (), 0);
 
     // Compute a point on object plane.
-    const Float t = object_distance_ / ray->Direction ().Z ();
-    const Point3f pfocus = ray->IntersectAt (t);
+    const auto t      = object_distance_ / ray->Direction ().Z ();
+    const auto pfocus = ray->IntersectAt (t);
 
     // Update ray
     *ray = Ray (plens, pfocus - plens);
@@ -78,6 +81,20 @@ auto PinholeCamera::GenerateRay (const CameraSample& samples, Ray *ray)
   *ray = camera_to_world_ * (*ray);
 
   return 1.0;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto PinholeCamera::SampleOnApertureByImage (const Point2f &sample)
+  const noexcept -> Point2f
+{
+  const auto x = sample[0] * (Float)aperture_.Width ();
+  const auto y = sample[1] * (Float)aperture_.Height ();
+  if (aperture_.At (x, y) == true)
+  {
+    return Point2f (sample);
+  }
+  return Point2f (0.5, 0.5);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -98,6 +115,7 @@ auto CreatePinholeCamera (const Attributes& attributes)
   const auto diagonal = attributes.FindFloat ("diagonal");
   const auto output   = attributes.FindString ("output");
   const auto back     = attributes.FindString ("background");
+  const auto aperture = attributes.FindString ("aperture");
 
   return std::make_shared <PinholeCamera> (t,
                                            fov,
@@ -105,6 +123,7 @@ auto CreatePinholeCamera (const Attributes& attributes)
                                            focus_distance,
                                            output.c_str (),
                                            back.c_str (),
+                                           aperture.c_str (),
                                            width,
                                            height,
                                            diagonal);

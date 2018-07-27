@@ -116,21 +116,26 @@ auto ImageIO <Spectrum>::Load (const char *filename) -> void
 template <>
 auto ImageIO<bool>::Load (const char* filename) -> void
 {
+  if (!IsFileExist (filename))
+  {
+    std::cout << "ImageIO: ";
+    std::cout << "Could not found " << filename << std::endl;
+    return ;
+  }
+
   // Load a image via stbi.
   int width, height, n;
   unsigned char* img = stbi_load (filename, &width, &height, &n, 1);
 
   // Reallocate memory
   AllocateMemory (width, height);
-  std::cout << width << " " << height << std::endl;
-  for (int y = height - 1; y >= 0; --y)
+  for (int y = 0; y < height; ++y)
   {
     for (int x = 0; x < width; ++x)
     {
-      SetValueAt (x, height - y - 1, static_cast <bool> (img[y * width + x]));
+      SetValueAt (x, y, static_cast <bool> (img[y * width + x]));
     }
   }
-
   stbi_image_free (img);
 }
 /*
@@ -185,6 +190,28 @@ auto ImageIO<T>::SavePpm (const char* filename) const noexcept -> void
 // ---------------------------------------------------------------------------
 */
 template <>
+auto ImageIO <bool>::SavePpm (const char* filename) const noexcept -> void
+{
+  std::ofstream os (filename);
+  if (!os)
+  {
+    std::cerr << "Failed to open " << filename << std::endl;
+    return ;
+  }
+  os << "P1\n" << width_ << " " << height_ << "\n";
+  for (int y = 0; y < height_; ++y)
+  {
+    for (int x = 0; x < width_; ++x)
+    {
+      os << static_cast <int> (At (x, y)) << std::endl;
+    }
+  }
+  os.close ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <>
 auto ImageIO<Float>::SavePpm (const char* filename) const noexcept -> void
 {
   std::ofstream os (filename);
@@ -214,22 +241,6 @@ auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
     os << (int)FloatToInt (At (x, y).X ()) << " ";
     os << (int)FloatToInt (At (x, y).Y ()) << " ";
     os << (int)FloatToInt (At (x, y).Z ()) << " ";
-  };
-  For2(func, Width (), Height ());
-  os.close ();
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <>
-auto ImageIO<bool>::SavePpm (const char* filename) const noexcept -> void
-{
-  std::ofstream os (filename);
-  os << "P2\n" << width_ << " " << height_ << "\n1\n";
-  auto func = [&] (int x, int y) -> void
-  {
-    if (At (x, y)) { os << "1 "; }
-    else { os << "0 "; }
   };
   For2(func, Width (), Height ());
   os.close ();

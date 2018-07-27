@@ -41,6 +41,7 @@ public:
    Float            focus_distance, // [m]
    const char*      output,
    const char*      background,
+   const char*      aperture,
    unsigned int     resolution_width,
    unsigned int     resolution_height,
    Float            diagonal
@@ -76,11 +77,20 @@ private:
   )
   const -> Float override final;
 
+  /*!
+   * @fn Point2f SampleOnApertureByImage ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SampleOnApertureByImage (const Point2f &sample) const noexcept -> Point2f;
+
 protected:
   Float focal_distance_;
-  Float lens_radius_;
   Float object_distance_;
-
+  Float lens_radius_;
+  ImageIO <bool> aperture_;
 }; // class PinholeCamera
 /*
 // ---------------------------------------------------------------------------

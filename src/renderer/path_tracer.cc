@@ -101,7 +101,9 @@ auto PathTracer::RenderTileBounds
 )
   noexcept -> void
 {
-  int spp = 512;
+  int spp = 128;
+
+  std::cout << tile->TileNumber() << std::endl;
 
   const auto &tile_bounds = tile->Bounds ();
   const auto begin_y = tile_bounds.Min ().Y ();
@@ -117,12 +119,16 @@ auto PathTracer::RenderTileBounds
       {
         // TODO : Use better sampling.
         const auto offset = Point2f ((Float)s / spp, RadicalInverse (2, s));
-        const auto pfilm = Point2f (x, y) + offset;
-        const auto plens = tile_sampler->SamplePoint2f ();
-        const auto cs    = CameraSample (pfilm, plens);
+        const auto pfilm  = Point2f (x, y) + offset;
+        const auto plens  = tile_sampler->SamplePoint2f ();
+        const auto cs     = CameraSample (pfilm, plens);
 
         Ray ray;
-        const auto weight = camera_->GenerateRay (cs, &ray);
+        Float weight = 0;
+        while (weight == 0)
+        {
+          weight = camera_->GenerateRay (cs, &ray);
+        }
 
         Spectrum radiance;
         auto hit = Radiance (ray, tile_sampler, &radiance);
@@ -217,6 +223,7 @@ auto PathTracer::Radiance
 
     if (bsdf->BsdfType () != Bsdf::Type (Bsdf::Type::kSpecular))
     {
+      /*
       // Next event estimation
       const auto value = DirectSampleOneLight (intersection,
                                                tile_sampler->SamplePoint2f());
@@ -224,6 +231,7 @@ auto PathTracer::Radiance
       {
         contribution = contribution + weight * bsdf_record.Bsdf () * value;
       }
+      */
     }
 
     // Update the weight.

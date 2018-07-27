@@ -423,7 +423,7 @@ auto SceneImporter::ParseString (tinyxml2::XMLElement* element)
 
   std::string value = element->Attribute ("value");
   // HACKME:
-  if (name == "filename" || name == "background")
+  if (name == "filename" || name == "background" || name == "aperture")
   {
     value = filepath_ + value;
   }
