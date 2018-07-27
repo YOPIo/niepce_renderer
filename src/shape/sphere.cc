@@ -47,16 +47,17 @@ auto Sphere::IsIntersect
   const auto t = t1 > kIntersectionEpsilon ? t1 : t2;
 
   // Compute hit position and normal in local coordinate.
-  const auto position = local_ray.IntersectAt (t);
-  const auto normal   = Normalize (position - Point3f::Zero ());
+  const auto center   = local_to_world_ * Point3f::Zero ();
+  const auto position = local_to_world_ * local_ray.IntersectAt (t);
+  const auto normal   = Normalize (position - center);
 
   // Spherical mapping.
   const auto u = std::atan2 (normal.X (), normal.Z ()) / (2.0 * kPi) + 0.5;
   const auto v = 1.0 - (std::acos (normal.Y ()) / kPi);
 
-  intersection->SetNormal   (local_to_world_ * normal);
-  intersection->SetPosition (local_to_world_ * position);
-  intersection->SetDistance ((position - local_ray.Origin ()).Length ());
+  intersection->SetDistance ((position - ray.Origin ()).Length ());
+  intersection->SetPosition (position);
+  intersection->SetNormal   (Normalize (position - center));
   intersection->SetTexcoord (Point2f (u, v));
 
   return true;

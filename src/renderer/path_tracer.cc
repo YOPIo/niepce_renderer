@@ -118,15 +118,14 @@ auto PathTracer::RenderTileBounds
       for (int x = begin_x; x < end_x; ++x)
       {
         // TODO : Use better sampling.
-        const auto offset = Point2f ((Float)s / spp, RadicalInverse (2, s));
-        const auto pfilm  = Point2f (x, y) + offset;
-        const auto plens  = tile_sampler->SamplePoint2f ();
-        const auto cs     = CameraSample (pfilm, plens);
-
         Ray ray;
         Float weight = 0;
+        const auto offset = Point2f ((Float)s / spp, RadicalInverse (2, s));
+        const auto pfilm  = Point2f (x, y) + offset;
         while (weight == 0)
         {
+          const auto plens  = tile_sampler->SamplePoint2f ();
+          const auto cs     = CameraSample (pfilm, plens);
           weight = camera_->GenerateRay (cs, &ray);
         }
 
@@ -233,6 +232,9 @@ auto PathTracer::Radiance
       }
       */
     }
+
+    //contribution = Normalize (Spectrum (0.5) + intersection.Normal());
+    // break;
 
     // Update the weight.
     weight = weight * bsdf_record.Bsdf () * bsdf_record.CosWeight ()

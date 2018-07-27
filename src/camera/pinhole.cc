@@ -67,6 +67,7 @@ auto PinholeCamera::GenerateRay (const CameraSample& samples, Ray *ray)
     // Sample a point on lens
     // const auto s     = SampleConcentricDisk (samples.lens_);
     const auto s = SampleOnApertureByImage (samples.lens_);
+    if (s == Point2f (0)) { return 0; }
     const auto plens = lens_radius_ * Point3f (s.X (), s.Y (), 0);
 
     // Compute a point on object plane.
@@ -90,11 +91,11 @@ auto PinholeCamera::SampleOnApertureByImage (const Point2f &sample)
 {
   const auto x = sample[0] * (Float)aperture_.Width ();
   const auto y = sample[1] * (Float)aperture_.Height ();
-  if (aperture_.At (x, y) == true)
+  if (!aperture_.At (x, y))
   {
     return Point2f (sample);
   }
-  return Point2f (0.5, 0.5);
+  return Point2f (0, 0);
 }
 /*
 // ---------------------------------------------------------------------------
