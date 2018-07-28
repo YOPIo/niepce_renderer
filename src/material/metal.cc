@@ -58,6 +58,7 @@ const -> Bsdf* const
     = memory->Allocate <TrowbridgeReitz> (rough_u,
                                           rough_v,
                                           false);
+
   const auto fresnel
     = memory->Allocate <FresnelConductor> (Spectrum (1.0),
                                            Spectrum (1.5),

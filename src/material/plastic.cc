@@ -51,8 +51,8 @@ auto Plastic::AllocateBsdfs
   const auto reflectance = reflectance_->Evaluate (isect);
   if (!reflectance.IsBlack ())
   {
-    bsdf->AddBxdf (memory->Allocate <OrenNayar> (reflectance, 15.0));
-    // bsdf->AddBxdf (memory->Allocate <Lambert> (reflectance));
+    // bsdf->AddBxdf (memory->Allocate <OrenNayar> (reflectance, 15.0));
+    bsdf->AddBxdf (memory->Allocate <Lambert> (reflectance));
   }
 
   // Initialize specular component of plastic.
@@ -60,7 +60,7 @@ auto Plastic::AllocateBsdfs
   if (!specular.IsBlack ())
   {
     // Generate fresnel.
-    const auto f = memory->Allocate <FresnelDielectric> (1.0, 1.5);
+    const auto f = memory->Allocate <FresnelDielectric> (1.5, 1.0);
     /*
     const auto f = memory->Allocate <FresnelConductor> (Spectrum (1.0),
                                                         Spectrum (1.5),

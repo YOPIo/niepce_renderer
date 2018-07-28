@@ -61,7 +61,7 @@ auto PathTracer::Render () -> void
       const Bounds2f tile (Point2f (x, y), Point2f (last_x, last_y));
       tiles.push_back (FilmTile (tile_number++, tile));
       // Clone sampler for each tile.
-      samplers.push_back (std::make_shared <RandomSampler> (last_x * last_y));
+      samplers.push_back (std::make_shared <RandomSampler> (last_y + last_x));
     }
   }
 
@@ -101,7 +101,7 @@ auto PathTracer::RenderTileBounds
 )
   noexcept -> void
 {
-  const int spp = 64;
+  const int spp = 32;
 
   std::cout << tile->TileNumber() << std::endl;
 
@@ -188,6 +188,9 @@ auto PathTracer::Radiance
       break;
     }
 
+    // contribution = Normalize ((Spectrum (1) + intersection.Normal()) * 0.5);
+    // break;
+
     // If ray hit with light.
     // break soon.
     const auto& primitive = intersection.Primitive ();
@@ -221,7 +224,8 @@ auto PathTracer::Radiance
     if (bsdf_record.Pdf () == 0) { break; }
 
     /*
-    if (bsdf->BsdfType () != Bsdf::Type (Bsdf::Type::kSpecular))
+    if ((bsdf->BsdfType () & Bsdf::Type (Bsdf::Type::kSpecular)) !=
+        Bsdf::Type::kSpecular)
     {
       // Next event estimation
       const auto value = DirectSampleOneLight (intersection,
@@ -232,9 +236,6 @@ auto PathTracer::Radiance
       }
     }
     */
-
-    // contribution = Normalize ((Spectrum (1) + intersection.Normal()) * 0.5);
-    // break;
 
     // Update the weight.
     weight = weight * bsdf_record.Bsdf () * bsdf_record.CosWeight ()
@@ -255,7 +256,8 @@ auto PathTracer::Radiance
     // Ready to trace the incident direction.
     // -------------------------------------------------------------------------
     const auto incident = bsdf_record.Incident (bsdf::Coordinate::kWorld);
-    ray = Ray (intersection.Position (), incident);
+    const auto origin = intersection.Position () + incident * 0.01;
+    ray = Ray (origin, incident);
   }
 
   *radiance = contribution;

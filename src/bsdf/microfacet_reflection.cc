@@ -71,7 +71,7 @@ auto MicrofacetReflection::Evaluate (const BsdfRecord &record)
     return Spectrum (0);
   }
 
-  const auto f = fresnel_->Evaluate (std::fabs (Dot (incident, half)));
+  const auto f = fresnel_->Evaluate (Dot (half, incident));
   const auto d = distribution_->Distribution (half);
   const auto g = distribution_->GeometricAttenuation (outgoing, incident);
 
@@ -104,7 +104,10 @@ auto MicrofacetReflection::Sample
   // Error handle
   if (!bsdf::HasSameHemisphere (outgoing, incident))
   {
-    Spectrum (0);
+    record->SetSampledBsdfType (Bsdf::Type::kUnknown);
+    record->SetPdf (0);
+    record->SetBsdf (Spectrum (0));
+    return Spectrum (0);
   }
 
   // Compute the pdf

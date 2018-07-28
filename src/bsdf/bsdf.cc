@@ -21,6 +21,7 @@ Bsdf::Bsdf (const Intersection &isect) :
   isect_ (isect),
   Bxdf (niepce::Bxdf::Type::kUnknown)
 {
+  // TODO: Delete
   // Override the normal, tangent and binormal if shading normal present.
   if (isect_.HasShadingNormal ())
   {
@@ -88,21 +89,22 @@ auto Bsdf::Sample (BsdfRecord *record, const Point2f &sample)
 
   // Compute the pdf.
   auto pdf = 0.0;
-  if (!(bxdf->BsdfType () & Bxdf::Type::kSpecular))
+  if (!(bxdf->BsdfType () & Bxdf::Type::kSpecular) && bxdfs_.size () > 1)
   {
     pdf = Pdf (*record);
     record->SetPdf (pdf);
   }
 
   // Compute the evaluated bsdf.
-  if (!(bxdf->BsdfType () & Bxdf::Type::kSpecular))
+  if (!(bxdf->BsdfType () & Bxdf::Type::kSpecular) && bxdfs_.size () > 1)
   {
     f = Evaluate (*record);
     record->SetBsdf (f);
   }
 
   // Compute the cos weight.
-  const auto weight = std::fabs (Dot (wwi, isect_.Normal ()));
+  // const auto weight = std::fabs (Dot (wwi, isect_.Normal ()));
+  const auto weight = bsdf::AbsCosTheta (wi);
   record->SetCosWeight (weight);
 
   return f;
@@ -132,18 +134,16 @@ auto Bsdf::Evaluate (const BsdfRecord &record) const noexcept -> Spectrum
 
   // Loop for bxdfs in this class.
   Spectrum f (0);
-  int i = 0;
-  for (const auto & bxdf : bxdfs_)
+  for (const auto &bxdf : bxdfs_)
   {
     bool require
-      =  ( reflect && (this->type_ & niepce::Bxdf::Type::kReflection))
-      || (!reflect && (this->type_ & niepce::Bxdf::Type::kTransmittion));
+      =  ( reflect && (bxdf->BsdfType () & niepce::Bxdf::Type::kReflection))
+      || (!reflect && (bxdf->BsdfType () & niepce::Bxdf::Type::kTransmittion));
     if (require && bxdf->FulFill (sampling_type))
     {
       f = f + bxdf->Evaluate (record);
     }
   }
-
   return f;
 }
 /*
@@ -187,7 +187,6 @@ auto Bsdf::Pdf (const BsdfRecord &record) const noexcept -> Float
 */
 auto Bsdf::AddBxdf (Bxdf *bxdf) noexcept -> void
 {
-  // bxdfs_.push_back (std::move (bxdf));
   bxdfs_.push_back (bxdf);
 
   // Update the type of BSDF.
