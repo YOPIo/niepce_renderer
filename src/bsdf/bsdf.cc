@@ -81,24 +81,31 @@ auto Bsdf::Sample (BsdfRecord *record, const Point2f &sample)
   // Sample the incident direction, pdf, bsdf and cos weight from chosen BxDF.
   // ---------------------------------------------------------------------------
   // Sample the incident direction.
-  const auto f = bxdf->Sample (record, sample);
+  auto f = bxdf->Sample (record, sample);
   const auto wi  = record->Incident (bsdf::Coordinate::kLocal);
   const auto wwi = LocalToWorld (wi);
   record->SetIncident (wwi, bsdf::Coordinate::kWorld);
 
   // Compute the pdf.
-  const auto pdf = Pdf (*record);
-  record->SetPdf (pdf);
+  auto pdf = 0.0;
+  if (!(bxdf->BsdfType () & Bxdf::Type::kSpecular))
+  {
+    pdf = Pdf (*record);
+    record->SetPdf (pdf);
+  }
 
   // Compute the evaluated bsdf.
-  const auto bsdf = Evaluate (*record);
-  record->SetBsdf (bsdf);
+  if (!(bxdf->BsdfType () & Bxdf::Type::kSpecular))
+  {
+    f = Evaluate (*record);
+    record->SetBsdf (f);
+  }
 
   // Compute the cos weight.
   const auto weight = std::fabs (Dot (wwi, isect_.Normal ()));
   record->SetCosWeight (weight);
 
-  return bsdf;
+  return f;
 }
 /*
 // ---------------------------------------------------------------------------
@@ -115,7 +122,7 @@ auto Bsdf::Evaluate (const BsdfRecord &record) const noexcept -> Spectrum
   // Get outgoing, incident directions and shading normal in world space.
   const auto &wwo = record.Outgoing (bsdf::Coordinate::kWorld);
   const auto &wwi = record.Incident (bsdf::Coordinate::kWorld);
-  auto n = isect_.Normal ();
+  const auto &n   = isect_.Normal ();
 
   // Confirm reflection or refraction.
   bool reflect = Dot (wwo, n) * Dot (wwi, n) > 0;
@@ -125,15 +132,18 @@ auto Bsdf::Evaluate (const BsdfRecord &record) const noexcept -> Spectrum
 
   // Loop for bxdfs in this class.
   Spectrum f (0);
+  int i = 0;
   for (const auto & bxdf : bxdfs_)
   {
-    bool require = (reflect && (this->type_ & niepce::Bxdf::Type::kReflection))
-                || (!reflect && (this->type_ & niepce::Bxdf::Type::kTransmittion));
+    bool require
+      =  ( reflect && (this->type_ & niepce::Bxdf::Type::kReflection))
+      || (!reflect && (this->type_ & niepce::Bxdf::Type::kTransmittion));
     if (require && bxdf->FulFill (sampling_type))
     {
       f = f + bxdf->Evaluate (record);
     }
   }
+
   return f;
 }
 /*
@@ -165,8 +175,12 @@ auto Bsdf::Pdf (const BsdfRecord &record) const noexcept -> Float
       ++num_sampled;
     }
   }
+  if (num_sampled > 1)
+  {
+    pdf /= static_cast <Float> (num_sampled);
+  }
 
-  return num_sampled > 0 ? pdf / num_sampled : 0.0;
+  return pdf;
 }
 /*
 // ---------------------------------------------------------------------------

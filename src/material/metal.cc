@@ -47,8 +47,6 @@ auto Metal::AllocateBsdfs
 )
 const -> Bsdf* const
 {
-  const auto& uv = isect.Texcoord ();
-
   Bsdf* const bsdf = memory->Allocate <Bsdf> (isect);
 
   const auto rough_u

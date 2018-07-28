@@ -93,8 +93,8 @@ auto FresnelDielectric::Evaluate (Float cos_theta1)
     $ n_1 * sin(\theta_1) = n_2 * sin(\theta_2) $
    */
 
-  Float ior1 = outgoing_ior_;
-  Float ior2 = incident_ior_;
+  auto ior1 = outgoing_ior_;
+  auto ior2 = incident_ior_;
 
   // Compute the $ cos(\theta_1) $.
   cos_theta1 = Clamp (cos_theta1,
@@ -102,20 +102,20 @@ auto FresnelDielectric::Evaluate (Float cos_theta1)
                       static_cast <Float> (1.0));
 
   // Reflection or refraction
-  bool is_entering = cos_theta1 < 0.0;
-  if (is_entering)
+  bool is_entering = cos_theta1 > 0.0;
+  if (!is_entering)
   {
     // Sampled incident is refraction.
     std::swap (ior1, ior2);
     cos_theta1 = std::fabs (cos_theta1);
   }
 
-  const Float ior = ior1 / ior2;
+  const auto ior = ior1 / ior2;
 
   // Compute $ cos(\theta_2) $ using Snell's law.
-  const Float sin_theta1
+  const auto sin_theta1
     = std::sqrt (std::fmax (0.0, 1 - cos_theta1 * cos_theta1));
-  const Float sin_theta2 = ior1 / ior2 * sin_theta1;
+  const auto sin_theta2 = ior * sin_theta1;
 
   if (sin_theta2 >= 1)
   {
@@ -127,10 +127,10 @@ auto FresnelDielectric::Evaluate (Float cos_theta1)
     = std::sqrt (std::fmax (0.0, 1.0 - sin_theta2 * sin_theta2));
 
   // Compute fresnel
-  const Float r_parallel
-    = (ior * cos_theta1 - cos_theta2) / (ior * cos_theta1 + cos_theta2);
-  const Float r_vertical
-    = (cos_theta1 - ior * cos_theta2) / (cos_theta1 + ior * cos_theta2);
+  const auto r_parallel = ((ior2 * cos_theta1) - (ior1 * cos_theta2))
+                        / ((ior2 * cos_theta1) + (ior1 * cos_theta2));
+  const auto r_vertical = ((ior1 * cos_theta1) - (ior2 * cos_theta2))
+                        / ((ior1 * cos_theta1) + (ior2 * cos_theta2));
 
   return Spectrum (0.5) * (r_parallel * r_parallel + r_vertical * r_vertical);
 }

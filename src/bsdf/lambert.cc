@@ -57,8 +57,6 @@ auto Lambert::Sample (BsdfRecord *record, const Point2f &sample)
   record->SetBsdf (brdf);
 
   return brdf;
-
-  return Spectrum (0);
 }
 /*
 // ---------------------------------------------------------------------------

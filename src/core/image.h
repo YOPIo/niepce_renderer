@@ -98,7 +98,7 @@ public:
    * @exception none
    * @details
    */
-  auto Height () const noexcept -> unsigned int;
+  auto Height () const noexcept -> int;
 
   /*!
    * @fn unsigned Width ()
@@ -107,11 +107,11 @@ public:
    * @exception none
    * @details
    */
-  auto Width () const noexcept -> unsigned int;
+  auto Width () const noexcept -> int;
 
 protected:
-  unsigned int width_;
-  unsigned int height_;
+  int width_;
+  int height_;
   std::shared_ptr <T> data_;
 }; // class Image
 /*

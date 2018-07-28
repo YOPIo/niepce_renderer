@@ -27,12 +27,12 @@ class Bxdf
 public:
   enum Type
   {
+    kUnknown      = 0 << 0,
     kDiffuse      = 1 << 1,
     kSpecular     = 1 << 2,
     kGlossy       = 1 << 3,
     kReflection   = 1 << 4,
     kTransmittion = 1 << 5,
-    kUnknown      = 1 << 0,
     kAll          = kDiffuse
                   | kSpecular
                   | kGlossy

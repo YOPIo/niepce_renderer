@@ -66,24 +66,6 @@ auto Finalize () -> void
 */
 int main (int argc, char* argv[])
 {
-/*
-  auto filename = "/home/yopio/workspace/niepce/assets/bokeh/aperture.png";
-  niepce::ImageIO <bool> img (filename);
-  niepce::XorShift rng;
-  for (int i = 0; i < 10000; ++i)
-  {
-    auto x = rng.Next01 () * img.Width ();
-    auto y = rng.Next01 () * img.Height();
-
-    if (!img.At (x, y))
-    {
-      img.SetValueAt (x, y, true);
-    }
-  }
-  img.SaveAs ("piyo.ppm");
-  return 0;
-  */
-
   std::cout << "the number of avaliable threads : "
 	    << std::thread::hardware_concurrency () << std::endl;
   niepce::Initialize ();

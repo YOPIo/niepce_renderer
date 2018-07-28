@@ -33,15 +33,9 @@ auto ImageTexture<T>::Evaluate (const Intersection &isect) const noexcept -> T
 {
   if (image_)
   {
-    const auto width  = static_cast <int> (image_->Width ());
-    const auto height = static_cast <int> (image_->Height ());
-
-    // Convert to integer.
-    const auto& uv = isect.Texcoord ();
-    int x = static_cast <unsigned int> (uv[0] * width);
-    int y = static_cast <unsigned int> (uv[1] * height);
-    x = static_cast <int> (Clamp (x, 0, width - 1));
-    y = static_cast <int> (Clamp (y, 0, height - 1));
+    const auto &uv = isect.Texcoord ();
+    const auto x = static_cast <Float> (image_->Width ()  - 1) * uv[0];
+    const auto y = static_cast <Float> (image_->Height () - 1) * uv[1];
     return image_->At (x, y);
   }
   return T (0);

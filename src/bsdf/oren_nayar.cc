@@ -86,6 +86,8 @@ auto OrenNayar::Sample (BsdfRecord *record, const Point2f &sample)
   const auto bsdf = Evaluate (*record);
   record->SetBsdf (bsdf);
 
+  record->SetSampledBsdfType (type_);
+
   return bsdf;
 }
 /*

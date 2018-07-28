@@ -178,7 +178,7 @@ auto PathTracer::Radiance
       intersection.SetOutgoing (-ray.Direction ());
 
       // Sample infinite light.
-      const auto inf_light = scene_->InfiniteLight ();
+      const auto& inf_light = scene_->InfiniteLight ();
       if (inf_light != nullptr)
       {
         Float pdf = 0;
@@ -220,9 +220,9 @@ auto PathTracer::Radiance
 
     if (bsdf_record.Pdf () == 0) { break; }
 
+    /*
     if (bsdf->BsdfType () != Bsdf::Type (Bsdf::Type::kSpecular))
     {
-      /*
       // Next event estimation
       const auto value = DirectSampleOneLight (intersection,
                                                tile_sampler->SamplePoint2f());
@@ -230,8 +230,8 @@ auto PathTracer::Radiance
       {
         contribution = contribution + weight * bsdf_record.Bsdf () * value;
       }
-      */
     }
+    */
 
     // contribution = Normalize ((Spectrum (1) + intersection.Normal()) * 0.5);
     // break;

@@ -125,7 +125,6 @@ public:
    */
   auto LocalToWorld (const Vector3f &v) const noexcept -> Vector3f;
 
-
 private:
   std::vector <Bxdf*> bxdfs_;
   Intersection  isect_;

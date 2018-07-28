@@ -50,12 +50,16 @@ auto MicrofacetReflection::Pdf (const BsdfRecord &record)
 auto MicrofacetReflection::Evaluate (const BsdfRecord &record)
   const noexcept -> Spectrum
 {
-  const Vector3f& outgoing = record.Outgoing (niepce::bsdf::Coordinate::kLocal);
-  const Vector3f& incident = record.Incident (niepce::bsdf::Coordinate::kLocal);
-  const Vector3f  half = Normalize (outgoing + incident);
+  const auto& outgoing = record.Outgoing (niepce::bsdf::Coordinate::kLocal);
+  const auto& incident = record.Incident (niepce::bsdf::Coordinate::kLocal);
+  const auto  half     = Normalize (outgoing + incident);
 
-  const Float cto = bsdf::AbsCosTheta (outgoing);
-  const Float cti = bsdf::AbsCosTheta (incident);
+  const auto cto = bsdf::AbsCosTheta (outgoing);
+  const auto cti = bsdf::AbsCosTheta (incident);
+  /*
+  const auto cto = std::fabs (Dot (outgoing, half));
+  const auto cti = std::fabs (Dot (incident, half));
+  */
 
   // Handle case
   if (cto == 0 || cti == 0)
@@ -67,11 +71,11 @@ auto MicrofacetReflection::Evaluate (const BsdfRecord &record)
     return Spectrum (0);
   }
 
-  const auto f = fresnel_->Evaluate (Dot (incident, half));
+  const auto f = fresnel_->Evaluate (std::fabs (Dot (incident, half)));
   const auto d = distribution_->Distribution (half);
   const auto g = distribution_->GeometricAttenuation (outgoing, incident);
 
-  const Spectrum bsdf = reflectance_ * (d * f * g) / (4.0 * cti * cto);
+  const auto bsdf = reflectance_ * (d * f * g) / (4.0 * cti * cto);
 
   return bsdf;
 }
@@ -110,6 +114,8 @@ auto MicrofacetReflection::Sample
   // Evaluate the BSDF
   const Spectrum bsdf = Evaluate (*record);
   record->SetBsdf (bsdf);
+
+  record->SetSampledBsdfType (type_);
 
   return bsdf;
 }

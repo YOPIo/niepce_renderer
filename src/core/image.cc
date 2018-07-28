@@ -50,7 +50,7 @@ auto Image<T>::At (unsigned int x, unsigned int y) const -> T
   {
     return data_.get ()[y * width_ + x];
   }
-  return data_.get () [0];
+  return data_.get ()[0];
 }
 /*
 // ---------------------------------------------------------------------------
@@ -76,7 +76,7 @@ auto Image<T>::SetValueAt
 // ---------------------------------------------------------------------------
 */
 template <typename T>
-auto Image<T>::Height () const noexcept -> unsigned int
+auto Image<T>::Height () const noexcept -> int
 {
   return height_;
 }
@@ -84,7 +84,7 @@ auto Image<T>::Height () const noexcept -> unsigned int
 // ---------------------------------------------------------------------------
 */
 template <typename T>
-auto Image<T>::Width () const noexcept -> unsigned int
+auto Image<T>::Width () const noexcept -> int
 {
   return width_;
 }

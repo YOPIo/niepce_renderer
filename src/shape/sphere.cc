@@ -30,69 +30,38 @@ auto Sphere::IsIntersect
 )
   const noexcept -> bool
 {
+  // TODO: Localで計算する
   const auto center = local_to_world_ * Point3f::Zero ();
+  const auto po = center - ray.Origin ();
 
-  const auto op = center - ray.Origin ();
-  const auto b  = Dot (op, ray.Direction ());
-  const auto c  = b * b - Dot (op, op) + radius_ * radius_;
+  const auto b = Dot (po, ray.Direction ());
+  const auto discr = b * b - Dot (po, po) + radius_ * radius_;
 
-  if (c < 0.0) { return false; }
+  if (discr < 0.0) { return false; }
 
-  const auto sqrt_c = std::sqrt (c);
-  const auto t1 = b - sqrt_c;
-  const auto t2 = b + sqrt_c;
+  const auto sqrt_discr = std::sqrt (discr);
+  const auto t1 = b - sqrt_discr;
+  const auto t2 = b + sqrt_discr;
 
-  if (t1 < kIntersectionEpsilon && t2 < kIntersectionEpsilon) { return false; }
+  if (t1 < kEpsilon && t2 < kEpsilon) { return false; }
 
-  const auto t = t1 > kIntersectionEpsilon ? t1 : t2;
+  const auto t = t1 > kEpsilon ? t1 : t2;
+  const auto p = ray.Origin () + t * ray.Direction ();
+  const auto n = Normalize (p - center);
 
-  // Compute hit position and normal in local coordinate.
-  const auto position = ray.IntersectAt (t);
-  const auto normal   = Normalize (position - center);
-
-  // Spherical mapping.
-  const auto u = std::atan2 (normal.X (), normal.Z ()) / (2.0 * kPi) + 0.5;
-  const auto v = 1.0 - (std::acos (normal.Y ()) / kPi);
+  const auto tmp = Normalize (world_to_local_ * p - Point3f::Zero ());
+  const auto theta = std::acos (tmp.Y () / radius_);
+  auto phi = std::atan2 (tmp.X (), tmp.Z ());
+  if (phi < 0.0) { phi += 2.0 * kPi; }
+  auto u = 1.0 - (phi / (2.0 * kPi));
+  auto v = (theta / kPi);
 
   intersection->SetDistance (t);
-  intersection->SetPosition (position);
-  intersection->SetNormal   (normal);
+  intersection->SetPosition (p);
+  intersection->SetNormal   (n);
   intersection->SetTexcoord (Point2f (u, v));
 
   return true;
-
-  /*
-  const auto local_ray = world_to_local_ * ray;
-
-  const auto op = Point3f::Zero () - local_ray.Origin ();
-  const auto b  = Dot (op, local_ray.Direction ());
-  const auto c  = b * b - Dot (op, op) + radius_ * radius_;
-
-  if (c < 0.0) { return false; }
-
-  const auto sqrt_c = std::sqrt (c);
-  const auto t1 = b - sqrt_c;
-  const auto t2 = b + sqrt_c;
-
-  if (t1 < kIntersectionEpsilon && t2 < kIntersectionEpsilon) { return false; }
-
-  const auto t = t1 > kIntersectionEpsilon ? t1 : t2;
-
-  // Compute hit position and normal in local coordinate.
-  const auto position = local_ray.IntersectAt (t);
-  const auto normal   = Normalize (position - Point3f::Zero ());
-
-  // Spherical mapping.
-  const auto u = std::atan2 (normal.X (), normal.Z ()) / (2.0 * kPi) + 0.5;
-  const auto v = 1.0 - (std::acos (normal.Y ()) / kPi);
-
-  intersection->SetDistance ((position - local_ray.Origin ()).Length ());
-  intersection->SetPosition (local_to_world_ * position);
-  intersection->SetNormal   (Normalize (normal));
-  intersection->SetTexcoord (Point2f (u, v));
-
-  return true;
-  */
 }
 /*
 // ---------------------------------------------------------------------------
