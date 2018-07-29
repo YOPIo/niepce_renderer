@@ -10,9 +10,10 @@
 #include "../core/material_attributes.h"
 #include "../core/vector3f.h"
 #include "../core/pixel.h"
-#include "../material/matte.h"
-#include "../material/metal.h"
-#include "../material/plastic.h"
+#include "matte.h"
+#include "metal.h"
+#include "plastic.h"
+#include "mirror.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -64,6 +65,10 @@ auto CreateMaterial (const MaterialAttributes& attributes)
   if (type == MaterialType::kPlastic)
   {
     return CreatePlasticMaterial (attributes);
+  }
+  if (type == MaterialType::kMirror)
+  {
+    return CreateMirrorMaterial (attributes);
   }
   std::cerr << "Unknown material type detected." << std::endl;
   return nullptr;

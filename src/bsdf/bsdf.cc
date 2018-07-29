@@ -119,7 +119,8 @@ auto Bsdf::Sample (BsdfRecord *record, const Point2f &sample)
   // Compute the evaluated bsdf.
   if (!(bxdf->BsdfType () & Bxdf::Type::kSpecular) && num_comp > 1)
   {
-    // f = Evaluate (*record);
+    f = Evaluate (*record);
+    /*
     const auto &wwo = record->Outgoing (bsdf::Coordinate::kWorld);
     const auto &wwi = record->Incident (bsdf::Coordinate::kWorld);
     bool reflect = Dot (wwo, isect_.Normal ()) * Dot (wwi, isect_.Normal ()) > 0;
@@ -132,6 +133,7 @@ auto Bsdf::Sample (BsdfRecord *record, const Point2f &sample)
         f = f + bxdfs_[i]->Evaluate (*record);
       }
     }
+    */
     record->SetBsdf (f);
   }
 

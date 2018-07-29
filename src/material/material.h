@@ -25,6 +25,7 @@ enum class MaterialType : uint8_t
   kMatte,
   kMetal,
   kPlastic,
+  kMirror,
   kUnknown
 };
 //! ----------------------------------------------------------------------------

@@ -111,9 +111,8 @@ auto FresnelDielectric::Evaluate (Float cos_theta1)
   }
 
   // Compute $ cos(\theta_2) $ using Snell's law.
-  const auto sin_theta1
-    = std::sqrt (std::fmax (0.0, 1.0 - cos_theta1 * cos_theta1));
-  const auto sin_theta2 = ior1 / ior2 * sin_theta1;
+  const auto sin_theta1 = std::sqrt (std::fmax (0.0, 1.0 - cos_theta1 * cos_theta1));
+  const auto sin_theta2 = ior2 / ior1 * sin_theta1;
 
   if (sin_theta2 >= 1)
   {
@@ -130,7 +129,8 @@ auto FresnelDielectric::Evaluate (Float cos_theta1)
   const auto r_vertical = ((ior1 * cos_theta1) - (ior2 * cos_theta2))
                         / ((ior1 * cos_theta1) + (ior2 * cos_theta2));
 
-  return Spectrum ((r_parallel * r_parallel + r_vertical * r_vertical) * 0.5);
+  auto f = Spectrum ((r_parallel * r_parallel + r_vertical * r_vertical) * 0.5);
+  return f;
 }
 /*
 // ---------------------------------------------------------------------------

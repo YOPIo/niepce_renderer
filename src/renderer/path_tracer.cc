@@ -101,7 +101,7 @@ auto PathTracer::RenderTileBounds
 )
   noexcept -> void
 {
-  const int spp = 2048;
+  const int spp = 256;
 
   std::cout << tile->TileNumber() << std::endl;
 
@@ -256,7 +256,7 @@ auto PathTracer::Radiance
     // Ready to trace the incident direction.
     // -------------------------------------------------------------------------
     const auto incident = bsdf_record.Incident (bsdf::Coordinate::kWorld);
-    const auto origin = intersection.Position () + incident * 0.01;
+    const auto origin = intersection.Position () + incident * 0.001;
     ray = Ray (origin, incident);
   }
 

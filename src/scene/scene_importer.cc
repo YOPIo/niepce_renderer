@@ -624,6 +624,7 @@ auto SceneImporter::MaterialType (tinyxml2::XMLElement* element)
   if (type == "matte")   { return niepce::MaterialType::kMatte;   }
   if (type == "metal")   { return niepce::MaterialType::kMetal;   }
   if (type == "plastic") { return niepce::MaterialType::kPlastic; }
+  if (type == "mirror")  { return niepce::MaterialType::kMirror;  }
   return niepce::MaterialType::kUnknown;
 }
 /*

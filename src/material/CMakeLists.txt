@@ -4,4 +4,5 @@ add_library (Material STATIC
   material.cc
   matte.cc
   metal.cc
-  plastic.cc)
+  plastic.cc
+  mirror.cc)
