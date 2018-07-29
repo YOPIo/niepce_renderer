@@ -39,31 +39,31 @@ auto Bsdf::Sample (BsdfRecord *record, const Point2f &sample)
   // ---------------------------------------------------------------------------
   // Get the type of sampleing bsdf type.
   const auto &type = record->SamplingTarget ();
+  const auto num_comp = NumMatchingComponent (type);
+
+  if (num_comp == 0)
+  {
+    // There is no component to evaluate the BxDF.
+    record->SetPdf (0.0);
+    record->SetBsdf (Spectrum (0));
+    record->SetSampledBsdfType (niepce::Bxdf::Type::kUnknown);
+    return Spectrum (0);
+  }
 
   // Transform outgoing direction in world space into bsdf space and store it.
   const auto &wwo = record->Outgoing (bsdf::Coordinate::kWorld);
   record->SetOutgoing (WorldToLocal (wwo), bsdf::Coordinate::kLocal);
 
-  const auto num_bxdf = bxdfs_.size ();
-  if (num_bxdf == 0)
-  {
-    // Handle case, no BxDFs are stored.
-    record->SetPdf (0);
-    record->SetBsdf (Spectrum (0));
-    record->SetCosWeight (0);
-    record->SetSampledBsdfType (niepce::Bxdf::Type::kUnknown);
-    return Spectrum (0);
-  }
-
   // ---------------------------------------------------------------------------
   // Choose BxDF randomly to sample the incident.
   // ---------------------------------------------------------------------------
-  auto idx = std::min (static_cast <std::size_t> (sample[0] * num_bxdf),
-                       num_bxdf - 1);
+  auto idx = std::min (static_cast <std::size_t> (sample[0] * num_comp),
+                       static_cast <std::size_t> (num_comp - 1));
   Bxdf* bxdf = nullptr;
-  for (int i = 0; i < num_bxdf; ++i)
+  auto cnt = idx;
+  for (int i = 0; i < num_comp; ++i)
   {
-    if (bxdfs_[i]->FulFill (type) && idx-- == 0)
+    if (bxdfs_[i]->FulFill (type) && cnt-- == 0)
     {
       bxdf = bxdfs_[i];
       break;
@@ -78,27 +78,60 @@ auto Bsdf::Sample (BsdfRecord *record, const Point2f &sample)
     return Spectrum (0);
   }
 
+  // Remaping sample[0] since it was used.
+  auto resample = Point2f (Clamp (sample[0] * num_comp - idx), sample[1]);
+
   // ---------------------------------------------------------------------------
   // Sample the incident direction, pdf, bsdf and cos weight from chosen BxDF.
   // ---------------------------------------------------------------------------
   // Sample the incident direction.
-  auto f = bxdf->Sample (record, sample);
+  auto f = bxdf->Sample (record, resample);
   const auto wi  = record->Incident (bsdf::Coordinate::kLocal);
   const auto wwi = LocalToWorld (wi);
   record->SetIncident (wwi, bsdf::Coordinate::kWorld);
 
-  // Compute the pdf.
-  auto pdf = 0.0;
-  if (!(bxdf->BsdfType () & Bxdf::Type::kSpecular) && bxdfs_.size () > 1)
+  if (record->Pdf () == 0)
   {
-    pdf = Pdf (*record);
+    // Error case.
+    record->SetPdf (0);
+    record->SetBsdf (Spectrum (0));
+    record->SetCosWeight (0);
+    record->SetSampledBsdfType (niepce::Bxdf::Type::kUnknown);
+    return Spectrum (0);
+  }
+
+  // Compute the pdf.
+  if (!(bxdf->BsdfType () & Bxdf::Type::kSpecular) && num_comp > 1)
+  {
+    auto pdf = record->Pdf ();
+    // pdf = Pdf (*record);
+    for (int i = 0; i < bxdfs_.size (); ++i)
+    {
+      if (bxdfs_[i] != bxdf && bxdfs_[i]->FulFill (type))
+      {
+        pdf += bxdfs_[i]->Pdf (*record);
+      }
+    }
+    if (num_comp > 1) { pdf /= num_comp; }
     record->SetPdf (pdf);
   }
 
   // Compute the evaluated bsdf.
-  if (!(bxdf->BsdfType () & Bxdf::Type::kSpecular) && bxdfs_.size () > 1)
+  if (!(bxdf->BsdfType () & Bxdf::Type::kSpecular) && num_comp > 1)
   {
-    f = Evaluate (*record);
+    // f = Evaluate (*record);
+    const auto &wwo = record->Outgoing (bsdf::Coordinate::kWorld);
+    const auto &wwi = record->Incident (bsdf::Coordinate::kWorld);
+    bool reflect = Dot (wwo, isect_.Normal ()) * Dot (wwi, isect_.Normal ()) > 0;
+    for (int i = 0; i < bxdfs_.size (); ++i)
+    {
+      if (bxdfs_[i]->FulFill (type) &&
+          ( reflect && (bxdfs_[i]->BsdfType () & Bsdf::Type::kReflection)) &&
+          (!reflect && (bxdfs_[i]->BsdfType () & Bsdf::Type::kTransmittion)))
+      {
+        f = f + bxdfs_[i]->Evaluate (*record);
+      }
+    }
     record->SetBsdf (f);
   }
 
@@ -212,6 +245,18 @@ auto Bsdf::LocalToWorld (const Vector3f &v) const noexcept -> Vector3f
   return Vector3f (v.X () * s.X () + v.Y () * t.X () + v.Z () * n.X (),
                    v.X () * s.Y () + v.Y () * t.Y () + v.Z () * n.Y (),
                    v.X () * s.Z () + v.Y () * t.Z () + v.Z () * n.Z ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bsdf::NumMatchingComponent (Bsdf::Type type) const noexcept -> int
+{
+  int res = 0;
+  for (const auto &bxdf : bxdfs_)
+  {
+    if (bxdf->FulFill (type)) { res++; }
+  }
+  return res;
 }
 /*
 // ---------------------------------------------------------------------------

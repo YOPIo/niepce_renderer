@@ -125,6 +125,16 @@ public:
    */
   auto LocalToWorld (const Vector3f &v) const noexcept -> Vector3f;
 
+  /*!
+   * @fn int NumMatchingComponent ()
+   * @brief 
+   * @param[in] type
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto NumMatchingComponent (Bsdf::Type type) const noexcept -> int;
+
 private:
   std::vector <Bxdf*> bxdfs_;
   Intersection  isect_;

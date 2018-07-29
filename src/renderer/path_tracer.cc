@@ -101,7 +101,7 @@ auto PathTracer::RenderTileBounds
 )
   noexcept -> void
 {
-  const int spp = 32;
+  const int spp = 2048;
 
   std::cout << tile->TileNumber() << std::endl;
 

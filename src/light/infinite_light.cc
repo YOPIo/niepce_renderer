@@ -49,14 +49,16 @@ auto InfiniteLight::Evaluate (const Intersection &intersection, Float* pdf)
   const noexcept -> Spectrum
 {
   // Get a ray
-  const auto& dir = -intersection.Outgoing ();
+  const auto& tmp = -intersection.Outgoing ();
 
   // Compute UV position of sphere.
-  const Float u = std::atan2 (dir.Z (), dir.X ()) / (2.0 * kPi) + 0.5;
-  const Float v = std::asin (dir.Y ()) * 0.5 + 0.5;
-
-  const unsigned int x = (u * (Float)image_->Width ());
-  const unsigned int y = (v * (Float)image_->Height ());
+  const auto theta = std::acos (tmp.Y ());
+  auto phi = std::atan2 (tmp.X (), tmp.Z ());
+  if (phi < 0.0) { phi += 2.0 * kPi; }
+  const auto u = 1.0 - (phi / (2.0 * kPi));
+  const auto v = (theta / kPi);
+  const auto x = static_cast <int> ((image_->Width  () - 1) * u);
+  const auto y = static_cast <int> ((image_->Height () - 1) * v);
 
   // ... ??
   *pdf = 1;
