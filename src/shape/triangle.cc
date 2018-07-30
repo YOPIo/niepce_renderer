@@ -145,10 +145,11 @@ auto Triangle::IsIntersect
     Point2f uv;
     if (HasTexcoords ())
     {
-      const Point2f tex0 = Texcoord (0);
-      const Point2f tex1 = Texcoord (1);
-      const Point2f tex2 = Texcoord (2);
+      const Point2f &tex0 = Texcoord (0);
+      const Point2f &tex1 = Texcoord (1);
+      const Point2f &tex2 = Texcoord (2);
       uv = (1.0 - u - v) * tex0 + u * tex1 + v * tex2;
+      uv = Point2f (uv[0], 1.0 - uv[1]);
     }
 
     // Store intersection info.
@@ -197,7 +198,7 @@ auto Triangle::IsIntersect
       const Point2f tex0 = Texcoord (0);
       const Point2f tex1 = Texcoord (1);
       const Point2f tex2 = Texcoord (2);
-      uv = (1.0 - u - v) * tex0 + u * tex1 + v * tex2;
+      uv = u * tex0 + v * tex1 + (1.0 - u - v) * tex2;
     }
 
     // Store intersection info.

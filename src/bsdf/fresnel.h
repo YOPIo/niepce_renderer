@@ -159,8 +159,8 @@ public:
     const noexcept -> Spectrum override final;
 
 private:
-  Float outgoing_ior_;
-  Float incident_ior_;
+  Float ior_i_;
+  Float ior_t_;
 
 }; // class FresnelDielectric
 /*

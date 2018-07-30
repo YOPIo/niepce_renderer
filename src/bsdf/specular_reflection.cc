@@ -38,9 +38,7 @@ auto SpecularReflection::Pdf (const BsdfRecord &record) const noexcept -> Float
 auto SpecularReflection::Evaluate (const BsdfRecord &record)
   const noexcept -> Spectrum
 {
-  const auto &wi = record.Incident (bsdf::Coordinate::kLocal);
-  return fresnel_->Evaluate (bsdf::CosTheta (wi)) * reflectance_
-         / bsdf::AbsCosTheta (wi);
+  return Spectrum (0);
 }
 /*
 // ---------------------------------------------------------------------------
@@ -57,7 +55,8 @@ auto SpecularReflection::Sample(BsdfRecord *record, const Point2f &sample)
   // const auto pdf = Pdf (*record);
   record->SetPdf (1.0);
 
-  const auto f = Evaluate (*record);
+  const auto f   = reflectance_ * fresnel_->Evaluate (bsdf::CosTheta (wi))
+                 / bsdf::AbsCosTheta (wi);
   record->SetBsdf (f);
 
   return f;

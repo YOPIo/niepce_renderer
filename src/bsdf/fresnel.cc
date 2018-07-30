@@ -64,73 +64,55 @@ auto FresnelConductor::Evaluate (Float cos_theta_i)
 /*
 // ---------------------------------------------------------------------------
 */
-FresnelDielectric::FresnelDielectric (Float outgoing_ior, Float incident_ior) :
-  outgoing_ior_ (outgoing_ior),
-  incident_ior_ (incident_ior)
+FresnelDielectric::FresnelDielectric (Float i, Float t) :
+  ior_i_ (i),
+  ior_t_ (t)
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-auto FresnelDielectric::Evaluate (Float cos_theta1)
+auto FresnelDielectric::Evaluate (Float cos_t1)
   const noexcept -> Spectrum
 {
-  /*!
-                    normal
-                       |    /
-                       |   /
-                       |  / outgoing
-                       |-/
-                       |/ \theta_1     index of refraction 1 (ior_o)
-             ---------------------
-             \theta_2 /|               index of refraction 2 (ior_i)
-                     /-|
-                    /  |
-                   /   |
-                  /    |
-          incident  -normal
+  cos_t1 = Clamp (cos_t1, -1.0f, 1.0f);
+  auto ior_i = ior_i_;
+  auto ior_t = ior_t_;
+  if (cos_t1 > 0) { std::swap (ior_i, ior_t); }
 
-    Snell's law
-    $ n_1 * sin(\theta_1) = n_2 * sin(\theta_2) $
-   */
-
-  auto ior1 = outgoing_ior_;
-  auto ior2 = incident_ior_;
-
-  // Compute the $ cos(\theta_1) $.
-  cos_theta1 = Clamp (cos_theta1,
-                      static_cast <Float> (-1.0),
-                      static_cast <Float> (1.0));
-
-  // Reflection or refraction
-  bool is_entering = cos_theta1 > 0.0;
-  if (!is_entering)
+  const auto sin_t2 = ior_i / ior_t
+                    * std::sqrt (std::fmax (0.0, 1.0 - cos_t1 * cos_t1));
+  if (sin_t2 >= 1.0)
   {
-    // Sampled incident is refraction.
-    std::swap (ior1, ior2);
-    cos_theta1 = std::fabs (cos_theta1);
+    // Total reflection.
+    return Spectrum (1);
   }
+  const auto cos_t2 = std::sqrt (std::fmax (0.0, 1.0 - sin_t2 * sin_t2));
+  cos_t1 = std::fabs (cos_t1);
 
-  // Compute $ cos(\theta_2) $ using Snell's law.
-  const auto sin_theta1 = std::sqrt (std::fmax (0.0, 1.0 - cos_theta1 * cos_theta1));
-  const auto sin_theta2 = ior2 / ior1 * sin_theta1;
+  const auto rs = ((ior_t * cos_t1) - (ior_i * cos_t2))
+                / ((ior_t * cos_t1) + (ior_i * cos_t2));
+  const auto rp = ((ior_i * cos_t1) - (ior_t * cos_t2))
+                / ((ior_i * cos_t1) + (ior_t * cos_t2));
+  const auto kr = (rs * rs + rp * rp) * 0.5;
+  return Spectrum (kr);
 
-  if (sin_theta2 >= 1)
+  /*
+  const Float n = cos_t1 > 0 ? ior_i_ / ior_t_ : ior_t_ / ior_i_;
+
+  const Float cos2_t2 = 1.0 - n * n * (1.0 - cos_t1 * cos_t1);
+  if (cos2_t2 < 0)
   {
-    // Total reflection has occurred.
+    // Total reflection.
     return Spectrum (1.0);
   }
 
-  const auto cos_theta2
-    = std::sqrt (std::fmax (0.0, 1.0 - sin_theta2 * sin_theta2));
+  const Float cos_t2 = std::sqrt (cos2_t2);
+  const Float r_parallel = (n * cos_t1 - cos_t2) / (n * cos_t1 + cos_t2);
+  const Float r_vertical = (cos_t1 - n * cos_t2) / (cos_t1 + n * cos_t2);
 
-  // Compute fresnel
-  const auto r_parallel = ((ior2 * cos_theta1) - (ior1 * cos_theta2))
-                        / ((ior2 * cos_theta1) + (ior1 * cos_theta2));
-  const auto r_vertical = ((ior1 * cos_theta1) - (ior2 * cos_theta2))
-                        / ((ior1 * cos_theta1) + (ior2 * cos_theta2));
-
-  auto f = Spectrum ((r_parallel * r_parallel + r_vertical * r_vertical) * 0.5);
-  return f;
+  const Float f = 0.5 * (r_parallel * r_parallel + r_vertical * r_vertical);
+  return Spectrum (f);
+  */
 }
 /*
 // ---------------------------------------------------------------------------

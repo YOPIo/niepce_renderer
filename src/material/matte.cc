@@ -42,7 +42,7 @@ const -> Bsdf* const
 
   const auto reflectance = reflectance_->Evaluate (intersection);
   // bsdf->AddBxdf (memory->Allocate <Lambert> (reflectance));
-  bsdf->AddBxdf (memory->Allocate <OrenNayar> (reflectance, 20));
+  bsdf->AddBxdf (memory->Allocate <OrenNayar> (reflectance, 100));
 
   return bsdf;
 }

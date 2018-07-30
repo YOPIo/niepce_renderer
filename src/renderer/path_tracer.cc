@@ -47,7 +47,7 @@ auto PathTracer::Render () -> void
   // Compute the tile bounds.
   std::vector <FilmTile> tiles;
   std::vector <std::shared_ptr <RandomSampler>> samplers;
-  constexpr static int tile_size = 64;
+  constexpr static int tile_size = 32;
   static int tile_number = 1;
   const auto resolution = camera_->FilmResolution ();
   const auto width  = resolution.Width ();
@@ -101,7 +101,7 @@ auto PathTracer::RenderTileBounds
 )
   noexcept -> void
 {
-  const int spp = 256;
+  const int spp = 64;
 
   std::cout << tile->TileNumber() << std::endl;
 
