@@ -48,6 +48,7 @@
 #include <functional>
 #include <future>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <list>

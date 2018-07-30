@@ -84,7 +84,10 @@ auto Camera::SaveSequence (int round, int spp) const noexcept -> void
     }
   }
   ToneMapping (&f);
-  f.SaveAs (("sequences/" + std::to_string (num++) + ".ppm").c_str ());
+
+  std::ostringstream sout;
+  sout << std::setfill ('0') << std::setw (3) << num++;
+  f.SaveAs (("sequences/" + sout.str () + ".ppm").c_str ());
 }
 /*
 // ---------------------------------------------------------------------------
@@ -100,7 +103,9 @@ auto Camera::FinalProcess (int round, int spp) -> void
   }
   ToneMapping (&film_);
 
-  film_.SaveAs (("sequences/" + std::to_string (round) + ".ppm").c_str ());
+  std::ostringstream sout;
+  sout << std::setfill ('0') << std::setw (3) << round;
+  film_.SaveAs (("sequences/" + sout.str () + ".ppm").c_str ());
 }
 /*
 // ---------------------------------------------------------------------------
