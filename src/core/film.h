@@ -18,6 +18,10 @@
 */
 namespace niepce
 {
+/*
+// ---------------------------------------------------------------------------
+*/
+auto ToneMapping (Film *film) -> void;
 //! ----------------------------------------------------------------------------
 //! @class Film
 //! @brief
@@ -85,21 +89,21 @@ public:
    * @fn void SetFilmTile (const)
    * @brief 
    * @param[in] tile
-   *    t
    * @return 
    * @exception none
    * @details
    */
-  auto AddFilmTile (const FilmTile& tile) noexcept -> void;
+  auto ReplaceFilmTile (const FilmTile& tile) noexcept -> void;
 
   /*!
-   * @fn void ApplyToneMapping (Float)
+   * @fn void UpdateFilmTile (const)
    * @brief 
+   * @param[in] tile
    * @return 
    * @exception none
    * @details
    */
-  auto ApplyToneMapping (Float key_value) -> void;
+  auto UpdateFilmTile (const FilmTile &tile) noexcept -> void;
 
   /*!
    * @fn void ApplyDenoising ()

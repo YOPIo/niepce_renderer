@@ -39,6 +39,7 @@ public:
     kNumThread,  /*!< The number of thread to render a image. */
     kNumSamples, /*!< The number of sampling. */
     kPTMaxDepth, /*!< The number of depth if path tracing avaliable. */
+    kNumRound,
   };
 
 public:

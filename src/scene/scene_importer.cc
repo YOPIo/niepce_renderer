@@ -160,6 +160,8 @@ auto SceneImporter::Import (const char *filename) -> void
                          attributes.FindInt ("spp"));
       settings_.AddItem (RenderSettings::Item::kPTMaxDepth,
                          attributes.FindInt ("max_depth"));
+      settings_.AddItem (RenderSettings::Item::kNumRound,
+                         attributes.FindInt ("round"));
     }
   }
 
@@ -181,6 +183,13 @@ auto SceneImporter::ExtractCamera () const noexcept -> std::shared_ptr <Camera>
 {
   if (camera_) { return camera_; }
   return nullptr;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto SceneImporter::ExtractRenderSettings () const noexcept -> RenderSettings
+{
+  return settings_;
 }
 /*
 // ---------------------------------------------------------------------------

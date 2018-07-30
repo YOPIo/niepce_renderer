@@ -99,7 +99,7 @@ public:
    * @exception none
    * @details 
    */
-  auto UpdateFilmTile (const FilmTile &tile) -> void;
+  auto UpdateFilmTile (const FilmTile &tile, int round) -> void;
 
   /*!
    * @fn void Save ()
@@ -108,7 +108,28 @@ public:
    * @exception none
    * @details 
    */
-  auto Save () noexcept -> void;
+  auto Save () const noexcept -> void;
+
+  /*!
+   * @fn void SaveSequence (int)
+   * @brief 
+   * @param[in] 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SaveSequence (int round, int spp) const noexcept -> void;
+
+  /*!
+   * @fn void FinalProcess (int)
+   * @brief 
+   * @param[in] 
+   * @param[out] 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto FinalProcess (int round, int spp) -> void;
 
 protected:
   /*!

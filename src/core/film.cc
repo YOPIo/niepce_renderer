@@ -55,41 +55,29 @@ auto Film::Resolution () const noexcept -> Bounds2f
 /*
 // ---------------------------------------------------------------------------
 */
-auto Film::AddFilmTile (const FilmTile& tile) noexcept -> void
+auto Film::ReplaceFilmTile (const FilmTile& tile) noexcept -> void
 {
-  const Point2f min = tile.Bounds ().Min ();
-  const Point2f max = tile.Bounds ().Max ();
-  // Range check
-  if (bounds_.IsInside (min) && bounds_.IsInside (max))
+  for (int y = tile.Min().Y (); y < static_cast <int> (tile.Max ().Y ()); ++y)
   {
-    auto copy = [&] (int x, int y) -> void
+    for (int x = tile.Min().X (); x < static_cast <int> (tile.Max ().X ()); ++x)
     {
-      SetValueAt (x + min.X (), y + min.Y (), tile (x, y));
-    };
-    For2 (copy, tile.Width (), tile.Height ());
-    return ;
+      const auto data = tile.At (x - tile.Min ().X (), y - tile.Min ().Y ());
+      SetValueAt (x, y, data);
+    }
   }
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Film::ApplyToneMapping (Float key_value) -> void
+auto Film::UpdateFilmTile (const FilmTile &tile) noexcept -> void
 {
-  auto RgbToLuminance = [] (const Spectrum &rgb)
+  for (int y = tile.Min().Y (); y < static_cast <int> (tile.Max ().Y ()); ++y)
   {
-    return 0.2126729 * rgb.X () + 0.7151522 * rgb.Y () + 0.0721750 * rgb.Z ();
-  };
-
-  for (int y = 0; y < Height (); ++y)
-  {
-    for (int x = 0; x < Width (); ++x)
+    for (int x = tile.Min().X (); x < static_cast <int> (tile.Max ().X ()); ++x)
     {
-      const auto l     = RgbToLuminance (this->At (x, y));
-      const auto scale = l != 0 ? (1.0f - std::exp(-l)) / l: 0.0f;
-      const auto r     = std::fmin (scale * this->At (x, y).X (), 1.0);
-      const auto g     = std::fmin (scale * this->At (x, y).Y (), 1.0);
-      const auto b     = std::fmin (scale * this->At (x, y).Z (), 1.0);
-      this->SetValueAt (x, y, Spectrum (r, g, b));
+      const auto &val1 = this->At (x, y);
+      const auto &val2 = tile.At (x - tile.Min ().X (), y - tile.Min ().Y ());
+      SetValueAt (x, y, (val1 + val2) * 0.5);
     }
   }
 }
@@ -188,6 +176,29 @@ auto Film::ApplyDenoising () -> void
         }
       }
       this->SetValueAt (x, y, sum_pixel / sum_weight);
+    }
+  }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto ToneMapping (Film *film) -> void
+{
+  auto RgbToLuminance = [] (const Spectrum &rgb)
+  {
+    return 0.2126729 * rgb.X () + 0.7151522 * rgb.Y () + 0.0721750 * rgb.Z ();
+  };
+
+  for (int y = 0; y < film->Height (); ++y)
+  {
+    for (int x = 0; x < film->Width (); ++x)
+    {
+      const auto l     = RgbToLuminance (film->At (x, y));
+      const auto scale = l != 0 ? (1.0f - std::exp(-l)) / l: 0.0f;
+      const auto r     = std::fmin (scale * film->At (x, y).X (), 1.0);
+      const auto g     = std::fmin (scale * film->At (x, y).Y (), 1.0);
+      const auto b     = std::fmin (scale * film->At (x, y).Z (), 1.0);
+      film->SetValueAt (x, y, Spectrum (r, g, b));
     }
   }
 }

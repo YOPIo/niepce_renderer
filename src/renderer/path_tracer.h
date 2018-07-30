@@ -10,10 +10,11 @@
 /*
 // ---------------------------------------------------------------------------
 */
+#include "renderer.h"
 #include "../core/niepce.h"
 #include "../core/render_settings.h"
 #include "../core/thread_pool.h"
-#include "../core/vector3f.h" // TODO: Delete
+#include "../core/vector3f.h"
 #include "../random/xorshift.h"
 #include "../scene/scene.h"
 #include "../sampler/random_sampler.h"
@@ -29,7 +30,7 @@ namespace niepce
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class PathTracer
+class PathTracer : public Renderer
 {
 public:
   //! Default constructor
@@ -38,8 +39,9 @@ public:
   //! The constructor takes render settings.
   PathTracer
   (
-   const std::shared_ptr <Scene>&  scene,
-   const std::shared_ptr <Camera>& camera
+   const RenderSettings           &settings,
+   const std::shared_ptr <Scene>  &scene,
+   const std::shared_ptr <Camera> &camera
   );
 
   //! Copy constructor
@@ -62,10 +64,10 @@ public:
   //! @brief 
   //! @param[in] 
   //! @param[out] 
-  //! @return 
+  //! @return
   //! @exception none
   //! @details 
-  auto Render () -> void;
+  auto Render () -> void override final;
 
 private:
   /*!
@@ -79,10 +81,11 @@ private:
    */
   auto RenderTileBounds
   (
+   int             round,
    FilmTile*       tile,
    RandomSampler*  tile_sampler
   )
-  noexcept -> void;
+    noexcept -> void;
 
   /*!
    * @fn Vector3f Contribution (const)

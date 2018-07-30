@@ -51,4 +51,17 @@ auto FilmTile::TileNumber () const noexcept -> int
 /*
 // ---------------------------------------------------------------------------
 */
+auto FilmTile::ClearTileImage () noexcept -> void
+{
+  for (int y = 0; y < height_; ++y)
+  {
+    for (int x = 0; x < width_; ++x)
+    {
+      this->SetValueAt (x, y, Spectrum (0));
+    }
+  }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 }  // namespace niepce

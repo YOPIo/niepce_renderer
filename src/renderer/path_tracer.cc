@@ -33,25 +33,28 @@ namespace niepce
 */
 PathTracer::PathTracer
 (
- const std::shared_ptr <Scene>&  scene,
- const std::shared_ptr <Camera>& camera
+ const RenderSettings           &settings,
+ const std::shared_ptr <Scene>  &scene,
+ const std::shared_ptr <Camera> &camera
 ) :
-  camera_ (camera),
-  scene_  (scene)
+  Renderer (settings),
+  camera_  (camera),
+  scene_   (scene)
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 auto PathTracer::Render () -> void
 {
-  // Compute the tile bounds.
+  const int num_rounds = settings_.GetItem (RenderSettings::Item::kNumRound);
+  const int tile_size  = 64;
   std::vector <FilmTile> tiles;
+
+  const auto &resolution = camera_->FilmResolution ();
+  const auto &width  = resolution.Width ();
+  const auto &height = resolution.Height ();
+
   std::vector <std::shared_ptr <RandomSampler>> samplers;
-  constexpr static int tile_size = 32;
-  static int tile_number = 1;
-  const auto resolution = camera_->FilmResolution ();
-  const auto width  = resolution.Width ();
-  const auto height = resolution.Height ();
   for (int y = 0; y < height; y += tile_size)
   {
     for (int x = 0; x < width; x += tile_size)
@@ -59,36 +62,48 @@ auto PathTracer::Render () -> void
       const int last_x = x + tile_size >= width  ? width  : x + tile_size;
       const int last_y = y + tile_size >= height ? height : y + tile_size;
       const Bounds2f tile (Point2f (x, y), Point2f (last_x, last_y));
-      tiles.push_back (FilmTile (tile_number++, tile));
-      // Clone sampler for each tile.
+      tiles.push_back (FilmTile (y * height + x, tile));
       samplers.push_back (std::make_shared <RandomSampler> (last_y + last_x));
     }
   }
 
-  // Register the tasks
   ThreadPool& threads = Singleton <ThreadPool>::Instance ();
-  std::vector <std::future <void>> futures (tiles.size ());
-  for (int i = 0; i < tiles.size (); ++i)
+  std::vector <std::future <void>> futures (tiles.size () * num_rounds);
+
+  for (int round = 0, idx = 0; round < num_rounds; ++round)
   {
-    auto func = std::bind (&PathTracer::RenderTileBounds,
-                           this,
-                           std::placeholders::_1,
-                           std::placeholders::_2);
-    futures[i] = threads.Enqueue (func,
-                                  &tiles[i],
-                                  samplers[i].get ());
+    // Render each tile.
+    for (int i = 0; i < tiles.size (); ++i)
+    {
+      auto func = std::bind (&PathTracer::RenderTileBounds,
+                             this,
+                             std::placeholders::_1,
+                             std::placeholders::_2,
+                             std::placeholders::_3);
+      futures[idx++] = threads.Enqueue (func,
+                                        round,
+                                        &tiles[i],
+                                        samplers[i].get ());
+    }
   }
 
-  // Wait for all task done.
-  for (auto& future : futures) { future.wait (); }
-
-  // Merge tiles
-  for (const auto& tile : tiles)
+  const auto &spp = settings_.GetItem (RenderSettings::Item::kNumSamples);
+  int round = 1;
+  for (int i = 0; i < futures.size (); ++i)
   {
-    // tile.SaveAs ((std::to_string(i++) + ".ppm").c_str ());
-    camera_->UpdateFilmTile (tile);
+    round = i / tiles.size ();
+    futures[i].wait ();
+
+    if ((round != 0) && (i % tiles.size () == 0))
+    {
+      camera_->SaveSequence (round, spp * round);
+    }
+    // Update film.
+    camera_->UpdateFilmTile (tiles[i % tiles.size ()], round);
   }
 
+  // Final process
+  camera_->FinalProcess (round, spp * round);
   camera_->Save ();
 }
 /*
@@ -96,22 +111,21 @@ auto PathTracer::Render () -> void
 */
 auto PathTracer::RenderTileBounds
 (
- FilmTile*       tile,
- RandomSampler*  tile_sampler
+ int            round,
+ FilmTile*      tile,
+ RandomSampler* tile_sampler
 )
   noexcept -> void
 {
-  const int spp = 64;
+  // const int  spp = settings_.GetItem (RenderSettings::kNumSamples);
+  const int spp = settings_.GetItem (RenderSettings::Item::kNumSamples);
+  const auto tile_bounds = tile->Bounds ();
+  const auto begin_y = static_cast <int> (tile_bounds.Min ().Y ());
+  const auto end_y   = static_cast <int> (tile_bounds.Max ().Y ());
+  const auto begin_x = static_cast <int> (tile_bounds.Min ().X ());
+  const auto end_x   = static_cast <int> (tile_bounds.Max ().X ());
 
-  std::cout << tile->TileNumber() << std::endl;
-
-  const auto &tile_bounds = tile->Bounds ();
-  const auto begin_y = tile_bounds.Min ().Y ();
-  const auto end_y   = tile_bounds.Max ().Y ();
-  const auto begin_x = tile_bounds.Min ().X ();
-  const auto end_x   = tile_bounds.Max ().X ();
-
-  for (int s = 0; s < spp; ++s)
+  for (int s = round * spp; s < round * spp + spp; ++s)
   {
     for (int y = begin_y; y < end_y; ++y)
     {
@@ -120,7 +134,8 @@ auto PathTracer::RenderTileBounds
         // TODO : Use better sampling.
         Ray ray;
         Float weight = 0;
-        const auto offset = Point2f ((Float)s / spp, RadicalInverse (2, s));
+        const auto offset = Point2f ((Float)s / (round * spp),
+                                     RadicalInverse (2, s));
         const auto pfilm  = Point2f (x, y) + offset;
         while (weight == 0)
         {
@@ -131,7 +146,7 @@ auto PathTracer::RenderTileBounds
 
         Spectrum radiance;
         auto hit = Radiance (ray, tile_sampler, &radiance);
-        auto s = tile->At (x - begin_x, y - begin_y) + radiance / (Float)spp;
+        auto s = tile->At (x - begin_x, y - begin_y) + radiance; // / (Float)spp;
         tile->SetValueAt (x - begin_x, y - begin_y, s);
       }
     }

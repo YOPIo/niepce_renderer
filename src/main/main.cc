@@ -70,10 +70,11 @@ int main (int argc, char* argv[])
 	    << std::thread::hardware_concurrency () << std::endl;
   niepce::Initialize ();
   niepce::SceneImporter importer (argv[1]);
-  auto scene  = importer.ExtractScene ();
-  auto camera = importer.ExtractCamera ();
+  auto settings = importer.ExtractRenderSettings ();
+  auto scene    = importer.ExtractScene ();
+  auto camera   = importer.ExtractCamera ();
   std::cout << "Start rendering" << std::endl;
-  niepce::PathTracer pt (scene, camera);
+  niepce::PathTracer pt (settings, scene, camera);
   pt.Render ();
   niepce::Finalize ();
 

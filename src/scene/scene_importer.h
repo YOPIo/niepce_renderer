@@ -101,6 +101,8 @@ public:
    */
   auto ExtractScene () const noexcept -> std::shared_ptr <Scene>;
 
+  auto ExtractRenderSettings () const noexcept -> RenderSettings;
+
   auto Material (const std::string& key) const noexcept
     -> std::shared_ptr <Material>;
 

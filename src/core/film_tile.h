@@ -84,6 +84,16 @@ public:
    */
   auto TileNumber () const noexcept -> int;
 
+  /*!
+   * @fn void ClearTileImage ()
+   * @brief 
+   * @param[in] 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto ClearTileImage () noexcept -> void;
+
 private:
   const int      tile_number_;
   const Bounds2f tile_bounds_;

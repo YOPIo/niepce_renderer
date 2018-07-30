@@ -51,18 +51,56 @@ auto Camera::FilmResolution () const noexcept -> Bounds2f
 /*
 // ---------------------------------------------------------------------------
 */
-auto Camera::UpdateFilmTile (const FilmTile &tile) -> void
+auto Camera::UpdateFilmTile (const FilmTile &tile, int round) -> void
 {
-  film_.AddFilmTile (tile);
+  if (round == 0)
+  {
+    film_.ReplaceFilmTile (tile);
+    return;
+  }
+  film_.UpdateFilmTile (tile);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Camera::Save () noexcept -> void
+auto Camera::Save () const noexcept -> void
 {
-  film_.ApplyToneMapping (0.18);
-  // film_.ApplyDenoising ();
-  film_.Save ();
+  Film f = film_;
+  ToneMapping (&f);
+  f.Save ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Camera::SaveSequence (int round, int spp) const noexcept -> void
+{
+  static int num = 0;
+  Film f (film_);
+  for (int y = 0; y < f.Height (); ++y)
+  {
+    for (int x = 0; x < f.Width (); ++x)
+    {
+      f.SetValueAt (x, y, f.At (x, y) / spp);
+    }
+  }
+  ToneMapping (&f);
+  f.SaveAs (("sequences/" + std::to_string (num++) + ".ppm").c_str ());
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Camera::FinalProcess (int round, int spp) -> void
+{
+  for (int y = 0; y < film_.Height (); ++y)
+  {
+    for (int x = 0; x < film_.Width (); ++x)
+    {
+      film_.SetValueAt (x, y, film_.At (x, y) / spp);
+    }
+  }
+  ToneMapping (&film_);
+
+  film_.SaveAs (("sequences/" + std::to_string (round) + ".ppm").c_str ());
 }
 /*
 // ---------------------------------------------------------------------------

@@ -112,7 +112,7 @@ public:
 protected:
   int width_;
   int height_;
-  std::shared_ptr <T> data_;
+  std::shared_ptr <T[]> data_;
 }; // class Image
 /*
 // ---------------------------------------------------------------------------

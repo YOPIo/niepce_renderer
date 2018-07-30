@@ -11,6 +11,7 @@
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
+#include "../core/render_settings.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -19,13 +20,14 @@ namespace niepce
 //! ----------------------------------------------------------------------------
 //! @class Renderer
 //! @brief The base class for renderer.
-//! @details All of class that render the scene should inherit this class. The renderer class is a interface.
+//! @details All of class that render the scene should inherit this class. The
+//!          renderer class is a interface.
 //! ----------------------------------------------------------------------------
 class Renderer
 {
 public:
   //! The default class constructor.
-  Renderer () = default;
+  Renderer (const RenderSettings &settings);
 
   //! The copy constructor of the class.
   Renderer (const Renderer& renderer) = default;
@@ -50,7 +52,9 @@ public:
   //! @return 
   //! @exception none
   //! @details 
-  virtual auto Render (const RenderSettings& settings) const -> void = 0;
+  virtual auto Render () -> void = 0;
+
+  const RenderSettings settings_;
 
 }; // class Renderer
 /*
