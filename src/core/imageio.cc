@@ -152,7 +152,17 @@ auto ImageIO<T>::Save () const noexcept -> void
 template <typename T>
 auto ImageIO<T>::SaveAs (const char *filename) const noexcept -> void
 {
-  SavePpm (filename);
+  const auto ext = FileExtension (filename);
+  if (ext == ".ppm")
+  {
+    SavePpm (filename);
+    return ;
+  }
+  if (ext == ".png")
+  {
+    SavePng (filename);
+    return ;
+  }
 }
 /*
 // ---------------------------------------------------------------------------
@@ -234,7 +244,6 @@ auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
   {
     std::cerr << "Could not open " << filename << std::endl;
   }
-  std::cout << filename << std::endl;
   os << "P3\n" << width_ << " " << height_ << "\n255\n";
   auto func = [&] (int x, int y) -> void
   {
@@ -244,6 +253,34 @@ auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
   };
   For2(func, Width (), Height ());
   os.close ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <>
+auto ImageIO <Spectrum>::SavePng (const char* filename) const noexcept -> void
+{
+  std::ofstream os (filename);
+  if (!os)
+  {
+    std::cerr << "Could not open " << filename << std::endl;
+    return ;
+  }
+
+  unsigned char *png = new unsigned char [width_ * height_ * 3];
+  for (int y = 0; y < height_; ++y)
+  {
+    for (int x = 0; x < width_; ++x)
+    {
+      const auto idx = y * height_ + x;
+      png[3 * idx + 0] = FloatToInt (data_[idx].X ());
+      png[3 * idx + 1] = FloatToInt (data_[idx].Y ());
+      png[3 * idx + 2] = FloatToInt (data_[idx].Z ());
+    }
+  }
+  stbi_write_png (filename, width_, height_, 3, png,
+                  sizeof (unsigned char) * width_ * 3);
+  delete [] png;
 }
 /*
 // ---------------------------------------------------------------------------

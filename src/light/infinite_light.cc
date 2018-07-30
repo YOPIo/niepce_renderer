@@ -64,7 +64,7 @@ auto InfiniteLight::Evaluate (const Intersection &intersection, Float* pdf)
   *pdf = 1;
 
   const auto res = image_->At (x, y);
-  return res * 0.8;
+  return res;
 }
 /*
 // ---------------------------------------------------------------------------

@@ -87,7 +87,7 @@ auto Camera::SaveSequence (int round, int spp) const noexcept -> void
 
   std::ostringstream sout;
   sout << std::setfill ('0') << std::setw (3) << num++;
-  f.SaveAs (("sequences/" + sout.str () + ".ppm").c_str ());
+  f.SaveAs (("sequences/" + sout.str () + ".png").c_str ());
 }
 /*
 // ---------------------------------------------------------------------------
@@ -105,7 +105,7 @@ auto Camera::FinalProcess (int round, int spp) -> void
 
   std::ostringstream sout;
   sout << std::setfill ('0') << std::setw (3) << round;
-  film_.SaveAs (("sequences/" + sout.str () + ".ppm").c_str ());
+  film_.SaveAs (("sequences/" + sout.str () + ".png").c_str ());
 }
 /*
 // ---------------------------------------------------------------------------
