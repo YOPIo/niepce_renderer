@@ -260,27 +260,20 @@ auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
 template <>
 auto ImageIO <Spectrum>::SavePng (const char* filename) const noexcept -> void
 {
-  std::ofstream os (filename);
-  if (!os)
-  {
-    std::cerr << "Could not open " << filename << std::endl;
-    return ;
-  }
-
-  unsigned char *png = new unsigned char [width_ * height_ * 3];
+  unsigned char *img = new unsigned char [width_ * height_ * 3];
   for (int y = 0; y < height_; ++y)
   {
     for (int x = 0; x < width_; ++x)
     {
-      const auto idx = y * height_ + x;
-      png[3 * idx + 0] = FloatToInt (data_[idx].X ());
-      png[3 * idx + 1] = FloatToInt (data_[idx].Y ());
-      png[3 * idx + 2] = FloatToInt (data_[idx].Z ());
+      const auto idx = y * width_ + x;
+      img[3 * idx + 0] = FloatToInt (At (x, y).X ());
+      img[3 * idx + 1] = FloatToInt (At (x, y).Y ());
+      img[3 * idx + 2] = FloatToInt (At (x, y).Z ());
     }
   }
-  stbi_write_png (filename, width_, height_, 3, png,
-                  sizeof (unsigned char) * width_ * 3);
-  delete [] png;
+  stbi_write_png (filename, width_, height_, 3, img,
+                  sizeof (unsigned char) *width_ * 3);
+  delete [] img;
 }
 /*
 // ---------------------------------------------------------------------------

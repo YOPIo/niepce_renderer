@@ -53,12 +53,16 @@ auto Camera::FilmResolution () const noexcept -> Bounds2f
 */
 auto Camera::UpdateFilmTile (const FilmTile &tile, int round) -> void
 {
-  if (round == 0)
+  film_.ReplaceFilmTile (tile);
+  return;
+  /*
+  if (round == 1)
   {
     film_.ReplaceFilmTile (tile);
     return;
   }
   film_.UpdateFilmTile (tile);
+  */
 }
 /*
 // ---------------------------------------------------------------------------
@@ -76,6 +80,7 @@ auto Camera::SaveSequence (int round, int spp) const noexcept -> void
 {
   static int num = 0;
   Film f (film_);
+
   for (int y = 0; y < f.Height (); ++y)
   {
     for (int x = 0; x < f.Width (); ++x)
@@ -83,6 +88,7 @@ auto Camera::SaveSequence (int round, int spp) const noexcept -> void
       f.SetValueAt (x, y, f.At (x, y) / spp);
     }
   }
+
   ToneMapping (&f);
 
   std::ostringstream sout;
@@ -101,6 +107,7 @@ auto Camera::FinalProcess (int round, int spp) -> void
       film_.SetValueAt (x, y, film_.At (x, y) / spp);
     }
   }
+
   ToneMapping (&film_);
 
   std::ostringstream sout;

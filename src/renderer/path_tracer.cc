@@ -88,22 +88,28 @@ auto PathTracer::Render () -> void
   }
 
   const auto &spp = settings_.GetItem (RenderSettings::Item::kNumSamples);
-  int round = 1;
+  int round = 0;
   for (int i = 0; i < futures.size (); ++i)
   {
-    round = i / tiles.size ();
-    futures[i].wait ();
+    // Show progressing.
+    // std::cerr << (float)i / futures.size () * 100.0 << " %               \r";
+
+    round = i / tiles.size () + 1;
 
     if ((round != 0) && (i % tiles.size () == 0))
     {
-      camera_->SaveSequence (round, spp * round);
+      camera_->SaveSequence (round, spp * (round - 1));
     }
+
+    // Waiting for rendering of a tile.
+    futures[i].wait ();
+
     // Update film.
     camera_->UpdateFilmTile (tiles[i % tiles.size ()], round);
   }
 
   // Final process
-  camera_->FinalProcess (round, spp * round);
+  camera_->FinalProcess (round, spp * (round - 1));
   camera_->Save ();
 }
 /*
@@ -146,7 +152,7 @@ auto PathTracer::RenderTileBounds
 
         Spectrum radiance;
         auto hit = Radiance (ray, tile_sampler, &radiance);
-        auto s = tile->At (x - begin_x, y - begin_y) + radiance; // / (Float)spp;
+        auto s = tile->At (x - begin_x, y - begin_y) + radiance;
         tile->SetValueAt (x - begin_x, y - begin_y, s);
       }
     }
@@ -171,7 +177,7 @@ auto PathTracer::Radiance
   MemoryArena memory;
 
   // Render the tile.
-  for (unsigned int depth = 0; depth < 15; ++depth)
+  for (unsigned int depth = 0; depth < 8; ++depth)
   {
     // -------------------------------------------------------------------------
     // Intersection test
@@ -261,7 +267,7 @@ auto PathTracer::Radiance
     // -------------------------------------------------------------------------
     Float q = std::fmax (contribution[0],
                          std::fmax(contribution[1], contribution[2]));
-    if (depth > 12)
+    if (depth > 5)
     {
       if (tile_sampler->SampleFloat () >= q) { break; }
     }

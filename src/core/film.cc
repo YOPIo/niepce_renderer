@@ -77,7 +77,7 @@ auto Film::UpdateFilmTile (const FilmTile &tile) noexcept -> void
     {
       const auto &val1 = this->At (x, y);
       const auto &val2 = tile.At (x - tile.Min ().X (), y - tile.Min ().Y ());
-      SetValueAt (x, y, (val1 + val2) * 0.5);
+      SetValueAt (x, y, (val1 + val2));
     }
   }
 }
