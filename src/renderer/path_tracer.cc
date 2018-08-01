@@ -47,7 +47,7 @@ PathTracer::PathTracer
 auto PathTracer::Render () -> void
 {
   const int num_rounds = settings_.GetItem (RenderSettings::Item::kNumRound);
-  const int tile_size  = 64;
+  const int tile_size  = 16;
   std::vector <FilmTile> tiles;
 
   const auto &resolution = camera_->FilmResolution ();
