@@ -180,7 +180,7 @@ auto ImageIO<T>::Rename (const std::string& new_name) noexcept -> void
 template <typename T>
 auto ImageIO<T>::AllocateMemory (unsigned int width, unsigned int height) -> void
 {
-  this->data_.reset (new T [width * height]);
+  this->data_.reset (new T [width * height], std::default_delete <T []> ());
   this->width_  = width;
   this->height_ = height;
 }
