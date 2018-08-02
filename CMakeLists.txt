@@ -4,7 +4,7 @@ cmake_minimum_required (VERSION 2.8)
 project (niepce)
 
 # Use c++11 global options
-set (CMAKE_CXX_FLAGS "-std=c++11 -pthread -O3 -mfpmath=sse")
+set (CMAKE_CXX_FLAGS "-Wall -std=c++11 -O3 -static -pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
 
 # Build options
 # To building a plugin for autodesk maya, use "-DBUILD_MAYA_PLUGIN=on" option.
@@ -18,7 +18,8 @@ configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in
 
 if (NIEPCE_USE_SIMD)
   message (STATUS "Use SIMD.")
-  set (CMAKE_CXX_FLAGS "-msse4.1 -std=c++11 -pthread -O3 -mfpmath=sse")
+
+  set (CMAKE_CXX_FLAGS "-msse4.1 -Wall -std=c++11 -O3 -static -pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
 endif ()
 
 if (BUILD_MAYA_PLUGIN)
@@ -54,7 +55,7 @@ if (BUILD_MAYA_PLUGIN)
 
 else () # if (BUILD_CUI_RENDERER)
 
-  set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++ -static")
+  set(CMAKE_EXE_LINKER_FLAGS " -static")
 
   add_executable (${PROJECT_NAME} src/main/main.cc)
   target_link_libraries (${PROJECT_NAME} -static-libgcc -static-libstdc++

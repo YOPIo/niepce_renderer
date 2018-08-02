@@ -67,7 +67,8 @@ auto PathTracer::Render () -> void
     }
   }
 
-  ThreadPool& threads = Singleton <ThreadPool>::Instance ();
+  ThreadPool& tasks = Singleton <ThreadPool>::Instance ();
+
   std::vector <std::future <void>> futures (tiles.size () * num_rounds);
 
   for (int round = 0, idx = 0; round < num_rounds; ++round)
@@ -80,10 +81,10 @@ auto PathTracer::Render () -> void
                              std::placeholders::_1,
                              std::placeholders::_2,
                              std::placeholders::_3);
-      futures[idx++] = threads.Enqueue (func,
-                                        round,
-                                        &tiles[i],
-                                        samplers[i].get ());
+      futures[idx++] = tasks.Enqueue (func,
+                                      round,
+                                      &tiles[i],
+                                      samplers[i].get ());
     }
   }
 
