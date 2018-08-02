@@ -92,7 +92,7 @@ auto PathTracer::Render () -> void
   for (int i = 0; i < futures.size (); ++i)
   {
     // Show progressing.
-    // std::cerr << (float)i / futures.size () * 100.0 << " %               \r";
+    std::cerr << (float)i / futures.size () * 100.0 << " %               \r";
 
     round = i / tiles.size () + 1;
 
@@ -244,7 +244,6 @@ auto PathTracer::Radiance
 
     if (bsdf_record.Pdf () == 0) { break; }
 
-    /*
     if ((bsdf->BsdfType () & Bsdf::Type (Bsdf::Type::kSpecular)) !=
         Bsdf::Type::kSpecular)
     {
@@ -256,7 +255,6 @@ auto PathTracer::Radiance
         contribution = contribution + weight * bsdf_record.Bsdf () * value;
       }
     }
-    */
 
     // Update the weight.
     weight = weight * bsdf_record.Bsdf () * bsdf_record.CosWeight ()
