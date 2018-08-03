@@ -294,7 +294,13 @@ auto PathTracer::DirectSampleOneLight
   const noexcept -> Spectrum
 {
   // Choose one light in the scene.
-  auto idx = scene_->NumLight () * sample[0];
+  const auto num_lights = scene_->NumLight ();
+  if (num_lights == 0)
+  {
+    return Spectrum (0);
+  }
+
+  auto idx = num_lights * sample[0];
   if (idx >= scene_->NumLight ()) { idx = scene_->NumLight () - 1; }
   const auto &light = scene_->Light (idx);
 

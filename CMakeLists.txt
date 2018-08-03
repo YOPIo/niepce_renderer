@@ -4,30 +4,35 @@ cmake_minimum_required (VERSION 2.8)
 project (niepce)
 
 # Use c++11.
-set (CMAKE_CXX_FLAGS "-Wall -std=c++11 -O3")
+set (CMAKE_CXX_FLAGS "-Wall -std=c++11 -O3 -g")
 
 # Build options
 # To building a plugin for autodesk maya, use "-DBUILD_MAYA_PLUGIN=on" option.
-option (NIEPCE_USE_SIMD        "Enable to use SIMD." OFF)
-option (BUILD_CUI_RENDERER     "Build a CUI renderer." ON)
-option (BUILD_MAYA_PLUGIN      "Build a plugin for autodesk maya." OFF)
-option (NIEPCE_STATIC_BUILD    "Building with static link." OFF)
+option (NIEPCE_USE_SIMD     "Enable to use SIMD." OFF)
+option (BUILD_CUI_RENDERER  "Build a CUI renderer." ON)
+option (BUILD_MAYA_PLUGIN   "Build a plugin for autodesk maya." OFF)
+option (NIEPCE_STATIC_BUILD "Building with static link." OFF)
 
 # Generating a config file as "cmake_conifig.h"
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in
                 ${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h)
 
-# Static build
-if (NIEPCE_STATIC_BUILD)
-   message (STATUS "Static link.")
-   add_definition (${CMAKE_CXX_FLAGS} "-pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
-   set (CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++")
-endif ()
-
 # SIMD
 if (NIEPCE_USE_SIMD)
   message (STATUS "Use SIMD.")
-  add_definition (${CMAKE_CXX_FLANGS} "-msse4.1")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLANGS} -msse4.1")
+endif ()
+
+# Static build
+if (NIEPCE_STATIC_BUILD)
+   message (STATUS "Static link.")
+   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
+   set (CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++")
+
+else ()
+  message (STATUS "dynamic link.")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+
 endif ()
 
 # Build
