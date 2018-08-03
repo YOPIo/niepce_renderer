@@ -57,7 +57,7 @@ auto SceneImporter::Import (const char *filename) -> void
        element != nullptr;
        element = element->NextSiblingElement ())
   {
-    // std::cout << element->Name() << std::endl;
+    std::cout << element->Name() << std::endl;
     Attributes attributes;
     if (IsElementType (element, "camera"))
     {
