@@ -258,6 +258,24 @@ auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
 // ---------------------------------------------------------------------------
 */
 template <>
+auto ImageIO <bool>::SavePng (const char* filename) const noexcept -> void
+{
+  unsigned char *img = new unsigned char [width_ * height_];
+  for (int y = 0; y < height_; ++y)
+  {
+    for (int x = 0; x < width_; ++x)
+    {
+      img[y * width_ + x] = data_.get () [y * width_ + x] ? 255 : 0;
+    }
+  }
+  stbi_write_png (filename, width_, height_, 1, img,
+                  sizeof (unsigned char) * width_);
+  delete [] img;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <>
 auto ImageIO <Spectrum>::SavePng (const char* filename) const noexcept -> void
 {
   unsigned char *img = new unsigned char [width_ * height_ * 4];
