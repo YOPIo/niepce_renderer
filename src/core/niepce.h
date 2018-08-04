@@ -271,7 +271,7 @@ inline auto FloatToInt (Float x) -> uint8_t
 /*
 // ---------------------------------------------------------------------------
 */
-inline auto ToDegree (Float radian) -> Float
+inline auto RadianToDegree (Float radian) -> Float
 {
   return radian * 180.0 / kPi;
 }
