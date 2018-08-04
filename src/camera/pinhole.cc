@@ -49,35 +49,66 @@ PinholeCamera::PinholeCamera
 /*
 // ---------------------------------------------------------------------------
 */
+PinholeCamera::PinholeCamera
+(
+ const Transform &camera_to_world,
+ Float            sensor_to_lens, // [m]
+ Float            focal_length,   // [m]
+ Float            lens_radius,    // [m]
+ const char      *lens_aperture,
+ const char      *output,
+ int              resolution_width,
+ int              resolution_height,
+ Float            physical_diagonal
+) :
+  Camera (camera_to_world,
+          output,
+          "",
+          resolution_width,
+          resolution_height,
+          physical_diagonal),
+  focal_length_   (focal_length),
+  lens_radius_    (lens_radius),
+  sensor_to_lens_ (sensor_to_lens),
+  aperture_       (lens_aperture)
+{
+  // Compute the distance between lens to object plane by thin lens equation.
+  lens_to_object_ = (focal_length_ * sensor_to_lens_)
+                  / (sensor_to_lens_ - focal_length_);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 auto PinholeCamera::GenerateRay (const CameraSample& samples, Ray *ray)
   const -> Float
 {
-  // Sample a point on film plane.
-  const auto &resolution = film_.Resolution ();
-  const auto s = Point2f (samples.film_.X () / (Float)resolution.Width (),
-                          samples.film_.Y () / (Float)resolution.Height ());
-  const auto p = film_.PhysicalBounds ().Lerp (s);
-  const auto pfilm = Point3f (-p.X (), p.Y (), -focal_distance_);
+  // Sample a point on film (image sensor).
+  const auto sx = samples.film_.X () / static_cast <Float> (film_.Width ());
+  const auto sy = samples.film_.Y () / static_cast <Float> (film_.Height ());
+  const auto sf = film_.PhysicalBounds ().Lerp (Point2f (sx, sy));
+  const auto pfilm = Point3f (-sf.X (), sf.Y (), -sensor_to_lens_);
 
-  // Generate a ray from 0 to point on film plane.
-  *ray = Ray (Point3f::Zero (), Point3f::Zero () - pfilm);
-
+  // Sample a point on lens. [-1, 1]
+  auto plens = Point3f::Zero ();
   if (lens_radius_ > 0)
   {
-    // Sample a point on lens
-    // const auto s = SampleConcentricDisk (samples.lens_);
-    auto s = SampleOnApertureByImage (samples.lens_);
-    if (s == Point2f (0)) { return 0; }
-
-    const auto plens = lens_radius_ * Point3f (s.X (), s.Y (), 0);
-
-    // Compute a point on object plane.
-    const auto t      = object_distance_ / ray->Direction ().Z ();
-    const auto pfocus = ray->IntersectAt (t);
-
-    // Update ray
-    *ray = Ray (plens, pfocus - plens);
+    const auto s = SampleConcentricDisk (samples.lens_);
+    plens = lens_radius_ * Point3f (s.X (), s.Y (), 0.0);
   }
+
+  // Compute a point on object plane.
+  const auto dir  = Normalize (plens - pfilm);
+  const auto t    = lens_to_object_ / dir.Z ();
+  const auto pobj = plens + dir * t;
+
+  // Compute a ray in camera coordinate.
+  *ray = Ray (plens, pobj - plens);
+
+  // Pdf of sampling a pixel on the film.
+  const auto pdf_pixel = 1.0 / (film_.Width () * film_.Height ());
+
+  // Pdf of sampling a point on the lens.
+  const auto pdf_lens = 1.0 / (lens_radius_ * lens_radius_ * kPi);
 
   // Transform to world coordinate.
   *ray = camera_to_world_ * (*ray);
@@ -101,31 +132,31 @@ auto PinholeCamera::SampleOnApertureByImage (const Point2f &sample)
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreatePinholeCamera (const Attributes& attributes)
+auto CreatePinholeCamera (const Attributes& attrs)
   -> std::shared_ptr <Camera>
 {
-  const auto t = LookAt (attributes.FindPoint3f  ("origin"),
-                         attributes.FindPoint3f  ("target"),
-                         attributes.FindVector3f ("up"));
+  const auto t = LookAt (attrs.FindPoint3f  ("origin"),
+                         attrs.FindPoint3f  ("target"),
+                         attrs.FindVector3f ("up"));
 
-  const auto fov = attributes.FindFloat ("fov");
-  const auto lens_radius = attributes.FindFloat ("lens_radius");
-  const auto focus_distance = attributes.FindFloat ("focus_distance");
+  const auto sensor_to_lens = attrs.FindFloat ("film_to_lens");
+  const auto focal_length   = attrs.FindFloat ("focal_length");
+  const auto lens_radius    = attrs.FindFloat ("lens_radius");
 
-  const auto width    = attributes.FindInt ("width");
-  const auto height   = attributes.FindInt ("height");
-  const auto diagonal = attributes.FindFloat ("diagonal");
-  const auto output   = attributes.FindString ("output");
-  const auto back     = attributes.FindString ("background");
-  const auto aperture = attributes.FindString ("aperture");
+
+  const auto width    = attrs.FindInt ("width");
+  const auto height   = attrs.FindInt ("height");
+  const auto diagonal = attrs.FindFloat ("diagonal");
+  const auto output   = attrs.FindString ("output");
+  const auto back     = attrs.FindString ("background");
+  const auto aperture = attrs.FindString ("aperture");
 
   return std::make_shared <PinholeCamera> (t,
-                                           fov,
-                                           lens_radius,
-                                           focus_distance,
-                                           output.c_str (),
-                                           back.c_str (),
+                                           sensor_to_lens, // [m]
+                                           focal_length,   // [m]
+                                           lens_radius,    // [m]
                                            aperture.c_str (),
+                                           output.c_str (),
                                            width,
                                            height,
                                            diagonal);

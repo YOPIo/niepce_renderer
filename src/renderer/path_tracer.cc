@@ -71,7 +71,7 @@ auto PathTracer::Render () -> void
 
   std::vector <std::future <void>> futures (tiles.size () * num_rounds);
 
-  for (int round = 0, idx = 0; round < num_rounds; ++round)
+  for (int round = 1, idx = 0; round <= num_rounds; ++round)
   {
     // Render each tile.
     for (int i = 0; i < tiles.size (); ++i)

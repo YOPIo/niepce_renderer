@@ -47,6 +47,20 @@ public:
    Float            diagonal
   );
 
+  //! The constructor.
+  PinholeCamera
+  (
+   const Transform &camera_to_world,
+   Float            sensor_to_lens, // [m]
+   Float            focal_length,   // [m]
+   Float            lens_radius,    // [m]
+   const char      *lens_aperture,
+   const char      *output,
+   int              resolution_width,
+   int              resolution_height,
+   Float            physical_diagonal
+  );
+
   //! The copy constructor of the class.
   PinholeCamera (const PinholeCamera& camera) = default;
 
@@ -87,10 +101,14 @@ private:
   auto SampleOnApertureByImage (const Point2f &sample) const noexcept -> Point2f;
 
 protected:
+  Float focal_length_;
+  Float lens_radius_;
+  Float sensor_to_lens_;
+  Float lens_to_object_;
+  ImageIO <bool> aperture_;
+
   Float focal_distance_;
   Float object_distance_;
-  Float lens_radius_;
-  ImageIO <bool> aperture_;
 }; // class PinholeCamera
 /*
 // ---------------------------------------------------------------------------
