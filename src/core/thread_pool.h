@@ -30,7 +30,7 @@ public:
    * Create the number of threads given in argument if possible. Otherwise,
      it set the number of thread to one.
    */
-  ThreadPool (unsigned int num_threa = std::thread::hardware_concurrency ());
+  ThreadPool (unsigned int num_threads = std::thread::hardware_concurrency ());
   // ThreadPool (unsigned int num_thread = 1);
 
   //! Copy constructor
@@ -76,12 +76,12 @@ auto ThreadPool::Enqueue(F&& func, Args&& ... args)
   -> std::future <typename std::result_of <F (Args ...)>::type>
 {
   // The return type of function given in first argument.
-  using ReturnType = typename std::result_of<F(Args ...)>::type;
+  using ReturnType = typename std::result_of <F(Args ...)>::type;
 
   auto task = std::make_shared <std::packaged_task <ReturnType ()>>
-    (std::bind(std::forward<F> (func), std::forward<Args> (args) ...));
+    (std::bind (std::forward<F> (func), std::forward<Args> (args) ...));
 
-  std::future<ReturnType> result = task->get_future();
+  std::future <ReturnType> result = task->get_future();
   // Manage tasks (Exclusion control)
   {
     // Get the lock.

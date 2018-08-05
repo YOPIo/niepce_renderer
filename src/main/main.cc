@@ -33,10 +33,6 @@
 /*
 // ---------------------------------------------------------------------------
 */
-INITIALIZE_EASYLOGGINGPP
-/*
-// ---------------------------------------------------------------------------
-*/
 namespace niepce
 {
 /*
@@ -66,8 +62,6 @@ auto Finalize () -> void
 */
 int main (int argc, char* argv[])
 {
-  std::cout << "the number of avaliable threads : "
-	    << std::thread::hardware_concurrency () << std::endl;
   niepce::Initialize ();
   niepce::SceneImporter importer (argv[1]);
   auto settings = importer.ExtractRenderSettings ();

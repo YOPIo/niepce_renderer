@@ -4,7 +4,7 @@ cmake_minimum_required (VERSION 2.8)
 project (niepce)
 
 # Use c++11.
-set (CMAKE_CXX_FLAGS "-Wall -std=c++11 -O3 -g")
+set (CMAKE_CXX_FLAGS "-Wall -std=c++11 -O3 -g -mfpmath=both -mtune=native -march=native")
 
 # Build options
 # To building a plugin for autodesk maya, use "-DBUILD_MAYA_PLUGIN=on" option.
