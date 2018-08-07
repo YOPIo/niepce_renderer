@@ -177,8 +177,10 @@ auto PathTracer::Radiance
 
   MemoryArena memory;
 
+  const auto kMaxDepth = settings_.GetItem (RenderSettings::Item::kPTMaxDepth);
+
   // Render the tile.
-  for (unsigned int depth = 0; depth < 5; ++depth)
+  for (unsigned int depth = 0; depth < kMaxDepth; ++depth)
   {
     // -------------------------------------------------------------------------
     // Intersection test
@@ -268,7 +270,7 @@ auto PathTracer::Radiance
     // -------------------------------------------------------------------------
     Float q = std::fmax (contribution[0],
                          std::fmax(contribution[1], contribution[2]));
-    if (depth > 3)
+    if (kMaxDepth - 3 > depth)
     {
       if (tile_sampler->SampleFloat () >= q) { break; }
     }

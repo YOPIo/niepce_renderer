@@ -158,7 +158,7 @@ auto SceneImporter::Import (const char *filename) -> void
       settings_.AddItem (RenderSettings::Item::kNumSamples,
                          attributes.FindInt ("spp"));
       settings_.AddItem (RenderSettings::Item::kPTMaxDepth,
-                         attributes.FindInt ("max_depth"));
+                         attributes.FindInt ("depth"));
       settings_.AddItem (RenderSettings::Item::kNumRound,
                          attributes.FindInt ("round"));
     }
