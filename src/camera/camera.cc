@@ -71,6 +71,7 @@ auto Camera::Save () const noexcept -> void
 {
   Film f = film_;
   ToneMapping (&f);
+  Denoising (&f);
   f.Save ();
 }
 /*

@@ -21,6 +21,7 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
+auto Denoising   (Film *film) -> void;
 auto ToneMapping (Film *film) -> void;
 //! ----------------------------------------------------------------------------
 //! @class Film
@@ -104,15 +105,6 @@ public:
    * @details
    */
   auto UpdateFilmTile (const FilmTile &tile) noexcept -> void;
-
-  /*!
-   * @fn void ApplyDenoising ()
-   * @brief 
-   * @return 
-   * @exception none
-   * @details 
-   */
-  auto ApplyDenoising () -> void;
 
 private:
   //! @brief

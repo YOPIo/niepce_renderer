@@ -46,8 +46,9 @@ PathTracer::PathTracer
 */
 auto PathTracer::Render () -> void
 {
-  const int num_rounds = settings_.GetItem (RenderSettings::Item::kNumRound);
-  const int tile_size  = 16;
+  const int num_rounds  = settings_.GetItem (RenderSettings::Item::kNumRound);
+  const int tile_width  = settings_.GetItem (RenderSettings::Item::kTileWidth);
+  const int tile_height = settings_.GetItem (RenderSettings::Item::kTileHeight);
   std::vector <FilmTile> tiles;
 
   const auto &resolution = camera_->FilmResolution ();
@@ -55,12 +56,12 @@ auto PathTracer::Render () -> void
   const auto &height = resolution.Height ();
 
   std::vector <std::shared_ptr <RandomSampler>> samplers;
-  for (int y = 0; y < height; y += tile_size)
+  for (int y = 0; y < height; y += tile_height)
   {
-    for (int x = 0; x < width; x += tile_size)
+    for (int x = 0; x < width; x += tile_width)
     {
-      const int last_x = x + tile_size >= width  ? width  : x + tile_size;
-      const int last_y = y + tile_size >= height ? height : y + tile_size;
+      const int last_x = x + tile_width  >= width  ? width  : x + tile_width;
+      const int last_y = y + tile_height >= height ? height : y + tile_height;
       const Bounds2f tile (Point2f (x, y), Point2f (last_x, last_y));
       tiles.push_back (FilmTile (y * height + x, tile));
       samplers.push_back (std::make_shared <RandomSampler> (last_y + last_x));
@@ -97,7 +98,7 @@ auto PathTracer::Render () -> void
 
     round = i / tiles.size () + 1;
 
-    if ((round != 0) && (i % tiles.size () == 0))
+    if ((round != 1) && (i % tiles.size () == 0))
     {
       camera_->SaveSequence (round, spp * (round - 1));
     }
@@ -110,7 +111,7 @@ auto PathTracer::Render () -> void
   }
 
   // Final process
-  camera_->FinalProcess (round, spp * (round - 1));
+  camera_->FinalProcess (round, spp * (round));
   camera_->Save ();
 }
 /*
@@ -268,6 +269,7 @@ auto PathTracer::Radiance
     // -------------------------------------------------------------------------
     // Russian roulette
     // -------------------------------------------------------------------------
+    /*
     Float q = std::fmax (contribution[0],
                          std::fmax(contribution[1], contribution[2]));
     if (kMaxDepth - 3 > depth)
@@ -275,6 +277,7 @@ auto PathTracer::Radiance
       if (tile_sampler->SampleFloat () >= q) { break; }
     }
     else { q = 1.0; }
+    */
 
     // -------------------------------------------------------------------------
     // Ready to trace the incident direction.

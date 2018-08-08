@@ -63,7 +63,7 @@ auto Plastic::AllocateBsdfs
     // const auto f = memory->Allocate <FresnelDielectric> (1.0, 1.5);
     const auto f = memory->Allocate <FresnelConductor> (Spectrum (1.5),
                                                         Spectrum (1.0),
-                                                        Spectrum (1.8));
+                                                        Spectrum (6.0));
     // Generate microfacet distribution.
     const auto rough
       = TrowbridgeReitz::RoughnessToAlpha (roughness_->Evaluate (isect));

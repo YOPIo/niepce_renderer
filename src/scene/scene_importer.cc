@@ -161,6 +161,10 @@ auto SceneImporter::Import (const char *filename) -> void
                          attributes.FindInt ("depth"));
       settings_.AddItem (RenderSettings::Item::kNumRound,
                          attributes.FindInt ("round"));
+      settings_.AddItem (RenderSettings::Item::kTileWidth,
+                         attributes.FindInt ("tile_width"));
+      settings_.AddItem (RenderSettings::Item::kTileHeight,
+                         attributes.FindInt ("tile_height"));
     }
   }
 

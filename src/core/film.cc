@@ -84,18 +84,18 @@ auto Film::UpdateFilmTile (const FilmTile &tile) noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
-auto Film::ApplyDenoising () -> void
+auto Denoising (Film *film) -> void
 {
-  const auto src = Film(*this);
+  const auto src = Film (*film);
   const auto kernel_size = 3;
   const auto search_size = 5;
   const auto half_kernel_size = kernel_size / 2;
   const auto half_search_size = search_size / 2;
-  const auto &width  = Width ();
-  const auto &height = Height ();
+  const auto &width  = src.Width ();
+  const auto &height = src.Height ();
 
-  const auto h     = 0.08;
-  const auto sigma = 0.08;
+  const auto h     = 0.03;
+  const auto sigma = 0.03;
 
   // Get a kernel window.
   auto GetKernel = [&]
@@ -140,13 +140,13 @@ auto Film::ApplyDenoising () -> void
   };
 
   // For each pixel.
-  for (int y = 0; y < Height (); ++y)
+  for (int y = 0; y < src.Height (); ++y)
   {
-    for (int x = 0; x < Width (); ++x)
+    for (int x = 0; x < src.Width (); ++x)
     {
       // Get kernel image.
       const auto target = Point2f (x, y);
-      Image target_kernel (kernel_size, kernel_size);
+      Image <Spectrum> target_kernel (kernel_size, kernel_size);
       GetKernel (x, y, &target_kernel);
 
       Float    sum_weight = 0;
@@ -164,7 +164,7 @@ auto Film::ApplyDenoising () -> void
           ty = std::min (sy, (int)height - 1);
 
           // Get kernel.
-          Image search_kernel (kernel_size, kernel_size);
+          Image <Spectrum> search_kernel (kernel_size, kernel_size);
           GetKernel (tx, ty, &search_kernel);
 
           const auto norm   = L2Norm (target_kernel, search_kernel);
@@ -175,7 +175,7 @@ auto Film::ApplyDenoising () -> void
           sum_pixel  =  sum_pixel + src.At (tx, ty) * weight;
         }
       }
-      this->SetValueAt (x, y, sum_pixel / sum_weight);
+      film->SetValueAt (x, y, sum_pixel / sum_weight);
     }
   }
 }
