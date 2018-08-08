@@ -4,7 +4,7 @@ cmake_minimum_required (VERSION 2.8)
 project (niepce)
 
 # Use c++11.
-set (CMAKE_CXX_FLAGS "-Wall -std=c++11 -O3 -g -mfpmath=both -mtune=native -march=native")
+set (CMAKE_CXX_FLAGS "-std=c++11 -O3 -g -march=native")
 
 # Build options
 # To building a plugin for autodesk maya, use "-DBUILD_MAYA_PLUGIN=on" option.
@@ -20,19 +20,22 @@ configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in
 # SIMD
 if (NIEPCE_USE_SIMD)
   message (STATUS "Use SIMD.")
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLANGS} -msse4.1")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
 endif ()
 
 # Static build
 if (NIEPCE_STATIC_BUILD)
-   message (STATUS "Static link.")
-   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
-   set (CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++")
-
+  if (CMAKE_CXX_COMPILER MATCHES "icpc")
+    message (STATUS "Use Intel compiler.")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -xHOST -O3 -ipo -no-prec-div -static-intel")
+  else()
+    message (STATUS "Static link.")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
+    set (CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++")
+  endif ()
 else ()
   message (STATUS "dynamic link.")
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
-
 endif ()
 
 # Build
