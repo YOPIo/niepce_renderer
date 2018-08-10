@@ -144,7 +144,8 @@ auto PathTracer::RenderTileBounds
         Float weight = 0;
         const auto offset = Point2f ((Float)s / (round * spp),
                                      RadicalInverse (2, s));
-        const auto pfilm  = Point2f (x, y) + offset;
+        // const auto pfilm  = Point2f (x, y) + offset;
+        const auto pfilm  = Point2f (x, y) + tile_sampler->SamplePoint2f ();
         while (weight == 0)
         {
           const auto plens  = tile_sampler->SamplePoint2f ();
@@ -248,11 +249,11 @@ auto PathTracer::Radiance
 
     if (bsdf_record.Pdf () == 0) { break; }
 
-    // ---------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
     // Next event estimation
-    // ---------------------------------------------------------------------------
-    if ((bsdf->BsdfType () & Bsdf::Type (Bsdf::Type::kSpecular)) !=
-        Bsdf::Type::kSpecular)
+    // -------------------------------------------------------------------------
+    if ((bsdf_record.SampledType ()
+         & Bsdf::Type (Bsdf::Type::kSpecular)) != Bsdf::Type::kSpecular)
     {
       const auto value = DirectSampleOneLight (intersection,
                                                tile_sampler->SamplePoint2f());

@@ -70,8 +70,8 @@ auto Camera::UpdateFilmTile (const FilmTile &tile, int round) -> void
 auto Camera::Save () const noexcept -> void
 {
   Film f = film_;
-  ToneMapping (&f);
-  Denoising (&f);
+  // ToneMapping (&f);
+  // Denoising (&f);
   f.Save ();
 }
 /*
@@ -112,7 +112,7 @@ auto Camera::FinalProcess (int round, int spp) -> void
   ToneMapping (&film_);
 
   std::ostringstream sout;
-  sout << std::setfill ('0') << std::setw (3) << round;
+  sout << std::setfill ('0') << std::setw (3) << round - 1;
   film_.SaveAs (("sequences/" + sout.str () + ".png").c_str ());
 }
 /*

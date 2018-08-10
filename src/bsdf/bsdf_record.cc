@@ -69,6 +69,10 @@ auto BsdfRecord::SamplingTarget () const noexcept -> niepce::Bxdf::Type
 {
   return target_type_;
 }
+auto BsdfRecord::SampledType () const noexcept -> niepce::Bxdf::Type
+{
+  return sampled_type_;
+}
 /*
 // ---------------------------------------------------------------------------
 */

@@ -74,6 +74,7 @@ FresnelDielectric::FresnelDielectric (Float i, Float t) :
 auto FresnelDielectric::Evaluate (Float cos_t1)
   const noexcept -> Spectrum
 {
+  return Spectrum (1.0);
   cos_t1 = Clamp (cos_t1, -1.0f, 1.0f);
   auto ior_i = ior_i_;
   auto ior_t = ior_t_;

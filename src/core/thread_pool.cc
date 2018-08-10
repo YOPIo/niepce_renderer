@@ -17,6 +17,7 @@ namespace niepce
 ThreadPool::ThreadPool (unsigned int num_thread) :
   stop_ (false)
 {
+  std::cout << "Threads : " << num_thread << std::endl;
   auto run = [this] ()
   {
     while (true)

@@ -104,6 +104,16 @@ public:
   auto SamplingTarget () const noexcept -> niepce::Bxdf::Type;
 
   /*!
+   * @fn niepce SampledBsdfType ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto SampledType () const noexcept -> niepce::Bxdf::Type;
+
+
+  /*!
    * @fn void SetOutgoing ()
    * @brief Set the outgoing direction to internal data.
    * @param[in] outgoing

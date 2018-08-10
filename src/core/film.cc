@@ -87,15 +87,15 @@ auto Film::UpdateFilmTile (const FilmTile &tile) noexcept -> void
 auto Denoising (Film *film) -> void
 {
   const auto src = Film (*film);
-  const auto kernel_size = 3;
-  const auto search_size = 5;
+  const auto kernel_size = 5;
+  const auto search_size = 7;
   const auto half_kernel_size = kernel_size / 2;
   const auto half_search_size = search_size / 2;
   const auto &width  = src.Width ();
   const auto &height = src.Height ();
 
-  const auto h     = 0.03;
-  const auto sigma = 0.03;
+  const auto h     = 0.5;
+  const auto sigma = 0.5;
 
   // Get a kernel window.
   auto GetKernel = [&]

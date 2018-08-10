@@ -37,13 +37,28 @@ PinholeCamera::PinholeCamera
           resolution_width,
           resolution_height,
           diagonal),
-  lens_radius_     (lens_radius),
-  aperture_        (aperture)
+  lens_radius_     (lens_radius)
 {
   focal_length_   = diagonal / (2.0 * std::tan (DegreeToRadian (fov / 2.0)));
   sensor_to_lens_ = (focus_distance * focal_length_)
                   / (focus_distance - focal_length_);
   lens_to_object_ = focus_distance;
+
+  ImageIO <bool> aperture_img (aperture);
+  const auto width  = static_cast <Float> (aperture_img.Width ());
+  const auto height = static_cast <Float> (aperture_img.Height ());
+  for (int y = 0; y < height; ++y)
+  {
+    for (int x = 0; x < width; ++x)
+    {
+      if (aperture_img.At (x, y))
+      {
+        const auto nx = x / width  * 2.0 - 1.0;
+        const auto ny = y / height * 2.0 - 1.0;
+        aperture_.push_back (Point2f (nx, ny));
+      }
+    }
+  }
 }
 /*
 // ---------------------------------------------------------------------------
@@ -62,7 +77,6 @@ auto PinholeCamera::GenerateRay (const CameraSample& samples, Ray *ray)
   if (lens_radius_ > 0)
   {
     const auto s = SampleOnApertureByImage (samples.lens_);
-    if (s == Point2f (0)) { return 0; }
     // const auto s = SampleConcentricDisk (samples.lens_);
     plens = lens_radius_ * Point3f (s.X (), s.Y (), 0.0);
   }
@@ -92,13 +106,8 @@ auto PinholeCamera::GenerateRay (const CameraSample& samples, Ray *ray)
 auto PinholeCamera::SampleOnApertureByImage (const Point2f &sample)
   const noexcept -> Point2f
 {
-  const auto x = sample[0] * static_cast <Float> (aperture_.Width ()  - 1.0);
-  const auto y = sample[1] * static_cast <Float> (aperture_.Height () - 1.0);
-  if (aperture_.At (x, y))
-  {
-    return Point2f (sample[0] * 2.0 - 1.0, sample[1] * 2.0 - 1.0);
-  }
-  return Point2f (0, 0);
+  const int idx = sample[0] * (aperture_.size () - 1.0);
+  return aperture_[idx];
 }
 /*
 // ---------------------------------------------------------------------------

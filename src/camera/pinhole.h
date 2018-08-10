@@ -91,7 +91,8 @@ protected:
   Float lens_radius_;
   Float sensor_to_lens_;
   Float lens_to_object_;
-  ImageIO <bool> aperture_;
+
+  std::vector <Point2f> aperture_;
 }; // class PinholeCamera
 /*
 // ---------------------------------------------------------------------------
