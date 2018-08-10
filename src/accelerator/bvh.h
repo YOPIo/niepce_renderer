@@ -15,6 +15,7 @@
 #include "../core/memory.h"
 #include "bvh_primitive_info.h"
 #include "bvh_node.h"
+#define DEBUG
 /*
 // ---------------------------------------------------------------------------
 */
@@ -29,7 +30,7 @@ class Bvh
 {
 public:
   //! The default class constructor.
-  Bvh () = default;
+  Bvh () = delete;
 
   //! The constructor takes primitives and the number of primitives in the node.
   Bvh
@@ -78,6 +79,12 @@ public:
   auto IsIntersect (const Ray& ray, Intersection* intersection)
     const noexcept -> bool;
 
+#ifdef DEBUG
+  auto Dump (int traverse) -> void;
+private:
+  auto DumpRecursive (BvhNode *node, int traverse, int depth) -> void;
+#endif // DEBUG
+
 private:
   /*!
    * @fn Return RecursiveBuild (const)
@@ -92,10 +99,8 @@ private:
    */
   auto RecursiveBuild
   (
-   std::vector <PrimitiveInfo>& info,
-   std::size_t begin,
-   std::size_t end,
-   std::vector <std::shared_ptr <Primitive>>& primitives
+   std::vector <std::shared_ptr <Primitive>>& primitives,
+   std::vector <std::shared_ptr <Primitive>>& ordered
   )
     -> BvhNode*;
 

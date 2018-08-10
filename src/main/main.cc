@@ -67,9 +67,11 @@ int main (int argc, char* argv[])
   auto settings = importer.ExtractRenderSettings ();
   auto scene    = importer.ExtractScene ();
   auto camera   = importer.ExtractCamera ();
+
   std::cout << "Start rendering" << std::endl;
   niepce::PathTracer pt (settings, scene, camera);
   pt.Render ();
+
   niepce::Finalize ();
 
   return 0;

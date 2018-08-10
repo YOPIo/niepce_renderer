@@ -2,3 +2,4 @@
 #cmakedefine BUILD_CUI_RENDERER
 #cmakedefine NIEPCE_USE_SIMD
 #cmakedefine NIEPCE_STATIC_BUILD
+#cmakedefine DEBUG

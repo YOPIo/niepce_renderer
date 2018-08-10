@@ -12,10 +12,15 @@ option (NIEPCE_USE_SIMD     "Enable to use SIMD." OFF)
 option (BUILD_CUI_RENDERER  "Build a CUI renderer." ON)
 option (BUILD_MAYA_PLUGIN   "Build a plugin for autodesk maya." OFF)
 option (NIEPCE_STATIC_BUILD "Building with static link." OFF)
+option (DEBUG               "DEBUG" OFF)
 
 # Generating a config file as "cmake_conifig.h"
 configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in
                 ${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h)
+
+if (DEBUG)
+  message (STATUS "Debug mode.")
+endif ()
 
 # SIMD
 if (NIEPCE_USE_SIMD)

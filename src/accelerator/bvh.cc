@@ -29,6 +29,9 @@ Bvh::Bvh
   total_nodes_ (0)
 {
   Build (primitives_);
+#ifdef DEBUG
+  Dump (2);
+#endif
 }
 /*
 // ---------------------------------------------------------------------------
@@ -36,6 +39,7 @@ Bvh::Bvh
 auto Bvh::Build (const std::vector<std::shared_ptr<Primitive>>& primitives)
   -> void
 {
+  /*
   // Initialize the BvhPrimitiveInfo.
   std::vector <PrimitiveInfo> info (primitives.size ());
   for (int i = 0; i < primitives.size (); ++i)
@@ -43,128 +47,147 @@ auto Bvh::Build (const std::vector<std::shared_ptr<Primitive>>& primitives)
     const auto& shape = primitives[i]->Shape ();
     info[i] = PrimitiveInfo (i, shape->Bounds ());
   }
+  */
 
   // Create copy of primitives.
-  std::vector <std::shared_ptr <Primitive>> tmp;
+  std::vector <std::shared_ptr <Primitive>> tmp (primitives);
+
+  primitives_.clear ();
 
   // Construct BVH structure.
-  root_ = RecursiveBuild (info, 0, primitives.size (), tmp);
-  primitives_.swap (tmp);
+  root_ = RecursiveBuild (tmp, primitives_);
+
+  std::cout << primitives_.size() << std::endl;
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Bvh::RecursiveBuild
 (
- std::vector <PrimitiveInfo>& info,
- std::size_t begin,
- std::size_t end,
- std::vector <std::shared_ptr <Primitive>>& primitives
+ std::vector <std::shared_ptr <Primitive>>& primitives,
+ std::vector <std::shared_ptr <Primitive>>& ordered
 )
   -> BvhNode*
 {
+
+  const auto num_primitives = primitives.size ();
+
   // All of the nodes are managed by MemoryArena.
   auto node = memory_.Allocate <BvhNode> ();
 
-  // Incrementing the number of nodes.
-  ++total_nodes_;
-
   // Compute bounds of all primitives.
   Bounds3f bounds;
-  for (const auto &pi : info) { bounds = Union (bounds, pi.bounds); }
-
-  // Compute the number of primitive.
-  auto num_primitive = info.size ();
-
-  // ---------------------------------------------------------------------------
-  // Function to create a leaf node.
-  // ---------------------------------------------------------------------------
-  auto create_leaf = [&] ()
+  for (const auto &p : primitives)
   {
-    const int offset = primitives.size ();
-    for (int i = 0; i < num_primitive; ++i)
+    bounds = Union (bounds, p->Shape ()->Bounds ());
+  }
+
+  // Handle case.
+  if (num_primitives <= 4)
+  {
+    const auto offset = ordered.size ();
+    for (int i = 0; i < num_primitives; ++i)
     {
-      const auto idx = info[i].primitive_index;
-      primitives.push_back (primitives_[idx]);
+      const auto p = primitives[i];
+      ordered.push_back (p);
+      node->InitializeLeaf (offset, num_primitives, bounds);
     }
-    node->InitializeLeaf (offset, num_primitive, bounds);
-  };
-
-  if (num_primitive <= 4)
-  {
-    create_leaf ();
     return node;
   }
 
-  // ---------------------------------------------------------------------------
-  // Compute SAH costs.
-  // ---------------------------------------------------------------------------
-  // The lambda to sort by split axis.
-  int axis = 0;
-  static auto sort_info = [&]
-  (
-   const PrimitiveInfo &lhs,
-   const PrimitiveInfo &rhs
-  )
-    -> bool
+  Float best_cost  = num_primitives;
+  int   best_axis  = -1; // x : 0, y : 1, z : 2
+  int   best_index = num_primitives * 0.5;
+  Float surface_area = bounds.SurfaceArea ();
+
+  for (auto axis = 0; axis < 3; ++axis)
   {
-    return lhs.centroid[axis] < rhs.centroid[axis];
-  };
+    // Sort primitives
+    std::sort (primitives.begin (), primitives.end (),
+               [&axis]
+               (const std::shared_ptr <Primitive> &lhs,
+                const std::shared_ptr <Primitive> &rhs) -> bool
+               {
+                 const auto &lcenter = lhs->Shape ()->Bounds ().Center ();
+                 const auto &rcenter = rhs->Shape ()->Bounds ().Center ();
+                 return lcenter[axis] < rcenter[axis];
+               });
 
+    std::vector <std::shared_ptr <Primitive>> s1, s2 (primitives);
+    Bounds3f s1_bounds;
+    Bounds3f s2_bounds;
 
-  std::vector <Float> left (info.size () + 1), right (info.size () + 1);
-  Bounds3f bl, br = bounds;
-  // Find the split index.
-  Float best_cost = kInfinity;
-  int   best_axis = 0;
-  int   split     = -1;
+    // List of surface area.
+    std::vector <Float> s1_surface (num_primitives + 1, kInfinity);
+    std::vector <Float> s2_surface (num_primitives + 1, kInfinity);
 
-  for (axis = 0; axis < 3; ++axis)
-  {
-    std::sort (info.begin (), info.end (), sort_info);
-
-    for (int i = 0; i <= info.size (); ++i)
+    for (int i = 0; i <= num_primitives; ++i)
     {
-      int j = info.size () - i;
-      left[i]  = bl.SurfaceArea () * i; // surface area * num polygon
-      right[j] = br.SurfaceArea () * i; // surface area * num polygon
-
-      bl = i < info.size () ? Union (bl, info[i].bounds)     : bl;
-      br = j > 0            ? Union (br, info[j - 1].bounds) : br;
-    }
-    auto  area      = bounds.SurfaceArea ();
-    for (int i = 1; i < info.size (); ++i)
-    {
-      const auto cost = 2 + (left[i] + right[i]) / area;
-      if (cost < best_cost)
+      s1_surface[i] = std::fabs (s1_bounds.SurfaceArea ());
+      if (s2.size () > 0)
       {
-        split     = i;
-        best_cost = cost;
-        best_axis = axis;
+        const auto p = s2.front ();
+        s1.push_back (p);
+        s2.erase (s2.begin ());
+        s1_bounds = Union (s1_bounds, p->Shape ()->Bounds ());
+      }
+    }
+
+    for (int i = num_primitives; i >= 0; --i)
+    {
+      s2_surface[i] = std::fabs (s2_bounds.SurfaceArea ());
+      if (s1.size () > 0 && s2.size () > 0)
+      {
+        // Compute SAH cost
+        const auto cost = 2.0 + (s1_surface[i] * s1.size ()
+                        + s2_surface[i] * s2.size ()) / surface_area;
+        if (cost < best_cost)
+        {
+          best_cost  = cost;
+          best_axis  = axis;
+          best_index = i;
+        }
+      }
+
+      if (s1.size () > 0)
+      {
+        const auto p = s1.back ();
+        s2.insert (s2.begin (), p);
+        s1.pop_back ();
+        s2_bounds = Union (s2_bounds, p->Shape ()->Bounds ());
       }
     }
   }
 
-  // Checks.
-  Float leaf_cost = num_primitive / 2;
-  if (split == -1 || best_cost < leaf_cost)
+  if (best_axis == -1)
   {
-    // Could not find the split index.
-    // Create leaf node.
-    create_leaf ();
+    const auto offset = ordered.size ();
+    for (int i = 0; i < num_primitives; ++i)
+    {
+      const auto p = primitives[i];
+      ordered.push_back (p);
+      node->InitializeLeaf (offset, num_primitives, bounds);
+    }
     return node;
   }
 
-  // ---------------------------------------------------------------------------
-  // Continue to split. Split info, and call this function again.
-  // ---------------------------------------------------------------------------
-  std::sort (info.begin (), info.end (), sort_info);
+  // Create interior node.
+  std::sort (primitives.begin (), primitives.end (),
+             [&best_axis]
+             (const std::shared_ptr <Primitive> &lhs,
+              const std::shared_ptr <Primitive> &rhs) -> bool
+             {
+               const auto &lcenter = lhs->Shape ()->Bounds ().Center ();
+               const auto &rcenter = rhs->Shape ()->Bounds ().Center ();
+               return lcenter[best_axis] < rcenter[best_axis];
+             });
+  std::vector <std::shared_ptr <Primitive>> left
+    (primitives.begin (), primitives.begin () + best_index);
+  std::vector <std::shared_ptr <Primitive>> right
+    (primitives.begin () + best_index, primitives.end ());
 
-  std::vector <PrimitiveInfo> left_info  (info.begin (), info.begin () + split);
-  std::vector <PrimitiveInfo> right_info (info.begin () + split, info.end ());
-
-  const auto left_node  = RecursiveBuild (left_info,  begin, split, primitives);
-  const auto right_node = RecursiveBuild (right_info, split + 1, end, primitives);
+  const auto left_node  = RecursiveBuild (left,  ordered);
+  const auto right_node = RecursiveBuild (right, ordered);
   node->InitializeInterior (left_node, right_node);
   return node;
 }
@@ -245,6 +268,42 @@ auto Bvh::RecursiveIsIntersect
   // Ray does not intersect with bounds.
   return false;
 }
+/*
+// ---------------------------------------------------------------------------
+*/
+#ifdef DEBUG
+// Traverse : zero origin (root)
+auto Bvh::Dump (int traverse) -> void
+{
+  std::cout << "dump" << std::endl;
+  DumpRecursive (root_, traverse, 0);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Bvh::DumpRecursive (BvhNode *node, int traverse, int depth) -> void
+{
+  if (depth == traverse)
+  {
+    const auto min = node->bounds.Min ();
+    const auto max = node->bounds.Max ();
+    std::cout << "[[" << min.X () << "," << min.Y () << ", "
+              << min.Z () << "], ";
+    std::cout << "[" << max.X () << "," << max.Y () << ", "
+              << max.Z () << "]]" << std::endl;;
+    return ;
+  }
+
+  if (node->childlen[0] != nullptr)
+  {
+    DumpRecursive (node->childlen[0], traverse, depth + 1);
+  }
+  if (node->childlen[1] != nullptr)
+  {
+    DumpRecursive (node->childlen[1], traverse, depth + 1);
+  }
+}
+#endif // DEBUG
 /*
 // ---------------------------------------------------------------------------
 */
