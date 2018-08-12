@@ -64,6 +64,41 @@ ImageIO<T>::~ImageIO ()
 // ---------------------------------------------------------------------------
 */
 template <typename T>
+auto ImageIO <T>::LoadHdr (const char *filename) -> void
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <>
+auto ImageIO <Spectrum>::LoadHdr (const char *filename) -> void
+{
+  // stbi_hdr_to_ldr_gamma (1.0);
+  // stbi_hdr_to_ldr_scale (1.0);
+
+  // Load .hdr file.
+  int width, height, n;
+  Float *data = stbi_loadf (filename, &width, &height, &n, 0);
+
+  AllocateMemory (width, height);
+
+  for (int y = 0; y < height; ++y)
+  {
+    for (int x = 0; x < width; ++x)
+    {
+      const auto index = y * width + x;
+      const auto r = data[n * index + 0];
+      const auto g = data[n * index + 1];
+      const auto b = data[n * index + 2];
+      data_.get ()[y * width + x] = Spectrum (r, g, b);
+    }
+  }
+
+  delete [] data;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
 auto ImageIO<T>::Load (const char *filename) -> void
 {
   std::cout << "No supported type image" << std::endl;
@@ -83,9 +118,11 @@ auto ImageIO <Spectrum>::Load (const char *filename) -> void
     return ;
   }
 
-  if (FileExtension (filename) == ".hdr")
+  const auto ext = FileExtension (filename);
+  if (ext == ".hdr")
   {
-    // Load .hdr file.
+    LoadHdr (filename);
+    return ;
   }
 
   // Load a image via stbi.
@@ -114,7 +151,7 @@ auto ImageIO <Spectrum>::Load (const char *filename) -> void
 // ---------------------------------------------------------------------------
 */
 template <>
-auto ImageIO<bool>::Load (const char* filename) -> void
+auto ImageIO <bool>::Load (const char* filename) -> void
 {
   if (!IsFileExist (filename))
   {
@@ -151,132 +188,12 @@ auto ImageIO<T>::Save () const noexcept -> void
 */
 template <typename T>
 auto ImageIO<T>::SaveAs (const char *filename) const noexcept -> void
-{
-  const auto ext = FileExtension (filename);
-  if (ext == ".ppm")
-  {
-    SavePpm (filename);
-    return ;
-  }
-  if (ext == ".png")
-  {
-    SavePng (filename);
-    return ;
-  }
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto ImageIO<T>::Rename (const std::string& new_name) noexcept -> void
-{
-  name_ = new_name;
-}
-/*
-// ---------------------------------------------------------------------------
-// Private methods definition
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto ImageIO<T>::AllocateMemory (unsigned int width, unsigned int height) -> void
-{
-  this->data_.reset (new T [width * height], std::default_delete <T []> ());
-  this->width_  = width;
-  this->height_ = height;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto ImageIO<T>::SavePng (const char* filename) const noexcept -> void
-{}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto ImageIO<T>::SavePpm (const char* filename) const noexcept -> void
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 template <>
-auto ImageIO <bool>::SavePpm (const char* filename) const noexcept -> void
-{
-  std::ofstream os (filename);
-  if (!os)
-  {
-    std::cerr << "Failed to open " << filename << std::endl;
-    return ;
-  }
-  os << "P1\n" << width_ << " " << height_ << "\n";
-  for (int y = 0; y < height_; ++y)
-  {
-    for (int x = 0; x < width_; ++x)
-    {
-      os << static_cast <int> (At (x, y)) << std::endl;
-    }
-  }
-  os.close ();
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <>
-auto ImageIO<Float>::SavePpm (const char* filename) const noexcept -> void
-{
-  std::ofstream os (filename);
-  os << "P2\n" << width_ << " " << height_ << "\n255\n";
-  auto func = [&] (int x, int y) -> void
-  {
-    os << (int)FloatToInt (At (x, y)) << " ";
-  };
-  For2(func, Width (), Height ());
-  os.close ();
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <>
-auto ImageIO<Spectrum>::SavePpm (const char* filename) const noexcept -> void
-{
-  std::ofstream os (filename);
-  if (!os)
-  {
-    std::cerr << "Could not open " << filename << std::endl;
-  }
-  os << "P3\n" << width_ << " " << height_ << "\n255\n";
-  auto func = [&] (int x, int y) -> void
-  {
-    os << (int)FloatToInt (At (x, y).X ()) << " ";
-    os << (int)FloatToInt (At (x, y).Y ()) << " ";
-    os << (int)FloatToInt (At (x, y).Z ()) << " ";
-  };
-  For2(func, Width (), Height ());
-  os.close ();
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <>
-auto ImageIO <bool>::SavePng (const char* filename) const noexcept -> void
-{
-  unsigned char *img = new unsigned char [width_ * height_];
-  for (int y = 0; y < height_; ++y)
-  {
-    for (int x = 0; x < width_; ++x)
-    {
-      img[y * width_ + x] = data_.get () [y * width_ + x] ? 255 : 0;
-    }
-  }
-  stbi_write_png (filename, width_, height_, 1, img,
-                  sizeof (unsigned char) * width_);
-  delete [] img;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <>
-auto ImageIO <Spectrum>::SavePng (const char* filename) const noexcept -> void
+auto ImageIO <Spectrum>::SaveAs (const char* filename) const noexcept -> void
 {
   unsigned char *img = new unsigned char [width_ * height_ * 4];
   for (int y = 0; y < height_; ++y)
@@ -297,8 +214,50 @@ auto ImageIO <Spectrum>::SavePng (const char* filename) const noexcept -> void
 /*
 // ---------------------------------------------------------------------------
 */
+template <>
+auto ImageIO <bool>::SaveAs (const char *filename) const noexcept -> void
+{
+  unsigned char *img = new unsigned char [width_ * height_];
+  for (int y = 0; y < height_; ++y)
+  {
+    for (int x = 0; x < width_; ++x)
+    {
+      img[y * width_ + x] = data_.get () [y * width_ + x] ? 255 : 0;
+    }
+  }
+  stbi_write_png (filename, width_, height_, 1, img,
+                  sizeof (unsigned char) * width_ * 1);
+  delete [] img;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
+auto ImageIO<T>::Rename (const std::string& new_name) noexcept -> void
+{
+  name_ = new_name;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
+auto ImageIO<T>::AllocateMemory (unsigned int width, unsigned int height) -> void
+{
+  this->data_.reset (new T [width * height], std::default_delete <T []> ());
+  this->width_  = width;
+  this->height_ = height;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 template <typename T>
 auto ImageIO<T>::SaveHdr (const char* filename) const noexcept -> void
+{}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <>
+auto ImageIO <Spectrum>::SaveHdr (const char* filename) const noexcept -> void
 {}
 /*
 // ---------------------------------------------------------------------------

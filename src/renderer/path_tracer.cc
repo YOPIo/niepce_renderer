@@ -155,8 +155,11 @@ auto PathTracer::RenderTileBounds
 
         Spectrum radiance;
         auto hit = Radiance (ray, tile_sampler, &radiance);
-        auto s = tile->At (x - begin_x, y - begin_y) + radiance;
-        tile->SetValueAt (x - begin_x, y - begin_y, s);
+        if (hit)
+        {
+          auto s = tile->At (x - begin_x, y - begin_y) + radiance;
+          tile->SetValueAt (x - begin_x, y - begin_y, s);
+        }
       }
     }
   }
@@ -193,12 +196,11 @@ auto PathTracer::Radiance
     if (!scene_->IsIntersect (ray, &intersection))
     {
       // No intersection found.
-      /*
       if (depth == 0)
       {
+        *radiance = contribution;
         return false;
       }
-      */
 
       // HACKME:
       intersection.SetOutgoing (-ray.Direction ());
@@ -211,9 +213,11 @@ auto PathTracer::Radiance
         const auto s = inf_light->Evaluate (intersection, &pdf);
         contribution = contribution + weight * s;
       }
+      *radiance = contribution;
       break;
     }
 
+    // Normal
     // contribution = Normalize ((Spectrum (1) + intersection.Normal()) * 0.5);
     // break;
 

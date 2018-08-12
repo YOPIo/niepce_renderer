@@ -114,13 +114,19 @@ auto MicrofacetReflection::Sample
   const Float pdf = Pdf (*record);
   record->SetPdf (pdf);
 
+  /*
+  const auto weight = std::fabs (Dot (incident, half))
+                    * distribution_->GeometricAttenuation (incident, outgoing)
+                    / std::fabs (incident.Z ()) * std::fabs (half.Z ());
+  */
+  const auto weight = distribution_->GeometricAttenuation (incident, outgoing);
+
   // Evaluate the BSDF
   const Spectrum bsdf = Evaluate (*record);
-  record->SetBsdf (bsdf);
-
+  record->SetBsdf (bsdf * weight);
   record->SetSampledBsdfType (type_);
 
-  return bsdf;
+  return bsdf * weight;
 }
 /*
 // ---------------------------------------------------------------------------

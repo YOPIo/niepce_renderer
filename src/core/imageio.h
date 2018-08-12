@@ -97,14 +97,14 @@ public:
 
 private:
   /*!
-   * @fn void SavePng (const)
-   * @brief Save PNG format image.
+   * @fn void LoadHdr (const)
+   * @brief 
    * @param[in] filename
    * @return 
    * @exception none
-   * @details
+   * @details 
    */
-  auto SavePng (const char* filename) const noexcept -> void;
+  auto LoadHdr (const char* filename) -> void;
 
   /*!
    * @fn void SaveHdr (const)
@@ -115,16 +115,6 @@ private:
    * @details
    */
   auto SaveHdr (const char* filename) const noexcept -> void;
-
-  /*!
-   * @fn void SavePpm (const)
-   * @brief Save PPM format image.
-   * @param[in] filename
-   * @return void
-   * @exception none
-   * @details
-   */
-  auto SavePpm (const char* filename) const noexcept -> void;
 
   /*!
    * @fn  AllocateMemory ()

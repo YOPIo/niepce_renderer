@@ -24,7 +24,7 @@ InfiniteLight::InfiniteLight
 ) :
   image_ (std::make_shared <ImageIO <Spectrum>> (filename))
 {
-  // Todo : use transform matrix.
+  // Todo : Transform matrix.
 }
 /*
 // ---------------------------------------------------------------------------
@@ -60,10 +60,12 @@ auto InfiniteLight::Evaluate (const Intersection &intersection, Float* pdf)
   const auto x = static_cast <int> ((image_->Width  () - 1) * u);
   const auto y = static_cast <int> ((image_->Height () - 1) * v);
 
-  // ... ??
-  *pdf = 1;
-
-  return image_->At (x, y);
+  if (theta == 0)
+  {
+    return Spectrum (0.0);
+  }
+  *pdf = 1.0 / (2.0 * kPi * kPi * std::sin (theta));
+  return image_->At (x, y) * 0.09;
 }
 /*
 // ---------------------------------------------------------------------------
