@@ -65,7 +65,7 @@ auto InfiniteLight::Evaluate (const Intersection &intersection, Float* pdf)
     return Spectrum (0.0);
   }
   *pdf = 1.0 / (2.0 * kPi * kPi * std::sin (theta));
-  return image_->At (x, y) * 0.09;
+  return image_->At (x, y) * *pdf;
 }
 /*
 // ---------------------------------------------------------------------------
