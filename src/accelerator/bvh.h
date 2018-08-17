@@ -15,7 +15,6 @@
 #include "../core/memory.h"
 #include "bvh_primitive_info.h"
 #include "bvh_node.h"
-#define DEBUG
 /*
 // ---------------------------------------------------------------------------
 */

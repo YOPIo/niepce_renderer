@@ -54,10 +54,11 @@ public:
    */
   auto ToString () -> std::string;
 
-private:
   uint64_t minutes_;
   uint64_t seconds_;
   uint64_t milliseconds_;
+
+  int sec;
 };
 //! ----------------------------------------------------------------------------
 //! @class StopWatch

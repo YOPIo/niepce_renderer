@@ -22,6 +22,8 @@ ElapsedTime::ElapsedTime (uint64_t t)
   minutes_ = tmp / 60;
   seconds_ = tmp % 60;
   milliseconds_ = t % 1000;
+
+  sec = minutes_ * 60 + seconds_;
 }
 /*
 // ---------------------------------------------------------------------------

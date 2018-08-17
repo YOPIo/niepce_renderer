@@ -60,12 +60,10 @@ auto Plastic::AllocateBsdfs
   if (!specular.IsBlack ())
   {
     // Generate fresnel.
-    const auto f = memory->Allocate <FresnelDielectric> (1.0, 1.95);
-    /*
+    // const auto f = memory->Allocate <FresnelDielectric> (1.0, 1.95);
     const auto f = memory->Allocate <FresnelConductor> (Spectrum (1.5),
                                                         Spectrum (1.0),
-                                                        Spectrum (1.95));
-    */
+                                                        Spectrum (7.5));
     // Generate microfacet distribution.
     const auto rough
       = TrowbridgeReitz::RoughnessToAlpha (roughness_->Evaluate (isect));
