@@ -72,7 +72,7 @@ auto Camera::Save () const noexcept -> void
   Film f = film_;
   ToneMapping (&f);
   // Denoising (&f);
-  f.Save ();
+  f.SaveAs ("output.png");
 }
 /*
 // ---------------------------------------------------------------------------
@@ -86,7 +86,7 @@ auto Camera::SaveSequence (int round, int spp) const noexcept -> void
   {
     for (int x = 0; x < f.Width (); ++x)
     {
-      f.SetValueAt (x, y, f.At (x, y) / spp);
+      f.data_[y * f.Width() + x] = f.data_[y * f.Width() + x] / spp;
     }
   }
 
@@ -101,13 +101,13 @@ auto Camera::SaveSequence (int round, int spp) const noexcept -> void
 */
 auto Camera::FinalProcess (int round, int spp) -> void
 {
-  Film f (film_);
+  Film f = film_;
 
   for (int y = 0; y < f.Height (); ++y)
   {
     for (int x = 0; x < f.Width (); ++x)
     {
-      f.SetValueAt (x, y, f.At (x, y) / spp);
+      f.data_[y * f.Width() + x] = f.data_[y * f.Width() + x] / spp;
     }
   }
 

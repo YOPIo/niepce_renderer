@@ -69,10 +69,9 @@ auto PathTracer::Render () -> void
     }
   }
 
+  // Register tasks.
   ThreadPool& tasks = Singleton <ThreadPool>::Instance ();
-
   std::vector <std::future <void>> futures (tiles.size () * num_rounds);
-
   for (int round = 1, idx = 0; round <= num_rounds; ++round)
   {
     // Render each tile.
@@ -92,11 +91,11 @@ auto PathTracer::Render () -> void
 
   const auto &spp = settings_.GetItem (RenderSettings::Item::kNumSamples);
   int round = 0;
-  int next_seconds = 5;
-  for (int i = 0; i < tiles.size () * num_rounds; ++i)
+  int next_seconds = 3;
+  for (int i = 0; i < futures.size (); ++i)
   {
     // Show progressing.
-    std::cerr << (float)i / futures.size () * 100.0 << " %               \r";
+    std::cerr << (float)i / futures.size () * 100.0 << "   %             \r";
 
     round = i / tiles.size () + 1;
 
@@ -104,19 +103,21 @@ auto PathTracer::Render () -> void
     futures[i].wait ();
 
     // Save image
-    auto passed = Singleton <StopWatch>::Instance (). Split();
+    auto passed = Singleton <StopWatch>::Instance ().Split();
     if (passed.sec >= next_seconds)
     {
-      camera_->SaveSequence (round, spp * (round - 1));
-      next_seconds += 5;
+      // camera_->SaveSequence (round, spp * (round - 1));
+      next_seconds += 3;
     }
 
     // Update film.
     camera_->UpdateFilmTile (tiles[i % tiles.size ()], round);
+    camera_->SaveSequence (round, spp * (round - 1));
   }
 
   // Final process, save result.
-  camera_->FinalProcess (round, spp * (round - 1));
+  camera_->SaveSequence (round, spp * (round - 1));
+  // camera_->FinalProcess (round, spp * (round - 1));
 }
 /*
 // ---------------------------------------------------------------------------

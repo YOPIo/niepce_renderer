@@ -8,6 +8,8 @@
 #include "film.h"
 #include "film_tile.h"
 #include "vector3f.h"
+// #define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../ext/stb/stb_image_write.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -23,10 +25,72 @@ Film::Film
  unsigned int height,
  Float        diagonal
 ) :
-  ImageIO <Spectrum> (filename, width, height),
   bounds_   (width, height),
-  diagonal_ (diagonal)
+  diagonal_ (diagonal),
+  data_     (new Spectrum [width * height])
 {}
+/*
+// ---------------------------------------------------------------------------
+*/
+Film::Film (const Film &film) :
+  diagonal_ (film.diagonal_),
+  bounds_   (film.bounds_)
+{
+  const auto width  = static_cast <int> (film.Width ());
+  const auto height = static_cast <int> (film.Height ());
+  this->data_.reset (new Spectrum [width * height]);
+
+  for (int y = 0; y < height; ++y)
+  {
+    for (int x = 0; x < width; ++x)
+    {
+      const auto index = y * width + x;
+      this->data_[index] = film.data_[index];
+    }
+  }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+Film::Film (Film &&film) :
+  diagonal_ (film.Diagonal ()),
+  bounds_   (film.bounds_)
+{
+  const auto width  = static_cast <int> (film.Width ());
+  const auto height = static_cast <int> (film.Height ());
+  this->data_.reset (new Spectrum [width * height]);
+
+  for (int y = 0; y < height; ++y)
+  {
+    for (int x = 0; x < width; ++x)
+    {
+      const auto index = y * width + x;
+      this->data_[index] = film.data_[index];
+    }
+  }
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Film::SaveAs (const char *filename) const noexcept -> void
+{
+  const auto width  = Width ();
+  const auto height = Height ();
+  auto img = new unsigned char [width * height * 4];
+  for (int y = 0; y < height; ++y)
+  {
+    for (int x = 0; x < width; ++x)
+    {
+      const auto index = y * width + x;
+      img[4 * index + 0] = FloatToInt (data_[index].X ());
+      img[4 * index + 1] = FloatToInt (data_[index].Y ());
+      img[4 * index + 2] = FloatToInt (data_[index].Z ());
+      img[4 * index + 3] = 255;
+    }
+  }
+  stbi_write_png (filename, width, height, 4, img, sizeof (unsigned char) * width * 4);
+  delete [] img;
+}
 /*
 // ---------------------------------------------------------------------------
 */
@@ -39,8 +103,8 @@ auto Film::Diagonal () const noexcept -> Float
 */
 auto Film::PhysicalBounds () const noexcept -> Bounds2f
 {
-  const Float aspect = static_cast <Float> (height_)
-                     / static_cast <Float> (width_);
+  const Float aspect = static_cast <Float> (bounds_.Height ())
+                     / static_cast <Float> (bounds_.Width ());
   const Float x = std::sqrt (diagonal_ * diagonal_ / (1 + aspect * aspect));
   const Float y = aspect * x;
   return Bounds2f (Point2f (-x / 2.0, -y / 2.0), Point2f (x / 2.0, y / 2.0));
@@ -50,19 +114,20 @@ auto Film::PhysicalBounds () const noexcept -> Bounds2f
 */
 auto Film::Resolution () const noexcept -> Bounds2f
 {
-  return Bounds2f (Point2f (0, 0), Point2f (width_, height_));
+  return Bounds2f (Point2f (0, 0), Point2f (bounds_.Width (), bounds_.Height ()));
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto Film::ReplaceFilmTile (const FilmTile& tile) noexcept -> void
 {
+  const auto width = static_cast <int> (bounds_.Width ());
   for (int y = tile.Min().Y (); y < static_cast <int> (tile.Max ().Y ()); ++y)
   {
     for (int x = tile.Min().X (); x < static_cast <int> (tile.Max ().X ()); ++x)
     {
       const auto data = tile.At (x - tile.Min ().X (), y - tile.Min ().Y ());
-      SetValueAt (x, y, data);
+      data_.get () [y * width + x] = data;
     }
   }
 }
@@ -71,19 +136,10 @@ auto Film::ReplaceFilmTile (const FilmTile& tile) noexcept -> void
 */
 auto Film::UpdateFilmTile (const FilmTile &tile) noexcept -> void
 {
-  for (int y = tile.Min().Y (); y < static_cast <int> (tile.Max ().Y ()); ++y)
-  {
-    for (int x = tile.Min().X (); x < static_cast <int> (tile.Max ().X ()); ++x)
-    {
-      const auto &val1 = this->At (x, y);
-      const auto &val2 = tile.At (x - tile.Min ().X (), y - tile.Min ().Y ());
-      SetValueAt (x, y, (val1 + val2));
-    }
-  }
+  std::exit (EXIT_FAILURE);
 }
 /*
 // ---------------------------------------------------------------------------
-*/
 auto Denoising (Film *film) -> void
 {
   const auto src = Film (*film);
@@ -179,6 +235,7 @@ auto Denoising (Film *film) -> void
     }
   }
 }
+*/
 /*
 // ---------------------------------------------------------------------------
 */
@@ -187,80 +244,6 @@ auto ToneMapping (Film *film) -> void
   Spectrum *luminances = new Spectrum [film->Width () * film->Height ()];
   const auto width  = film->Width ();
   const auto height = film->Height ();
-  /*
-  auto RgbToYCbCr = [] (const Spectrum &rgb) -> Spectrum
-  {
-    const auto r = rgb.X ();
-    const auto g = rgb.Y ();
-    const auto b = rgb.Z ();
-    const auto y  = 0.183 * r + 0.614 * g + 0.062 * b + 16;
-    const auto cb = -0.101 * r - 0.339 * g + 0.439 * b + 128;
-    const auto cr = 0.439 * r - 0.399 * g - 0.040 * b + 128;
-    return Spectrum (r, g, b);
-  };
-  auto YCbCrToRgb = [] (const Spectrum &ycbcr) -> Spectrum
-  {
-    const auto y  = ycbcr.X ();
-    const auto cb = ycbcr.Y ();
-    const auto cr = ycbcr.Z ();
-    const auto r = 1.164 * (y - 16.0) + 1.793 * (cr - 128.0);
-    const auto g = 1.164 * (y - 16.0) - 0.213 * (cb - 128.0) - 0.533 * (cr - 128.0);
-    const auto b = 1.164 * (y - 16.0) + 2.112 * (cb - 128.0);
-    return Spectrum (r, g, b);
-  };
-
-  // Conpute log average.
-  Float sum = 0;
-  Float max = 0;
-  for (int y = 0; y < film->Height (); ++y)
-  {
-    for (int x = 0; x < film->Width (); ++x)
-    {
-      const auto l = RgbToYCbCr (film->At (x, y));
-      luminances[y * width + x] = l;
-      sum += std::log (kEpsilon + l.X ());
-      max = std::fmax (max, l.X ());
-    }
-  }
-  const auto lw = std::exp (sum / (film->Width () * film->Height ()));
-
-  // Scaling
-  for (int y = 0; y < film->Height (); ++y)
-  {
-    for (int x = 0; x < film->Width (); ++x)
-    {
-      const auto a = 0.18;
-      luminances[y * width + x] = a / lw * luminances[y * width + x];
-      // luminances[y * width + x].SetX (a / lw * luminances[y * width + x].X ());
-    }
-  }
-
-  for (int y = 0; y < film->Height (); ++y)
-  {
-    for (int x = 0; x < film->Width (); ++x)
-    {
-      const auto l = luminances[y * width + x].X ();
-      const auto tmp = (l * (1.0 + l / max * max)) / (1.0 + l);
-      luminances[y * width + x].SetX (l);
-      film->SetValueAt (x, y, YCbCrToRgb (luminances[y * width + x]));
-    }
-  }
-  */
-
-  /*
-  for (int y = 0; y < film->Height (); ++y)
-  {
-    for (int x = 0; x < film->Width (); ++x)
-    {
-      const auto l     = RgbToLuminance (film->At (x, y));
-      const auto scale = l != 0 ? (1.0f - std::exp(-l)) / l: 0.0f;
-      const auto r     = std::fmin (scale * film->At (x, y).X (), 1.0);
-      const auto g     = std::fmin (scale * film->At (x, y).Y (), 1.0);
-      const auto b     = std::fmin (scale * film->At (x, y).Z (), 1.0);
-      film->SetValueAt (x, y, Spectrum (r, g, b));
-    }
-  }
-  */
 
   // Reinhard tone mapping
   /*
@@ -289,10 +272,11 @@ auto ToneMapping (Film *film) -> void
         val = (val  * (a * val + b)) / (val * (c * val + d) + e);
         return Clamp (val, 0.0f, 1.0f);
       };
-      const auto r = tone_mapping (film->At (x, y).X ());
-      const auto g = tone_mapping (film->At (x, y).Y ());
-      const auto b = tone_mapping (film->At (x, y).Z ());
-      film->SetValueAt (x, y, Spectrum (r, g, b));
+      const auto index = y * width + x;
+      const auto r = tone_mapping (film->data_[index].X ());
+      const auto g = tone_mapping (film->data_[index].Y ());
+      const auto b = tone_mapping (film->data_[index].Z ());
+      film->data_[index] = Spectrum (r, g, b);
     }
   }
 }
