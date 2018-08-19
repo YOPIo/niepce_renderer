@@ -20,6 +20,7 @@
 #include "../camera/camera_sample.h"
 #include "../light/light.h"
 #include "../light/area_light.h"
+#include "../core/stop_watch.h"
 #include "../light/infinite_light.h"
 #include "../sampler/hammersley.h"
 #include "../sampler/low_discrepancy_sequence.h"
@@ -68,10 +69,9 @@ auto PathTracer::Render () -> void
     }
   }
 
+  // Register tasks.
   ThreadPool& tasks = Singleton <ThreadPool>::Instance ();
-
   std::vector <std::future <void>> futures (tiles.size () * num_rounds);
-
   for (int round = 1, idx = 0; round <= num_rounds; ++round)
   {
     // Render each tile.
@@ -91,28 +91,31 @@ auto PathTracer::Render () -> void
 
   const auto &spp = settings_.GetItem (RenderSettings::Item::kNumSamples);
   int round = 0;
+  int next_seconds = 15;
   for (int i = 0; i < futures.size (); ++i)
   {
     // Show progressing.
-    std::cerr << (float)i / futures.size () * 100.0 << " %               \r";
+    std::cerr << (float)i / futures.size () * 100.0 << "   %             \r";
 
     round = i / tiles.size () + 1;
 
-    if ((round != 1) && (i % tiles.size () == 0))
-    {
-      camera_->SaveSequence (round, spp * (round - 1));
-    }
-
     // Waiting for rendering of a tile.
     futures[i].wait ();
+
+    // Save image
+    auto passed = Singleton <StopWatch>::Instance ().Split();
+    if (passed.sec >= next_seconds)
+    {
+      camera_->SaveSequence (round, spp * (round));
+      next_seconds += 15;
+    }
 
     // Update film.
     camera_->UpdateFilmTile (tiles[i % tiles.size ()], round);
   }
 
-  // Final process
+  // Final process, save result.
   camera_->FinalProcess (round, spp * (round));
-  camera_->Save ();
 }
 /*
 // ---------------------------------------------------------------------------

@@ -72,7 +72,7 @@ auto Camera::Save () const noexcept -> void
   Film f = film_;
   // ToneMapping (&f);
   // Denoising (&f);
-  f.Save ();
+  f.SaveAs ("output.png");
 }
 /*
 // ---------------------------------------------------------------------------
@@ -80,13 +80,13 @@ auto Camera::Save () const noexcept -> void
 auto Camera::SaveSequence (int round, int spp) const noexcept -> void
 {
   static int num = 0;
-  Film f (film_);
+  Film f = film_;
 
   for (int y = 0; y < f.Height (); ++y)
   {
     for (int x = 0; x < f.Width (); ++x)
     {
-      f.SetValueAt (x, y, f.At (x, y) / spp);
+      f.data_[y * f.Width() + x] = f.data_[y * f.Width() + x] / spp;
     }
   }
 
@@ -101,19 +101,18 @@ auto Camera::SaveSequence (int round, int spp) const noexcept -> void
 */
 auto Camera::FinalProcess (int round, int spp) -> void
 {
-  for (int y = 0; y < film_.Height (); ++y)
+  Film f = film_;
+
+  for (int y = 0; y < f.Height (); ++y)
   {
-    for (int x = 0; x < film_.Width (); ++x)
+    for (int x = 0; x < f.Width (); ++x)
     {
-      film_.SetValueAt (x, y, film_.At (x, y) / spp);
+      f.data_[y * f.Width() + x] = f.data_[y * f.Width() + x] / spp;
     }
   }
 
-  ToneMapping (&film_);
-
-  std::ostringstream sout;
-  sout << std::setfill ('0') << std::setw (3) << round - 1;
-  film_.SaveAs (("sequences/" + sout.str () + ".png").c_str ());
+  ToneMapping (&f);
+  f.SaveAs ("output.png");
 }
 /*
 // ---------------------------------------------------------------------------

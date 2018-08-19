@@ -28,7 +28,7 @@ auto ToneMapping (Film *film) -> void;
 //! @brief
 //! @details
 //! ----------------------------------------------------------------------------
-class Film : public ImageIO <Spectrum>
+class Film
 {
 public:
   //! The default class constructor.
@@ -44,10 +44,10 @@ public:
   );
 
   //! The copy constructor of the class.
-  Film (const Film& film) = default;
+  Film (const Film& film);
 
   //! The move constructor of the class.
-  Film (Film&& film) = default;
+  Film (Film&& film);
 
   //! The default class destructor.
   virtual ~Film () = default;
@@ -59,6 +59,11 @@ public:
   auto operator = (Film&& film) -> Film& = default;
 
 public:
+  auto Width  () const noexcept -> int { return bounds_.Width (); };
+  auto Height () const noexcept -> int { return bounds_.Height (); };
+
+  auto SaveAs (const char *filename) const noexcept -> void;
+
   /*!
    * @fn Float Diagonal ()
    * @brief Return the physical length of diagonal.
@@ -112,6 +117,9 @@ private:
 
   //! @brief Physical length of diagonal. [m]
   const Float diagonal_;
+
+public:
+  std::unique_ptr <Spectrum []> data_;
 }; // class Film
 /*
 // ---------------------------------------------------------------------------
