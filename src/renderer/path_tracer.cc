@@ -109,6 +109,11 @@ auto PathTracer::Render () -> void
       camera_->SaveSequence (round, spp * (round));
       next_seconds += 15;
     }
+    if (passed.sec > 121)
+    {
+      std::terminate ();
+      break;
+    }
 
     // Update film.
     camera_->UpdateFilmTile (tiles[i % tiles.size ()], round);

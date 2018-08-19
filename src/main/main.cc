@@ -30,6 +30,7 @@
 #include "../bsdf/bxdf.h"
 #include "../sampler/low_discrepancy_sequence.h"
 #include "../sampler/random_sampler.h"
+#include <unistd.h>
 /*
 // ---------------------------------------------------------------------------
 */
@@ -63,7 +64,11 @@ auto Finalize () -> void
 int main (int argc, char* argv[])
 {
   niepce::Initialize ();
-  niepce::SceneImporter importer (argv[1]);
+  char d [256];
+  getcwd (d, 256);
+  std::string dir (d);
+  dir += "/scene/mugcup/mugcup.xml";
+  niepce::SceneImporter importer (dir.c_str ());
   auto settings = importer.ExtractRenderSettings ();
   auto scene    = importer.ExtractScene ();
   auto camera   = importer.ExtractCamera ();
