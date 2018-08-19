@@ -1,67 +1,145 @@
+/*!
+ * @file primitive.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 2018/5/5
+ * @details 
+ */
 #ifndef _PRIMITIVE_H_
 #define _PRIMITIVE_H_
 /*
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
-#include "../core/geometry.h"
-#include "../core/interaction.h"
+#include "../core/intersection.h"
+#include "../material/material.h"
+#include "../shape/sphere.h"
+#include "../light/light.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-// Interface of primitive type
-//
-// Primitive (Interface)
-//  |
-//  | -- Individual (Shape and Material/Light)
-//  |
-//  | -- Aggregate (Individuals)
-//  |
-//  | -- BVH (Individuals)
-// ---------------------------------------------------------------------------
-*/
+//! ----------------------------------------------------------------------------
+//! @class Primitive
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
 class Primitive
 {
-protected:
-  typedef SurfaceInteraction HitRecord;
+public:
+  //! The default class constructor.
+  Primitive () = default;
 
-
-  /* Primitive methdos */
- public:
-  Primitive ();
-  virtual ~Primitive ();
-
-  Primitive (const Primitive&  primitive) = default;
-  Primitive (      Primitive&& primitive) = default;
-
-
-  /* Primitive public operators */
- public:
-  auto operator = (const Primitive&  primitive) -> Primitive& = default;
-  auto operator = (      Primitive&& primitive) -> Primitive& = default;
-
-
-  /* Primitive public interfaces */
- public:
-  // Return bounding box in world or local space coordinate
-  virtual auto WorldBounds () const -> Bounds3f = 0;
-  virtual auto LocalBounds () const -> Bounds3f = 0;
-
-  // Return surface area of a primitive
-  virtual auto SurfaceArea () const -> Float = 0;
-
-
-  virtual auto IsIntersect
+  //! The constructor takes shape pointer and material pointer.
+  Primitive
   (
-   const Ray&       ray,
-         HitRecord* record
+   const std::shared_ptr <Shape>&     shape,
+   const std::shared_ptr <Material>&  material,
+   const std::shared_ptr <AreaLight>& light
+  );
+
+  //! The constructor takes shape and light.
+  Primitive
+  (
+   const std::shared_ptr <Shape>&     shape,
+   const std::shared_ptr <AreaLight>& area_light
+  );
+
+  //! The copy constructor of the class.
+  Primitive (const Primitive& primitive) = default;
+
+  //! The move constructor of the class.
+  Primitive (Primitive&& primitive) = default;
+
+  //! The default class destructor.
+  virtual ~Primitive () = default;
+
+  //! The copy assignment operator of the class.
+  auto operator = (const Primitive& primitive) -> Primitive& = default;
+
+  //! The move assignment operator of the class.
+  auto operator = (Primitive&& primitive) -> Primitive& = default;
+
+public:
+  /*!
+   * @fn void Intersect (const Ray& ray, Intersection* intersection)
+   * @brief 
+   * @param[in] ray 
+   * @param[out] intersection Ray intersected with a shape or not.
+   * @return void
+   * @exception none
+   * @details
+   */
+  auto IsIntersect
+  (
+   const Ray& ray,
+   Intersection* intersection
   )
-  const -> bool = 0;
-};
+  const noexcept -> bool;
+
+  /*!
+   * @fn std::shared_ptr <niepce::Shape> Shape ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+  */
+  auto Shape () const noexcept -> const std::shared_ptr <niepce::Shape>;
+
+  /*!
+   * @fn std::shared_ptr <niepce::Material> Material ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+  */
+  auto Material () const noexcept -> const std::shared_ptr <niepce::Material>;
+
+  /*!
+   * @fn std::shared_ptr <niepce::Light> Light ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Light () const noexcept -> const std::shared_ptr <niepce::AreaLight>;
+
+  /*!
+   * @fn const HasMaterial ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto HasMaterial () const noexcept -> bool;
+
+  /*!
+   * @fn bool HasLight ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto HasLight () const noexcept -> bool;
+
+private:
+  std::shared_ptr <niepce::Shape>     shape_prt_;
+  std::shared_ptr <niepce::Material>  material_ptr_;
+  std::shared_ptr <niepce::AreaLight> light_ptr_;
+}; // class Primitive
+/*
+// ---------------------------------------------------------------------------
+// Helper function for primitive
+// ---------------------------------------------------------------------------
+*/
+auto CreatePrimitive
+(
+ const std::shared_ptr <Shape>&     shape,
+ const std::shared_ptr <Material>&  material,
+ const std::shared_ptr <AreaLight>& light
+)
+  -> std::shared_ptr <Primitive>;
 /*
 // ---------------------------------------------------------------------------
 */

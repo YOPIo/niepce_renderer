@@ -1,11 +1,28 @@
 cmake_minimum_required (VERSION 2.8)
 
-add_library(
-  Core STATIC
-  object.cc
-  image.cc
+# Create static library
+add_library (Core STATIC
+  attributes.cc
+  bounds2f.cc
+  bounds3f.cc
+  film.cc
+  film_tile.cc
+  intersection.cc
   pixel.cc
-  geometry.cc
-  matrix4x4.cc
+  ray.cc
+  render_settings.cc
+  stop_watch.cc
+  material_attributes.cc
+  thread_pool.cc
+  memory.cc
+  point2f.cc
+  point3f.cc
+  vector2f.cc
+  vector3f.cc
+  image.cc
+  imageio.cc
+  matrix4x4f.cc
   transform.cc
+  singleton.cc
+  film.cc
 )

@@ -1,58 +1,92 @@
+/*!
+ * @file random_sampler.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 
+ * @details 
+ */
 #ifndef _RANDOM_SAMPLER_H_
 #define _RANDOM_SAMPLER_H_
 /*
 // ---------------------------------------------------------------------------
 */
-#include "sampler.h"
+#include "../core/niepce.h"
 #include "../random/xorshift.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-*/
-auto CreateRandomSampler () -> SamplerPtr;
-/*
-// ---------------------------------------------------------------------------
-*/
-class RandomSampler : public Sampler
+//! ----------------------------------------------------------------------------
+//! @class RandomSampler
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
+class RandomSampler
 {
-  /* RandomSampler public constructors */
- public:
-  RandomSampler ();
+public:
+  //! The default class constructor.
+  RandomSampler () = default;
 
-  /* RandomSampler public destructor */
- public:
+  //! The constructor takes a seed.
+  RandomSampler (int seed);
+
+  //! The default class destructor.
   virtual ~RandomSampler () = default;
 
+  //! The move constructor of the class.
+  RandomSampler (RandomSampler&& sampler) = default;
 
-  /* RandomSampler public operators */
- public:
-  RandomSampler (const RandomSampler&  sampler) = default;
-  RandomSampler (      RandomSampler&& sampler) = default;
+  //! The move assignment operator of the class.
+  auto operator = (RandomSampler&& sampler) -> RandomSampler& = default;
 
-  auto operator = (const RandomSampler&  sampler) -> RandomSampler& = default;
-  auto operator = (      RandomSampler&& sampler) -> RandomSampler& = default;
+protected:
+  //! The copy constructor of the class.
+  //! Use Clone() instead.
+  RandomSampler (const RandomSampler& sampler) = default;
 
+  //! The copy assignment operator of the class.
+  //! Use Clone() instead.
+  auto operator = (const RandomSampler& sampler) -> RandomSampler& = default;
 
-  /* RandomSampler public methods */
- public:
-  auto Get1D () -> Sample1f override final;
+public:
+  //! @fn std Clone ()
+  //! @brief
+  //! @param [in] seed
+  //! @return 
+  //! @exception none
+  //! @details 
+  auto Clone (int seed) const noexcept -> std::unique_ptr <RandomSampler>;
 
-  auto Get2D () -> Sample2f override final;
+  //! @fn Float SampleFloat ()
+  //! @brief Return the float in [0, 1).
+  //! @return Random number in [0, 1).
+  //! @exception none
+  //! @details 
+  auto SampleFloat () noexcept -> Float;
 
+  //! @fn Point2f SamplePoint2f ()
+  //! @brief Return the pair of float in [0, 1).
+  //! @return Random numbers in [0, 1).
+  //! @exception none
+  //! @details 
+  auto SamplePoint2f () noexcept -> Point2f;
 
-  /* RandomSampler private data */
- private:
+  //! @fn void SetSeed (int)
+  //! @brief Set the seed to random number generator in this class.
+  //! @param[in] seed 
+  //! @return void
+  //! @exception none
+  //! @details 
+  auto SetSeed (int seed) noexcept -> void;
+
+private:
   XorShift rng_;
-
 }; // class RandomSampler
 /*
 // ---------------------------------------------------------------------------
 */
-}  // namespace niepce
+} // namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */

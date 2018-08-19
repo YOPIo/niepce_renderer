@@ -1,56 +1,96 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required (VERSION 2.8)
 
-# Use clang++
-# SET (CMAKE_CXX_COMPILER /usr/bin/clang++)
+# Project name
+project (niepce)
 
-project(niepce CXX)
+# Use c++11.
+set (CMAKE_CXX_FLAGS "-std=c++11 -O3 -g -march=native")
 
-add_definitions("-std=c++17 -O2")
+# Build options
+# To building a plugin for autodesk maya, use "-DBUILD_MAYA_PLUGIN=on" option.
+option (NIEPCE_USE_SIMD     "Enable to use SIMD." OFF)
+option (BUILD_CUI_RENDERER  "Build a CUI renderer." ON)
+option (BUILD_MAYA_PLUGIN   "Build a plugin for autodesk maya." OFF)
+option (NIEPCE_STATIC_BUILD "Building with static link." OFF)
+option (DEBUG               "DEBUG" OFF)
 
-find_package( OpenMP )
-if (OPENMP_FOUND)
-  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
-  include_directories(SYSTEM ${OpenMP_INCLUDE_PATH})
-endif()
+# Generating a config file as "cmake_conifig.h"
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in
+                ${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h)
 
+if (DEBUG)
+  message (STATUS "Debug mode.")
+endif ()
+
+# SIMD
+if (NIEPCE_USE_SIMD)
+  message (STATUS "Use SIMD.")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
+endif ()
+
+# Static build
+if (NIEPCE_STATIC_BUILD)
+  if (CMAKE_CXX_COMPILER MATCHES "icpc")
+    message (STATUS "Use Intel compiler.")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -xHOST -O3 -ipo -no-prec-div -static-intel")
+  else()
+    message (STATUS "Static link.")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static -pthread -Wl,--whole-archive -lpthread -Wl,--no-whole-archive")
+    set (CMAKE_EXE_LINKER_FLAGS "-static -static-libgcc -static-libstdc++")
+  endif ()
+else ()
+  message (STATUS "dynamic link.")
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+endif ()
+
+# Build
+if (BUILD_MAYA_PLUGIN)
+  message (STATUS "Building a plugin for autodesk maya.")
+  set (BUILD_CUI_RENDERER OFF)
+  # Use FindMaya.cmake
+  set (CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/modules)
+  # Find the autodesk maya
+  find_package (Maya REQUIRED)
+else ()
+  message (STATUS "Building a CUI renderer.")
+endif ()
+
+# Build static libraries
 add_subdirectory (src/random)
-add_subdirectory (src/core)
-add_subdirectory (src/ext)
-add_subdirectory (src/memory)
-add_subdirectory (src/camera)
+add_subdirectory (src/bsdf)
+add_subdirectory (src/renderer)
 add_subdirectory (src/sampler)
-add_subdirectory (src/shape)
-add_subdirectory (src/texture)
-add_subdirectory (src/bxdf)
-add_subdirectory (src/material)
 add_subdirectory (src/light)
+add_subdirectory (src/shape)
 add_subdirectory (src/primitive)
+add_subdirectory (src/texture)
+add_subdirectory (src/material)
 add_subdirectory (src/accelerator)
 add_subdirectory (src/scene)
-add_subdirectory (src/integrator)
+add_subdirectory (src/camera)
+add_subdirectory (src/core)
+add_subdirectory (src/ext)
 
-add_executable (
-  niepce
-  src/main/main.cc
-)
+# Add subdirectory to build the maya plugin
+if (BUILD_MAYA_PLUGIN)
+  add_subdirectory (src/maya)
 
-target_link_libraries (
-  niepce
-  tinyxml2
-  Integrator
-  Scene
-  Accelerator
-  Primitive
-  Light
-  Material
-  Bxdf
-  Texture
-  Sampler
-  # Camera
-  Random
-  Memory
-  Shape
-  Core
-)
+else ()
+  add_executable (${PROJECT_NAME} src/main/main.cc)
+  target_link_libraries (${PROJECT_NAME}
+    Renderer
+    Scene
+    Accelerator
+    Light
+    Texture
+    Material
+    Camera
+    Bsdf
+    Shape
+    Primitive
+    Sampler
+    Random
+    Ext
+    Core)
+
+endif ()

@@ -1,112 +1,125 @@
+/*!
+ * @file scene.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 2018/5/5
+ * @details 
+ */
 #ifndef _SCENE_H_
 #define _SCENE_H_
 /*
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
-#include "../core/geometry.h"
-#include "../core/interaction.h"
-#include "../texture/texture.h"
-#include "../texture/constant_texture.h"
-#include "../texture/image_map.h"
-#include "../bxdf/bxdf.h"
-#include "../bxdf/lambert.h"
-#include "../material/material.h"
-#include "../material/matte.h"
-#include "../shape/vertex.h"
-#include "../shape/shape.h"
-#include "../shape/triangle.h"
-#include "../shape/sphere.h"
-#include "../light/light.h"
-#include "../light/area.h"
-#include "../light/ibl.h"
 #include "../accelerator/bvh.h"
+#include "../accelerator/aggregation.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-*/
-enum AcceleratorType
-{
-  kNone,
-  kSah,
-  kBvh
-};
-/*
-// ---------------------------------------------------------------------------
-*/
+//! ----------------------------------------------------------------------------
+//! @class Scene
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
 class Scene
 {
-  /* Scene constructors */
 public:
+  //! The default class constructor.
   Scene () = default;
+
+  //! The constructor takes primitives.
   Scene
   (
-   const std::vector <IndividualPtr>& aggregate,
-   const AcceleratorType& type = AcceleratorType::kNone
+   const std::vector <std::shared_ptr <Primitive>>& primitives,
+   const std::vector <std::shared_ptr <Light>>&     lights,
+   const std::shared_ptr <niepce::InfiniteLight>&   inf_light
   );
 
+  //! The copy constructor of the class.
+  Scene (const Scene& scene) = default;
 
-  /* Scene public destructor */
+  //! The move constructor of the class.
+  Scene (Scene&& scene) = default;
+
+  //! The default class destructor.
   virtual ~Scene () = default;
 
+  //! The copy assignment operator of the class.
+  auto operator = (const Scene& scene) -> Scene& = default;
 
-  /* Scene public operators*/
+  //! The move assignment operator of the class.
+  auto operator = (Scene&& scene) -> Scene& = default;
+
 public:
-  Scene (const Scene&  scene) = default;
-  Scene (      Scene&& scene) = default;
-
-  auto operator = (const Scene&  scene) -> Scene& = default;
-  auto operator = (      Scene&& scene) -> Scene& = default;
-
-
-  /* Scene public methods */
-public:
-  // (Re)Construct a SAH BVH or Kdtree
-  // If primitives are given, current scene are going to be destroyed and
-  // replace
-  auto Construct
-  (
-   const AcceleratorType& type,
-   const std::vector <IndividualPtr>& primitives
-  )
-  -> void;
-
-  // Ray-Shape intersection test, return primitive pointer
+  /*!
+   * @fn void Intersect (const Ray& ray, Intersection* intersection)
+   * @brief 
+   * @param[in] ray 
+   * @param[out] intersection Ray intersected with a shape or not.
+   * @return void
+   * @exception no
+   * @details
+   */
   auto IsIntersect
   (
-   const Ray&          ray,
-   SurfaceInteraction* interaction
+   const Ray& ray, // outgoing
+   Intersection* intersection
   )
-  const -> bool;
+  const noexcept -> bool;
 
-  // Load IBL image
-  // If HDR image have already loaded, it will be freed
-  auto LoadIbl   (const std::string& filepath) -> void;
-  auto HasIbl    () const -> bool;
-  auto SampleIbl (const Ray& ray) const -> Spectrum;
+  /*!
+   * @fn std Light (int)
+   * @brief 
+   * @param[in] idx
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Light (unsigned int idx)
+    const noexcept -> std::shared_ptr <niepce::Light>;
 
-  /* Scene private data */
+  /*!
+   * @fn unsigned NumLight ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto NumLight () const noexcept -> unsigned int;
+
+  /*!
+   * @fn std InfiniteLight ()
+   * @brief 
+   * @param[in] 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto InfiniteLight () const noexcept -> std::shared_ptr <InfiniteLight>;
+
+
 private:
-  // Primitives
-  std::shared_ptr<Primitive> root_;
+  Bvh primitives_;
+  std::vector <std::shared_ptr <niepce::Light>> lights_;
 
-  // Store point/area light sources
-  std::vector <LightPtr> lights_;
+  std::shared_ptr <niepce::InfiniteLight> infinite_light_;
 
-  // Store only infinite lights
-  std::shared_ptr<Ibl> ibl_;
-
-  AcceleratorType accel_type_;
+  std::vector <std::shared_ptr <Primitive>> original_;
 }; // class Scene
 /*
 // ---------------------------------------------------------------------------
 */
-}  // namespace niepce
+auto CreateScene
+(
+ const std::vector <std::shared_ptr <Primitive>>& p,
+ const std::vector <std::shared_ptr <Light>>&     lights,
+ const std::shared_ptr <niepce::InfiniteLight>&   inf_light
+) -> Scene*;
 /*
 // ---------------------------------------------------------------------------
 */
+}  // namespace niepce
 #endif // _SCENE_H_

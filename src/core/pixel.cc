@@ -1,117 +1,67 @@
+/*!
+ * @file pixel.cc
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 2018/4/20
+ * @details 
+ */
 #include "pixel.h"
 /*
 // ---------------------------------------------------------------------------
-*/
-namespace niepce
+*/namespace niepce
 {
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename T>
-Pixel <T>::Pixel (T r, T g, T b) :
-  r_ (r), g_ (g), b_ (b)
+Pixel::Pixel (Float r, Float g, Float b) :
+  r_ (Clamp (r)),
+  g_ (Clamp (g)),
+  b_ (Clamp (b)),
+  a_ (0)
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename T>
-auto Pixel <T>::operator [] (const size_t idx) -> T&
+auto Pixel::R () const -> Float
 {
-  return rgb_[idx];
+  return r_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename T>
-auto Pixel <T>::operator [] (const size_t idx) const -> T
+auto Pixel::G () const -> Float
 {
-  return rgb_[idx];
+  return g_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename T>
-auto Pixel <T>::operator + (const Pixel &p) const -> Pixel <T>
+auto Pixel::B () const -> Float
 {
-  return Pixel (r_ + p.r_, g_ + p.g_, b_ + p.g_);
+  return b_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename T>
-auto Pixel <T>::operator - (const Pixel &p) const -> Pixel <T>
+auto Pixel::SetR (Float red) -> void
 {
-  return Pixel (r_ - p.r_, g_ - p.g_, b_ - p.g_);
+  r_ = red;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename T>
-auto Pixel <T>::operator * (T t) const -> Pixel <T>
+auto Pixel::SetG (Float green) -> void
 {
-  return Pixel (r_ * t, g_ * t, b_ * t);
+  g_ = green;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename T>
-auto Pixel <T>::operator / (T t) const -> Pixel <T>
+auto Pixel::SetB (Float blue) -> void
 {
-  return Pixel (r_ / t, g_ / t, b_ / t);
+  b_ = blue;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename T>
-auto Pixel <T>::operator += (const Pixel& p) -> Pixel <T>&
-{
-  this->r_ += p.r_;
-  this->g_ += p.g_;
-  this->b_ += p.b_;
-  return *this;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto Pixel <T>::operator -= (const Pixel& p) -> Pixel <T>&
-{
-  this->r_ -= p.r_;
-  this->g_ -= p.g_;
-  this->b_ -= p.b_;
-  return *this;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto Pixel <T>::operator *= (T t) -> Pixel <T>&
-{
-  this->r_ *= t;
-  this->g_ *= t;
-  this->b_ *= t;
-  return *this;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto Pixel <T>::operator /= (T t) -> Pixel <T>&
-{
-  this->r_ /= t;
-  this->g_ /= t;
-  this->b_ /= t;
-  return *this;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template class Pixel <Float>;
-template class Pixel <int>;
-/*
-// ---------------------------------------------------------------------------
-*/
-}  // namespace niepce
-/*
-// ---------------------------------------------------------------------------
-*/
+} // namespace niepce

@@ -1,4 +1,13 @@
+/*!
+ * @file sphere.cc
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 2018/5/5
+ * @details 
+ */
 #include "sphere.h"
+#include "../core/ray.h"
+#include "../core/point2f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -7,218 +16,95 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Sphere::Sphere
-(
- const Transform& t,
-       Float      radius
-) :
-  Shape   (t),
+Sphere::Sphere (const Transform &local_to_world, Float radius) :
+  Shape   (local_to_world),
   radius_ (radius)
 {}
-/*
-// ---------------------------------------------------------------------------
-*/
-Sphere::Sphere
-(
- const Point3f& center,
-       Float    radius
-) :
-  Shape   (Transform (Translate (static_cast<Vector3f> (center)))),
-  center_ (center),
-  radius_ (radius)
-{}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Sphere::SurfaceArea () const -> Float
-{
-  return 4.0 * kPi * radius_ * radius_;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Sphere::LocalBounds () const -> Bounds3f
-{
-  return Bounds3f ();
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Sphere::WorldBounds () const -> Bounds3f
-{
-  return Bounds3f ();
-}
 /*
 // ---------------------------------------------------------------------------
 */
 auto Sphere::IsIntersect
 (
- const Ray&          ray,
- SurfaceInteraction* si
+ const Ray& ray,
+ Intersection* intersection
 )
-const -> bool
+  const noexcept -> bool
 {
-  /*
-  // Transform ray in the world coordinate system to
-  // object coordinate system
-  const Ray local_ray (WorldToLocal (ray));
+  // TODO: Localで計算する
+  const auto center = local_to_world_ * Point3f::Zero ();
+  const auto po = center - ray.Origin ();
 
-  // Prepare for solving equation
-  const Float a (local_ray.direction.x * local_ray.direction.x +
-                 local_ray.direction.y * local_ray.direction.y +
-                 local_ray.direction.z * local_ray.direction.z);
-  const Float b (2.0 * (local_ray.direction.x * local_ray.origin.x +
-                        local_ray.direction.y * local_ray.origin.y +
-                        local_ray.direction.z * local_ray.origin.z));
-  const Float c (local_ray.origin.x * local_ray.origin.x +
-                 local_ray.origin.y * local_ray.origin.y +
-                 local_ray.origin.z * local_ray.origin.z -
-                 radius_ * radius_);
+  const auto b = Dot (po, ray.Direction ());
+  const auto discr = b * b - Dot (po, po) + radius_ * radius_;
 
-  // Solve quadratic
-  const Float discrim (b * b - 4.0 * a * c);
-  if (discrim < 0)
-  {
-    return false;
-  }
-  const Float sqrt_discrim (std::sqrt (discrim));
-  const Float q  (b < 0 ? -0.5 * (b - sqrt_discrim) : -0.5 * (b + sqrt_discrim));
-  const Float t0 (q / a);
-  const Float t1 (c / q);
-  const Float t  (t0 < t1 ? t0 : t1);
+  if (discr < 0.0) { return false; }
 
-  const Point3f position (local_ray (t));
+  const auto sqrt_discr = std::sqrt (discr);
+  const auto t1 = b - sqrt_discr;
+  const auto t2 = b + sqrt_discr;
 
-  const Float z (std::sqrt (position.x * position.x + position.y * position.y));
-  const Float inv_z (1.0 / z);
-  const Float theta   (std::acos (Clamp (position.z / radius_, -1, 1)));
-  const Float cos_phi (position.x * inv_z);
-  const Float sin_phi (position.y * inv_z);
-  const Vector3f dpdu (-360 * position.y, 360 * position.x, 0.0);
-  const Vector3f dpdv (position.z * cos_phi, position.z * sin_phi,
-                       -radius_ * std::sin (theta));
+  if (t1 < kEpsilon && t2 < kEpsilon) { return false; }
 
-  *si = SurfaceInteraction (LocalToWorld (position),
-                            -ray.direction,
-                            LocalToWorld (position - LocalCenter ()),
-                            t,
-                            Point2f::Zero (),
-                            dpdu,
-                            dpdv,
-                            Normal3f (),
-                            Normal3f ());
-  return true;
-  */
+  const auto t = t1 > kEpsilon ? t1 : t2;
+  const auto p = ray.Origin () + t * ray.Direction ();
+  const auto n = Normalize (p - center);
 
-  const Float kSphereEpsilon = 1e-5;
+  const auto tmp = Normalize (world_to_local_ * p - Point3f::Zero ());
+  const auto theta = std::acos (tmp.Y () / radius_);
+  auto phi = std::atan2 (tmp.X (), tmp.Z ());
+  if (phi < 0.0) { phi += 2.0 * kPi; }
+  auto u = 1.0 - (phi / (2.0 * kPi));
+  auto v = (theta / kPi);
 
-  const Vector3f o_to_p (WorldCenter () - ray.origin);
-  const Float b         (Dot (o_to_p, ray.direction));
-  const Float c         (b * b - Dot (o_to_p, o_to_p) + radius_ * radius_);
+  intersection->SetDistance (t);
+  intersection->SetPosition (p);
+  intersection->SetNormal   (n);
+  intersection->SetTexcoord (Point2f (u, v));
 
-  if (c < 0.0)
-  {
-    return false;
-  }
-
-  const Float sqrt_c (std::sqrt (c));
-  const Float t1 (b - sqrt_c);
-  const Float t2 (b + sqrt_c);
-
-  if (t1 < kSphereEpsilon && t2 < kSphereEpsilon)
-  {
-    return false;
-  }
-
-  // Ray intersect with sphere
-  // Compute hit position, normal, etc...
-  const Point3f  position (t1 > kSphereEpsilon ? ray (t1) : ray (t2));
-  const Float    t        (t1 > kSphereEpsilon ? t1       : t2);
-  const Normal3f normal   (position - WorldCenter ());
-  Vector3f tangent, binormal;
-  OrthoNormalBasis (normal, &tangent, &binormal);
-
-  *si = SurfaceInteraction (position,
-                            Normalize (-ray.direction),
-                            normal,
-                            t,
-                            Point2f::Zero (),
-                            tangent,
-                            binormal,
-                            Normal3f (),
-                            Normal3f ());
   return true;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Sphere::Sample (const Sample2f& sample) const -> Interaction
+auto Sphere::Bounds () const noexcept -> Bounds3f
 {
-  // TODO: implementation
+  const auto min = local_to_world_ * Point3f (-radius_, -radius_, -radius_);
+  const auto max = local_to_world_ * Point3f ( radius_,  radius_,  radius_);
+  return Bounds3f (min, max);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Sphere::Pdf () const -> Float
+auto Sphere::Sample (const Point2f& sample) const noexcept -> Point3f
 {
-  // TODO: implementation
+    return Point3f ();
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Sphere::ToString () const -> std::string
+auto Sphere::SurfaceArea () const noexcept -> Float
 {
-  std::string str ("");
-  str += "Shape type: Sphere\n";
-  str += "Radius         : " +  std::to_string (radius_);
-  str += "World Position : [" +  WorldCenter ().ToString () + "]\n";
-  return str;
+  return 4 * kPi * radius_ * radius_;
 }
 /*
 // ---------------------------------------------------------------------------
-*/
-auto Sphere::WorldCenter () const -> Point3f
-{
-  return LocalToWorld (Point3f::Zero ());
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Sphere::LocalCenter () const -> Point3f
-{
-  return Point3f::Zero ();
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Sphere::Radius () const -> Float
-{
-  return radius_;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto operator << (std::ostream& os, const Sphere& sphere) -> std::ostream&
-{
-  os << "Shape type: Sphere\n";
-  os << "[Radius: " << sphere.Radius () << "]";
-  os << "[World Position: " << sphere.WorldCenter ().ToString () + "]\n";
-  return os;
-}
-/*
+// Helper function for sphere
 // ---------------------------------------------------------------------------
 */
 auto CreateSphere
 (
- Float radius,
- const Point3f& position
+ const Transform &transform,
+ Float radius
 )
--> std::shared_ptr <Sphere>
+  -> std::shared_ptr <Shape>
 {
-  const std::shared_ptr <Sphere> sphere (std::make_shared <Sphere> (position, radius));
+  std::shared_ptr <Shape> sphere (new Sphere (transform, radius));
   return std::move (sphere);
 }
 /*
 // ---------------------------------------------------------------------------
 */
 }  // namespace niepce
+/*
+// ---------------------------------------------------------------------------
+*/

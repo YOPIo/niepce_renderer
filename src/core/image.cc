@@ -1,16 +1,12 @@
+/*!
+ * @file image.h
+ * @brief The fundamental class for image.
+ * @author Masashi Yoshida
+ * @date 2018/4/20
+ * @details
+ */
 #include "image.h"
-/*
-// ---------------------------------------------------------------------------
-*/
-#ifndef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#include "../ext/stb/stb_image.h"
-#endif // STB_IMAGE_IMPLEMENTATION
-
-#ifndef STB_IMAGE_WRITE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../ext/stb/stb_image_write.h"
-#endif // STB_IMAGE_WRITE_IMPLEMENTATION
+#include "vector3f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -18,249 +14,86 @@ namespace niepce
 {
 /*
 // ---------------------------------------------------------------------------
-// Image3
-// ---------------------------------------------------------------------------
 */
 template <typename T>
-Image3 <T>::Image3 (size_t width, size_t height) :
-  resolution_ (width, height),
-  data_       (new Pixel <T> [width * height])
+Image<T>::Image (unsigned int width, unsigned int height) :
+  width_  (width),
+  height_ (height),
+  data_   (new T [width * height], std::default_delete <T []> ())
 {}
 /*
 // ---------------------------------------------------------------------------
 */
 template <typename T>
-auto Image3 <T>::operator () (size_t x, size_t y) -> Pixel <T>&
-{
-  return data_ [y * resolution_.x + x];
-}
+Image<T>::~Image ()
+{}
 /*
 // ---------------------------------------------------------------------------
 */
 template <typename T>
-auto Image3 <T>::operator () (size_t x, size_t y) const -> Pixel <T>
+auto Image<T>::operator () (unsigned int x, unsigned int y)
+  const noexcept -> T
 {
-  return data_ [y * resolution_.x + x];
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto Image3 <T>::At (size_t x, size_t y) -> Pixel <T>&
-{
-  return data_ [y * resolution_.x + x];
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto Image3 <T>::At (size_t x, size_t y) const -> Pixel <T>
-{
-  return data_ [y * resolution_.x + x];
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto Image3 <T>::GetWidth () const -> uint32_t
-{
-  return resolution_.x;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto Image3 <T>::GetHeight () const -> uint32_t
-{
-  return resolution_.y;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template class Image3 <Float>;
-template class Image3 <int>;
-/*
-// ---------------------------------------------------------------------------
-// Functions for Image3 <T>
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto CreateImage3 (size_t width, size_t height) -> ImagePtr <T>
-{
-  return std::make_shared <Image3 <T>> (width, height);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template auto CreateImage3 <Float> (size_t width, size_t height)
-  -> ImagePtr <Float>;
-template auto CreateImage3 <int>   (size_t width, size_t height)
-  -> ImagePtr <int>;
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-auto LoadImage (const char* filename) -> ImagePtr <T>
-{
-  // Load width, height and image data as rgb (0 - 255)
-  int width, height, n;
-  unsigned char* data = stbi_load (filename, &width, &height, &n, 3);
-  if (data == NULL)
+  if (y * width_ + x < width_ * height_)
   {
-    // File was not found
-    throw std::exception ();
-    return nullptr;
+    return data_.get ()[y * width_ + x];
   }
-
-  // Allocate memory
-  ImagePtr <T> ret (CreateImage3 <T> (width, height));
-
-  // Copy data
-  for (size_t y = 0; y < height; ++y)
-  {
-    for (size_t x = 0; x < width; ++x)
-    {
-      // return std::pow (v, 1.0 / 2.2) * 255.0 + 0.5;
-      const T r (data[y * width * n + 3 * x + 0] / 255.0);
-      const T g (data[y * width * n + 3 * x + 1] / 255.0);
-      const T b (data[y * width * n + 3 * x + 2] / 255.0);
-      (*ret) (x, y) = Pixel <T> (r, g, b);
-    }
-  }
-
-  // Free original image
-  stbi_image_free (data);
-
-  return std::move (ret);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-template auto LoadImage <Float> (const char* filename) -> ImagePtr <Float>;
-template auto LoadImage <int>   (const char* filename) -> ImagePtr <int>;
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename Float>
-auto LoadHdrImage (const char* filename) -> ImagePtr <Float>
-{
-
-  stbi_hdr_to_ldr_gamma(2.2f);
-  stbi_hdr_to_ldr_scale(1.0f);
-
-  int width, height, n;
-  float* data = stbi_loadf (filename, &width, &height, &n, 4);
-
-  // Allocate memory
-  ImagePtr <Float> ret (CreateImage3 <Float> (width, height));
-
-  // Copy data
-  for (size_t y = 0; y < height; ++y)
-  {
-    for (size_t x = 0; x < width; ++x)
-    {
-      const Float r (data[y * width * n + 3 * x + 0]);
-      const Float g (data[y * width * n + 3 * x + 1]);
-      const Float b (data[y * width * n + 3 * x + 2]);
-      (*ret) (x, y) = Pixel <Float> (r, g, n);
-    }
-  }
-
-  // Free original image
-  stbi_image_free (data);
-
-  return ret;
+  return data_.get ()[0];
 }
 /*
 // ---------------------------------------------------------------------------
 */
 template <typename T>
-auto WriteImage
+auto Image<T>::At (unsigned int x, unsigned int y) const -> T
+{
+  if (y * width_ + x < width_ * height_)
+  {
+    return data_.get ()[y * width_ + x];
+  }
+  return data_.get ()[0];
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
+auto Image<T>::SetValueAt
 (
- const char*        filename,
- const ImagePtr<T>& img
+ unsigned int x,
+ unsigned int y,
+ const T& value
 )
--> void
+  const -> void
 {
-  const uint32_t width  (img->GetWidth  ());
-  const uint32_t height (img->GetHeight ());
-
-  unsigned char* data = new unsigned char [width * height * 3];
-
-  for (int y = 0; y < height; ++y)
+  if (y * width_ + x < width_ * height_)
   {
-    for (int x = 0; x < width; ++x)
-    {
-      data[y * width * 3 + 3 * x + 0] = 255.0 * (*img) (x, y).r_;
-      data[y * width * 3 + 3 * x + 1] = 255.0 * (*img) (x, y).g_;
-      data[y * width * 3 + 3 * x + 2] = 255.0 * (*img) (x, y).b_;
-    }
+    data_.get ()[y * width_ + x] = value;
+    return ;
   }
-
-  stbi_write_png (filename, width, height, 3, (void*)data, width * 3);
-
-  delete [] data;
+  std::cout << "out of range in image.cc" << std::endl;
+  std::cout << x << ", " << y <<std::endl;
 }
-/*
-// ---------------------------------------------------------------------------
-*/
-template
-auto WriteImage <Float>
-(
- const char*            filename,
- const ImagePtr<Float>& img
-)
--> void;
-
-template
-auto WriteImage <int>
-(
- const char*          filename,
- const ImagePtr<int>& img
-)
--> void;
 /*
 // ---------------------------------------------------------------------------
 */
 template <typename T>
-auto SaveAs (const char* filename, const Image3 <T>& img) -> void
+auto Image<T>::Height () const noexcept -> int
 {
-  const uint32_t width  (img.GetWidth  ());
-  const uint32_t height (img.GetHeight ());
-
-  auto hdr_to_int = [](Float v) -> int
-  {
-    if (v < 0.0) { v = 0; }
-    if (v > 1.0) { v = 1; }
-    if (std::isnan(v))
-    {
-      std::cout << "NaN detected" << std::endl;
-      v = 0;
-    }
-    return std::pow (v, 1.0 / 2.2) * 255.0 + 0.5;
-  };
-
-  unsigned char* data = new unsigned char [width * height * 3];
-
-  for (int y = 0; y < height; ++y)
-  {
-    for (int x = 0; x < width; ++x)
-    {
-      data[y * width * 3 + 3 * x + 0] = hdr_to_int (img (x, y).r_);
-      data[y * width * 3 + 3 * x + 1] = hdr_to_int (img (x, y).g_);
-      data[y * width * 3 + 3 * x + 2] = hdr_to_int (img (x, y).b_);
-    }
-  }
-
-  stbi_write_png (filename, width, height, 3, (void*)data, width * 3);
-
-  delete [] data;
+  return height_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-template auto SaveAs (const char* filename, const Image3 <Float>& img) -> void;
-template auto SaveAs (const char* filename, const Image3 <int>&   img) -> void;
+template <typename T>
+auto Image<T>::Width () const noexcept -> int
+{
+  return width_;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+template class Image <bool>;
+template class Image <Float>;
+template class Image <Spectrum>;
 /*
 // ---------------------------------------------------------------------------
 */

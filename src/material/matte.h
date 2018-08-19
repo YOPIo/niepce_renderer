@@ -1,62 +1,80 @@
+/*!
+ * @file matte.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 
+ * @details 
+ */
 #ifndef _MATTE_H_
 #define _MATTE_H_
 /*
 // ---------------------------------------------------------------------------
 */
 #include "material.h"
-#include "../sampler/sampler.h"
-#include "../texture/constant_texture.h"
-#include "../texture/image_map.h"
+#include "../texture/texture.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-*/
-auto CreateMatte (const TexturePtr <Spectrum>& reflectance) -> MaterialPtr;
-auto CreateMatte (const Vector3f& reflectance) -> MaterialPtr;
-/*
-// ---------------------------------------------------------------------------
-*/
+//! ----------------------------------------------------------------------------
+//! @class Matte
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
 class Matte : public Material
 {
-  /* Matte constructors */
 public:
+  //! The default class constructor.
   Matte () = delete;
-  Matte (const Vector3f& reflectance);
-  Matte (const Vector4f& reflectance);
-  Matte (const std::shared_ptr<Texture<Spectrum>>& reflectance);
 
+  //! The constructor takes reflectance texture.
+  Matte
+  (
+   const std::shared_ptr <Texture <Spectrum>>& emission,
+   const std::shared_ptr <Texture <Spectrum>>& reflectance
+  );
 
-  /* Matte public destructor */
+  //! The move constructor of the class.
+  Matte (Matte&& matte) = default;
+
+  //! The default class destructor.
   virtual ~Matte () = default;
 
+  //! The copy assignment operator of the class.
+  auto operator = (const Matte& matte) -> Matte& = default;
 
-  /* Matte operators*/
+  //! The move assignment operator of the class.
+  auto operator = (Matte&& matte) -> Matte& = default;
+
 public:
-  Matte (const Matte&  matte) = default;
-  Matte (      Matte&& matte) = default;
-
-  auto operator = (const Matte&  matte) -> Matte& = default;
-  auto operator = (      Matte&& matte) -> Matte& = default;
-
-
-  /* Matte public methods */
-public:
-  auto AllocateBsdf
+  /*!
+   * @fn Return Function (Param)
+   * @brief Allocate the BSDF for representing the matte surface.
+   * @param[in] intersection
+   *    The intersection
+   * @param[in] memory
+   *    Used to allocate the BSDF.
+   * @return The pointer of BSDF.
+   * @exception 
+   * @details
+   */
+  virtual auto AllocateBsdfs
   (
-   const SurfaceInteraction& si,
-         ArenaAllocator*     mem
+   const Intersection& intersection,
+         MemoryArena*  memory
   )
-  const -> Bsdf* override final;
+    const -> Bsdf* const override final;
 
-
-  /* Matte private data */
 private:
-  TexturePtr<Spectrum> reflectance_;
+  //! @brief The reflectance of matte surface.
+  std::shared_ptr <Texture <Spectrum>> reflectance_;
 }; // class Matte
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateMatteMaterial (const MaterialAttributes& attributes)
+  -> std::shared_ptr <Material>;
 /*
 // ---------------------------------------------------------------------------
 */
@@ -65,3 +83,4 @@ private:
 // ---------------------------------------------------------------------------
 */
 #endif // _MATTE_H_
+

@@ -1,335 +1,300 @@
+/*!
+ * @file niepce.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 2018/4/20
+ * @details 
+ */
 #ifndef _NIEPCE_H_
 #define _NIEPCE_H_
 /*
 // ---------------------------------------------------------------------------
-// C libs
-// ---------------------------------------------------------------------------
 */
-#include <cassert>
-#include <cmath>
-#include <cstring>
-#include <cstdlib>
+#include "../../cmake_config.h"
 /*
 // ---------------------------------------------------------------------------
-// C++ libs
+*/
+#ifdef _WIN32
+   #define NOMINMAX
+   #ifdef _WIN64
+      #define NIEPCE_BUILD_TARGET_IS_WIN64
+   #else
+      #define NIEPCE_BUILD_TARGET_IS_WIN32
+   #endif
+
+#elif __APPLE__
+   #define NIEPCE_BUILD_TARGET_IS_APPLE
+
+#elif __linux__
+   #define NIEPCE_BUILD_TARGET_IS_LINUX
+
+#elif __unix__
+   #define NIEPCE_BUILD_TARGET_IS_UNIX
+
+#else
+   #error "Unknown compiler"
+#endif
+/*
+// ---------------------------------------------------------------------------
+// Niepce renderer std includes
 // ---------------------------------------------------------------------------
 */
 #include <algorithm>
 #include <array>
-// #include <any> // C++17
+#include <cassert>
+#include <cmath>
+#include <condition_variable>
+#include <cstdint>
+#include <functional>
+#include <future>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
-#include <limits>
+#include <iterator>
 #include <list>
 #include <map>
 #include <memory>
-#include <random>
+#include <queue>
 #include <stdexcept>
+#include <sstream>
 #include <string>
-#include <vector>
+#include <thread>
+#include <type_traits>
+#include <unordered_map>
 /*
 // ---------------------------------------------------------------------------
-// SIMD
+// Alignment definition
 // ---------------------------------------------------------------------------
 */
-#if defined (CLANG)
-  #include <x86intrin.h>
+#if defined (NIEPCE_BUILD_TARGET_IS_WINDOWS)
+   #define NIEPCE_ALIGN(bit) __declspec(align(bit))
 #else
-// #include <mmintrin.h>
-// #include <intrin.h> // MSVC
-#endif
+   #define NIEPCE_ALIGN(bit) alignas((bit))
+#endif // NIEPCE_BUILD_TARGET_IS_WINDOWS
+
+#define ALIGN16  NIEPCE_ALIGN(16)
+#define ALIGN32  NIEPCE_ALIGN(32)
+#define ALIGN64  NIEPCE_ALIGN(64)
+#define ALIGN128 NIEPCE_ALIGN(128)
+/*
+// ---------------------------------------------------------------------------
+// Niepce renderer SIMD include
+// ---------------------------------------------------------------------------
+*/
+#ifdef NIEPCE_USE_SIMD
+   #include <xmmintrin.h>
+   #include <smmintrin.h>
+#endif // NIEPCE_USE_SIMD
 /*
 // ---------------------------------------------------------------------------
 */
-#define ALIGN(n) alignas((n))
-#define ALIGN16  alignas(16)
-#define ALIGN32  alignas(32)
-#define ALIGN64  alignas(64)
+
 /*
 // ---------------------------------------------------------------------------
 */
+#include "../ext/easyloggingpp/easylogging++.h"
+/*!
+ * @namespace niepce
+ */
 namespace niepce
 {
 /*
 // ---------------------------------------------------------------------------
-// Global typedefs
+// Forward class, struct and enum declaration
 // ---------------------------------------------------------------------------
 */
-#if defined (NI_FLOAT_IS_DOUBLE)
-typedef double Float;
-#define SIMD_ALIGN 32
-#else
-typedef float Float;
-#define SIMD_ALIGN 16
-#endif
-typedef unsigned Index;
-// ---------------------------------------------------------------------------
-// Class forward declarations
-// ---------------------------------------------------------------------------
-template<typename T> class Point2;
-template<typename T> class Point3;
-template<typename T> class Point4;
-template<typename T> class Vector2;
-template<typename T> class Vector3;
-template<typename T> class Vector4;
-template<typename T> class Normal3;
-// template<typename T> class Matrix4x4;
-template<typename T> class BoundingBox2;
-template<typename T> class BoundingBox3;
-
-struct Matrix4x4;
-
-class Ray;
-class Interaction;
-class SurfaceInteraction;
-class ArenaAllocator;
-class XorShift;
-class Sampler;
-class RandomSampler;
-class Shape;
-class Triangle;
-template <typename ReturnType> class Texture;
-template <typename ReturnType> class ConstantTexure;
+class AreaLight;
+class Attributes;
+class AssembledTiles;
+class BeckmannDistribution;
+class Bounds2f;
 class Bxdf;
+class Bsdfs;
+class Bsdf;
 class BsdfRecord;
-class LambertianBrdf;
-class Material;
+enum class BsdfType;
+class Camera;
+struct CameraSample;
+class Film;
+class FilmTile;
+template <typename T> class Image;
+template <typename T> class ImageIO;
+class InfiniteLight;
+class Intersection;
 class Lambert;
 class Light;
-class AreaLight;
-class Primitive;
-class Individual;
-class Aggreagate;
-class StaticPrimitive;
-class BVH;
-class Scene;
-class Integrator;
-class SampleIntegrator;
+class Material;
+class MaterialAttributes;
+class MemoryArena;
+class Shape;
+class Sphere;
+template <typename T> class Texture;
+class ThreadPool;
+class Tile;
+class Transform;
 class PathTracer;
-class Camera;
-class Object;
-template <typename T> class Pixel;
-template <typename T> class Image3;
+class PinholeCamera;
+class Pixel;
+class Point2f;
+class Point3f;
+class Primitive;
+class RamdomSampler;
+class Ray;
+class RealisticCamera;
+class Renderer;
+class RenderSettings;
+class Vector2f;
+class Vector3f;
+/*
+// ---------------------------------------------------------------------------
+// Niepce renderer typedefs
+// ---------------------------------------------------------------------------
+*/
+/*!
+ * @typedef
+ * @brief Choose float or double
+ */
+// ---------------------------------------------------------------------------
+// DO NOT CHANGE FLOAT TO DOUBLE !!
+// ---------------------------------------------------------------------------
+typedef float Float;
 /*
 // ---------------------------------------------------------------------------
 */
-typedef Point2<Float>       Point2f;
-typedef Point2<int>         Point2i;
-typedef Point2<uint32_t>    Point2u32i;
-typedef Point3<Float>       Point3f;
-typedef Point3<int>         Point3i;
-typedef Point4<Float>       Point4f;
-typedef Point4<int>         Point4i;
-typedef Vector2<Float>      Vector2f;
-typedef Vector2<int>        Vector2i;
-typedef Vector3<Float>      Vector3f;
-typedef Vector3<int>        Vector3i;
-typedef Vector4<Float>      Vector4f;
-typedef Vector4<int>        Vector4i;
-typedef Normal3<Float>      Normal3f;
-typedef Normal3<int>        Normal3i;
-// typedef Matrix4x4<Float>    Matrix4x4f;
-// typedef Matrix4x4<int>      Matrix4x4i;
-typedef BoundingBox2<Float> Bounds2f;
-typedef BoundingBox2<int>   Bounds2i;
-typedef BoundingBox3<Float> Bounds3f;
-typedef BoundingBox3<int>   Bounds3i;
-typedef Float    Sample1f;
-typedef Point2f  Sample2f;
-typedef Vector4f Spectrum;
-typedef Image3 <Float> Image3f;
-typedef Image3 <int>   Image3i;
-
-typedef std::shared_ptr <Shape>      ShapePtr;
-typedef std::shared_ptr <Material>   MaterialPtr;
-typedef std::shared_ptr <Light>      LightPtr;
-typedef std::shared_ptr <Individual> IndividualPtr;
-template <typename T> using ImagePtr   = std::shared_ptr <Image3 <T>>;
-template <typename T> using TexturePtr = std::shared_ptr <Texture <T>>;
-typedef std::shared_ptr <Sampler>  SamplerPtr;
+typedef Vector3f Spectrum;
 /*
 // ---------------------------------------------------------------------------
-// Render settings
+// Niepce renderer constant values
 // ---------------------------------------------------------------------------
 */
-// TODO: Create RenderSetting struct or class
-const unsigned int kWidth        = 960 / 2;
-const unsigned int kHeight       = 540 / 2;
-const unsigned int kSuperSamples = 8  / 2; // 8
-const unsigned int kSamples      = 64 / 2; // 64
+static constexpr Float kPi = 3.141592653589793238462643383279502884197169399375;
+static constexpr Float kInfinity = std::numeric_limits <Float>::infinity ();
+static constexpr Float kEpsilon  = std::numeric_limits <Float>::epsilon ();
+static constexpr Float kFloatMax = std::numeric_limits <Float>::max ();
+static constexpr Float kFloatMin = std::numeric_limits <Float>::lowest ();
+static constexpr Float kOne      = 1.0;
+static constexpr Float kZero     = 0.0;
 /*
 // ---------------------------------------------------------------------------
-// Global constant expression
+// Niepce renderer global function
 // ---------------------------------------------------------------------------
 */
-constexpr Float kInfinity = std::numeric_limits<Float>::infinity();
-constexpr Float kFloatMax = std::numeric_limits<Float>::max();
-constexpr Float kEpsilon  = std::numeric_limits<Float>::epsilon();
-constexpr Float kPi       = 3.14159265358979323846;
-constexpr Float kInvPi    = 0.31830988618379067153;
-constexpr Float kSqrtPi   = 1.77245385090551602729;
-
-
-// ---------------------------------------------------------------------------
-// Global inline functions
-// ---------------------------------------------------------------------------
-inline auto Clamp(Float value, Float min = 0.f, Float max = 1.0) -> Float
+inline auto GetFileDirectory
+(
+ const std::string& filename,
+       std::string* directory
+)
+  -> void
 {
-  if (value < min) { return min; }
-  if (value > max) { return max; }
-  return value;
+#ifdef _WIN32
+  const char split = '\\';
+#else
+  const char split = '/';
+#endif
+  const size_t pos = filename.rfind (split);
+  if (std::string::npos != pos)
+  {
+    *directory = filename.substr(0, pos + 1);
+  }
 }
-
-inline auto Lerp(Float t, Float s1, Float s2) -> Float
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto IsFileExist (const std::string& filename) -> bool
 {
-    return (1.0 - t) * s1 + t * s2;
+  const std::ifstream ifs (filename, std::ios::in);
+  return static_cast <bool> (ifs);
 }
-
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto Clamp (Float x) -> Float
+{
+  if (x < 0) { return 0.0; }
+  if (x > 1) { return 1.0; }
+  return x;
+}
+/*
+// ---------------------------------------------------------------------------
+*/
 template <typename T>
-inline auto IsNaN(const T val) -> bool
+inline auto Clamp (T x, T min, T max) -> T
 {
-  return std::isnan(val);
+  if (x < min) { return min; }
+  if (x > max) { return max; }
+  return x;
 }
-
-template<>
-inline auto IsNaN(const int val) -> bool
-{
-  return false;
-}
-
-// Convert to radians from degree
-inline auto ToRadians (Float degree) -> Float
-{
-  return (kPi / 180.f) * degree;
-}
-
-// Convert to degrees from radian
-inline auto ToDegrees (Float radian) -> Float
-{
-  return (180.f / kPi) * radian;
-}
-
-// inline auto NearInteraction () -> Interaction;
+/*
 // ---------------------------------------------------------------------------
-// Solve quadratic equation $at^2 + bt + c = 0$
-// Return boolean value whether solution were found or not.
+*/
+inline auto Lerp (Float t, Float v1, Float v2) -> Float
+{
+  return (1 - t) * v1 + t * v2;
+}
+/*
 // ---------------------------------------------------------------------------
-inline auto SolveQuadratic(Float a, Float b, Float c, Float* t0, Float* t1) -> bool
+*/
+inline auto ReverseBits32 (uint32_t n) -> uint32_t
 {
-  const Float discrim = b * b - 4 * a * c;
-  if (discrim < 0.f) { return false;  }
-  const Float sqrt_discrim = std::sqrt(discrim);
-
-  Float q;
-  if (b < 0.f) { q = -0.5f * (b - sqrt_discrim); }
-  else         { q = -0.5f * (b + sqrt_discrim); }
-  *t0 = q / a;
-  *t1 = c / q;
-  if (*t0 > *t1) { std::swap(*t0, *t1); }
-
-  return true;
+  n = (n << 16) | (n >> 16);
+  n = ((n & 0x00ff00ff) << 8) | ((n & 0xff00ff00) >> 8);
+  n = ((n & 0x0f0f0f0f) << 4) | ((n & 0xf0f0f0f0) >> 4);
+  n = ((n & 0x33333333) << 2) | ((n & 0xcccccccc) >> 2);
+  n = ((n & 0x55555555) << 1) | ((n & 0xaaaaaaaa) >> 1);
+  return n;
 }
-
-inline auto FloatToBits(float f) -> uint32_t
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto ReverseBits64 (uint64_t n) -> uint64_t
 {
-  uint32_t ui;
-  std::memcpy(&ui, &f, sizeof(float));
-  return ui;
+  uint64_t n1 = ReverseBits32 (static_cast <uint32_t> (n));
+  uint64_t n2 = ReverseBits32 (static_cast <uint32_t> (n >> 32));
+  return (n1 << 32) | n2;
 }
-
-inline auto BitsToFloat(uint32_t ui) -> float
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto FileExtension (const std::string &filepath) -> std::string
 {
-  float f;
-  std::memcpy(&f, &ui, sizeof(ui));
-  return f;
+  const char *ext = std::strrchr (filepath.c_str (), '.');
+  return std::string (ext);
 }
-
-inline auto FloatToBis(double d) -> uint64_t
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto FloatToInt (Float x) -> uint8_t
 {
-  uint64_t ui;
-  std::memcpy(&ui, &d, sizeof(double));
-  return ui;
+  uint8_t res = static_cast <uint8_t> (x * 255 - 1.0 + 0.5);
+  return res;
 }
-
-inline auto BitsToFloat(uint64_t ui) -> double
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto RadianToDegree (Float radian) -> Float
 {
-  double d;
-  std::memcpy(&d, &ui, sizeof(ui));
-  return d;
+  return radian * 180.0 / kPi;
 }
-
-inline auto NextFloatUp(float v) -> float
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto DegreeToRadian (Float degree) -> Float
 {
-  // Handle infinity and negative zero.
-  if ( std::isinf(v) && v > 0.f ) { return v; }
-  if (v == -0.f) { return v = 0.f;  }
-
-  uint32_t ui = FloatToBits(v);
-  if (v >= 0) { ++ui; }
-  else        { --ui; }
-
-  return BitsToFloat(ui);
+  return degree / 180.0 * kPi;
 }
-
-inline auto NextFloatDown(float v) -> float
+/*
+// ---------------------------------------------------------------------------
+*/
+inline auto Uint8ToFloat (uint8_t val) -> Float
 {
-  // Handle infinity and posiive zero.
-  if ( std::isinf(v) && v < 0.f ) { return v; }
-  if (v == 0.f) { v = -0.f; }
-
-  uint32_t ui = FloatToBits(v);
-  if (v > 0.f) { --ui; }
-  else         { ++ui; }
-
-  return BitsToFloat(ui);
+  return Clamp (static_cast <Float> (val) / 256.0f, 0.0f, 1.0f);
 }
-
-inline auto NextFloatUp(double v, int delta = 1) -> double
-{
-  // Handle infinity and negative zero.
-  if ( std::isinf(v) && v > 0.f ) { return v; }
-  if (v == -0.f) { return v = 0.f;  }
-
-  uint64_t ui = FloatToBits(v);
-  if (v >= 0) { ui += delta; }
-  else        { ui -= delta; }
-
-  return BitsToFloat(ui);
-}
-
-inline auto NextFloatDown(double v, int delta = 1) -> double
-{
-  // Handle infinity and posiive zero.
-  if ( std::isinf(v) && v < 0.f ) { return v; }
-  if (v == 0.f) { v = -0.f; }
-
-  uint64_t ui = FloatToBits(v);
-  if (v > 0.f) { ui -= delta; }
-  else         { ui += delta; }
-
-  return BitsToFloat(ui);
-}
-
-inline constexpr auto Gamma (int n ) -> Float
-{
-  return (n * kEpsilon) / (1 - n * kEpsilon);
-}
-
-inline auto GetFileExtension (const std::string& str) -> std::string
-{
-  int path_i = str.find_last_of("/") + 1;
-  int ext_i  = str.find_last_of(".");
-  std::string ext      = str.substr(ext_i, str.size() - ext_i);
-
-  return ext;
-}
-
-inline auto GetFileName (const std::string& str) -> std::string
-{
-  auto pos = str.find_last_of("/") + 1;
-  return str.substr (pos, str.size () - pos);
-}
-
-}; // namespace niepce
-
+/*
+// ---------------------------------------------------------------------------
+*/
+}  // namespace niepce
+/*
+// ---------------------------------------------------------------------------
+*/
 #endif // _NIEPCE_H_
+

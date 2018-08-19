@@ -1,8 +1,6 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required (VERSION 2.8)
 
-add_library(
-  Scene STATIC
+# Create static library
+add_library (Scene STATIC
   scene.cc
-  scene_creator.cc
-  scene_loader.cc
-)
+  scene_importer.cc)

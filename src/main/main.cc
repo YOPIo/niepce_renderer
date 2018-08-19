@@ -1,50 +1,78 @@
+/*
+// ---------------------------------------------------------------------------
+*/
 #include "../core/niepce.h"
-#include "../camera/camera.h"
+#include "../core/render_settings.h"
+#include "../renderer/path_tracer.h"
+#include "../random/xorshift.h"
+#include "../core/bounds2f.h"
 #include "../core/image.h"
-#include "../scene/scene.h"
-#include "../scene/scene_creator.h"
-#include "../scene/scene_loader.h"
+#include "../core/imageio.h"
+#include "../core/stop_watch.h"
+#include "../texture/image_texture.h"
+#include "../core/utilities.h"
+#include "../bsdf/microfacet_reflection.h"
+#include "../material/metal.h"
+#include "../core/transform.h"
+#include "../camera/realistic_camera.h"
+#include "../sampler/low_discrepancy_sequence.h"
+#include "../core/transform.h"
+#include "../core/thread_pool.h"
+#include "../core/bounds3f.h"
+#include "../core/singleton.h"
+#include "../core/memory.h"
+#include "../camera/pinhole.h"
+#include "../texture/value_texture.h"
+#include "../scene/scene_importer.h"
+#include "../core/attributes.h"
+#include "../bsdf/bsdf_record.h"
+#include "../bsdf/bsdf.h"
+#include "../bsdf/bxdf.h"
+#include "../sampler/low_discrepancy_sequence.h"
 #include "../sampler/random_sampler.h"
-#include "../integrator/path_tracer.h"
-#include "../integrator/debug.h"
-#include "../filter/filter.h"
 /*
 // ---------------------------------------------------------------------------
 */
-using namespace niepce;
-/*
-// ---------------------------------------------------------------------------
-*/
-auto main(int argc, char *argv[]) -> int
+namespace niepce
 {
-  /*
-  std::pair <std::shared_ptr<niepce::Camera>, std::shared_ptr<niepce::Scene>> pair;
-  niepce::SamplerPtr sampler (niepce::CreateRandomSampler ());
-  // pair = niepce::CreateCornellBox ();
-  pair = niepce::CreateSphereScene ();
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Initialize () -> void
+{
+  auto& stop_watch = Singleton <StopWatch>::Instance ();
+  stop_watch.Start ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Finalize () -> void
+{
+  auto& stop_watch = Singleton <StopWatch>::Instance ();
+  auto time = stop_watch.Stop ();
+  std::cout << time.ToString () << std::endl;
+  SingletonFinalizer::Finalize ();
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+} // namespace niepce
+/*
+// ---------------------------------------------------------------------------
+*/
+int main (int argc, char* argv[])
+{
+  niepce::Initialize ();
+  niepce::SceneImporter importer (argv[1]);
+  auto settings = importer.ExtractRenderSettings ();
+  auto scene    = importer.ExtractScene ();
+  auto camera   = importer.ExtractCamera ();
 
-  std::shared_ptr <niepce::PathTracer> path (new niepce::PathTracer (pair.first, sampler, 8));
-  std::shared_ptr <niepce::DebugIntegrator> debug (new niepce::DebugIntegrator (pair.first, sampler));
-  path->Render (*pair.second);
-  debug->Render (*pair.second);
-  */
+  std::cout << "Start rendering" << std::endl;
+  niepce::PathTracer pt (settings, scene, camera);
+  pt.Render ();
 
-  /*
-  // Filter test
-  niepce::ImagePtr <niepce::Float> img (niepce::LoadImage <niepce::Float> ("./cornell_box.png"));
-  niepce::ImagePtr <niepce::Float> res = niepce::NonLocalMeansFilter (img, 0.1, 0.1);
-  niepce::SaveAs ("after.png", *res);
-  */
-
-  Scene  scene;
-  Camera* camera;
-  XmlLoader loader;
-  loader.LoadXml ("/home/yopio/workspace/niepce/assets/cbox/cbox.xml", &scene, camera);
-
-  // Debug check
-  std::cout << loader.shapes_.size() << std::endl;
-  std::cout << loader.materials_.size() << std::endl;
-  std::cout << loader.textures_.size () << std::endl;
+  niepce::Finalize ();
 
   return 0;
 }

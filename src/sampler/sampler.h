@@ -1,10 +1,20 @@
+/*!
+ * @file sampler.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 
+ * @details 
+ */
 #ifndef _SAMPLER_H_
 #define _SAMPLER_H_
 /*
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
-#include "../core/geometry.h"
+#include "../core/point2f.h"
+#include "../core/point3f.h"
+#include "../core/vector2f.h"
+#include "../core/vector3f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -13,33 +23,56 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
+auto SampleConcentricDisk (const Point2f& sample) -> Point2f;
+auto SampleCosineHemisphere (const Point2f& sample) -> Vector3f;
+auto SampleUniformTriangle (const Point2f& sample) -> Point2f;
+//! ----------------------------------------------------------------------------
+//! @class Sampler
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
 class Sampler
 {
-  /* Sampler public constructors */
- public:
-  Sampler ();
+public:
+  //! The default class constructor.
+  Sampler (int spp);
 
-  /* Sampler public destructor */
- public:
+  //! The copy constructor of the class.
+  Sampler (const Sampler& sampler) = default;
+
+  //! The move constructor of the class.
+  Sampler (Sampler&& sampler) = default;
+
+  //! The default class destructor.
   virtual ~Sampler () = default;
 
-  /* Sampler public operators */
- public:
-  Sampler (const Sampler&  sampler) = default;
-  Sampler (      Sampler&& sampler) = default;
+  //! The copy assignment operator of the class.
+  auto operator = (const Sampler& sampler) -> Sampler& = default;
 
-  auto operator = (const Sampler&  sampler) -> Sampler& = default;
-  auto operator = (      Sampler&& sampler) -> Sampler& = default;
+  //! The move assignment operator of the class.
+  auto operator = (Sampler&& sampler) -> Sampler& = default;
 
+public:
+  /*!
+   * @fn Float Next1D ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  virtual auto Next1f () -> Float = 0;
 
-  /* Sampler public interfaces */
- public:
-  // - [0, 1)
-  virtual auto Get1D () -> Sample1f = 0;
+  /*!
+   * @fn Point2f Next2f ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  virtual auto Next2f () -> Point2f = 0;
 
-  // - [0, 1)^2
-  virtual auto Get2D () -> Sample2f = 0;
-
+protected:
+  const int spp_; // Sample per pixel
 }; // class Sampler
 /*
 // ---------------------------------------------------------------------------

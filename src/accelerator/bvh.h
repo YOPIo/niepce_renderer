@@ -1,140 +1,140 @@
+/*!
+ * @file bvh.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 
+ * @details 
+ */
 #ifndef _BVH_H_
 #define _BVH_H_
-
+/*
+// ---------------------------------------------------------------------------
+*/
 #include "../core/niepce.h"
-#include "../core/geometry.h"
-#include "../primitive/aggregate.h"
-#include "../primitive/individual.h"
-#include "../material/material.h"
-
+#include "../core/bounds3f.h"
+#include "../core/memory.h"
+#include "bvh_primitive_info.h"
+#include "bvh_node.h"
+#define DEBUG
+/*
+// ---------------------------------------------------------------------------
+*/
 namespace niepce
 {
-
-class BVH : public Primitive
+//! ----------------------------------------------------------------------------
+//! @class Bvh
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
+class Bvh
 {
-  /* BVH Node declaration */
- private:
-  class Node
-  {
-   public:
-    Node () = delete;
-    // Constructor for leaf node
-    Node (const Bounds3f& bounds,
-          Node*           left,
-          Node*           right);
-    // Constructor for interior node
-    Node (const Bounds3f& bounds,
-          std::unique_ptr<Node>&& left,
-          std::unique_ptr<Node>&& right);
-    Node (const Bounds3f& bounds,
-          size_t           first,
-          size_t           last);
+public:
+  //! The default class constructor.
+  Bvh () = delete;
 
-    virtual ~Node ();
-
-    Node (const Node&  node) = delete;
-    Node (      Node&& node) = delete;
-
-    /* BVH::Node operators */
-   public:
-    auto operator = (const Node&  node) -> Node& = delete;
-    auto operator = (      Node&& node) -> Node& = delete;
-
-    /* BVH::Node methods */
-    inline auto IsLeaf      () const -> bool;
-    inline auto IsInterior  () const -> bool;
-    inline auto WorldBounds () const -> Bounds3f;
-    inline auto Firstsize_t  () const -> size_t;
-    inline auto Lastsize_t   () const -> size_t;
-    inline auto LeftNode    () const -> const Node* const;
-    inline auto RightNode   () const -> const Node* const;
-
-    // BVH::Node data
-   private:
-    const Bounds3f bounds_;
-    // Reference indices
-    const size_t first_;
-    const size_t last_;
-    // Childlen node
-    const std::array<std::unique_ptr<Node>, 2> childlen_;
-  };
-
- public:
-  /* BVH constructors */
-  BVH ();
-  BVH (const std::vector<std::shared_ptr<Individual>>& primitives);
-  virtual ~BVH ();
-
-  BVH (const BVH&  bvh) = delete;
-  BVH (      BVH&& bvh) = default;
-
-
-  /* BVH operators*/
- public:
-  auto operator = (const BVH&  bvh) -> BVH& = delete;
-  auto operator = (      BVH&& bvh) -> BVH& = default;
-
-
-  /* BVH public methods */
- public:
-  // Return bounding box in world or local space coordinate
-  auto WorldBounds () const -> Bounds3f override;
-  auto LocalBounds () const -> Bounds3f override;
-
-  // Return surface area of a primitive
-  auto SurfaceArea () const -> Float override;
-
-  // Ray-Shape intersection test
-  // 1. Return a nearest primitive
-  // 2. Store a interaction information
-  auto IsIntersect
+  //! The constructor takes primitives and the number of primitives in the node.
+  Bvh
   (
-      const Ray&          ray,
-      SurfaceInteraction* interaction
+   const std::vector <std::shared_ptr <Primitive>>& primitives,
+   std::size_t max_primitives = 4
+  );
+
+  //! The copy constructor of the class.
+  Bvh (const Bvh& bvh) = default;
+
+  //! The move constructor of the class.
+  Bvh (Bvh&& bvh) = default;
+
+  //! The default class destructor.
+  virtual ~Bvh () = default;
+
+  //! The copy assignment operator of the class.
+  auto operator = (const Bvh& bvh) -> Bvh& = default;
+
+  //! The move assignment operator of the class.
+  auto operator = (Bvh&& bvh) -> Bvh& = default;
+
+public:
+  /*!
+   * @fn voi Build ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+  */
+  auto Build (const std::vector <std::shared_ptr <Primitive>>& primitives)
+    -> void;
+
+  /*!
+   * @fn bool IsIntersect (const Ray&, Intersection*)
+   * @brief 
+   * @param[in] ray
+   *    
+   * @param[out] intersection
+   *    
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto IsIntersect (const Ray& ray, Intersection* intersection)
+    const noexcept -> bool;
+
+#ifdef DEBUG
+  auto Dump (int traverse) -> void;
+private:
+  auto DumpRecursive (BvhNode *node, int traverse, int depth) -> void;
+#endif // DEBUG
+
+private:
+  /*!
+   * @fn Return RecursiveBuild (const)
+   * @brief 
+   * @param[in] info
+   *
+   * @param[in] 
+   *
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto RecursiveBuild
+  (
+   std::vector <std::shared_ptr <Primitive>>& primitives,
+   std::vector <std::shared_ptr <Primitive>>& ordered
   )
-  const -> bool override final;
+    -> BvhNode*;
 
-  /* BVH private methods */
- private:
-  // Intersection check
-  auto RecursiveIntersect
+  /*!
+   * @fn bool RecursiveIsIntersect (const)
+   * @brief 
+   * @param[in] 
+   * @param[out] 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  auto RecursiveIsIntersect
   (
-      const Node* const   node,
-      const Ray&          ray,
-      SurfaceInteraction* interaction
+   BvhNode* node,
+   const Ray& ray,
+   Intersection* intersection
   )
-  const -> bool;
+  const noexcept -> bool;
 
-  // Intersection check
-  auto LeafIntersect
-  (
-      const Node* const   node,
-      const Ray&          ray,
-      SurfaceInteraction* interaction
-  )
-  const -> bool;
+private:
+  MemoryArena memory_;
+  const std::size_t max_primitives_;
+  std::vector <std::shared_ptr <Primitive>> primitives_;
+  std::size_t total_nodes_;
 
-  // Build BVH
-  auto RecursiveConstruct
-  (
-      std::vector<std::shared_ptr<Individual>>* original,
-      std::vector<std::shared_ptr<Individual>>* ordered
-  )
-  const -> Node*;
-
-  auto CreateLeaf
-  (
-      std::vector<std::shared_ptr<Individual>>* leaf,
-      std::vector<std::shared_ptr<Individual>>* ordered
-  ) const -> Node*;
-
-  /* BVH private data */
- private:
-  std::unique_ptr<Node> root_;
-  std::vector<std::shared_ptr<Individual>> aggregate_;
-}; // class BVH
-
-
-}  // namespace niepce
-
+  BvhNode* root_;
+}; // class Bvh
+/*
+// ---------------------------------------------------------------------------
+*/
+} // namespace niepce
+/*
+// ---------------------------------------------------------------------------
+*/
 #endif // _BVH_H_
+

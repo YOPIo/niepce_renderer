@@ -1,9 +1,18 @@
+/*!
+ * @file film.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 
+ * @details 
+ */
 #ifndef _FILM_H_
 #define _FILM_H_
 /*
 // ---------------------------------------------------------------------------
 */
 #include "niepce.h"
+#include "bounds2f.h"
+#include "imageio.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -12,57 +21,104 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-class Film
+auto Denoising   (Film *film) -> void;
+auto ToneMapping (Film *film) -> void;
+//! ----------------------------------------------------------------------------
+//! @class Film
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
+class Film : public ImageIO <Spectrum>
 {
-  /* Film public data structure */
- public:
-  struct Pixel
-  {
-    std::array <Float, 3> rgb_;
-  };
-
-  /* Film constructors */
- public:
+public:
+  //! The default class constructor.
   Film () = delete;
-  Film (const std::string& filename, uint32_t width, uint32_t height);
 
-  /* Film destructor */
- public:
+  //! The constructor takes a resolution, physical length of diagonal.
+  Film
+  (
+   const char*  filename,
+   unsigned int width,   // Resolution
+   unsigned int height,  // Resolution
+   Float        diagonal // Physical length [m]
+  );
+
+  //! The copy constructor of the class.
+  Film (const Film& film) = default;
+
+  //! The move constructor of the class.
+  Film (Film&& film) = default;
+
+  //! The default class destructor.
   virtual ~Film () = default;
 
+  //! The copy assignment operator of the class.
+  auto operator = (const Film& film) -> Film& = default;
 
-  /* Film public operators*/
- public:
-  Film (const Film&  film) = default;
-  Film (      Film&& film) = default;
+  //! The move assignment operator of the class.
+  auto operator = (Film&& film) -> Film& = default;
 
-  auto operator = (const Film&  film) -> Film& = default;
-  auto operator = (      Film&& film) -> Film& = default;
+public:
+  /*!
+   * @fn Float Diagonal ()
+   * @brief Return the physical length of diagonal.
+   * @return 
+   * @exception none
+   * @details 
+  */
+  auto Diagonal () const noexcept -> Float;
 
-  auto operator () (Index x, Index y) const -> Film::Pixel;
-  auto operator () (Index x, Index y)       -> Film::Pixel&;
+  /*!
+   * @fn Bounds2f PhysicalBounds ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto PhysicalBounds () const noexcept -> Bounds2f;
 
+  /*!
+   * @fn Bounds2f Resolution ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Resolution () const noexcept -> Bounds2f;
 
-  /* Film public methods */
- public:
-  auto At (Index x, Index y) const -> Film::Pixel;
-  auto At (Index x, Index y)       -> Film::Pixel&;
+  /*!
+   * @fn void SetFilmTile (const)
+   * @brief 
+   * @param[in] tile
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto ReplaceFilmTile (const FilmTile& tile) noexcept -> void;
 
+  /*!
+   * @fn void UpdateFilmTile (const)
+   * @brief 
+   * @param[in] tile
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto UpdateFilmTile (const FilmTile &tile) noexcept -> void;
 
-  /* Film private data */
- private:
-  std::string    fullpath_; // Default location to save images
-  const uint32_t width_;
-  const uint32_t height_;
-  const Float    diagonal_;
+private:
+  //! @brief
+  const Bounds2f bounds_;
 
-  std::unique_ptr <Pixel []> pixels_;
+  //! @brief Physical length of diagonal. [m]
+  const Float diagonal_;
 }; // class Film
 /*
 // ---------------------------------------------------------------------------
 */
-}  // namespace niepce
+} // namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
 #endif // _FILM_H_
+

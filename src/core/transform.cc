@@ -1,15 +1,29 @@
+﻿/*!
+ * @file transform.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 
+ * @details 
+ */
 #include "transform.h"
+#include "matrix4x4f.h"
+#include "ray.h"
+#include "point3f.h"
+#include "vector3f.h"
 /*
 // ---------------------------------------------------------------------------
 */
+/*!
+ * @namespace niepce
+ * @brief 
+ * @details 
+ */
 namespace niepce
 {
 /*
 // ---------------------------------------------------------------------------
 */
-Transform::Transform () :
-    matrix_     (),
-    inv_matrix_ (Inverse (matrix_))
+Transform::Transform (const Matrix4x4f& mat) : mat_ (mat), inv_ (Inverse (mat))
 {}
 /*
 // ---------------------------------------------------------------------------
@@ -18,125 +32,133 @@ Transform::Transform (Float m00, Float m01, Float m02, Float m03,
                       Float m10, Float m11, Float m12, Float m13,
                       Float m20, Float m21, Float m22, Float m23,
                       Float m30, Float m31, Float m32, Float m33) :
-    matrix_     (Matrix4x4f (m00, m01, m02, m03,
-                             m10, m11, m12, m13,
-                             m20, m21, m22, m23,
-                             m30, m31, m32, m33)),
-    inv_matrix_ (Inverse(matrix_))
+  mat_ (m00, m01, m02, m03,
+        m10, m11, m12, m13,
+        m20, m21, m22, m23,
+        m30, m31, m32, m33),
+  inv_ (Inverse (mat_))
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-Transform::Transform (const Matrix4x4f& m) :
-    matrix_     (m),
-    inv_matrix_ ( Inverse(m) )
+Transform::Transform (const Matrix4x4f& mat, const Matrix4x4f& inv) :
+  mat_ (mat),
+  inv_ (inv)
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-auto Transform::operator == (const Transform& t) const -> bool
+auto Transform::Matrix () const noexcept -> Matrix4x4f
 {
-  return t.matrix_ == matrix_;
+  return mat_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Transform::operator != (const Transform& t) const -> bool
+auto Transform::InverseMatrix () const noexcept -> Matrix4x4f
 {
-  return t.matrix_ != matrix_;
+  return inv_;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Transform::operator () (size_t row, size_t col) const noexcept -> Float
+auto Transform::operator () (unsigned int x, unsigned int y)
+  const noexcept-> Float
 {
-  return matrix_ (row, col);
+  return mat_ (x, y);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Transform::operator () (size_t row, size_t col) noexcept -> Float&
+auto Transform::At (unsigned int x, unsigned int y) const noexcept -> Float
 {
-  return matrix_ (row, col);
+  return mat_.At (x, y);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Transform::At (size_t row, size_t col) const -> Float
+auto Transform::ToString () const noexcept -> std::string
 {
-  if (row >= 4 || col >= 4)
-  {
-    throw std::out_of_range ("Matrix range error.");
-  }
-  return matrix_ (row, col);
+  std::string res;
+  res = "[" + std::to_string (mat_(0, 0)) + " " + std::to_string (mat_(0, 1)) + " "
+      + std::to_string (mat_(0, 2)) + " " + std::to_string (mat_(0, 3)) + "]\n";
+
+  res += "[" + std::to_string (mat_(1, 0)) + " " + std::to_string (mat_(1, 1)) + " "
+      + std::to_string (mat_(1, 2)) + " " + std::to_string (mat_(1, 3)) + "]\n";
+
+  res += "[" + std::to_string (mat_ (2, 0)) + " " + std::to_string (mat_ (2, 1)) + " "
+      + std::to_string (mat_ (2, 2)) + " " + std::to_string (mat_ (2, 3)) + "]\n";
+
+  res += "[" + std::to_string (mat_ (3, 0)) + " " + std::to_string (mat_ (3, 1)) + " "
+      + std::to_string (mat_ (3, 2)) + " " + std::to_string (mat_ (3, 3)) + "]\n";
+
+  return res;
+}
+/*
+// ---------------------------------------------------------------------------
+// Transform operators
+// ---------------------------------------------------------------------------
+*/
+auto operator == (const Transform& lhs, const Transform& rhs) -> bool
+{
+  return (lhs.Matrix () == rhs.Matrix())
+      && (lhs.InverseMatrix () == rhs.InverseMatrix ());
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Transform::At (size_t row, size_t col) -> Float&
+auto operator != (const Transform& lhs, const Transform& rhs) -> bool
 {
-  if (row >= 4 || col >= 4)
-  {
-    throw std::out_of_range ("Matrix range error.");
-  }
-  return matrix_ (row, col);
+  return !(lhs == rhs);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Transform::GetMatrix () const -> Matrix4x4f
+auto operator * (const Transform& t1, const Transform& t2) -> Transform
 {
-  return matrix_;
+  const Matrix4x4f& m1 = t1.Matrix ();
+  const Matrix4x4f& m2 = t2.Matrix ();
+  return Transform (m1 * m2);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Transform::GetInvMatrix() const -> Matrix4x4f
+auto operator * (const Transform& t, Float s) -> Transform
 {
-  return inv_matrix_;
+  return Transform (t.Matrix () * s);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Transform::IsIdentity() const -> bool
+auto operator * (Float s, const Transform& t) -> Transform
 {
-  return (matrix_ (0, 0) == 1.f && matrix_ (0, 1) == 0.f &&
-          matrix_ (0, 2) == 0.f && matrix_ (0, 3) == 0.f &&
-          matrix_ (1, 0) == 0.f && matrix_ (1, 1) == 1.f &&
-          matrix_ (1, 2) == 0.f && matrix_ (1, 3) == 0.f &&
-          matrix_ (2, 0) == 0.f && matrix_ (2, 1) == 0.f &&
-          matrix_ (2, 2) == 1.f && matrix_ (2, 3) == 0.f &&
-          matrix_ (3, 0) == 0.f && matrix_ (3, 1) == 0.f &&
-          matrix_ (3, 2) == 0.f && matrix_ (3, 3) == 1.f);
+  return Transform (s * t.Matrix ());
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Transform::ToIdentity() -> void
+auto operator * (const Transform& t, const Point3f& p) -> Point3f
 {
-  matrix_.ToIdentity();
-  inv_matrix_ = Inverse (matrix_);
-}
-/*
-// ---------------------------------------------------------------------------
-// Transform global operators
-// ---------------------------------------------------------------------------
-*/
-auto operator * (const Transform& t,  const Point3f& p) -> Point3f
-{
-  const Float x = p.x, y = p.y, z = p.z;
-  const Float px = t (0, 0) * x + t (0, 1) * y + t (0, 2) * z + t (0, 3);
-  const Float py = t (1, 0) * x + t (1, 1) * y + t (1, 2) * z + t (1, 3);
-  const Float pz = t (2, 0) * x + t (2, 1) * y + t (2, 2) * z + t (2, 3);
-  const Float pw = t (3, 0) * x + t (3, 1) * y + t (3, 2) * z + t (3, 3);
-  return pw == 1 ? Point3f (px, py, pz) : Point3f (px, py, pz) / pw;
+  const auto &x = p.X ();
+  const auto &y = p.Y ();
+  const auto &z = p.Z ();
+
+  const auto xp = t (0, 0) * x + t (0, 1) * y + t (0, 2) * z + t (0, 3);
+  const auto yp = t (1, 0) * x + t (1, 1) * y + t (1, 2) * z + t (1, 3);
+  const auto zp = t (2, 0) * x + t (2, 1) * y + t (2, 2) * z + t (2, 3);
+  const auto wp = t (3, 0) * x + t (3, 1) * y + t (3, 2) * z + t (3, 3);
+
+  if (wp == 1) { return Point3f (xp, yp, zp); }
+  return Point3f (xp, yp, zp) * (1.0 / wp);
 }
 /*
 // ---------------------------------------------------------------------------
 */
 auto operator * (const Transform& t, const Vector3f& v) -> Vector3f
 {
-  const Float x = v.x, y = v.y, z = v.z;
+  const auto &x = v.X ();
+  const auto &y = v.Y ();
+  const auto &z = v.Z ();
   return Vector3f (t (0, 0) * x + t (0, 1) * y + t (0, 2) * z,
                    t (1, 0) * x + t (1, 1) * y + t (1, 2) * z,
                    t (2, 0) * x + t (2, 1) * y + t (2, 2) * z);
@@ -144,182 +166,163 @@ auto operator * (const Transform& t, const Vector3f& v) -> Vector3f
 /*
 // ---------------------------------------------------------------------------
 */
-auto operator * (const Transform& t ,const Normal3f& n) -> Normal3f
-{
-  const Float x = n.x, y = n.y, z = n.z;
-  const Matrix4x4f inv (t.GetInvMatrix ());
-  return Normal3f (inv (0, 0) * x + inv (1, 0) * y + inv (2, 0) * z,
-                   inv (0, 1) * x + inv (1, 1) * y + inv (2, 1) * z,
-                   inv (0, 2) * x + inv (1, 2) * y + inv (2, 2) * z);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
 auto operator * (const Transform& t, const Ray& ray) -> Ray
 {
-  const Point3f  origin    (t * ray.origin);
-  const Vector3f direction (t * ray.direction);
-  return Ray (origin, direction);
+  return Ray (t * ray.Origin (), t * ray.Direction ());
+}
+/*
+// ---------------------------------------------------------------------------
+// Transform functions
+// ---------------------------------------------------------------------------
+*/
+auto Transpose (const Transform& t) -> Transform
+{
+  return Transform (Transpose (t.Matrix ()), Transpose (t.InverseMatrix ()));
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto operator * (const Transform& t, const Bounds3f& bbox) -> Bounds3f
+auto Inverse (const Transform& t) -> Transform
 {
-  // TODO:
+  return Transform (t.InverseMatrix (), t.Matrix ());
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto Transform::Identity () -> Transform
+auto LookAt
+(
+ const Point3f&  position,
+ const Point3f&  look,
+ const Vector3f& up
+)
+  -> Transform
 {
-  return Transform ();
-}
-/*
-// ---------------------------------------------------------------------------
-// Transformable
-// ---------------------------------------------------------------------------
-*/
-Transformable::Transformable () :
-  transform_ ()
-{}
-/*
-// ---------------------------------------------------------------------------
-*/
-Transformable::Transformable (const Transform& t) :
-  transform_ (t)
-{}
-/*
-// ---------------------------------------------------------------------------
-*/
-template <class T>
-auto Transformable::WorldToLocal (const T &t) const -> T
-{
-  return Transform (transform_.GetInvMatrix ()) * t;
-}
-template auto Transformable::WorldToLocal (const Ray& t) const -> Ray;
-template auto Transformable::WorldToLocal (const Vector3f& t) const -> Vector3f;
-template auto Transformable::WorldToLocal (const Point3f&  t) const -> Point3f;
-template auto Transformable::WorldToLocal (const Normal3f& t) const -> Normal3f;
-/*
-// ---------------------------------------------------------------------------
-*/
-template <class T>
-auto Transformable::LocalToWorld (const T &t) const -> T
-{
-  return transform_ * t;
-}
-template auto Transformable::LocalToWorld (const Ray& t) const -> Ray;
-template auto Transformable::LocalToWorld (const Vector3f& t) const -> Vector3f;
-template auto Transformable::LocalToWorld (const Point3f&  t) const -> Point3f;
-template auto Transformable::LocalToWorld (const Normal3f& t) const -> Normal3f;
-// ---------------------------------------------------------------------------
-// Global functions
-// ---------------------------------------------------------------------------
-auto Translate(const Vector3f& delta) -> Transform
-{
-  return Transform (1.f, 0.f, 0.f, delta.x,
-                    0.f, 1.f, 0.f, delta.y,
-                    0.f, 0.f, 1.f, delta.z,
-                    0.f, 0.f, 0.f,     1.f);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto Scale(Float x, Float y, Float z) -> Transform
-{
-  return Transform(  x, 0.f, 0.f, 0.f,
-                   0.f,   y, 0.f, 0.f,
-                   0.f, 0.f,   z, 0.f,
-                   0.f, 0.f, 0.f, 1.f);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto RotateX(Float theta) -> Transform
-{
-  const Float sin_t = std::sin (ToRadians(theta));
-  const Float cos_t = std::cos (ToRadians(theta));
-  return Transform(1.f,   0.f,   0.f,  0.f,
-                   0.f, cos_t, -sin_t, 0.f,
-                   0.f, sin_t,  cos_t, 0.f,
-                   0.f,   0.f,   0.f,  1.f);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto RotateY(Float theta) -> Transform
-{
-  const Float sin_t = std::sin (ToRadians(theta));
-  const Float cos_t = std::cos (ToRadians(theta));
-  return Transform( cos_t, 0.f, sin_t, 0.f,
-                      0.f, 1.f,   0.f, 0.f,
-                   -sin_t, 0.f, cos_t, 0.f,
-                      0.f, 0.f,   0.f, 1.f);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto RotateZ(Float theta) -> Transform
-{
-  const Float sin_t = std::sin (ToRadians(theta));
-  const Float cos_t = std::cos (ToRadians(theta));
-  return Transform(cos_t, -sin_t, 0.f, 0.f,
-                   sin_t,  cos_t, 0.f, 0.f,
-                     0.f,    0.f, 1.f, 0.f,
-                     0.f,    0.f, 0.f, 1.f);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-// Rodriguez rotation formula
-auto Rotate(Float theta, const Vector3f& axis) -> Transform
-{
-  const Vector3f     n = Normalize(axis);
-  const    Float sin_t = std::sin (ToRadians(theta));
-  const    Float cos_t = std::cos (ToRadians(theta));
-  const    Float     c = (1.f - cos_t);
+  // Initialize the position.
+  const Float m03 = position.X ();
+  const Float m13 = position.Y ();
+  const Float m23 = position.Z ();
+  const Float m33 = 1.0;
 
-  Matrix4x4f ret;
-  ret (0, 0) = n.x * n.x * c + cos_t;
-  ret (0, 1) = n.x * n.y * c - n.z * sin_t;
-  ret (0, 2) = n.z * n.x * c + n.y * sin_t;
-  ret (0, 3) = 0.f;
+  const Vector3f direction = Normalize (look - position);
+  if (Cross (Normalize (up), direction).Length () == 0)
+  {
+    std::cerr << "Error: LookAt" << std::endl;
+  }
+  const Vector3f x = Normalize (Cross (Normalize (up), direction));
+  const Vector3f new_up = Cross (direction, x);
 
-  ret (1, 0) = n.x * n.y * c + n.z * sin_t;
-  ret (1, 1) = n.y * n.y * c + cos_t;
-  ret (1, 2) = n.y * n.z * c - n.x * sin_t;
-  ret (1, 3) = 0.f;
+  const Float m00 = x.X ();
+  const Float m10 = x.Y ();
+  const Float m20 = x.Z ();
+  const float m30 = 0;
 
-  ret (2, 0) = n.z * n.x * c + n.y * sin_t;
-  ret (2, 1) = n.y * n.z * c + n.x * sin_t;
-  ret (2, 2) = n.z * n.z * c + cos_t;
-  ret (2, 3) = 0.f;
+  const Float m01 = new_up.X ();
+  const Float m11 = new_up.Y ();
+  const Float m21 = new_up.Z ();
+  const float m31 = 0;
 
-  ret (3, 0) = 0.f;
-  ret (3, 1) = 0.f;
-  ret (3, 2) = 0.f;
-  ret (3, 3) = 1.f;
+  const Float m02 = direction.X ();
+  const Float m12 = direction.Y ();
+  const Float m22 = direction.Z ();
+  const float m32 = 0;
 
-  return Transform(ret);
+  const Matrix4x4f camera_to_world (m00, m01, m02, m03,
+                                    m10, m11, m12, m13,
+                                    m20, m21, m22, m23,
+                                    m30, m31, m32, m33);
+
+  return Transform (camera_to_world, Inverse (camera_to_world));
 }
 /*
 // ---------------------------------------------------------------------------
+// Windowsが勝手にnearとfarを定義しているらしい...
+// ---------------------------------------------------------------------------
 */
-auto LookAt(const Point3f&  position,
-            const Point3f&  target,
-            const Vector3f& up) -> Transform
+auto Perspective (Float fov, Float n, Float f) -> Transform
 {
-  Vector3f ez (Normalize (target - position));
-  Vector3f ex (Normalize (Cross(up, ez)));
-  Vector3f ey (Normalize (Cross(ez, ex)));
-
-  return Transform (ex.x, ey.x, ez.x, position.x,
-                    ex.y, ey.y, ez.y, position.y,
-                    ex.z, ey.z, ez.z, position.z,
-                     0.f,  0.f,  0.f,        1.f);
+  Matrix4x4f persp (1, 0,           0,                0,
+                    0, 1,           0,                0,
+                    0, 0, f / (f - n), -f * n / (f - n),
+                    0, 0,           1,                0);
+  const Float inv_tan = 1.0 / std::tan (DegreeToRadian (fov) * 0.5);
+  return Scale (inv_tan, inv_tan, 1) * Transform (persp);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-} // namespace niepce
+auto Scale (Float x, Float y, Float z) -> Transform
+{
+  const Matrix4x4f mat (x, 0, 0, 0,
+                        0, y, 0, 0,
+                        0, 0, z, 0,
+                        0, 0, 0, 1);
+  const Matrix4x4f inv (1.0 / x, 0, 0, 0,
+                        0, 1.0 / y, 0, 0,
+                        0, 0, 1.0 / z, 0,
+                        0, 0, 0, 1);
+  return Transform (mat, inv);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Translate (const Vector3f& delta) -> Transform
+{
+  Matrix4x4f mat (1, 0, 0, delta.X (),
+                  0, 1, 0, delta.Y (),
+                  0, 0, 1, delta.Z (),
+                  0, 0, 0,          1);
+  Matrix4x4f inv (1, 0, 0, -delta.X (),
+                  0, 1, 0, -delta.Y (),
+                  0, 0, 1, -delta.Z (),
+                  0, 0, 0,           1);
+  return Transform (mat, inv);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto RotateX (Float degree) -> Transform
+{
+  const auto radian = DegreeToRadian (degree);
+  const auto sin_t  = std::sin (radian);
+  const auto cos_t  = std::cos (radian);
+  const Matrix4x4f m (1.0,   0.0,    0.0, 0.0,
+                      0.0, cos_t, -sin_t, 0.0,
+                      0.0, sin_t,  cos_t, 0.0,
+                      0.0,   0.0,    0.0, 1.0);
+  return Transform (m, Transpose (m));
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto RotateY (Float degree) -> Transform
+{
+  const auto radian = DegreeToRadian (degree);
+  const auto sin_t  = std::sin (radian);
+  const auto cos_t  = std::cos (radian);
+  const Matrix4x4f m ( cos_t, 0.0, sin_t, 0.0,
+                         0.0, 1.0,   0.0, 0.0,
+                      -sin_t, 0.0, cos_t, 0.0,
+                         0.0, 0.0,   0.0, 1.0);
+  return Transform (m, Transpose (m));
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto RotateZ (Float degree) -> Transform
+{
+  const auto radian = DegreeToRadian (degree);
+  const auto sin_t  = std::sin (radian);
+  const auto cos_t  = std::cos (radian);
+  const Matrix4x4f m (cos_t, -sin_t, 0.0, 0.0,
+                      sin_t,  cos_t, 0.0, 0.0,
+                        0.0,    0.0, 1.0, 0.0,
+                        0.0,    0.0, 0.0, 1.0);
+  return Transform (m, Transpose (m));
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+}  // namespace niepce
+/*
+// ---------------------------------------------------------------------------
+*/

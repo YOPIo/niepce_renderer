@@ -1,24 +1,52 @@
+/*!
+ * @file light.cc
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 
+ * @details 
+ */
 #include "light.h"
-
+#include "infinite_light.h"
+#include "area_light.h"
+#include "../core/attributes.h"
+/*
+// ---------------------------------------------------------------------------
+*/
 namespace niepce
 {
-
-Light::Light (LightType  type) :
-    type_        (type),
-    num_samples_ (16) // Magic number, こんなもんでいいんじゃない??
+/*
+// ---------------------------------------------------------------------------
+*/
+Light::Light ()
 {}
-
-Light::~Light ()
-{}
-
-auto Light::Type () const -> LightType
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateLight
+(
+ const LightType&  type,
+ const Attributes& attributes
+)
+  -> std::shared_ptr <Light>
 {
-  return type_;
-}
+  if (type == niepce::LightType::kInfiniteLight)
+  {
+    std::cerr << "create infinite light" << std::endl;
+    return CreateInfiniteLight (attributes);
+  }
+  if (type == niepce::LightType::kAreaLight)
+  {
+    std::cerr << "create area light" << std::endl;
+    return CreateAreaLight (attributes);
+  }
 
-auto Light::NumSamples () const -> uint32_t
-{
-  return num_samples_;
+  std::cerr << "Could not create light." << std::endl;
+  return nullptr;
 }
-
-}  // namespace niepce
+/*
+// ---------------------------------------------------------------------------
+*/
+} // namespace niepce
+/*
+// ---------------------------------------------------------------------------
+*/

@@ -1,4 +1,12 @@
+/*!
+ * @file random_sampler.cc
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 
+ * @details 
+ */
 #include "random_sampler.h"
+#include "../core/point2f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -7,31 +15,43 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-RandomSampler::RandomSampler () :
-    rng_ ()
+RandomSampler::RandomSampler (int seed) :
+  rng_ (seed)
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-auto RandomSampler::Get1D () -> Sample1f
+auto RandomSampler::Clone (int seed) const noexcept -> std::unique_ptr <RandomSampler>
+{
+  std::unique_ptr <RandomSampler> res (new RandomSampler (*this));
+  res->SetSeed (seed);
+  return std::move (res);
+}
+/*
+// ---------------------------------------------------------------------------
+*/
+auto RandomSampler::SampleFloat () noexcept -> Float
 {
   return rng_.Next01 ();
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto RandomSampler::Get2D () -> Sample2f
+auto RandomSampler::SamplePoint2f () noexcept -> Point2f
 {
-  return Sample2f (rng_.Next01 (), rng_.Next01 ());
+  return Point2f (rng_.Next01 (), rng_.Next01 ());
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreateRandomSampler () -> SamplerPtr
+auto RandomSampler::SetSeed (int seed) noexcept -> void
 {
-  return std::make_shared <RandomSampler> ();
+  rng_.SetSeed (seed);
 }
 /*
 // ---------------------------------------------------------------------------
 */
-}  // namespace niepce
+} // namespace niepce
+/*
+// ---------------------------------------------------------------------------
+*/

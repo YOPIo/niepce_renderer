@@ -1,6 +1,17 @@
+/*!
+ * @file matte.cc
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 
+ * @details 
+ */
 #include "matte.h"
-#include "../bxdf/lambert.h"
-#include "../bxdf/oren_layar.h"
+#include "../core/material_attributes.h"
+#include "../core/attributes.h"
+#include "../core/intersection.h"
+#include "../core/memory.h"
+#include "../bsdf/lambert.h"
+#include "../bsdf/oren_nayar.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -9,63 +20,44 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-Matte::Matte (const Vector3f& reflectance)
-{
-  const TexturePtr<Spectrum> texture
-      = CreateConstantTexture (Vector4f (reflectance.r,
-                                         reflectance.g,
-                                         reflectance.b,
-                                         1.0));
-  reflectance_ = texture;
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-Matte::Matte (const Vector4f& reflectance) :
-    reflectance_ (CreateConstantTexture (reflectance))
-{}
-/*
-// ---------------------------------------------------------------------------
-*/
-Matte::Matte (const std::shared_ptr<Texture<Spectrum>>& reflectance) :
+Matte::Matte
+(
+ const std::shared_ptr <Texture <Spectrum>>& emission,
+ const std::shared_ptr <Texture <Spectrum>>& reflectance
+) :
+  Material     (emission),
   reflectance_ (reflectance)
 {}
 /*
 // ---------------------------------------------------------------------------
 */
-auto Matte::AllocateBsdf
+auto Matte::AllocateBsdfs
 (
- const SurfaceInteraction& si,
-       ArenaAllocator*     mem
+ const Intersection& intersection,
+       MemoryArena*  memory
 )
-const -> Bsdf*
+const -> Bsdf* const
 {
-  // Generate BSDF
-  Bsdf* bsdf = mem->Allocate <Bsdf> (si);
+  Bsdf* const bsdf = memory->Allocate <Bsdf> (intersection);
 
-  // Create lambertian BRDF
-  Spectrum reflectance (reflectance_->Evaluate (si));
-  // Bxdf* lambert    = mem->Allocate <Lambert> (reflectance);
-  // bsdf->Push (lambert);
-  Bxdf* oren_layar = mem->Allocate <OrenLayar> (reflectance, 0.3);
-  bsdf->Push (oren_layar);
-
+  const auto reflectance = reflectance_->Evaluate (intersection);
+  // bsdf->AddBxdf (memory->Allocate <Lambert> (reflectance));
+  bsdf->AddBxdf (memory->Allocate <OrenNayar> (reflectance, 100));
 
   return bsdf;
 }
 /*
 // ---------------------------------------------------------------------------
 */
-auto CreateMatte (const TexturePtr <Spectrum>& reflectance) -> MaterialPtr
+auto CreateMatteMaterial (const MaterialAttributes& attributes)
+  -> std::shared_ptr <Material>
 {
-  return std::make_shared <Matte> (reflectance);
-}
-/*
-// ---------------------------------------------------------------------------
-*/
-auto CreateMatte (const Vector3f& reflectance) -> MaterialPtr
-{
-  return std::make_shared <Matte> (reflectance);
+  const auto emission
+    = attributes.FindSpectrumTextureOrNullPtr (MaterialAttributes::Type::kEmission);
+  const auto reflectance
+    = attributes.FindSpectrumTextureOrNullPtr (MaterialAttributes::Type::kReflectance);
+
+  return std::make_shared <Matte> (emission, reflectance);
 }
 /*
 // ---------------------------------------------------------------------------

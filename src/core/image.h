@@ -1,83 +1,119 @@
+/*!
+ * @file image.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 2018/4/20
+ * @details 
+ */
 #ifndef _IMAGE_H_
 #define _IMAGE_H_
 /*
 // ---------------------------------------------------------------------------
 */
 #include "niepce.h"
-#include "geometry.h"
-#include "pixel.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-// Class forward declaration
-// ---------------------------------------------------------------------------
-*/
-template <typename T> class Image3;
-/*
-// ---------------------------------------------------------------------------
-// Functions for Image3
-// ---------------------------------------------------------------------------
-*/
+//! ----------------------------------------------------------------------------
+//! @class Image
+//! @brief The fundamental core class that representing a image.
+//! @details
+//! ----------------------------------------------------------------------------
 template <typename T>
-auto CreateImage3  (size_t width, size_t height) -> ImagePtr <T>;
-template <typename T>
-auto LoadImage     (const char* filename) -> ImagePtr <T>;
-template <typename T>
-auto LoadHdrxImage (const char* filename) -> ImagePtr <T>;
-
-// delete ?
-template <typename T>
-auto WriteImage    (const char* filename, const ImagePtr <T>& img) -> void;
-
-template <typename T>
-auto SaveAs (const char* filename, const Image3 <T>& img) -> void;
-/*
-// ---------------------------------------------------------------------------
-*/
-template <typename T>
-class Image3
+class Image
 {
-  /* Image3 constructors */
 public:
-  Image3 () = default;
-  Image3 (size_t width, size_t height);
+  //! The default class constructor.
+  Image () = delete;
 
+  //! The Constructor allocate memory.
+  Image (unsigned int width, unsigned int height);
 
-  /* Image3 destructor */
+  //! The copy constructor of the class.
+  Image (const Image& img) = default;
+
+  //! The move constructor of the class.
+  Image (Image&& img) = default;
+
+  //! The default class destructor.
+  virtual ~Image ();
+
+  //! The copy assignment operator of the class.
+  auto operator = (const Image& img) -> Image& = default;
+
+  //! The move assignment operator of the class.
+  auto operator = (Image&& img) -> Image& = default;
+
+  /*!
+   * @fn Pixel operator ()
+   * @brief Member access operator. (read only)
+   * @details
+   * @return Pixel
+   * @exception std::out_of_range
+   */
+  virtual auto operator () (unsigned int x, unsigned int y) const noexcept -> T;
+
 public:
-  virtual ~Image3 () = default;
+  /*!
+   * @fn Specturm At (unsigned)
+   * @brief 
+   * @param[in] x
+   *    x
+   * @param[in] y
+   *    y
+   * @return 
+   * @exception none
+   * @details
+   */
+  virtual auto At (unsigned int x, unsigned int y) const -> T;
+
+  /*!
+   * @fn  SetValueAt (unsigned int, unsigned int, const T&)
+   * @brief 
+   * @param[in] x
+   *    
+   * @param[in] y
+   *    
+   * @param[in] value
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  virtual auto SetValueAt
+  (
+   unsigned int x,
+   unsigned int y,
+   const T& value
+  )
+  const -> void;
 
 
-  /* Image3 public operators*/
-public:
-  Image3 (const Image3&  img) = default;
-  Image3 (      Image3&& img) = default;
+  /*!
+   * @fn unsigned Height ()
+   * @brief Return the height of image size.
+   * @return The height of image as unsigned integer.
+   * @exception none
+   * @details
+   */
+  auto Height () const noexcept -> int;
 
-  auto operator = (const Image3&  img) -> Image3& = default;
-  auto operator = (      Image3&& img) -> Image3& = default;
+  /*!
+   * @fn unsigned Width ()
+   * @brief Return the width of image size.
+   * @return The width of image as unsigned integer.
+   * @exception none
+   * @details
+   */
+  auto Width () const noexcept -> int;
 
-  auto operator () (size_t x, size_t y)       -> Pixel <T>&;
-  auto operator () (size_t x, size_t y) const -> Pixel <T>;
-
-
-  /* Image3 public methods */
-public:
-  auto At (size_t x, size_t y)       -> Pixel <T>&;
-  auto At (size_t x, size_t y) const -> Pixel <T>;
-
-  auto GetWidth  () const -> uint32_t;
-  auto GetHeight () const -> uint32_t;
-
-
-  /* Image3 private data */
-private:
-  std::unique_ptr <Pixel <T> []> data_;
-  Point2u32i resolution_;
-}; // class Image3
+protected:
+  int width_;
+  int height_;
+  std::shared_ptr <T> data_;
+}; // class Image
 /*
 // ---------------------------------------------------------------------------
 */

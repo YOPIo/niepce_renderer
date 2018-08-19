@@ -1,98 +1,111 @@
+/*!
+ * @file sphere.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 2018/5/5
+ * @details 
+ */
 #ifndef _SPHERE_H_
 #define _SPHERE_H_
 /*
 // ---------------------------------------------------------------------------
 */
 #include "shape.h"
+#include "../core/transform.h"
+#include "../core/niepce.h"
+#include "../core/point3f.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-*/
-class Sphere : public Shape
+//! ----------------------------------------------------------------------------
+//! @class Sphere
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
+class Sphere final : public Shape
 {
-  /* Sphere public constructors */
- public:
-  Sphere () = delete;
-  Sphere
-  (
-   const Transform& t,
-         Float      radius
-  )
-;
-  Sphere
-  (
-   const Point3f& p,
-         Float    radius
-  );
-
-
-  /* Sphere public destructor */
 public:
+  //! The default class constructor.
+  Sphere () = delete;
+
+  //! The constructor takes radius and position.
+  Sphere (const Transform &world_to_local, Float radius);
+
+  //! The copy constructor of the class.
+  Sphere (const Sphere& sphere) = default;
+
+  //! The move constructor of the class.
+  Sphere (Sphere&& sphere) = default;
+
+  //! The default class destructor.
   virtual ~Sphere () = default;
 
+  //! The copy assignment operator of the class.
+  auto operator = (const Sphere& sphere) -> Sphere& = default;
 
-  /* Sphere public operators */
-  Sphere (const Sphere&  sphere) = default;
-  Sphere (      Sphere&& sphere) = default;
+  //! The move assignment operator of the class.
+  auto operator = (Sphere&& sphere) -> Sphere& = default;
 
-  auto operator = (const Sphere&  sphere) -> Sphere& = default;
-  auto operator = (      Sphere&& sphere) -> Sphere& = default;
-
-
-  /* Sphere public methods */
 public:
-  // Reture Surface Area
-  auto SurfaceArea () const -> Float override final;
-
-  // Get a bounding box at the local coordinate system
-  auto LocalBounds () const -> Bounds3f override final;
-
-  // Get a bounding box at the world coordinate system
-  auto WorldBounds () const -> Bounds3f override final;
-
-  // Check intersection with shape
+  /*!
+   * @fn void Intersect (const Ray& ray, Intersection* intersection)
+   * @brief 
+   * @param[in] ray 
+   * @param[out] intersection Ray intersected with a shape or not.
+   * @return void
+   * @exception none
+   * @details
+   */
   auto IsIntersect
   (
-      const Ray&          ray,
-      SurfaceInteraction* surface
+   const Ray& ray, // outgoing
+   Intersection* intersection
   )
-  const -> bool override;
+  const noexcept -> bool override;
 
-  // Sample a point on the surface of the shape
-  auto Sample (const Point2f& rnd) const -> Interaction override final;
+  /*!
+   * @fn Bounds3f Bounds () const noexcept
+   * @brief Return bound of this shape.
+   * @return 
+   * @exception none
+   * @details 
+  */
+  auto Bounds () const noexcept -> Bounds3f override final;
 
-  // Return the PDF
-  auto Pdf () const -> Float override final;
+  /*!
+   * @fn Point3f Sample ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Sample (const Point2f& sample) const noexcept -> Point3f override final;
 
-  auto ToString () const -> std::string override final;
+  /*!
+   * @fn Return SurfaceArea ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto SurfaceArea () const noexcept -> Float override final;
 
-  auto WorldCenter () const -> Point3f;
-  auto LocalCenter () const -> Point3f;
-  auto Radius      () const -> Float;
-
-
-  /* Sphere private data */
 private:
-  const Point3f center_;
-  const Float   radius_;
-};
+  Float radius_;
+}; // class Sphere
 /*
 // ---------------------------------------------------------------------------
-*/
-auto operator << (std::ostream& os, const Sphere& sphere) -> std::ostream&;
-/*
+// Helper function for sphere.
 // ---------------------------------------------------------------------------
 */
 auto CreateSphere
 (
- Float radius,
- const Point3f& position
+ const Transform &transform,
+ Float radius
 )
--> std::shared_ptr< Sphere>;
+-> std::shared_ptr <Shape>;
 /*
 // ---------------------------------------------------------------------------
 */

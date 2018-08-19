@@ -1,62 +1,106 @@
+/*!
+ * @file light.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 
+ * @details 
+ */
 #ifndef _LIGHT_H_
 #define _LIGHT_H_
-
+/*
+// ---------------------------------------------------------------------------
+*/
 #include "../core/niepce.h"
-#include "../core/geometry.h"
-//#include "../core/interaction.h"
-//#include "../bxdf/bxdf_record.h"
-
+#include "../core/vector3f.h"
+/*
+// ---------------------------------------------------------------------------
+*/
 namespace niepce
 {
-
-enum LightType
+/*
+// ---------------------------------------------------------------------------
+*/
+enum class LightType : int
 {
-  kPoint      = 1 << 0,
-  kDirection  = 1 << 1,
-  kArea       = 1 << 2,
-  kImageBased = 1 << 3
+  kPointLight,
+  kAreaLight,
+  kInfiniteLight,
+  kUnknow
 };
-
-// TODO: Add transform
+//! ----------------------------------------------------------------------------
+//! @class Light
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
 class Light
 {
- public:
-  /* Light constructors */
-  Light () = delete;
-  Light (LightType  type);
-  virtual ~Light ();
+public:
+  //! The default class constructor.
+  Light ();
 
-  Light (const Light&  light) = default;
-  Light (      Light&& light) = default;
+  //! The copy constructor of the class.
+  Light (const Light& light) = default;
 
-  /* Light operators*/
-  auto operator = (const Light&  light) -> Light& = default;
-  auto operator = (      Light&& light) -> Light& = default;
+  //! The move constructor of the class.
+  Light (Light&& light) = default;
 
+  //! The default class destructor.
+  virtual ~Light () = default;
 
-  /* Light public method */
- public:
-  auto Type       () const -> LightType;
-  auto NumSamples () const -> uint32_t;
+  //! The copy assignment operator of the class.
+  auto operator = (const Light& light) -> Light& = default;
 
+  //! The move assignment operator of the class.
+  auto operator = (Light&& light) -> Light& = default;
 
-  /* Light public interface */
- public:
-  // Return emission of this light
-  virtual auto Emission
-  (
-   const Ray& ray
-  )
-  const -> Spectrum = 0;
+public:
+  /*!
+   * @fn Return Function (Param)
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  virtual auto Emission () const noexcept -> Spectrum = 0;
 
+  /*!
+   * @fn Point3f SamplePosition (const Point2f&)
+   * @brief 
+   * @param[in] sample
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  virtual auto SamplePosition (const Point2f& sample)
+    const noexcept -> Point3f = 0;
 
-  /* Light data interface */
- protected:
-  const LightType type_;
-  const uint32_t  num_samples_;
+  /*!
+   * @fn Float Pdf ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details 
+   */
+  virtual auto Pdf () const noexcept -> Float = 0;
+
+protected:
 
 }; // class Light
-
-}  // namespace niepce
-
+/*
+// ---------------------------------------------------------------------------
+*/
+auto CreateLight
+(
+ const LightType&  type,
+ const Attributes& attributes
+)
+  -> std::shared_ptr <Light>;
+/*
+// ---------------------------------------------------------------------------
+*/
+} // namespace niepce
+/*
+// ---------------------------------------------------------------------------
+*/
 #endif // _LIGHT_H_

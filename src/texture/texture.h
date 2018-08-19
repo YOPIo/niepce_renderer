@@ -1,10 +1,16 @@
+/*!
+ * @file texture.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 
+ * @details 
+ */
 #ifndef _TEXTURE_H_
 #define _TEXTURE_H_
 /*
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
-#include "../core/object.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -13,32 +19,70 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-template <typename ValueType>
-class Texture : public Object
+enum class TextureType : uint8_t
 {
-  /* Texture public constructors */
+ kValueFloat,
+ kValueSpectrum,
+ kImageFloat,
+ kImageSpectrum,
+ kUnknown
+};
+//! ----------------------------------------------------------------------------
+//! @class Texture
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
+template <typename T>
+class Texture
+{
 public:
+  //! The default class constructor.
   Texture () = default;
 
+  //! The copy constructor of the class.
+  Texture (const Texture& texture) = default;
 
-  /* Texture public destructor */
+  //! The move constructor of the class.
+  Texture (Texture&& texture) = default;
+
+  //! The default class destructor.
   virtual ~Texture () = default;
 
-  Texture (const Texture&  texture) = default;
-  Texture (      Texture&& texture) = default;
+  //! The copy assignment operator of the class.
+  auto operator = (const Texture& texture) -> Texture& = default;
 
+  //! The move assignment operator of the class.
+  auto operator = (Texture&& texture) -> Texture& = default;
 
-  /* Texture public operators */
 public:
-  auto operator = (const Texture&  texture) -> Texture& = default;
-  auto operator = (      Texture&& texture) -> Texture& = default;
+  /*!
+   * @fn T Evaluate (const Intersection &)
+   * @brief 
+   * @param[in] isect
+   * @return 
+   * @exception none
+   * @details 
+   */
+  virtual auto Evaluate (const Intersection &isect) const noexcept -> T = 0;
 
-
-  /* Texture public interface */
-public:
-  virtual auto Evaluate (const SurfaceInteraction& si) const -> ValueType = 0;
-  virtual auto ToString () const -> std::string override = 0;
+  /*!
+   * @fn bool IsBlack ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  virtual auto IsBlack () const noexcept -> bool = 0;
 }; // class Texture
+/*
+// ---------------------------------------------------------------------------
+*/
+template <typename T>
+auto CreateTexture
+(
+ const Attributes &attrs
+)
+-> std::shared_ptr <Texture <T>>;
 /*
 // ---------------------------------------------------------------------------
 */

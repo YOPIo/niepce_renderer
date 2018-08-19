@@ -1,0 +1,5 @@
+/* #undef BUILD_MAYA_PLUGIN */
+#define BUILD_CUI_RENDERER
+#define NIEPCE_USE_SIMD
+#define NIEPCE_STATIC_BUILD
+#define DEBUG

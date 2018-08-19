@@ -1,3 +1,10 @@
+/*!
+ * @file mirror.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 
+ * @details 
+ */
 #ifndef _MIRROR_H_
 #define _MIRROR_H_
 /*
@@ -9,51 +16,69 @@
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-*/
+//! ----------------------------------------------------------------------------
+//! @class Mirror
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
 class Mirror : public Material
 {
-  /* Mirror constructors */
 public:
+  //! The default class constructor.
   Mirror () = delete;
-  Mirror (const std::shared_ptr<Texture<Spectrum>>& reflectance);
 
+  //! The constructor takes reflectance.
+  Mirror (const std::shared_ptr <Texture <Spectrum>> &reflectance);
 
-  /* Mirror destructor */
-public:
+  //! The copy constructor of the class.
+  Mirror (const Mirror& mirror) = default;
+
+  //! The move constructor of the class.
+  Mirror (Mirror&& mirror) = default;
+
+  //! The default class destructor.
   virtual ~Mirror () = default;
 
+  //! The copy assignment operator of the class.
+  auto operator = (const Mirror& mirror) -> Mirror& = default;
 
-  /* Mirror public operators*/
+  //! The move assignment operator of the class.
+  auto operator = (Mirror&& mirror) -> Mirror& = default;
+
 public:
-  Mirror (const Mirror&  mirror) = default;
-  Mirror (      Mirror&& mirror) = default;
-
-  auto operator = (const Mirror&  mirror) -> Mirror& = default;
-  auto operator = (      Mirror&& mirror) -> Mirror& = default;
-
-
-  /* Mirror public methods */
-public:
-  auto AllocateBsdf
+  /*!
+   * @fn Bsdf* AllocateBsdf (const Intersection&, MemoryArena*)
+   * @brief Allocate the BSDF
+   * @param[in] intersection
+   *    
+   * @param[out] memory
+   *    
+   * @return 
+   * @exception none
+   * @details
+   */
+  virtual auto AllocateBsdfs
   (
-   const SurfaceInteraction& si,
-         ArenaAllocator*     mem
+   const Intersection& intersection,
+         MemoryArena*  memory
   )
-  const -> Bsdf* override final;
+    const -> Bsdf* const override final;
 
-
-  /* Mirror private data */
 private:
-  std::shared_ptr<Texture<Spectrum>> reflectance_;
+  std::shared_ptr <Texture <Spectrum>> reflectance_;
 
 }; // class Mirror
 /*
 // ---------------------------------------------------------------------------
 */
-}  // namespace niepce
+auto CreateMirrorMaterial (const MaterialAttributes &attrs)
+  -> std::shared_ptr <Material>;
+/*
+// ---------------------------------------------------------------------------
+*/
+} // namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
 #endif // _MIRROR_H_
+

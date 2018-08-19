@@ -1,153 +1,155 @@
+/*!
+ * @file transform.h
+ * @brief 
+ * @author Masashi Yoshdia
+ * @date 
+ * @details 
+ */
 #ifndef _TRANSFORM_H_
 #define _TRANSFORM_H_
 /*
 // ---------------------------------------------------------------------------
 */
-#include "../core/niepce.h"
-#include "../core/geometry.h"
-#include "../core/matrix4x4.h"
+#include "niepce.h"
+#include "matrix4x4f.h"
 /*
 // ---------------------------------------------------------------------------
 */
 namespace niepce
 {
-/*
-// ---------------------------------------------------------------------------
-// Forward decralations
-// ---------------------------------------------------------------------------
-*/
-class Transform;
-class Transformable;
-/*
-// ---------------------------------------------------------------------------
-*/
+//! ----------------------------------------------------------------------------
+//! @class Transform
+//! @brief
+//! @details
+//! ----------------------------------------------------------------------------
 class Transform
 {
-  /* Transform public constructors */
- public:
-  Transform ();
+public:
+  //! The default class constructor.
+  Transform () = default;
 
+  //! The constructor takes matrix.
+  Transform (const Matrix4x4f& mat);
+
+  //! The constructor takes matrix components.
   Transform (Float m00, Float m01, Float m02, Float m03,
              Float m10, Float m11, Float m12, Float m13,
              Float m20, Float m21, Float m22, Float m23,
              Float m30, Float m31, Float m32, Float m33);
 
-  Transform (const Matrix4x4& m);
+  Transform (const Matrix4x4f& mat, const Matrix4x4f& inv);
 
+  //! The copy constructor of the class.
+  Transform (const Transform& t) = default;
 
-  /* Transform private destructor */
+  //! The move constructor of the class.
+  Transform (Transform&& t) = default;
+
+  //! The default class destructor.
   virtual ~Transform () = default;
 
+  //! The copy assignment operator of the class.
+  auto operator = (const Transform& t) -> Transform& = default;
 
-  /* Transform public operators */
- public:
-  Transform (const Transform&  t) = default;
-  Transform (      Transform&& t) = default;
+  //! The move assignment operator of the class.
+  auto operator = (Transform&& t) -> Transform& = default;
 
-  auto operator = (const Transform&  t) -> Transform& = default;
-  auto operator = (      Transform&& t) -> Transform& = default;
+  /*!
+   * @fn operator (unsigned int, unsigned int)
+   * @brief 
+   * @details 
+   * @return 
+   * @exception none
+   */
+  auto operator () (unsigned int x, unsigned int y) const noexcept -> Float;
 
-  auto operator == (const Transform& t) const -> bool;
-  auto operator != (const Transform& t) const -> bool;
-
-  auto operator () (size_t row, size_t col) const noexcept -> Float;
-  auto operator () (size_t row, size_t col)       noexcept -> Float&;
-
-
-  /* Transform public methods */
- public:
-  auto At (size_t row, size_t col) const -> Float;
-  auto At (size_t row, size_t col)       -> Float&;
-
-  auto GetMatrix    () const -> Matrix4x4;
-  auto GetInvMatrix () const -> Matrix4x4;
-
-  auto Row     (size_t idx) const -> std::array<Float, 4>;
-  auto SetRow  (size_t idx, std::array<Float, 4>& row) -> void;
-  auto SwapRow (size_t row0, size_t row1) -> void;
-
-  auto Column     (size_t idx) const -> std::array<Float, 4>;
-  auto SetColumn  (size_t idx, std::array<Float, 4>& col) -> void;
-  auto SwapColumn (size_t col0, size_t col1) -> void;
-
-  auto IsIdentity () const -> bool;
-  auto ToIdentity ()       -> void;
-
-
-  /* Transform public static methods */
 public:
-  static auto Identity () -> Transform;
+  /*!
+   * @fn Float At (unsigned)
+   * @brief 
+   * @param[in] x
+   *    unsigned integer.
+   * @param[in] y
+   *    unsigned integer.
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto At (unsigned int x, unsigned int y) const noexcept -> Float;
 
+  /*!
+   * @fn Matrix4x4f Matrix () const noexcept
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto Matrix () const noexcept -> Matrix4x4f;
 
-  /* Transform private data */
- private:
-  Matrix4x4 matrix_;
-  Matrix4x4 inv_matrix_;
-};
+  /*!
+   * @fn Matrix4x4f InverseMatrix () const noexcept
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto InverseMatrix () const noexcept -> Matrix4x4f;
+
+  /*!
+   * @fn std ToString ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  auto ToString () const noexcept -> std::string;
+
+private:
+  Matrix4x4f mat_;
+  Matrix4x4f inv_;
+}; // class Transform
+/*
+// ---------------------------------------------------------------------------
+// Transform operators
+// ---------------------------------------------------------------------------
+*/
+auto operator == (const Transform& lhs, const Transform& rhs) -> bool;
+auto operator != (const Transform& lhs, const Transform& rhs) -> bool;
 /*
 // ---------------------------------------------------------------------------
 */
-class Transformable
-{
-  /* Transformable constructors */
-public:
-  Transformable ();
-
-  Transformable (const Transform& t);
-
-
-  /* Transformable destructor */
-public:
-  virtual ~Transformable () = default;
-
-
-  /* Transformable public operators*/
-public:
-  Transformable (const Transformable&  t) = default;
-  Transformable (      Transformable&& t) = default;
-
-  auto operator = (const Transformable&  t) -> Transformable& = default;
-  auto operator = (      Transformable&& t) -> Transformable& = default;
-
-
-  /* Transformable public methods */
-public:
-  template <class T>
-  auto WorldToLocal (const T& t) const -> T;
-
-  template <class T>
-  auto LocalToWorld (const T& t) const -> T;
-
-
-  /* Transformable protected data */
-protected:
-  Transform transform_;
-
-}; // class Transformable
+auto operator * (const Transform& t, Float s) -> Transform;
+auto operator * (Float s, const Transform& t) -> Transform;
 /*
 // ---------------------------------------------------------------------------
-// Transform global operators
-// ---------------------------------------------------------------------------
 */
-auto operator * (const Transform& t, const Point3f& p)     -> Point3f;
-auto operator * (const Transform& t, const Vector3f& v)    -> Vector3f;
-auto operator * (const Transform& t, const Normal3f& n)    -> Normal3f;
-auto operator * (const Transform& t, const Ray& ray)       -> Ray;
-auto operator * (const Transform& t, const Bounds3f& bbox) -> Bounds3f;
+auto operator * (const Transform& t1, const Transform& t2) -> Transform;
+auto operator * (const Transform& t,  const Point3f&  p) -> Point3f;
+auto operator * (const Transform& t,  const Vector3f& v) -> Vector3f;
+auto operator * (const Transform& t,  const Ray&      r) -> Ray;
 /*
 // ---------------------------------------------------------------------------
-// Global functions
+// Transform functions
 // ---------------------------------------------------------------------------
 */
-auto Translate (const Vector3f& delta)             -> Transform;
-auto Scale     (Float x, Float y, Float z)         -> Transform;
-auto RotateX   (Float theta)                       -> Transform;
-auto RotateY   (Float theta)                       -> Transform;
-auto RotateZ   (Float theta)                       -> Transform;
-auto Rotate    (Float theta, const Vector3f& axis) -> Transform;
-auto LookAt    (const Point3f&  position,
-                const Point3f&  look,
-                const Vector3f& up)                -> Transform;
+auto Transpose (const Transform& t) -> Transform;
+auto Inverse   (const Transform& t) -> Transform;
+auto LookAt
+(
+ const Point3f&  position,
+ const Point3f&  look,
+ const Vector3f& up
+)
+  -> Transform;
+auto Perspective (Float fov, Float near, Float far) -> Transform;
+/*
+// ---------------------------------------------------------------------------
+*/
+auto Scale (Float x, Float y, Float z) -> Transform;
+auto Translate (const Vector3f& delta) -> Transform;
+auto RotateX (Float theta) -> Transform;
+auto RotateY (Float theta) -> Transform;
+auto RotateZ (Float theta) -> Transform;
 /*
 // ---------------------------------------------------------------------------
 */
@@ -155,4 +157,5 @@ auto LookAt    (const Point3f&  position,
 /*
 // ---------------------------------------------------------------------------
 */
-#endif //_TRANSFORM_H_
+#endif // _TRANSFORM_H_
+

@@ -1,12 +1,20 @@
+/*!
+ * @file shape.h
+ * @brief 
+ * @author Masashi Yoshida
+ * @date 2018/5/5
+ * @details 
+ */
 #ifndef _SHAPE_H_
 #define _SHAPE_H_
 /*
 // ---------------------------------------------------------------------------
 */
 #include "../core/niepce.h"
-#include "../core/geometry.h"
-#include "../core/interaction.h"
 #include "../core/transform.h"
+#include "../core/ray.h"
+#include "../core/intersection.h"
+#include "../core/bounds3f.h"
 /*
 // ---------------------------------------------------------------------------
 */
@@ -15,59 +23,94 @@ namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
-class Shape : public Transformable
+enum class ShapeType : uint8_t
 {
-  /* Shape public constructors */
- public:
-  Shape () = delete;
-  Shape (const Transform& t);
+ kTriangleMesh,
+ kSphere,
+ kUnknown
+};
+//! ----------------------------------------------------------------------------
+//! @class Shape
+//! @brief The fundamental class, all shape class should inherit this class.
+//! @details
+//! ----------------------------------------------------------------------------
+class Shape
+{
+public:
+  //! The default class constructor.
+  Shape ();
 
+  //! The constructor takes transform matrix.
+  Shape (const Transform &world_to_local);
 
-  /* Shape public destructor */
- public:
+  //! The copy constructor of the class.
+  Shape (const Shape& shape) = default;
+
+  //! The move constructor of the class.
+  Shape (Shape&& shape) = default;
+
+  //! The default class destructor.
   virtual ~Shape () = default;
 
-
-  /* Shape public operators  */
- public:
-  Shape (const Shape& shape) = default;
-  Shape (Shape&&      shape) = default;
-
+  //! The copy assignment operator of the class.
   auto operator = (const Shape& shape) -> Shape& = default;
-  auto operator = (Shape&&      shape) -> Shape& = default;
 
+  //! The move assignment operator of the class.
+  auto operator = (Shape&& shape) -> Shape& = default;
 
-  /* Shape public interface */
- public:
-  // Reture Surface Area
-  virtual auto SurfaceArea () const -> Float = 0;
-
-  // Get a bounding box at the local coordinate system
-  virtual auto LocalBounds () const -> Bounds3f = 0;
-
-  // Get a bounding box at the world coordinate system
-  virtual auto WorldBounds () const -> Bounds3f = 0;
-
-  // Check intersection with shape
+public:
+  /*!
+   * @fn void Intersect (const Ray& ray, Intersection* intersection)
+   * @brief 
+   * @param[in] ray 
+   * @param[out] intersection Ray intersected with a shape or not.
+   * @return void
+   * @exception none
+   * @details
+   */
   virtual auto IsIntersect
   (
-      const Ray&          ray,
-      SurfaceInteraction* surface
+   const Ray& ray,
+   Intersection* intersection
   )
-  const -> bool = 0;
+  const noexcept -> bool = 0;
 
-  // Sample a point on the surface of the shape
-  virtual auto Sample (const Sample2f& sample) const -> Interaction = 0;
+  /*!
+   * @fn Bounds3f Bounds () const noexcept
+   * @brief Return bound of this shape.
+   * @return 
+   * @exception none
+   * @details 
+  */
+  virtual auto Bounds () const noexcept -> Bounds3f = 0;
 
-  // Return the PDF
-  virtual auto Pdf () const -> Float = 0;
+  /*!
+   * @fn Point3f Sample ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  virtual auto Sample (const Point2f& sample) const noexcept -> Point3f = 0;
 
-  virtual auto ToString () const -> std::string = 0;
-};
+  /*!
+   * @fn Float SurfaceArea ()
+   * @brief 
+   * @return 
+   * @exception none
+   * @details
+   */
+  virtual auto SurfaceArea () const noexcept -> Float = 0;
+
+protected:
+  const Float kIntersectionEpsilon = 1e-9;
+  const Transform world_to_local_;
+  const Transform local_to_world_;
+}; // class Shape
 /*
 // ---------------------------------------------------------------------------
 */
-} // namespace niepce
+}  // namespace niepce
 /*
 // ---------------------------------------------------------------------------
 */
