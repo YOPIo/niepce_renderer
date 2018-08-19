@@ -70,7 +70,7 @@ auto Camera::UpdateFilmTile (const FilmTile &tile, int round) -> void
 auto Camera::Save () const noexcept -> void
 {
   Film f = film_;
-  ToneMapping (&f);
+  // ToneMapping (&f);
   // Denoising (&f);
   f.SaveAs ("output.png");
 }

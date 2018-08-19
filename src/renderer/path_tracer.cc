@@ -91,7 +91,7 @@ auto PathTracer::Render () -> void
 
   const auto &spp = settings_.GetItem (RenderSettings::Item::kNumSamples);
   int round = 0;
-  int next_seconds = 3;
+  int next_seconds = 15;
   for (int i = 0; i < futures.size (); ++i)
   {
     // Show progressing.
@@ -106,18 +106,16 @@ auto PathTracer::Render () -> void
     auto passed = Singleton <StopWatch>::Instance ().Split();
     if (passed.sec >= next_seconds)
     {
-      // camera_->SaveSequence (round, spp * (round - 1));
-      next_seconds += 3;
+      camera_->SaveSequence (round, spp * (round));
+      next_seconds += 15;
     }
 
     // Update film.
     camera_->UpdateFilmTile (tiles[i % tiles.size ()], round);
-    camera_->SaveSequence (round, spp * (round - 1));
   }
 
   // Final process, save result.
-  camera_->SaveSequence (round, spp * (round - 1));
-  // camera_->FinalProcess (round, spp * (round - 1));
+  camera_->FinalProcess (round, spp * (round));
 }
 /*
 // ---------------------------------------------------------------------------

@@ -74,6 +74,11 @@ Film::Film (Film &&film) :
 */
 auto Film::SaveAs (const char *filename) const noexcept -> void
 {
+  const auto gammna = [] (Float val) -> Float
+  {
+    return std::pow (val, 1.0 / 2.2);
+  };
+
   const auto width  = Width ();
   const auto height = Height ();
   auto img = new unsigned char [width * height * 4];
@@ -82,9 +87,9 @@ auto Film::SaveAs (const char *filename) const noexcept -> void
     for (int x = 0; x < width; ++x)
     {
       const auto index = y * width + x;
-      img[4 * index + 0] = FloatToInt (data_[index].X ());
-      img[4 * index + 1] = FloatToInt (data_[index].Y ());
-      img[4 * index + 2] = FloatToInt (data_[index].Z ());
+      img[4 * index + 0] = FloatToInt (gammna (data_[index].X ()));
+      img[4 * index + 1] = FloatToInt (gammna (data_[index].Y ()));
+      img[4 * index + 2] = FloatToInt (gammna (data_[index].Z ()));
       img[4 * index + 3] = 255;
     }
   }
